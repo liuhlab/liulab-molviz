@@ -43,7 +43,7 @@ jobs:
         with:
           locked: true
       # The same task the `build` job in `ci.yml` runs, so what is published was built the
-      # way every pull request already proved.
+      # way every pull request already proved. It builds the viewer first, through `build-js`.
       - run: pixi run build
       - uses: actions/upload-artifact@v7
         with:

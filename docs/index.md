@@ -16,17 +16,17 @@ same versions the tests ran on.
 
 ## Use it
 
+The viewer draws in the browser. It is a JavaScript file this package carries, and Python
+hands it over as text, ready to go inside a `<script>` element of a page:
+
 ```python
-from molviz import greet
+from molviz import viewer_script
 
-print(greet("lab"))
+script = viewer_script()
 ```
 
-The same thing from a shell:
-
-```bash
-pixi run molviz greet lab
-```
+The viewer's source is TypeScript, in `src/viewer/`. `pixi run build-js` builds it into the
+package. `pixi run check` and `pixi run build` run that step for you.
 
 The [API reference](api.md) has the full list, built from the docstrings in `src/`.
 
@@ -51,7 +51,8 @@ pixi run docs-build
 
 | Path | What it holds |
 | --- | --- |
-| `src/molviz/` | the package |
+| `src/molviz/` | the Python package |
+| `src/viewer/` | the viewer, in TypeScript |
 | `tests/` | the tests |
 | `docs/` | this site |
 | `scripts/check.sh` | the gate every commit has to pass |

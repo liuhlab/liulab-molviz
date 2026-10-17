@@ -7,6 +7,9 @@ site/
 .cache/
 dist/
 build/
+# The viewer: npm packages, and the file `build-js` writes into the Python package.
+node_modules/
+src/molviz/viewer.js
 __pycache__/
 *.egg-info/
 .coverage

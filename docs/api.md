@@ -24,7 +24,7 @@ Two things about that marker are easy to get backwards:
 
 ## molviz
 
-::: molviz.core.greet
+::: molviz.viewer.viewer_script
 
 ## The command line
 
