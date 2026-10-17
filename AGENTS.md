@@ -3,8 +3,38 @@
 > **Replace this file.** This is the template's generic copy: it says how *any* Liu Lab repo
 > works, not what *this* one does. Run `/init`, then delete this line.
 
-One paragraph: what this package is for, who uses it, and the one thing that is easy to get
-wrong. Distribution name **`liulab-molviz`**, import name **`molviz`**.
+A viewer that draws DNA sequences and plasmids in the browser, and later molecules and protein
+structures in 3D. Its users are [`liulab-mbio`](https://github.com/liuhlab/liulab-mbio) first,
+then `liulab-protein`, then the lab's planned database of reagents and sequences. The easy thing
+to get wrong: **the viewer draws only what it is given.** The caller finds cut sites, translates
+and places features, and ships data; the browser lays it out and draws it.
+Distribution name **`liulab-molviz`**, import name **`molviz`**.
+
+## Decided
+
+[The map that created this repo](https://github.com/liuhlab/liulab-mbio/issues/572) holds the
+reasons.
+
+- **Gels and plates.** Simulated gels and plate wells come last on the first roadmap.
+- **From first principles.** Build on existing JavaScript packages wherever they do the heavy
+  lifting. mbio's Python layout is not ported.
+- **The look.** SnapGene Viewer is the reference for how a map and a sequence view look.
+- **The core** is molviz's own framework-free SVG layout on small d3 modules, rbush and
+  opentype.js, and SeqViz is the look to copy
+  ([research note](https://github.com/liuhlab/liulab-mbio/issues/575)).
+- **Reader promises.** No label overlaps another, and a hidden label is counted. Bases are real
+  text. One file opens offline.
+- **Toolchain.** The JavaScript toolchain is added like the template's Python one: pixi installs
+  node, pnpm and biome; `pnpm-lock.yaml` locks npm packages; each check is a pixi task inside
+  `pixi run check`. `pyproject.toml` stays the one manifest, `package.json` holds npm
+  dependencies only, and tests sit in `tests/` beside `src/`. The lean is TypeScript, Vite,
+  Vitest and Biome. Setting it up is the roadmap's first item, which makes the final pick.
+- **Releases.** A release ships the Python package `liulab-molviz`. It carries the built viewer
+  file, writes pages with it inlined, and exports SVG, PNG and PDF with no browser. mbio and
+  liulab-protein pin it. The Python side holds no layout and no biology; the drawing is
+  JavaScript.
+- **The roadmap** is a `wayfinder:map` issue here. Its destination: a release mbio can pin that
+  draws everything mbio draws today.
 
 ## Restraint
 
