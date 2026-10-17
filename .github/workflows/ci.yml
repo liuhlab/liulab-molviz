@@ -39,7 +39,7 @@ permissions:
   contents: read
 
 jobs:
-  # ruff, pyright, vale, markdownlint and conformance, all at once, all reported.
+  # ruff, pyright, vale, markdownlint, conformance, Biome and tsc, all at once, all reported.
   check:
     runs-on: ubuntu-latest
     steps:
@@ -54,8 +54,8 @@ jobs:
           # Fail if `pixi.lock` no longer matches `pyproject.toml`, rather than silently
           # solving something else. This is what makes CI run the versions the laptop ran.
           locked: true
-      # `check-static`, not `check`: `check` is the static steps plus pytest, and pytest is
-      # the `test` job below, in the environment that owns it.
+      # `check-static`, not `check`: `check` is the static steps plus pytest and Vitest, and
+      # those are the `test` job below, in the environment that owns them.
       - run: pixi run check-static
 
   test:
@@ -69,6 +69,7 @@ jobs:
       # `-e test` is load-bearing: the `test` task exists in every environment, and without
       # the flag pixi would run it in `default`, which this job did not install.
       - run: pixi run -e test test
+      - run: pixi run -e test test-js
 
   build:
     runs-on: ubuntu-latest

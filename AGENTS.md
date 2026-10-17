@@ -1,8 +1,5 @@
 # liulab-molviz
 
-> **Replace this file.** This is the template's generic copy: it says how *any* Liu Lab repo
-> works, not what *this* one does. Run `/init`, then delete this line.
-
 A viewer that draws DNA sequences and plasmids in the browser, and later molecules and protein
 structures in 3D. Its users are [`liulab-mbio`](https://github.com/liuhlab/liulab-mbio) first,
 then `liulab-protein`, then the lab's planned database of reagents and sequences. The easy thing
@@ -24,11 +21,6 @@ reasons.
 - **Reader promises.** All nine in section 5 of
   [the drawings note](docs/research/molviz-mbio-drawings.md)
   hold. A crowded label is hidden and counted.
-- **Toolchain.** The JavaScript toolchain is added like the template's Python one: pixi installs
-  node, pnpm and biome; `pnpm-lock.yaml` locks npm packages; each check is a pixi task inside
-  `pixi run check`. `pyproject.toml` stays the one manifest, `package.json` holds npm
-  dependencies only, and tests sit in `tests/` beside `src/`. The lean is TypeScript, Vite,
-  Vitest and Biome. Setting it up is the roadmap's first item, which makes the final pick.
 - **Releases.** A release ships the Python package `liulab-molviz`. It carries the built viewer
   file, writes pages with it inlined, and exports SVG, PNG and PDF with no browser. mbio and
   liulab-protein pin it. The Python side holds no layout and no biology; the drawing is
@@ -55,19 +47,28 @@ misfires, is as much a contribution as adding one.
 
 ## Toolchain
 
-- **pixi** is the only supported toolchain. Never bare pip, uv, or conda. `pyproject.toml`
+- **pixi** is the only supported toolchain. Never bare pip, uv, conda or npm. `pyproject.toml`
   is the single source of truth for dependencies, environments, and tasks.
 - **Python 3.13**, declared by `requires-python` and the pixi pin. Write it anywhere else — a
   ruff target, a pyright version — and `conformance` holds that copy to the floor.
 - **hatchling + hatch-vcs**. The version comes from the newest git tag, CalVer
   `vYYYY.M.PATCH`. Never hand-edit a version.
+- **The viewer** is TypeScript, built by Vite, tested by Vitest, linted and formatted by
+  Biome. pixi installs node, pnpm and Biome. `package.json` lists npm packages and nothing
+  else, `pnpm-lock.yaml` locks them, and every command is a pixi task: add a package with
+  `pixi run -- pnpm add -D <name>`, format with `pixi run fmt-js`.
+- **The built viewer** is `src/molviz/viewer.js`, gitignored: one script that sets the global
+  `molviz`, with a fixed name and no hash, so a release ships the same bytes.
+  `test` and `build` run `build-js` first, and
+  `python -m build` fails when the file is missing.
 - Platforms: `osx-arm64` and `linux-64`.
 
 ## Layout
 
 ```text
-src/molviz/       the package — rename this directory first
-tests/            pytest, mirroring src/
+src/molviz/       the Python package; viewer.js in it is built, never edited
+src/viewer/       the viewer, TypeScript
+tests/            pytest and Vitest (*.test.ts), mirroring src/
 docs/             the published site; docs/adr/ and docs/agents/ are agent-facing
 skills/           repo-local agent skills; `python skills/install.py --help`
 scripts/check.sh  the gate runner
@@ -76,7 +77,7 @@ GLOSSARY.md       the glossary — the words this repo uses
 
 ## Gates
 
-`pixi run check` must be green before you commit. It is `check-static` plus `test`:
+`pixi run check` must be green before you commit. It is `check-static` plus the two tests:
 
 | Step | Tool |
 | --- | --- |
@@ -84,7 +85,9 @@ GLOSSARY.md       the glossary — the words this repo uses
 | `typecheck` | pyright, `standard` mode, plus annotated parameters outside `tests/` |
 | `vale`, `markdownlint` | the writing rules |
 | `conformance` | the repo still matches the template's rules |
-| `test` | pytest |
+| `lint-js` | Biome, lint and format |
+| `typecheck-js` | tsc |
+| `test`, `test-js` | pytest, Vitest |
 
 `check.sh` runs every step and reports **all** failures, not just the first — so read to the
 bottom before fixing anything. The docs build is not part of `check`; it needs its own pixi
@@ -93,13 +96,15 @@ environment and runs as its own CI job.
 Work on a branch and merge through a pull request: `pull_request` tests the merge commit,
 while a push to `main` tests it only once it has landed.
 
-Four traps in the gate:
+Five traps in the gate:
 
 - **`--doctest-modules` runs every `Examples` block in `src/` as a test.** An example that
   downloads, shells out or needs a large file wants `# doctest: +SKIP`, and the marker covers
   only the example it sits on.
 - **`filterwarnings = ["error"]`.** Each tolerated warning gets a targeted entry in
   `pyproject.toml` with a comment saying why. Never a blanket ignore.
+- **pytest reads the built viewer.** `pixi run test` builds it first; a bare `pytest` tests
+  whatever build is on disk, or fails when there is none.
 - **`src/` is collected**, so every module is imported at test time. Keep a heavy import
   inside the method body that needs it, not at module scope.
 - **A substring of `--help` output is not a substring of the help.** Typer prints it through
