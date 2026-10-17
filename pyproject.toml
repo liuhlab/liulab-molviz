@@ -18,7 +18,7 @@ classifiers = [
 ]
 # hatch-vcs reads the newest git tag. Never add a `version` key.
 dynamic = ["version"]
-dependencies = ["typer>=0.12"]
+dependencies = ["typer>=0.12", "mini-racer>=0.14"]
 
 [project.scripts]
 molviz = "molviz.cli:app"
@@ -61,6 +61,7 @@ liulab-molviz = { path = ".", editable = true }
 [tool.pixi.dependencies]
 python = "3.13.*"
 typer = ">=0.12"
+mini-racer = ">=0.14"
 ruff = "*"
 # Exact: Pylance is pyright, so the editor and CI must give one verdict.
 pyright = "==1.1.411"
