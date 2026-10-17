@@ -71,10 +71,10 @@ markdownlint-cli2 = "*"
 # For conformance, which parses mkdocs.yml and runs in `default`.
 pyyaml = "*"
 # The viewer's tools. Its npm packages are in `package.json`, locked by `pnpm-lock.yaml`.
-# 24 because conda-forge's pnpm requires it. Left free, the solver falls back to an older pnpm
-# whose osx-arm64 build is an x86-64 binary, and pnpm then installs the wrong native packages.
-nodejs = "24.*"
-pnpm = "*"
+nodejs = "*"
+# Older conda-forge pnpm builds for osx-arm64 are x86-64 binaries, which install the wrong
+# native packages.
+pnpm = ">=12.4"
 biome = "*"
 
 [tool.pixi.feature.test.dependencies]
