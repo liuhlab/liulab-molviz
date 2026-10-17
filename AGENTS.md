@@ -15,15 +15,15 @@ Distribution name **`liulab-molviz`**, import name **`molviz`**.
 [The map that created this repo](https://github.com/liuhlab/liulab-mbio/issues/572) holds the
 reasons.
 
-- **Gels and plates.** Simulated gels and plate wells come last on the first roadmap.
-- **From first principles.** Build on existing JavaScript packages wherever they do the heavy
-  lifting. mbio's Python layout is not ported.
-- **The look.** SnapGene Viewer is the reference for how a map and a sequence view look.
+- **Views, in order:** a record as circle, line and sequence view; figures; verification;
+  gels; plates.
+- **The look.** SnapGene Viewer is the reference. The map keeps SnapGene's labels; the
+  sequence view and its interactions copy SeqViz.
 - **The core** is molviz's own framework-free SVG layout on small d3 modules, rbush and
-  opentype.js, and SeqViz is the look to copy
-  ([research note](https://github.com/liuhlab/liulab-mbio/issues/575)).
-- **Reader promises.** No label overlaps another, and a hidden label is counted. Bases are real
-  text. One file opens offline.
+  opentype.js, not a viewer package. mbio's Python layout is not ported.
+- **Reader promises.** All nine in section 5 of
+  [the drawings note](https://github.com/liuhlab/liulab-mbio/blob/research/molviz-mbio-drawings/docs/research/molviz-mbio-drawings.md)
+  hold. A crowded label is hidden and counted.
 - **Toolchain.** The JavaScript toolchain is added like the template's Python one: pixi installs
   node, pnpm and biome; `pnpm-lock.yaml` locks npm packages; each check is a pixi task inside
   `pixi run check`. `pyproject.toml` stays the one manifest, `package.json` holds npm
