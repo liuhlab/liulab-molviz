@@ -22,7 +22,7 @@ reasons.
 - **The core** is molviz's own framework-free SVG layout on small d3 modules, rbush and
   opentype.js, not a viewer package. mbio's Python layout is not ported.
 - **Reader promises.** All nine in section 5 of
-  [the drawings note](https://github.com/liuhlab/liulab-mbio/blob/research/molviz-mbio-drawings/docs/research/molviz-mbio-drawings.md)
+  [the drawings note](docs/research/molviz-mbio-drawings.md)
   hold. A crowded label is hidden and counted.
 - **Toolchain.** The JavaScript toolchain is added like the template's Python one: pixi installs
   node, pnpm and biome; `pnpm-lock.yaml` locks npm packages; each check is a pixi task inside
