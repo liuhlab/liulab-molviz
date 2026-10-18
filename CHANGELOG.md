@@ -11,6 +11,9 @@ sets one.
 
 - The viewer: a JavaScript file built from TypeScript and shipped inside the package.
 - `viewer_script()` returns the viewer's text, for a page to inline.
+- `check(record)` checks a record against the format.
+- `draw(record, **options)` checks a record and the options for drawing it, and returns a
+  `Drawing` that lists the labels it hides.
 
 ### Removed
 

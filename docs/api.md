@@ -26,6 +26,12 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.viewer.viewer_script
 
+::: molviz.check
+
+::: molviz.draw
+
+::: molviz.Drawing
+
 ## The command line
 
 The whole module, because typer makes every verb a plain function with a docstring, and
