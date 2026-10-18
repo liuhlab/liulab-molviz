@@ -98,9 +98,38 @@ _Avoid_: mismatch, which is a primer's; difference
 
 A still drawing of one record, or several stacked, to one span, set beside a protocol step.
 
+### Gel
+
+A simulated agarose gel: a ladder and sample lanes, each band at its size. It holds no record,
+and is handed over on its own.
+
+### Ladder
+
+A DNA size marker in a gel's first lane: its name and its band sizes.
+_Avoid_: marker
+
+### Lane
+
+One sample on a gel: its name and its bands, which may be none.
+
+### Band
+
+DNA of one size in a lane, drawn where that size runs.
+
+### Plate
+
+A grid of wells in rows and columns, drawn with what each well holds. It holds no record, and
+is handed over on its own.
+
+### Well
+
+One place on a plate, named by its row letters and column number, such as `B3`. What it holds
+is its contents, given as text.
+_Avoid_: kind, for what a well holds, which is a record's word
+
 ### Page
 
-One HTML file that draws one or more records and opens offline.
+One HTML file that opens offline and draws one or more inputs: records, gels or plates.
 
 ### Reader promise
 
