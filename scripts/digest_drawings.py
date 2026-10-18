@@ -2,8 +2,8 @@
 
     pixi run digest-drawings [-- OUTPUT]
 
-Each record in RECORDS is drawn with its default options and written as ``.svg``, ``.png`` at
-the default dpi, and ``.pdf``. Each line is ``<sha256>  <record>.<ending>``, sorted by file,
+Each record in RECORDS is drawn with its default options and written as ``.html``, ``.svg``,
+``.png`` at the default dpi, and ``.pdf``. Each line is ``<sha256>  <record>.<ending>``, sorted by file,
 the form ``sha256sum`` writes. CI writes this on each platform and compares the two, so the
 same input writing the same bytes is checked without a stored digest to keep up to date.
 """
@@ -16,7 +16,7 @@ from pathlib import Path
 
 import molviz
 
-ENDINGS = (".svg", ".png", ".pdf")
+ENDINGS = (".html", ".svg", ".png", ".pdf")
 
 
 def digests(records: Path) -> list[str]:

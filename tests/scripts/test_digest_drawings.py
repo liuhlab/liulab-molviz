@@ -30,6 +30,6 @@ def test_each_record_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None
     expected = [
         f"{sha256_of_written(RECORDS[stem], tmp_path / f'{stem}{ending}')}  {stem}{ending}"
         for stem in ("a-first", "b-second")
-        for ending in (".pdf", ".png", ".svg")
+        for ending in (".html", ".pdf", ".png", ".svg")
     ]
     assert output.read_text(encoding="utf-8").splitlines() == expected
