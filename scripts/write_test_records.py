@@ -4,8 +4,9 @@ The records go to ``tests/records/``, and from mbio's protocol JSON the gels to 
 and the plates to ``tests/plates/``. It runs in mbio's environment, and
 ``tests/records/README.md`` has the command. Each input is read at `REVISION` through
 ``git show``, so mbio's files on disk do not matter, but the mbio code it imports must match
-that commit. Every record carries the cuts of all of mbio's enzymes. The hand-made records in
-``tests/records/`` are not written here.
+that commit. Every record carries the cuts of all of mbio's enzymes. An input that repeats one
+already written, such as a plate two protocols declare alike, is written once. The hand-made
+records in ``tests/records/`` are not written here.
 """
 
 import inspect
@@ -233,16 +234,30 @@ def _slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
-def _text(data: dict[str, Any]) -> str:
-    return json.dumps(data, indent=1, ensure_ascii=False) + "\n"
+def _write(path: Path, data: dict[str, Any], written: dict[Path, str]) -> bool:
+    """Write ``data`` to ``path``, unless it repeats a file in ``written`` exactly.
 
-
-def _write(path: Path, data: dict[str, Any]) -> None:
-    path.write_text(_text(data), encoding="utf-8")
+    Returns whether it wrote. Stops where two different inputs would both be written to ``path``.
+    """
+    text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
+    if text in written.values():
+        return False
+    if path in written:
+        sys.exit(f"two different inputs would both be written to {path.parent.name}/{path.name}")
+    written[path] = text
+    path.write_text(text, encoding="utf-8")
+    return True
 
 
 def _git(repo: Path, *args: str) -> bytes:
     return subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True).stdout
+
+
+def _show(repo: Path, path: str, scratch: Path) -> Path:
+    """Return a copy in ``scratch`` of mbio's file at ``path`` as it was at `REVISION`."""
+    copy = scratch / Path(path).name
+    copy.write_bytes(_git(repo, "show", f"{REVISION}:{path}"))
+    return copy
 
 
 def main() -> None:
@@ -254,40 +269,29 @@ def main() -> None:
     if changed:
         sys.exit(f"the mbio imported from {repo} differs from {REVISION} in src/")
     tests = Path(__file__).resolve().parents[1] / "tests"
-    with tempfile.TemporaryDirectory() as scratch:
+    written: dict[Path, str] = {}
+    with tempfile.TemporaryDirectory() as temporary:
+        scratch = Path(temporary)
         for name, path in RECORDS.items():
-            input_file = Path(scratch) / Path(path).name
-            input_file.write_bytes(_git(repo, "show", f"{REVISION}:{path}"))
-            data = convert(read_record(input_file))
-            _write(tests / "records" / f"{name}.json", data)
-            counts = ", ".join(f"{len(v)} {k}" for k, v in data.items() if isinstance(v, list))
-            print(f"{name}: {len(data['bases'])} bp, {counts}")
-    written: set[str] = set()
-    for short, path in GELS.items():
-        for gel in _gels(json.loads(_git(repo, "show", f"{REVISION}:{path}"))):
-            name = _slug(f"{short} {gel.get('title', '')}")
-            if name in written:
-                sys.exit(f"two gels would both be written to {name}.json")
-            written.add(name)
-            _write(tests / "gels" / f"{name}.json", convert_gel(gel))
-            print(f"{name}: {len(gel['lanes'])} lanes")
-    plates: dict[str, str] = {}
-    with tempfile.TemporaryDirectory() as scratch:
+            data = convert(read_record(_show(repo, path, scratch)))
+            if _write(tests / "records" / f"{name}.json", data, written):
+                counts = ", ".join(f"{len(v)} {k}" for k, v in data.items() if isinstance(v, list))
+                print(f"{name}: {len(data['bases'])} bp, {counts}")
+        for short, path in GELS.items():
+            protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
+            for gel in _gels(protocol):
+                name = _slug(f"{short} {gel.get('title', '')}")
+                if _write(tests / "gels" / f"{name}.json", convert_gel(gel), written):
+                    print(f"{name}: {len(gel['lanes'])} lanes")
         for short, path in PLATES.items():
-            input_file = Path(scratch) / Path(path).name
-            input_file.write_bytes(_git(repo, "show", f"{REVISION}:{path}"))
-            for protocol in _protocols(input_file):
+            for protocol in _protocols(_show(repo, path, scratch)):
                 for slug, plate in _plates(protocol):
-                    name, text = f"{short}-{slug}", _text(plate)
-                    # A plate two protocols declare alike is written once.
-                    if text in plates.values():
-                        continue
-                    if name in plates:
-                        sys.exit(f"two different plates would both be written to {name}.json")
-                    plates[name] = text
-                    (tests / "plates" / f"{name}.json").write_text(text, encoding="utf-8")
-                    wells = len(plate.get("wells", {}))
-                    print(f"{name}: {plate['rows']} by {plate['columns']}, {wells} wells filled")
+                    name = f"{short}-{slug}"
+                    if _write(tests / "plates" / f"{name}.json", plate, written):
+                        wells = len(plate.get("wells", {}))
+                        print(
+                            f"{name}: {plate['rows']} by {plate['columns']}, {wells} wells filled"
+                        )
     print(f"from mbio {REVISION}, at {repo}")
 
 

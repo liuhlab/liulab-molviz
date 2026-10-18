@@ -58,9 +58,23 @@ describe("checkPlate", () => {
 			["wells: must be an object"],
 		],
 		[
-			"a well whose contents are empty or not text",
-			{ ...good, wells: { A1: "", A2: ["forward 1"] } },
-			["wells.A1: must not be empty", "wells.A2: must be text"],
+			"wells that are an empty list",
+			{ ...good, wells: [] },
+			["wells: must be an object"],
+		],
+		[
+			"wells that are a list",
+			{ ...good, wells: ["x"] },
+			["wells: must be an object"],
+		],
+		[
+			"a well whose contents are empty, blank or not text",
+			{ ...good, wells: { A1: "", A2: ["forward 1"], A3: " " } },
+			[
+				"wells.A1: must not be blank",
+				"wells.A2: must be text",
+				"wells.A3: must not be blank",
+			],
 		],
 		[
 			"a well past the last row or the last column",
@@ -131,7 +145,7 @@ describe("well names", () => {
 		["AAA1", 702, 0],
 	])("%s is row %i and column %i, counted from 0", (name, row, column) => {
 		expect(wellAt(name)).toStrictEqual({ row, column });
-		expect(wellName(row, column)).toBe(name);
+		expect(wellName({ row, column })).toBe(name);
 	});
 
 	test.each(["a1", "A01", "A0", "1A", "A", "B 3", "reservoir", ""])(

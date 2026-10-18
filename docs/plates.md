@@ -193,8 +193,8 @@ The same stamp fills all 96 wells of index 3.
 
 ## ap1-readback-picked-1
 
-From mbio's ap1-readback protocol: a 384-well plate with its first quarter full and a third of
-its second quarter filled.
+From mbio's ap1-readback protocol: a 384-well plate with its first quarter full, and 32 of the
+96 wells in its second quarter filled.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -214,7 +214,9 @@ A 96-well plate a third full, with a different pair of primers in each of 32 wel
 
 ## ap1-readback-sample-a-quarter-of-picked-1-into-index-2-from
 
-The protocol's one stamp, which takes the 32 filled wells of the second quarter of picked 1.
+The protocol has two stamps. The first, into index 1, is the same as the ap1 project's stamp into
+index 1, so it is not drawn again. This is the second, which takes the 32 filled wells of the
+second quarter of picked 1.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>

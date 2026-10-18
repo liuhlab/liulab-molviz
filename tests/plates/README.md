@@ -14,8 +14,8 @@ the stamp's title, then `from` or `into`.
 
 | Example | Made from mbio's | What its plates cover |
 | --- | --- | --- |
-| `ap1` | `docs/examples/ap1-library/protocol/project.json` | 96-well plates that hold a different part or primer in each well; a 384-well plate in quarters; a 1,536-well plate with every well empty; and four stamps. |
-| `ap1-readback` | `docs/examples/ap1-readback/protocol.json` | A 384-well plate with two quarters filled, a 96-well plate a third full, and one stamp. |
+| `ap1` | `docs/examples/ap1-library/protocol/project.json` | 96-well plates that hold a different part, primer or pair of primers in each well they fill; a 384-well plate in quarters; a 1,536-well plate with every well empty; and four stamps. |
+| `ap1-readback` | `docs/examples/ap1-readback/protocol.json` | A 384-well plate with its first quarter full and 32 of the 96 wells in its second quarter filled, a 96-well plate a third full, and two stamps. Its index 1 plate and its stamp into index 1 repeat `ap1`'s exactly, so the script drops them. |
 
 Six more are made by hand:
 

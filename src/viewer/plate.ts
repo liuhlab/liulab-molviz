@@ -1,7 +1,7 @@
 /** The plate format: a grid of wells, and the text of what each well holds. */
 
 import * as v from "valibot";
-import { exact, Integer, parse, Text } from "./format";
+import { exact, keyed, PositiveInteger, parse, Text } from "./format";
 
 /** A well's place on its plate, each counted from 0. */
 export interface Place {
@@ -20,8 +20,8 @@ export function rowLabel(row: number): string {
 	return letters;
 }
 
-/** Return the name of the well at a 0-based row and column, such as `B3` for 1 and 2. */
-export function wellName(row: number, column: number): string {
+/** Return the name of the well at `place`, such as `B3` for row 1 and column 2. */
+export function wellName({ row, column }: Place): string {
 	return `${rowLabel(row)}${column + 1}`;
 }
 
@@ -34,8 +34,6 @@ export function wellAt(name: string): Place | undefined {
 	for (const letter of letters) row = row * 26 + letter.charCodeAt(0) - 64;
 	return { row: row - 1, column: Number(digits) - 1 };
 }
-
-const Count = v.pipe(Integer, v.minValue(1, "must be 1 or more"));
 
 /** How many rows and columns a plate's well names are checked against. */
 interface Size {
@@ -51,11 +49,15 @@ function sizeOf(input: unknown): Size {
 	const { rows, columns } = (
 		typeof input === "object" && input !== null ? input : {}
 	) as { rows?: unknown; columns?: unknown };
-	if (v.is(Count, rows) && v.is(Count, columns)) return { rows, columns };
+	if (v.is(PositiveInteger, rows) && v.is(PositiveInteger, columns))
+		return { rows, columns };
 	return { rows: Number.POSITIVE_INFINITY, columns: Number.POSITIVE_INFINITY };
 }
 
-const Contents = v.pipe(Text, v.nonEmpty("must not be empty"));
+const Contents = v.pipe(
+	Text,
+	v.check((text) => text.trim() !== "", "must not be blank"),
+);
 
 /** What is wrong with a well name on a plate of `size`, or `undefined` where nothing is. */
 function nameProblem(
@@ -65,40 +67,21 @@ function nameProblem(
 	const place = wellAt(name);
 	if (!place) return "not a well name, such as B3";
 	if (place.row < rows && place.column < columns) return undefined;
-	return `not on the plate, which runs A1 to ${wellName(rows - 1, columns - 1)}`;
+	return `not on the plate, which runs A1 to ${wellName({ row: rows - 1, column: columns - 1 })}`;
 }
 
-/**
- * Each well's contents, by a name the plate has. Every name is checked, `__proto__`
- * included, which valibot's record schema skips.
- */
+/** Each well's contents, by a name the plate has. */
 function wells(size: Size) {
-	return v.intersect([
-		v.record(v.string(), Contents, "must be an object"),
-		v.pipe(
-			v.unknown(),
-			v.rawCheck(({ dataset, addIssue }) => {
-				if (typeof dataset.value !== "object" || dataset.value === null) return;
-				const input = dataset.value as { [key: string]: unknown };
-				for (const key of Object.keys(input)) {
-					const message = nameProblem(key, size);
-					if (message === undefined) continue;
-					const value = input[key];
-					addIssue({
-						message,
-						path: [{ type: "object", origin: "key", input, key, value }],
-					});
-				}
-			}),
-		),
-	]);
+	return keyed(v.record(v.string(), Contents, "must be an object"), (key) =>
+		nameProblem(key, size),
+	);
 }
 
 function plateSchema(size: Size) {
 	return exact({
 		title: v.optional(Text),
-		rows: Count,
-		columns: Count,
+		rows: PositiveInteger,
+		columns: PositiveInteger,
 		wells: v.optional(wells(size)),
 	});
 }

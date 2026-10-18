@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { checkPlate } from "../../src/viewer/plate";
 import { layoutPlate } from "../../src/viewer/plate-layout";
-import type { Scene, Shape } from "../../src/viewer/scene";
+import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure } from "../../src/viewer/text";
 import eleven from "../plates/eleven-contents.json";
 import longLegend from "../plates/long-legend.json";
@@ -54,18 +54,18 @@ function texts(scene: Scene): Text[] {
 	return scene.shapes.filter((s): s is Text => s.shape === "text");
 }
 
-/** Where `t` starts and ends across. */
-function across(t: Text): [number, number] {
+/** Where `t` starts and ends, side to side. */
+function edges(t: Text): [number, number] {
 	const width = measure(t.text, t.face, t.size);
-	const from = t.anchor === "middle" ? t.x - width / 2 : t.x;
-	return [from, from + width];
+	const left = leftEdge(t, width);
+	return [left, left + width];
 }
 
 /** Every text and disc of `scene` lies inside its margins, side to side. */
 function inside(scene: Scene): boolean {
 	const right = scene.extent.width - MARGIN;
 	const spans = [
-		...texts(scene).map(across),
+		...texts(scene).map(edges),
 		...discs(scene).map((d) => [d.x, d.x + d.width]),
 	];
 	return spans.every(
@@ -147,14 +147,13 @@ describe("layoutPlate", () => {
 			...letters,
 			...["AA", "AB", "AC", "AD", "AE", "AF"],
 		]);
-		const ends = rows.map((t) => across(t)[1]);
+		const ends = rows.map((t) => edges(t)[1]);
 		for (const end of ends) expect(end).toBeCloseTo(ends[0]);
 		expect(ends[0]).toBeLessThan(first.x);
 		expect(inside(scene)).toBe(true);
 	});
 
 	test("shrinks the wells of a wide plate, not the page or its title", () => {
-		// mbio's wells: 21.32 across on 12 columns, 17.06 on 24 and 8.70 on 48.
 		const twelve = lay({ title: "96", rows: 8, columns: 12 });
 		const wide = lay({ title: "384", rows: 16, columns: 24 });
 		const widest = lay(sparse);
@@ -167,6 +166,20 @@ describe("layoutPlate", () => {
 		for (const scene of [twelve, wide, widest]) {
 			const title = texts(scene).filter((t) => t.face === "sans-bold");
 			expect(title.map((t) => t.size)).toEqual([13]);
+		}
+	});
+
+	test("numbers column 1 and every other column of a plate too wide to number each", () => {
+		const scene = lay({ rows: 1, columns: 150 });
+		const [first] = wells(scene, 150);
+		const numbers = texts(scene)
+			.filter((t) => t.y < first.y)
+			.sort((a, b) => a.x - b.x);
+		const evens = Array.from({ length: 75 }, (_, i) => String(2 * (i + 1)));
+		expect(numbers.map((t) => t.text)).toEqual(["1", ...evens]);
+		const spans = numbers.map(edges);
+		for (const [i, [, right]] of spans.slice(0, -1).entries()) {
+			expect(right).toBeLessThanOrEqual(spans[i + 1][0]);
 		}
 	});
 
