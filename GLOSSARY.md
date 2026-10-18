@@ -123,13 +123,13 @@ is handed over on its own.
 
 ### Well
 
-One place on a plate, named by its row letters and column number, such as `B3`, and the text
-of what it holds.
+One place on a plate, named by its row letters and column number, such as `B3`. What it holds
+is its contents, given as text.
 _Avoid_: kind, for what a well holds, which is a record's word
 
 ### Page
 
-One HTML file that draws one or more records and opens offline.
+One HTML file that opens offline and draws one or more inputs: records, gels or plates.
 
 ### Reader promise
 
