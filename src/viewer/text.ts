@@ -65,6 +65,15 @@ export function measure(text: string, face: Face, size: number): number {
 	return font(face).getAdvanceWidth(inFace(text, face), size, kerned);
 }
 
+/** How far `face` reaches above and below its baseline, per unit of size. */
+export function metrics(face: Face): { ascent: number; descent: number } {
+	const f = font(face);
+	return {
+		ascent: f.ascender / f.unitsPerEm,
+		descent: -f.descender / f.unitsPerEm,
+	};
+}
+
 /**
  * SVG path data drawing `text` in `face` at `size`, starting at `x` on the baseline `y`.
  *

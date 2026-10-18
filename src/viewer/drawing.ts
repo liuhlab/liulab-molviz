@@ -1,7 +1,9 @@
 /** A record drawn as SVG text, with no DOM. */
 
+import { layout } from "./line";
 import { checkOptions } from "./options";
 import { check, type Span } from "./record";
+import { toSvg } from "./svg";
 
 /** A kind, by its list's key in the record. */
 export type Kind = "features" | "primers" | "cuts" | "insertions";
@@ -26,15 +28,12 @@ export interface Drawing {
 	readonly notice: string;
 }
 
-/** A blank drawing, until the line is drawn. */
-const BLANK =
-	'<svg xmlns="http://www.w3.org/2000/svg" width="720" height="40" viewBox="0 0 720 40"/>';
-
 /**
  * Draw `record` with `options` as SVG text, every letter an outline. Throws one FormatError
  * naming every problem in the record, or else in the options.
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
-	checkOptions(options, check(record));
-	return { svg: BLANK, pages: [BLANK], hidden: [], notice: "" };
+	const checked = check(record);
+	const drawn = toSvg(layout(checked, checkOptions(options, checked)));
+	return { svg: drawn, pages: [drawn], hidden: [], notice: "" };
 }

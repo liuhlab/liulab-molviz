@@ -1,6 +1,7 @@
 """Checking a record and drawing it, with the viewer's own code."""
 
 from os import PathLike
+from pathlib import Path
 from typing import Any, Literal, TypedDict
 
 from molviz._runtime import call
@@ -66,17 +67,45 @@ class Drawing:
         self.notice: str = drawn["notice"]
 
     def write(self, path: str | PathLike[str], dpi: float = 300) -> None:
-        """Write the drawing to ``path``, in the format its ending names.
+        """Write the drawing to ``path``, in the format its ending names, in any case.
 
         The endings are ``.html``, a page that draws the record; ``.svg``; ``.png``, at
-        ``dpi`` pixels per inch; and ``.pdf``, with the map on page 1.
+        ``dpi`` pixels per inch; and ``.pdf``, with the map on page 1. One unit of the
+        drawing is one point, so a PDF page is the drawing's own size and a PNG is that size
+        in print, cut to whole pixels.
 
         Raises
         ------
+        ValueError
+            If the ending is none of those.
         NotImplementedError
-            For every format, for now.
+            For ``.html``, and for a PDF of more than one page.
         """
-        raise NotImplementedError(f"cannot write {path!s} yet")
+        path = Path(path)
+        match path.suffix.lower():
+            case ".html":
+                raise NotImplementedError(f"cannot write {path!s}: a page is not written yet")
+            case ".svg":
+                path.write_bytes(self._svg.encode())
+            case ".png":
+                import vl_convert
+
+                # vl-convert ships no type stub, so pyright cannot see its functions.
+                png = vl_convert.svg_to_png(self._svg, ppi=dpi)  # pyright: ignore[reportAttributeAccessIssue]
+                path.write_bytes(png)
+            case ".pdf":
+                if len(self._pages) > 1:
+                    raise NotImplementedError(
+                        f"cannot write {path!s}: a PDF of more than one page is not written yet"
+                    )
+                import vl_convert
+
+                pdf = vl_convert.svg_to_pdf(self._pages[0])  # pyright: ignore[reportAttributeAccessIssue]
+                path.write_bytes(pdf)
+            case _:
+                raise ValueError(
+                    f"cannot write {path!s}: its ending must be .html, .svg, .png or .pdf"
+                )
 
 
 def draw(record: dict[str, Any], **options: Any) -> Drawing:

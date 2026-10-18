@@ -26,4 +26,22 @@ describe("svg", () => {
 		expect(size("width")).toBeGreaterThan(0);
 		expect(size("height")).toBeGreaterThan(0);
 	});
+
+	test("draws the line, as the only page, hiding nothing", () => {
+		const drawn = svg({
+			...good,
+			features: [
+				{
+					name: "orf",
+					type: "CDS",
+					strand: 1,
+					segments: [{ start: 10, end: 60 }],
+				},
+			],
+		});
+		expect(drawn.svg).toContain('fill="#77aadd"');
+		expect(drawn.pages).toEqual([drawn.svg]);
+		expect(drawn.hidden).toEqual([]);
+		expect(drawn.notice).toBe("");
+	});
 });

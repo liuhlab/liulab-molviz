@@ -1,7 +1,7 @@
 import vm from "node:vm";
 import { build, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
-import { measure, outline } from "../../src/viewer/text";
+import { measure, metrics, outline } from "../../src/viewer/text";
 
 // Expected widths are the faces' advance widths and `kern` pairs, read from the subsets with
 // fontTools. Both faces have 2048 units to the em.
@@ -23,6 +23,15 @@ describe("measure", () => {
 	test("takes a character the face lacks as U+FFFD", () => {
 		expect(measure("中", "sans", 12)).toBe(12.3046875);
 		expect(measure("😀", "sans", 12)).toBe(12.3046875);
+	});
+});
+
+describe("metrics", () => {
+	test("gives how far each face reaches above and below its baseline, per unit of size", () => {
+		// Both faces' `hhea` ascender is 1901 and descender -483, read with fontTools.
+		const expected = { ascent: 1901 / 2048, descent: 483 / 2048 };
+		expect(metrics("sans")).toEqual(expected);
+		expect(metrics("sans-bold")).toEqual(expected);
 	});
 });
 
