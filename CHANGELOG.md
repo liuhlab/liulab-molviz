@@ -19,6 +19,13 @@ sets one.
   a page that draws the record offline; `.svg`; `.png`, at `dpi` pixels per inch; or `.pdf`.
 - In the viewer, `molviz.draw(element, record, options)` draws a record into an element of a
   page, and `molviz.svg(record, options)` returns the drawing as SVG text.
+- `check_gel(gel)` checks a gel against the gel format: a ladder and its lanes, each band by
+  its size in bp.
+- `draw_gel(gel)` checks a gel and returns a `Drawing` of it, which writes the same four
+  endings as a record's. Its `hidden` is empty and its `notice` blank.
+- In the viewer, `molviz.checkGel(gel)` checks a gel, `molviz.drawGel(element, gel)` draws it
+  into an element of a page, and `molviz.gelSvg(gel)` returns the drawing as SVG text. On a
+  page, resting the pointer on a band shows its size.
 - Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
   opentype.js, built into the viewer, which reads its fonts.
 

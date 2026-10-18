@@ -34,6 +34,8 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.draw
 
+::: molviz.draw_gel
+
 ::: molviz.Drawing
 
 ## Options

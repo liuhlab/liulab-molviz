@@ -42,6 +42,11 @@ export function prepare(record: unknown, options: unknown): Scene {
 	return layout(checked, checkOptions(options, checked));
 }
 
+/** Check `gel` and lay it out. Throws one FormatError naming every problem in the gel. */
+export function prepareGel(gel: unknown): Scene {
+	return layoutGel(checkGel(gel));
+}
+
 /**
  * Draw `record` with `options` as SVG text, every letter an outline. Throws one FormatError
  * naming every problem in the record, or else in the options.
@@ -55,7 +60,7 @@ export function svg(record: unknown, options: unknown = {}): Drawing {
  * in the gel.
  */
 export function gelSvg(gel: unknown): Drawing {
-	return whole(toSvg(layoutGel(checkGel(gel))));
+	return whole(toSvg(prepareGel(gel)));
 }
 
 /**

@@ -63,6 +63,7 @@ describe("gelSvg", () => {
 		expect(drawn.svg).toMatch(/^<svg\b/);
 		expect(drawn.svg).toContain('fill="#15171c"');
 		expect(drawn.svg).not.toContain("<text");
+		expect(drawn.svg).not.toContain("<title");
 		expect(drawn.pages).toEqual([drawn.svg]);
 		expect(drawn.hidden).toEqual([]);
 		expect(drawn.notice).toBe("");
