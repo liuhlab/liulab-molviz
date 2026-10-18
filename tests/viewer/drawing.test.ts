@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { gelSvg, plateSvg, svg } from "../../src/viewer/drawing";
-import { FormatError } from "../../src/viewer/record";
+import { FormatError } from "../../src/viewer/format";
 
 const good = { name: "p", circular: false, bases: "ACGT".repeat(25) };
 

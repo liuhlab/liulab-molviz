@@ -1,7 +1,7 @@
 /** The plate format: a grid of wells, and the text of what each well holds. */
 
 import * as v from "valibot";
-import { exact, Integer, parse, Text } from "./record";
+import { exact, Integer, parse, Text } from "./format";
 
 /** A well's place on its plate, each counted from 0. */
 export interface Place {
@@ -108,5 +108,5 @@ export type Plate = v.InferOutput<ReturnType<typeof plateSchema>>;
 
 /** Return `input` as a typed plate, or throw one FormatError naming every problem by its path. */
 export function checkPlate(input: unknown): Plate {
-	return parse(plateSchema(sizeOf(input)), input, "", "plate");
+	return parse(plateSchema(sizeOf(input)), input, { name: "plate" });
 }

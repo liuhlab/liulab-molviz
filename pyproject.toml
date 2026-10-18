@@ -150,7 +150,7 @@ test-js = { cmd = "pnpm exec vitest run", depends-on = ["build-js"] }
 build-js = { cmd = "pnpm exec vite build", depends-on = ["install-js"] }
 # Same bytes on both platforms: CI runs the first on Linux and on macOS, and the second on the
 # two files, which prints their differences and fails if there are any.
-digest-drawings = { cmd = "python scripts/digest_drawings.py --records tests/records --gels tests/gels", depends-on = [
+digest-drawings = { cmd = "python scripts/digest_drawings.py", depends-on = [
     "build-js",
 ] }
 same-digests = "diff -u"

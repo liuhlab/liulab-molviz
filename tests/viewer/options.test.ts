@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
+import type { FormatError } from "../../src/viewer/format";
 import { checkOptions } from "../../src/viewer/options";
-import { check, type FormatError } from "../../src/viewer/record";
+import { check } from "../../src/viewer/record";
 
 /** A 100 bp record. */
 function record(circular: boolean) {
@@ -52,6 +53,7 @@ describe("checkOptions", () => {
 			["options.bogus: unknown key", "options.typesOff: unknown key"],
 		],
 		["options that are not an object", null, ["options: must be an object"]],
+		["options that are a list", [1], ["options: must be an object"]],
 	])("rejects %s", (_, input, expected) => {
 		expect(problems(input)).toEqual(expected);
 	});

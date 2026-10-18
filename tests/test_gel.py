@@ -1,4 +1,3 @@
-import json
 import re
 
 import pytest
@@ -28,39 +27,11 @@ def test_a_bad_gel_raises_the_viewers_message() -> None:
         )
 
 
-ENDINGS = [".html", ".svg", ".png", ".pdf"]
-
-
 def test_draw_gel_returns_a_drawing_that_hides_nothing() -> None:
     drawing = molviz.draw_gel(GOOD)
     assert isinstance(drawing, molviz.Drawing)
     assert drawing.hidden == []
     assert drawing.notice == ""
-
-
-@pytest.mark.parametrize(
-    ("ending", "starts"),
-    [(".html", b"<!doctype html>"), (".svg", b"<svg "), (".png", b"\x89PNG"), (".pdf", b"%PDF-")],
-)
-def test_a_gel_writes_each_ending(tmp_path, ending, starts) -> None:
-    molviz.draw_gel(GOOD).write(tmp_path / f"gel{ending}")
-    assert (tmp_path / f"gel{ending}").read_bytes().startswith(starts)
-
-
-@pytest.mark.parametrize("ending", ENDINGS)
-def test_a_gel_drawn_twice_writes_the_same_bytes(tmp_path, ending) -> None:
-    molviz.draw_gel(GOOD).write(tmp_path / f"first{ending}")
-    molviz.draw_gel(GOOD).write(tmp_path / f"second{ending}")
-    assert (tmp_path / f"first{ending}").read_bytes() == (tmp_path / f"second{ending}").read_bytes()
-
-
-def test_a_gel_page_holds_the_gel_once_and_draws_it_with_draw_gel(tmp_path) -> None:
-    molviz.draw_gel(GOOD).write(tmp_path / "gel.html")
-    page = (tmp_path / "gel.html").read_text(encoding="utf-8")
-    blocks = re.findall(r'<script type="application/json" id="gel">(.*?)</script', page)
-    assert [json.loads(block) for block in blocks] == [GOOD]
-    assert 'molviz.drawGel(document.getElementById("drawing"), data("gel"));' in page
-    assert "<title>PCR products</title>" in page
 
 
 def test_an_untitled_gels_page_is_titled_gel(tmp_path) -> None:

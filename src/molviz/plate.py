@@ -22,4 +22,4 @@ def check_plate(plate: dict[str, Any]) -> None:
     ...
     ValueError: wells.I1: not on the plate, which runs A1 to H12
     """
-    call("checkPlate", plate)
+    call("plate", "check", plate)

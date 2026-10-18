@@ -2,24 +2,23 @@
 // which sets the global `molviz`. A drawing that fails says why in its place, and the rest still
 // draw.
 
-// The views a slot can name in `data-molviz`, each with the call that draws it and the data it
-// hands that call, in order. A slot that names none is a line map.
-const views = {
-	"": ["draw", "record", "options"],
-	gel: ["drawGel", "gel"],
-};
-
+// A slot names its input in `data-molviz`, or names none for a record. It holds the input in a
+// JSON block of the same name, and any options in one named `options`.
 for (const element of document.querySelectorAll("[data-molviz]")) {
-	const [call, ...names] = views[element.dataset.molviz] ?? [];
-	const data = (name) => {
-		const script = element.querySelector(`script[data-${name}]`);
+	const name = element.dataset.molviz || "record";
+	const data = (block) => {
+		const script = element.querySelector(`script[data-${block}]`);
 		return script ? JSON.parse(script.textContent) : undefined;
 	};
 	try {
-		molviz[call](element, ...names.map(data));
+		if (!Object.hasOwn(molviz.calls, name)) {
+			const known = Object.keys(molviz.calls).join(", ");
+			throw new Error(`The viewer draws no "${name}", only ${known}.`);
+		}
+		molviz[molviz.calls[name].draw](element, data(name), data("options"));
 	} catch (error) {
 		const message = document.createElement("p");
-		message.textContent = `This ${names[0] ?? "drawing"} could not be drawn. ${error instanceof Error ? error.message : error}`;
+		message.textContent = `This ${name} could not be drawn. ${error instanceof Error ? error.message : error}`;
 		element.append(message);
 	}
 }

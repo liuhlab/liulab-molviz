@@ -1,4 +1,4 @@
-/** A record, a gel or a plate drawn as SVG text, with no DOM. */
+/** An input drawn as SVG text, with no DOM. */
 
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
@@ -21,13 +21,13 @@ export interface Hidden {
 	readonly spans: readonly Span[];
 }
 
-/** What `svg`, `gelSvg` and `plateSvg` return. */
+/** What each call that draws as SVG text returns. */
 export interface Drawing {
 	/** The whole drawing. Its width and height have no unit: one unit is one point. */
 	readonly svg: string;
 	/** One SVG per PDF page, the map first. */
 	readonly pages: readonly string[];
-	/** The labels left out of the map. */
+	/** The labels left out because they would overlap, each counted in the notice. */
 	readonly hidden: readonly Hidden[];
 	/** The hidden-label notice as a sentence, empty when nothing hides. */
 	readonly notice: string;
@@ -56,8 +56,9 @@ export function svg(record: unknown, options: unknown = {}): Drawing {
 }
 
 /**
- * Draw `gel` as SVG text, every letter an outline. Throws one FormatError naming every problem
- * in the gel.
+ * Draw `gel` as SVG text, every letter an outline. Ladder sizes that would crowd are left out
+ * and not counted, so `hidden` stays empty. Throws one FormatError naming every problem in the
+ * gel.
  */
 export function gelSvg(gel: unknown): Drawing {
 	return whole(toSvg(prepareGel(gel)));
@@ -71,7 +72,7 @@ export function plateSvg(plate: unknown): Drawing {
 	return whole(toSvg(layoutPlate(checkPlate(plate))));
 }
 
-/** `svg` as a drawing of one page that leaves no label out. */
+/** `svg` as a drawing of one page that counts no hidden label. */
 function whole(svg: string): Drawing {
 	return { svg, pages: [svg], hidden: [], notice: "" };
 }

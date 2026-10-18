@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
+import type { FormatError } from "../../src/viewer/format";
 import { checkPlate, rowLabel, wellAt, wellName } from "../../src/viewer/plate";
-import type { FormatError } from "../../src/viewer/record";
 
 const good = {
 	title: "picked 1",
