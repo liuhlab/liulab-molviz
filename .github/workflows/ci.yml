@@ -72,6 +72,13 @@ jobs:
       # the flag pixi would run it in `default`, which this job did not install.
       - run: pixi run -e test test
       - run: pixi run -e test test-js
+      # Linux's half of the same-bytes check below.
+      - run: pixi run -e test digest-drawings -- linux-64.sha256
+      - uses: actions/upload-artifact@v7
+        with:
+          name: drawings-linux-64
+          path: linux-64.sha256
+          if-no-files-found: error
 
   build:
     runs-on: ubuntu-latest
@@ -112,44 +119,21 @@ jobs:
       - run: pixi run -e docs docs-build
 
   # Promise 8, the same input writes the same bytes, across the two platforms. A job of its own
-  # because the platform differs. Each runner digests every test record's drawings, and
-  # `same-bytes-compare` diffs the two, so no stored digest goes stale on a drawing change.
+  # because the platform differs. It digests every test record's drawings on macOS and diffs
+  # them with the digests the `test` job wrote on Linux, so no stored digest goes stale on a
+  # drawing change.
   same-bytes:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            platform: linux-64
-          - os: macos-latest
-            platform: osx-arm64
-    runs-on: ${{ matrix.os }}
+    needs: test
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
       - uses: prefix-dev/setup-pixi@v0.10.2
         with:
           environments: test
           locked: true
-      - run: pixi run -e test digest-drawings -- ${{ matrix.platform }}.sha256
-      - uses: actions/upload-artifact@v7
-        with:
-          name: drawings-${{ matrix.platform }}
-          path: ${{ matrix.platform }}.sha256
-          if-no-files-found: error
-
-  same-bytes-compare:
-    needs: same-bytes
-    runs-on: ubuntu-latest
-    steps:
-      # pixi needs the manifest to run the task; `test` is the environment the Linux runner
-      # above already cached.
-      - uses: actions/checkout@v7
-      - uses: prefix-dev/setup-pixi@v0.10.2
-        with:
-          environments: test
-          locked: true
+      - run: pixi run -e test digest-drawings -- osx-arm64.sha256
       - uses: actions/download-artifact@v8
         with:
-          pattern: drawings-*
+          name: drawings-linux-64
           path: drawings
-          merge-multiple: true
-      - run: pixi run -e test same-digests -- drawings/linux-64.sha256 drawings/osx-arm64.sha256
+      - run: pixi run -e test same-digests -- drawings/linux-64.sha256 osx-arm64.sha256
