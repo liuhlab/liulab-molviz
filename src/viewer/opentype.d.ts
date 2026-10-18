@@ -19,6 +19,9 @@ declare module "opentype.js" {
 	}
 
 	export interface Font {
+		ascender: number;
+		descender: number;
+		unitsPerEm: number;
 		hasChar(character: string): boolean;
 		getAdvanceWidth(
 			text: string,

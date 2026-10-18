@@ -65,3 +65,15 @@ def test_draw_returns_a_drawing_that_hides_nothing() -> None:
 def test_draw_rejects_an_unknown_option_by_name() -> None:
     with pytest.raises(ValueError, match=r"^options\.bogus: unknown key$"):
         molviz.draw(GOOD, bogus=1)
+
+
+def test_draw_writes_the_same_svg_in_each_fresh_viewer() -> None:
+    record = {
+        **GOOD,
+        "features": [
+            {"name": "orf", "type": "CDS", "strand": 1, "segments": [{"start": 2, "end": 9}]}
+        ],
+    }
+    first = molviz.draw(record)._svg
+    assert first.startswith("<svg ")
+    assert molviz.draw(record)._svg == first
