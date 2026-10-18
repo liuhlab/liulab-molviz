@@ -35,8 +35,8 @@ jobs:
           environments: docs
           locked: true
       # Writes `./site`. `--clean --strict` live in the task, so this and a laptop build
-      # the same way.
-      - run: pixi run docs-build
+      # the same way. `-e docs`, as in `ci.yml`, keeps the viewer's build in this environment.
+      - run: pixi run -e docs docs-build
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

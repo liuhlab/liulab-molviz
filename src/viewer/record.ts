@@ -16,7 +16,7 @@ function objectProblem(issue: v.ObjectIssue): string {
  * An object with these keys and no others. Every unknown key is reported, `__proto__`
  * included, which valibot's own object schemas skip or stop after.
  */
-function exact<E extends v.ObjectEntries>(entries: E) {
+export function exact<E extends v.ObjectEntries>(entries: E) {
 	return v.intersect([
 		v.object(entries, objectProblem),
 		v.pipe(
@@ -113,7 +113,7 @@ function oneOf<const T extends readonly number[]>(values: T) {
 	return v.picklist(values, `must be ${listed}`);
 }
 
-function list<T extends v.GenericSchema>(item: T) {
+export function list<T extends v.GenericSchema>(item: T) {
 	return v.array(item, "must be a list");
 }
 
@@ -161,10 +161,12 @@ export function span(bounds: Bounds) {
 	return v.pipe(exact(spanKeys(bounds)), spanRule(bounds));
 }
 
+export type Span = v.InferOutput<ReturnType<typeof span>>;
+
 /** A record's length is unbounded where a record cannot say how long it is. */
 const UNBOUNDED = Number.POSITIVE_INFINITY;
 
-const Text = v.string("must be text");
+export const Text = v.string("must be text");
 
 const Color = v.pipe(
 	Text,
@@ -392,9 +394,9 @@ function boundsOf(input: unknown): Bounds {
 	return { length: UNBOUNDED, circular: circular !== false };
 }
 
-/** Write an issue's path as `features[3].segments[0].end`. */
-function pathOf(issue: v.BaseIssue<unknown>): string {
-	let path = "";
+/** Write an issue's path as `features[3].segments[0].end`, after `root` if one is given. */
+function pathOf(issue: v.BaseIssue<unknown>, root = ""): string {
+	let path = root;
 	for (const { key } of issue.path ?? []) {
 		path +=
 			typeof key === "number" ? `[${key}]` : `${path ? "." : ""}${String(key)}`;
@@ -402,16 +404,20 @@ function pathOf(issue: v.BaseIssue<unknown>): string {
 	return path || "record";
 }
 
-/** Return `input` as `schema` types it, or throw one FormatError naming every problem. */
+/**
+ * Return `input` as `schema` types it, or throw one FormatError naming every problem. Each
+ * path starts at `root`, if one is given.
+ */
 export function parse<S extends v.GenericSchema>(
 	schema: S,
 	input: unknown,
+	root?: string,
 ): v.InferOutput<S> {
 	const result = v.safeParse(schema, input);
 	if (result.success) return result.output;
 	throw new FormatError(
 		result.issues
-			.map((issue) => `${pathOf(issue)}: ${issue.message}`)
+			.map((issue) => `${pathOf(issue, root)}: ${issue.message}`)
 			.join("\n"),
 	);
 }
