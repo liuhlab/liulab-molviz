@@ -2,7 +2,11 @@
 	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
 	"overrides": [
 		{
-			"includes": ["tests/records/*.json", "tests/gels/*.json"],
+			"includes": [
+				"tests/records/*.json",
+				"tests/gels/*.json",
+				"tests/plates/*.json"
+			],
 			"json": { "formatter": { "enabled": false } }
 		}
 	]
