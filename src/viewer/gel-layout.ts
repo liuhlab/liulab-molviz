@@ -75,10 +75,12 @@ export function layoutGel(gel: Gel): Scene {
 	const sizeWidth = Math.max(
 		...ladderSizes.map((bp) => measure(String(bp), "sans", TEXT_SIZE)),
 	);
-	const left = MARGIN + sizeWidth + SIZE_GAP;
 	const gelWidth = lanes.length * (LANE + LANE_GAP) + LANE_GAP;
 	const gelHeight = RUN_TOP + RUN + RUN_FOOT;
-	const width = Math.max(MIN_WIDTH, left + gelWidth + MARGIN);
+	const natural = MARGIN + sizeWidth + SIZE_GAP + gelWidth + MARGIN;
+	const width = Math.max(MIN_WIDTH, natural);
+	// The sizes, the gel and its marks are centred in any room the least width leaves.
+	const left = (width - natural) / 2 + MARGIN + sizeWidth + SIZE_GAP;
 
 	const shapes: Shape[] = [];
 	const title = wrap(
