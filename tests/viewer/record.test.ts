@@ -13,8 +13,27 @@ import {
 const good = { name: "pUC19", circular: true, bases: "GATCcatgRYN" };
 
 describe("check", () => {
-	test("returns a good record as it was given", () => {
-		expect(check(good)).toEqual(good);
+	test("returns a good record, with each missing list empty", () => {
+		expect(check(good)).toStrictEqual({
+			...good,
+			features: [],
+			primers: [],
+			cuts: [],
+			insertions: [],
+		});
+	});
+
+	test("leaves out a codon_start that is not given", () => {
+		const feature = {
+			name: "a",
+			type: "CDS",
+			strand: 1,
+			segments: [{ start: 0, end: 3 }],
+			translation: "M",
+		};
+		expect(check({ ...good, features: [feature] }).features).toStrictEqual([
+			feature,
+		]);
 	});
 
 	test("rejects every key the format does not have", () => {
@@ -57,10 +76,11 @@ function record(circular: boolean, kinds: object): unknown {
 	return { name: "p", circular, bases: "ACGT".repeat(25), ...kinds };
 }
 
-/** The lines of the error `check` throws, or none. */
-function checked(input: unknown): string[] {
+/** The lines of the error checking `input` throws, as a record or against `schema`, or none. */
+function problems(input: unknown, schema?: v.GenericSchema): string[] {
 	try {
-		check(input);
+		if (schema) parse(schema, input);
+		else check(input);
 		return [];
 	} catch (error) {
 		return (error as FormatError).message.split("\n");
@@ -85,11 +105,11 @@ describe("features", () => {
 	};
 
 	test("may join segments past the origin of a circular record", () => {
-		expect(checked(record(true, features(joined)))).toEqual([]);
+		expect(problems(record(true, features(joined)))).toEqual([]);
 	});
 
 	test("lie within a linear record", () => {
-		expect(checked(record(false, features(joined)))).toEqual([
+		expect(problems(record(false, features(joined)))).toEqual([
 			"features[0].segments[1].start: must be less than the record's length, 100",
 			"features[0].segments[1].end: must be at most the record's length, 100",
 		]);
@@ -121,6 +141,30 @@ describe("features", () => {
 			],
 		],
 		[
+			"with a middle segment ending past one turn",
+			true,
+			[
+				{ start: 10, end: 20 },
+				{ start: 30, end: 150 },
+				{ start: 40, end: 50 },
+			],
+			[
+				"features[0].segments[1].end: must be at most segments[0].start + 100, one turn of the record",
+			],
+		],
+		[
+			"with a middle segment ending past two turns",
+			true,
+			[
+				{ start: 10, end: 20 },
+				{ start: 30, end: 200 },
+				{ start: 40, end: 50 },
+			],
+			[
+				"features[0].segments[1].end: must be at most segments[0].start + 100, one turn of the record",
+			],
+		],
+		[
 			"over exactly one turn",
 			true,
 			[
@@ -144,7 +188,7 @@ describe("features", () => {
 			],
 		],
 	])("%s", (_, isCircular, segments, expected) => {
-		expect(checked(record(isCircular, features({ segments })))).toEqual(
+		expect(problems(record(isCircular, features({ segments })))).toEqual(
 			expected,
 		);
 	});
@@ -156,11 +200,11 @@ describe("features", () => {
 			strand: 0,
 			segments: [{ start: 0, end: 100 }],
 		};
-		expect(checked(record(false, features(source)))).toEqual([]);
+		expect(problems(record(false, features(source)))).toEqual([]);
 	});
 
-	test("may carry colours, a translation and its codon_start", () => {
-		const coloured = {
+	test("may carry colors, a translation and its codon_start", () => {
+		const colored = {
 			color: "#1f77B4",
 			segments: [
 				{ start: 10, end: 20, color: "#ff0000" },
@@ -169,7 +213,7 @@ describe("features", () => {
 			translation: "MTM*",
 			codon_start: 3,
 		};
-		expect(checked(record(true, features(coloured)))).toEqual([]);
+		expect(problems(record(true, features(colored)))).toEqual([]);
 	});
 
 	test.each<[string, object, string[]]>([
@@ -179,11 +223,11 @@ describe("features", () => {
 			["features[0].strand: must be 1, -1, 0 or 2"],
 		],
 		[
-			"colours not written #rrggbb",
+			"colors not written #rrggbb",
 			{ color: "red", segments: [{ start: 10, end: 40, color: "#fff" }] },
 			[
-				"features[0].segments[0].color: must be a colour written #rrggbb",
-				"features[0].color: must be a colour written #rrggbb",
+				"features[0].segments[0].color: must be a color written #rrggbb",
+				"features[0].color: must be a color written #rrggbb",
 			],
 		],
 		[
@@ -228,7 +272,7 @@ describe("features", () => {
 			["features[0].qualifiers: unknown key", "features[0].note: unknown key"],
 		],
 	])("rejects %s", (_, change, expected) => {
-		expect(checked(record(true, features(change)))).toEqual(expected);
+		expect(problems(record(true, features(change)))).toEqual(expected);
 	});
 });
 
@@ -253,14 +297,19 @@ describe("primers", () => {
 			true,
 			{ start: 95, end: 105, mismatches: [2, 96] },
 		],
+		[
+			"across the origin, with mismatches at both ends of the part after it",
+			true,
+			{ start: 95, end: 105, mismatches: [0, 4] },
+		],
 		["as wide as the primer", false, { start: 0, end: 23 }],
 	])("binds %s", (_, isCircular, site) => {
-		expect(checked(record(isCircular, primers(site)))).toEqual([]);
+		expect(problems(record(isCircular, primers(site)))).toEqual([]);
 	});
 
 	test("may have an empty name and bind nowhere", () => {
 		const unbound = { primers: [{ ...primer, name: "", sites: [] }] };
-		expect(checked(record(true, unbound))).toEqual([]);
+		expect(problems(record(true, unbound))).toEqual([]);
 	});
 
 	test.each<[string, boolean, object, object, string[]]>([
@@ -272,6 +321,16 @@ describe("primers", () => {
 			[
 				"primers[0].sites[0].mismatches[1]: must be inside its site",
 				"primers[0].sites[0].mismatches[2]: must be inside its site",
+			],
+		],
+		[
+			"a mismatch outside a site across the origin",
+			true,
+			{ start: 95, end: 105, mismatches: [5, 94] },
+			{},
+			[
+				"primers[0].sites[0].mismatches[0]: must be inside its site",
+				"primers[0].sites[0].mismatches[1]: must be inside its site",
 			],
 		],
 		[
@@ -323,7 +382,7 @@ describe("primers", () => {
 			["primers[0].sites[0].tm: unknown key", "primers[0].tail: unknown key"],
 		],
 	])("rejects %s", (_, isCircular, site, change, expected) => {
-		expect(checked(record(isCircular, primers(site, change)))).toEqual(
+		expect(problems(record(isCircular, primers(site, change)))).toEqual(
 			expected,
 		);
 	});
@@ -343,7 +402,7 @@ describe("cuts", () => {
 		["a site across the origin", true, { start: 98, end: 104, at: 99 }],
 		["a bottom-strand cut past the origin", true, nearTheEnd],
 	])("may make %s", (_, isCircular, change) => {
-		expect(checked(record(isCircular, cuts(change)))).toEqual([]);
+		expect(problems(record(isCircular, cuts(change)))).toEqual([]);
 	});
 
 	test.each<[string, boolean, object, string[]]>([
@@ -362,6 +421,12 @@ describe("cuts", () => {
 			[
 				"cuts[0].stagger: must keep at + stagger, the bottom-strand cut, at 0 or more",
 			],
+		],
+		[
+			"a top-strand cut past a linear record's end",
+			false,
+			{ at: 101, stagger: 0 },
+			["cuts[0].at: must be at most the record's length, 100"],
 		],
 		[
 			"a top-strand cut at a circular record's length",
@@ -390,7 +455,7 @@ describe("cuts", () => {
 			["cuts[0].overhang: unknown key"],
 		],
 	])("rejects %s", (_, isCircular, change, expected) => {
-		expect(checked(record(isCircular, cuts(change)))).toEqual(expected);
+		expect(problems(record(isCircular, cuts(change)))).toEqual(expected);
 	});
 });
 
@@ -401,12 +466,12 @@ describe("insertions", () => {
 	});
 
 	test.each<[string, boolean, object]>([
-		["inside the record, with a colour", true, { color: "#00ff00" }],
+		["inside the record, with a color", true, { color: "#00ff00" }],
 		["at the origin", true, { at: 0 }],
 		["unnamed", true, { name: "" }],
 		["at the end of a linear record", false, { at: 100, length: 1 }],
 	])("may sit %s", (_, isCircular, change) => {
-		expect(checked(record(isCircular, insertions(change)))).toEqual([]);
+		expect(problems(record(isCircular, insertions(change)))).toEqual([]);
 	});
 
 	test.each<[string, boolean, object, string[]]>([
@@ -425,13 +490,19 @@ describe("insertions", () => {
 			],
 		],
 		[
+			"a color not written #rrggbb",
+			true,
+			{ color: "green" },
+			["insertions[0].color: must be a color written #rrggbb"],
+		],
+		[
 			"keys an insertion does not have",
 			true,
 			{ bases: "ACGT" },
 			["insertions[0].bases: unknown key"],
 		],
 	])("rejects %s", (_, isCircular, change, expected) => {
-		expect(checked(record(isCircular, insertions(change)))).toEqual(expected);
+		expect(problems(record(isCircular, insertions(change)))).toEqual(expected);
 	});
 });
 
@@ -493,13 +564,13 @@ describe("a record whose length or shape is malformed", () => {
 	])(
 		"with malformed %s reports what needs no length",
 		(_, record, expected) => {
-			expect(checked({ name: "p", ...record, ...kinds })).toEqual(expected);
+			expect(problems({ name: "p", ...record, ...kinds })).toEqual(expected);
 		},
 	);
 
 	test("with lists that are not lists reports each", () => {
 		expect(
-			checked({
+			problems({
 				name: "p",
 				circular: true,
 				features: 1,
@@ -519,16 +590,6 @@ describe("a record whose length or shape is malformed", () => {
 
 const circular: Bounds = { length: 2686, circular: true };
 const linear: Bounds = { length: 2686, circular: false };
-
-/** The lines of the error `parse` throws, or none. */
-function problems(schema: v.GenericSchema, input: unknown): string[] {
-	try {
-		parse(schema, input);
-		return [];
-	} catch (error) {
-		return (error as FormatError).message.split("\n");
-	}
-}
 
 describe("span", () => {
 	// A stand-in for a kind, so each problem is named by a nested path.
@@ -605,7 +666,7 @@ describe("span", () => {
 			["segments[0].strand: unknown key", "segments[0].name: unknown key"],
 		],
 	])("%s", (_, bounds, segment, expected) => {
-		expect(problems(kind(bounds), { segments: [segment] })).toEqual(expected);
+		expect(problems({ segments: [segment] }, kind(bounds))).toEqual(expected);
 	});
 });
 
@@ -632,7 +693,7 @@ describe("point", () => {
 		["below 0", linear, -1, ["at: must be 0 or more"]],
 		["not a whole number", linear, 4.5, ["at: must be an integer"]],
 	])("%s", (_, bounds, at, expected) => {
-		expect(problems(kind(bounds), { at })).toEqual(expected);
+		expect(problems({ at }, kind(bounds))).toEqual(expected);
 	});
 });
 
@@ -649,6 +710,6 @@ describe("base", () => {
 		],
 		["below 0", circular, -1, ["at: must be 0 or more"]],
 	])("%s", (_, bounds, at, expected) => {
-		expect(problems(kind(bounds), { at })).toEqual(expected);
+		expect(problems({ at }, kind(bounds))).toEqual(expected);
 	});
 });

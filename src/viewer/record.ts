@@ -106,7 +106,34 @@ function rule<T>(find: (value: T) => Iterable<Problem>) {
 	});
 }
 
-/** The keys of a span. A kind that holds a span spreads these into its own, then adds `spanRule`. */
+/** One of `values`, with a message that lists them. */
+function oneOf<const T extends readonly number[]>(values: T) {
+	const last = values.length - 1;
+	const listed = `${values.slice(0, last).join(", ")} or ${values[last]}`;
+	return v.picklist(values, `must be ${listed}`);
+}
+
+function list<T extends v.GenericSchema>(item: T) {
+	return v.array(item, "must be a list");
+}
+
+/** An `end` more than one turn past `start`, which `from` names, reported at `keys`. */
+function* pastOneTurn(
+	keys: readonly Key[],
+	from: string,
+	start: number,
+	end: number,
+	length: number,
+): Generator<Problem> {
+	if (end - start > length) {
+		yield [keys, `must be at most ${from} + ${length}, one turn of the record`];
+	}
+}
+
+/**
+ * The keys of a span. A kind that holds a span spreads these into its own, then adds
+ * `spanRule`.
+ */
 function spanKeys(bounds: Bounds) {
 	const { length, circular } = bounds;
 	return {
@@ -122,12 +149,7 @@ function spanRule<T extends { start: number; end: number }>({
 }: Bounds) {
 	return rule<T>(function* ({ start, end }) {
 		if (start >= end) yield [["end"], "must be greater than start"];
-		if (circular && end - start > length) {
-			yield [
-				["end"],
-				`must be at most start + ${length}, one turn of the record`,
-			];
-		}
+		if (circular) yield* pastOneTurn(["end"], "start", start, end, length);
 	});
 }
 
@@ -146,16 +168,16 @@ const Text = v.string("must be text");
 
 const Color = v.pipe(
 	Text,
-	v.regex(/^#[0-9a-f]{6}$/i, "must be a colour written #rrggbb"),
+	v.regex(/^#[0-9a-f]{6}$/i, "must be a color written #rrggbb"),
 );
 
-/** Text holding none of the characters `not` matches, which are not `what`. */
-function only(not: RegExp, what: string) {
+/** Text over an alphabet: no character matches `outside`, and `letter` names the alphabet's. */
+function overAlphabet(outside: RegExp, letter: string) {
 	return v.check<string, (issue: v.CheckIssue<string>) => string>(
-		(text) => !not.test(text),
+		(text) => !outside.test(text),
 		({ input }) => {
-			const at = input.search(not);
-			return `has "${input[at]}" at index ${at}, which is not ${what}`;
+			const at = input.search(outside);
+			return `has "${input[at]}" at index ${at}, which is not ${letter}`;
 		},
 	);
 }
@@ -163,14 +185,14 @@ function only(not: RegExp, what: string) {
 const Bases = v.pipe(
 	Text,
 	v.nonEmpty("must hold at least one base"),
-	only(/[^ACGTURYSWKMBDHVN]/i, "an IUPAC nucleotide letter"),
+	overAlphabet(/[^ACGTURYSWKMBDHVN]/i, "an IUPAC nucleotide letter"),
 );
 
 /** One letter per codon, `*` for a stop. */
 const Translation = v.pipe(
 	Text,
 	v.nonEmpty("must hold at least one letter"),
-	only(/[^A-Z*]/, "a capital letter or *"),
+	overAlphabet(/[^A-Z*]/, "a capital letter or *"),
 );
 
 function segment(bounds: Bounds) {
@@ -186,12 +208,13 @@ function segment(bounds: Bounds) {
  */
 function segments(bounds: Bounds) {
 	const { length, circular } = bounds;
-	const later = circular ? { length: UNBOUNDED, circular } : bounds;
+	const laterBounds = circular ? { length: UNBOUNDED, circular } : bounds;
 	return v.pipe(
-		v.array(v.unknown(), "must be a list"),
+		list(v.unknown()),
 		v.minLength(1, "must hold at least one segment"),
-		v.tupleWithRest([segment(bounds)], segment(later)),
+		v.tupleWithRest([segment(bounds)], segment(laterBounds)),
 		rule(function* (segments) {
+			const first = segments[0].start;
 			for (let i = 1; i < segments.length; i++) {
 				if (segments[i].start <= segments[i - 1].start) {
 					yield [
@@ -199,17 +222,24 @@ function segments(bounds: Bounds) {
 						"must be greater than the previous segment's start",
 					];
 				}
-			}
-			const last = segments.length - 1;
-			if (last > 0 && segments[last].end - segments[0].start > length) {
-				yield [
-					[last, "end"],
-					`must be at most segments[0].start + ${length}, one turn of the record`,
-				];
+				// Ends need not ascend, so each is held to the first segment's turn.
+				if (circular) {
+					const { end } = segments[i];
+					yield* pastOneTurn(
+						[i, "end"],
+						"segments[0].start",
+						first,
+						end,
+						length,
+					);
+				}
 			}
 		}),
 	);
 }
+
+/** A feature's strand: 1 forward, -1 reverse, 0 none, 2 both. */
+const STRANDS = [1, -1, 0, 2] as const;
 
 /** A feature's translation fits the bases its segments hold from `codon_start`, 1 by default. */
 function feature(bounds: Bounds) {
@@ -217,11 +247,11 @@ function feature(bounds: Bounds) {
 		exact({
 			name: Text,
 			type: Text,
-			strand: v.picklist([1, -1, 0, 2], "must be 1, -1, 0 or 2"),
+			strand: oneOf(STRANDS),
 			segments: segments(bounds),
 			color: v.optional(Color),
 			translation: v.optional(Translation),
-			codon_start: v.optional(v.picklist([1, 2, 3], "must be 1, 2 or 3")),
+			codon_start: v.optional(oneOf([1, 2, 3])),
 		}),
 		rule(function* ({ segments, translation, codon_start }) {
 			if (translation === undefined) {
@@ -257,19 +287,20 @@ function primer(bounds: Bounds) {
 	const site = v.pipe(
 		exact({
 			...spanKeys(bounds),
-			strand: v.picklist([1, -1], "must be 1 or -1"),
-			mismatches: v.optional(v.array(base(bounds), "must be a list")),
+			strand: oneOf([1, -1]),
+			mismatches: v.optional(list(base(bounds))),
 		}),
 		spanRule(bounds),
 		rule(function* ({ start, end, mismatches = [] }) {
 			for (const [i, at] of mismatches.entries()) {
 				// A site across the origin holds its bases after the origin as `at + length`.
 				// Where the length is unknown, any base before the site may be one of them.
-				const after =
+				const insidePastOrigin =
 					length === UNBOUNDED
 						? at < start
 						: start <= at + length && at + length < end;
-				const inside = (start <= at && at < end) || (circular && after);
+				const inside =
+					(start <= at && at < end) || (circular && insidePastOrigin);
 				if (!inside) yield [["mismatches", i], "must be inside its site"];
 			}
 		}),
@@ -278,7 +309,7 @@ function primer(bounds: Bounds) {
 		exact({
 			name: Text,
 			bases: Bases,
-			sites: v.array(site, "must be a list"),
+			sites: list(site),
 		}),
 		rule(function* ({ bases, sites }) {
 			for (const [i, { start, end }] of sites.entries()) {
@@ -308,13 +339,14 @@ function cut(bounds: Bounds) {
 		}),
 		spanRule(bounds),
 		rule(function* ({ at, stagger }) {
-			if (circular) return;
-			const problem = "must keep at + stagger, the bottom-strand cut,";
-			if (at + stagger < 0) yield [["stagger"], `${problem} at 0 or more`];
+			// An `at` out of range has already been reported.
+			if (circular || at < 0 || at > length) return;
+			const mustKeep = "must keep at + stagger, the bottom-strand cut,";
+			if (at + stagger < 0) yield [["stagger"], `${mustKeep} at 0 or more`];
 			if (at + stagger > length) {
 				yield [
 					["stagger"],
-					`${problem} at most the record's length, ${length}`,
+					`${mustKeep} at most the record's length, ${length}`,
 				];
 			}
 		}),
@@ -335,14 +367,14 @@ function recordSchema(bounds: Bounds) {
 		name: Text,
 		circular: v.boolean("must be true or false"),
 		bases: Bases,
-		features: v.optional(v.array(feature(bounds), "must be a list")),
-		primers: v.optional(v.array(primer(bounds), "must be a list")),
-		cuts: v.optional(v.array(cut(bounds), "must be a list")),
-		insertions: v.optional(v.array(insertion(bounds), "must be a list")),
+		features: v.optional(list(feature(bounds)), () => []),
+		primers: v.optional(list(primer(bounds)), () => []),
+		cuts: v.optional(list(cut(bounds)), () => []),
+		insertions: v.optional(list(insertion(bounds)), () => []),
 	});
 }
 
-/** One DNA molecule as a caller hands it over. */
+/** One DNA molecule as a caller hands it over, with each missing list empty. */
 export type Record = v.InferOutput<ReturnType<typeof recordSchema>>;
 
 /**
