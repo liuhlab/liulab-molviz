@@ -1,17 +1,12 @@
-# pyright: reportMissingImports=false
-r"""Write mbio's example records into ``tests/records/``, in the viewer's format.
+"""Write mbio's example records into ``tests/records/``, in the viewer's format.
 
-It runs in mbio's environment, which ``--as-is`` neither installs into nor changes::
-
-    pixi run --as-is --manifest-path ../liulab-mbio/pyproject.toml python -I \
-        scripts/test_records.py --mbio ../liulab-mbio
-
-Each input is read at one mbio commit through ``git show``, so mbio's working tree does not
-matter, and mbio's own code must match that commit. Every record carries the cuts of all of
-mbio's enzymes. The hand-made records in ``tests/records/`` are not written here.
+It runs in mbio's environment, and ``tests/records/README.md`` has the command. Each input is
+read at `REVISION` through ``git show``, so mbio's files on disk do not matter, but the mbio
+code it imports must match that commit. Every record carries the cuts of all of mbio's
+enzymes. The hand-made records in ``tests/records/`` are not written here.
 """
 
-import argparse
+import inspect
 import json
 import re
 import subprocess
@@ -20,11 +15,13 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from mbio.enzymes import enzymes
-from mbio.io import read_record
-from mbio.plot.layers import _codon_start, items, translation
-from mbio.sites import find_sites
+import mbio  # pyright: ignore[reportMissingImports]
+from mbio.enzymes import enzymes  # pyright: ignore[reportMissingImports]
+from mbio.io import read_record  # pyright: ignore[reportMissingImports]
+from mbio.plot.layers import items, translation  # pyright: ignore[reportMissingImports]
+from mbio.sites import find_sites  # pyright: ignore[reportMissingImports]
 
+#: The mbio commit the records are read at. To move it, edit it and run this again.
 REVISION = "10e87856849e7d484f0274064b8ff96357a5f618"
 
 #: Each record's file name in ``tests/records/``, and its input in mbio.
@@ -43,14 +40,27 @@ def _color(value: str | None) -> str | None:
     return value.lower() if value is not None and _HEX.fullmatch(value) else None
 
 
+def _span(span: Any) -> dict[str, Any]:
+    return {"start": int(span.start), "end": int(span.end)}
+
+
+def _codon_start(feature: Any) -> int:
+    """Return the base, 1 to 3, a CDS is read from: 1 when `/codon_start` is missing or invalid."""
+    try:
+        start = int(feature.qualifiers.get("codon_start", (1,))[0])
+    except (IndexError, ValueError):
+        return 1
+    return start if start in (1, 2, 3) else 1
+
+
 def _feature(feature: Any, record: Any) -> dict[str, Any]:
     own = _color(feature.color)
     segments = []
     for segment in feature.segments:
-        one: dict[str, Any] = {"start": int(segment.start), "end": int(segment.end)}
+        written = _span(segment)
         if (color := _color(segment.color)) and color != own:
-            one["color"] = color
-        segments.append(one)
+            written["color"] = color
+        segments.append(written)
     out: dict[str, Any] = {
         "name": feature.name,
         "type": feature.type,
@@ -69,21 +79,15 @@ def _feature(feature: Any, record: Any) -> dict[str, Any]:
 
 
 def _primers(record: Any) -> list[dict[str, Any]]:
+    out = [{"name": p.name, "bases": p.sequence, "sites": []} for p in record.primers]
+    sites = [(i, site) for i, primer in enumerate(record.primers) for site in primer.binding_sites]
     # `items` gives one primer item per site, in the order the record lists them.
-    drawn = iter(items(record, features=False, cut_sites=False))
-    out = []
-    for primer in record.primers:
-        sites = []
-        for site in primer.binding_sites:
-            one: dict[str, Any] = {
-                "start": int(site.start),
-                "end": int(site.end),
-                "strand": int(site.strand),
-            }
-            if mismatches := next(drawn).mismatches:
-                one["mismatches"] = list(mismatches)
-            sites.append(one)
-        out.append({"name": primer.name, "bases": primer.sequence, "sites": sites})
+    primer_items = items(record, features=False, cut_sites=False)
+    for (i, site), item in zip(sites, primer_items, strict=True):
+        written = _span(site) | {"strand": int(site.strand)}
+        if item.mismatches:
+            written["mismatches"] = list(item.mismatches)
+        out[i]["sites"].append(written)
     return out
 
 
@@ -92,8 +96,7 @@ def _cuts(record: Any) -> list[dict[str, Any]]:
     return [
         {
             "enzyme": site.enzyme.name,
-            "start": site.start,
-            "end": site.end,
+            **_span(site),
             "at": site.top_cut,
             "stagger": site.enzyme.bottom_cut - site.enzyme.top_cut,
         }
@@ -119,37 +122,29 @@ def convert(record: Any) -> dict[str, Any]:
     return out
 
 
-def _git(mbio: Path, *args: str) -> bytes:
-    return subprocess.run(["git", "-C", str(mbio), *args], check=True, capture_output=True).stdout
+def _git(repo: Path, *args: str) -> bytes:
+    return subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True).stdout
 
 
 def main() -> None:
-    """Write each record in `RECORDS` from mbio at ``--revision``."""
-    parser = argparse.ArgumentParser(description="Write mbio's example records for molviz.")
-    parser.add_argument("--mbio", type=Path, required=True, help="the mbio checkout")
-    parser.add_argument("--revision", default=REVISION, help="the mbio commit to read")
-    parser.add_argument(
-        "--out",
-        type=Path,
-        default=Path(__file__).resolve().parents[1] / "tests" / "records",
-        help="where the records go",
-    )
-    args = parser.parse_args()
-    commit = _git(args.mbio, "rev-parse", f"{args.revision}^{{commit}}").decode().strip()
-    changed = subprocess.run(["git", "-C", str(args.mbio), "diff", "--quiet", commit, "--", "src"])
-    if changed.returncode:
-        sys.exit(f"mbio's src/ differs from {commit}: run on a checkout of that commit")
-    args.out.mkdir(parents=True, exist_ok=True)
+    """Write each record in `RECORDS` from mbio at `REVISION`."""
+    imported = Path(inspect.getfile(mbio)).resolve().parent
+    repo = Path(_git(imported, "rev-parse", "--show-toplevel").decode().strip())
+    changed = _git(repo, "diff", "--name-only", REVISION, "--", "src")
+    changed += _git(repo, "status", "--porcelain", "--untracked-files=all", "--", "src")
+    if changed:
+        sys.exit(f"the mbio imported from {repo} differs from {REVISION} in src/")
+    out = Path(__file__).resolve().parents[1] / "tests" / "records"
     with tempfile.TemporaryDirectory() as scratch:
         for name, path in RECORDS.items():
-            given = Path(scratch) / Path(path).name
-            given.write_bytes(_git(args.mbio, "show", f"{commit}:{path}"))
-            data = convert(read_record(given))
+            input_file = Path(scratch) / Path(path).name
+            input_file.write_bytes(_git(repo, "show", f"{REVISION}:{path}"))
+            data = convert(read_record(input_file))
             text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
-            (args.out / f"{name}.json").write_text(text, encoding="utf-8")
+            (out / f"{name}.json").write_text(text, encoding="utf-8")
             counts = ", ".join(f"{len(v)} {k}" for k, v in data.items() if isinstance(v, list))
             print(f"{name}: {len(data['bases'])} bp, {counts}")
-    print(f"from mbio {commit}")
+    print(f"from mbio {REVISION}, at {repo}")
 
 
 if __name__ == "__main__":

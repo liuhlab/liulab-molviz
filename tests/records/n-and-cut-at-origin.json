@@ -1,0 +1,28 @@
+{
+ "name": "n-and-cut-at-origin",
+ "circular": true,
+ "bases": "AATTCTATGAANGCTCCGAAACTGGCGTAACTAGTCAGTCTAGTCACG",
+ "features": [
+  {
+   "name": "orf",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 6,
+     "end": 30
+    }
+   ],
+   "translation": "MXAPKLA*"
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "EcoRI",
+   "start": 47,
+   "end": 53,
+   "at": 0,
+   "stagger": 4
+  }
+ ]
+}

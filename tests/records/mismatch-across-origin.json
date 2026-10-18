@@ -1,7 +1,7 @@
 {
  "name": "mismatch-across-origin",
  "circular": true,
- "bases": "CAGTTCGATAGCTTACGGATTCGAGTACTGAATCGCTTGA",
+ "bases": "CAGTTCGATAGCGAAATGTCAAGAGTACTGAATCGCTTGA",
  "primers": [
   {
    "name": "fwd-across",
@@ -14,6 +14,14 @@
      "mismatches": [
       33,
       2
+     ]
+    },
+    {
+     "start": 12,
+     "end": 22,
+     "strand": -1,
+     "mismatches": [
+      15
      ]
     }
    ]
