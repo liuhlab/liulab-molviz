@@ -2,10 +2,11 @@
 
 from importlib.metadata import version
 
+from molviz.drawing import Drawing, check, draw
 from molviz.viewer import viewer_script
 
 #: Read from the installed distribution's metadata, which hatch-vcs fills from the newest
 #: git tag. No version string is written by hand anywhere in this repo.
 __version__ = version("liulab-molviz")
 
-__all__ = ["__version__", "viewer_script"]
+__all__ = ["Drawing", "__version__", "check", "draw", "viewer_script"]
