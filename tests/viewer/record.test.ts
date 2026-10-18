@@ -1,14 +1,7 @@
 import * as v from "valibot";
 import { describe, expect, test } from "vitest";
-import {
-	type Bounds,
-	base,
-	check,
-	FormatError,
-	parse,
-	point,
-	span,
-} from "../../src/viewer/record";
+import { FormatError, parse } from "../../src/viewer/format";
+import { type Bounds, base, check, point, span } from "../../src/viewer/record";
 
 const good = { name: "pUC19", circular: true, bases: "GATCcatgRYN" };
 
@@ -56,6 +49,7 @@ describe("check", () => {
 		[{ ...good, circular: "yes" }, "circular: must be true or false"],
 		[{ name: "pUC19", bases: "ACGT" }, "circular: missing"],
 		[null, "record: must be an object"],
+		[[1], "record: must be an object"],
 	])("rejects %j", (input, message) => {
 		expect(() => check(input)).toThrow(new FormatError(message));
 	});

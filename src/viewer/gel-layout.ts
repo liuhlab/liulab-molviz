@@ -53,27 +53,27 @@ const LADDER_FILL = "#a9bbff";
 const INK = "#1c1e21";
 const SIZE_INK = "#5c626b";
 
-/** A lane as drawn: its mark over the gel, its bands, and what the legend says of it. */
+/** A lane as drawn: its mark over the gel, its bands, and its line of the legend. */
 interface Lane {
 	readonly mark: string;
 	readonly bands: readonly number[];
-	readonly said: string;
+	readonly caption: string;
 }
 
 /** Lay out `gel`: the ladder first, then its lanes in the order given. */
 export function layoutGel(gel: Gel): Scene {
 	const lanes: Lane[] = [
-		{ mark: "L", bands: gel.ladder.bands, said: gel.ladder.name },
+		{ mark: "L", bands: gel.ladder.bands, caption: gel.ladder.name },
 		...gel.lanes.map((lane, i) => ({
 			mark: String(i + 1),
 			bands: lane.bands,
-			said: said(lane),
+			caption: caption(lane),
 		})),
 	];
 	const run = runOf(lanes.flatMap((lane) => lane.bands));
-	const sizes = [...new Set(gel.ladder.bands)].sort((a, b) => b - a);
+	const ladderSizes = [...new Set(gel.ladder.bands)].sort((a, b) => b - a);
 	const sizeWidth = Math.max(
-		...sizes.map((bp) => measure(String(bp), "sans", TEXT_SIZE)),
+		...ladderSizes.map((bp) => measure(String(bp), "sans", TEXT_SIZE)),
 	);
 	const left = MARGIN + sizeWidth + SIZE_GAP;
 	const gelWidth = lanes.length * (LANE + LANE_GAP) + LANE_GAP;
@@ -102,7 +102,7 @@ export function layoutGel(gel: Gel): Scene {
 	shapes.push(rect(left, top, gelWidth, gelHeight, GEL_FILL, GEL_CORNER));
 	// A size is labelled only if it sits a text size or more under the last one labelled.
 	let last = Number.NEGATIVE_INFINITY;
-	for (const bp of sizes) {
+	for (const bp of ladderSizes) {
 		if (at(bp) - last < TEXT_SIZE) continue;
 		const label = String(bp);
 		const x = left - SIZE_GAP - measure(label, "sans", TEXT_SIZE);
@@ -135,7 +135,7 @@ export function layoutGel(gel: Gel): Scene {
 
 /**
  * Add to `shapes` a line of the legend for each lane, from the height `top`: its mark, then
- * what it says, wrapped to `width` less the margins at a hanging indent. Returns where it ends.
+ * its caption, wrapped to `width` less the margins at a hanging indent. Returns where it ends.
  */
 function legend(
 	shapes: Shape[],
@@ -148,9 +148,9 @@ function legend(
 	);
 	const textLeft = MARGIN + markWidth + MARK_GAP;
 	let y = top;
-	for (const { mark, said } of lanes) {
+	for (const { mark, caption } of lanes) {
 		shapes.push(text(mark, "sans-bold", TEXT_SIZE, MARGIN, y, "start", INK));
-		const wrapped = wrap(said, "sans", TEXT_SIZE, width - MARGIN - textLeft);
+		const wrapped = wrap(caption, "sans", TEXT_SIZE, width - MARGIN - textLeft);
 		const end = lines(shapes, wrapped, "sans", TEXT_SIZE, textLeft, y);
 		y = Math.max(end, y + LEADING * TEXT_SIZE);
 	}
@@ -174,19 +174,19 @@ function lines(
 	return top + wrapped.length * LEADING * size;
 }
 
-/** What the legend says of `lane`: its name and its sizes in the order given, or no band. */
-function said(lane: Gel["lanes"][number]): string {
-	const sizes = lane.bands.length ? `${lane.bands.join(", ")} bp` : "no band";
-	return lane.name ? `${lane.name}: ${sizes}` : sizes;
+/** `lane`'s line of the legend: its name and its sizes in the order given, or no band. */
+function caption(lane: Gel["lanes"][number]): string {
+	const listed = lane.bands.length ? `${lane.bands.join(", ")} bp` : "no band";
+	return lane.name ? `${lane.name}: ${listed}` : listed;
 }
 
 /**
- * How far a band of each size runs, from 0 for the largest of `sizes` to 1 for the smallest,
+ * How far a band of each size runs, from 0 for the largest of `bands` to 1 for the smallest,
  * linear in the log of its size; one half when all are one size.
  */
-function runOf(sizes: readonly number[]): (bp: number) => number {
-	const top = Math.log10(Math.max(...sizes));
-	const bottom = Math.log10(Math.min(...sizes));
+function runOf(bands: readonly number[]): (bp: number) => number {
+	const top = Math.log10(Math.max(...bands));
+	const bottom = Math.log10(Math.min(...bands));
 	return (bp) =>
 		top === bottom ? 0.5 : (top - Math.log10(bp)) / (top - bottom);
 }

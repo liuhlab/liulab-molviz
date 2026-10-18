@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
+import type { FormatError } from "../../src/viewer/format";
 import { checkGel } from "../../src/viewer/gel";
-import type { FormatError } from "../../src/viewer/record";
 
 const good = {
 	title: "PCR products",
@@ -33,6 +33,12 @@ describe("checkGel", () => {
 
 	test.each<[string, unknown, string[]]>([
 		["a gel that is not an object", null, ["gel: must be an object"]],
+		["a gel that is a list", [1], ["gel: must be an object"]],
+		[
+			"a lane that is a list",
+			{ ...good, lanes: [[741]] },
+			["lanes[0]: must be an object"],
+		],
 		[
 			"a gel with no ladder and no lanes",
 			{},

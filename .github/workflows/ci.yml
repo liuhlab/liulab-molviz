@@ -119,9 +119,9 @@ jobs:
       - run: pixi run -e docs docs-build
 
   # Promise 8, the same input writes the same bytes, across the two platforms. A job of its own
-  # because the platform differs. It digests every test record's drawings on macOS and diffs
-  # them with the digests the `test` job wrote on Linux, so no stored digest goes stale on a
-  # drawing change.
+  # because the platform differs. It digests the drawings of every test input on macOS and
+  # diffs them with the digests the `test` job wrote on Linux, so no stored digest goes stale
+  # on a drawing change.
   same-bytes:
     needs: test
     runs-on: macos-latest

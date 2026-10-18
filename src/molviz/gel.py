@@ -23,14 +23,15 @@ def check_gel(gel: dict[str, Any]) -> None:
     ...
     ValueError: ladder.bands[1]: must be 1 or more
     """
-    call("checkGel", gel)
+    call("gel", "check", gel)
 
 
 def draw_gel(gel: dict[str, Any]) -> Drawing:
     """Draw ``gel``, checking it with the viewer.
 
-    A gel hides no label, so the drawing's ``hidden`` is empty and its ``notice`` blank. A
-    page written from it takes the gel's title, or "Gel" when it has none.
+    Ladder sizes that would crowd are left out and not counted, so the drawing's ``hidden``
+    stays empty and its ``notice`` blank. A page written from it takes the gel's title, or
+    "Gel" when it has none.
 
     Raises
     ------
@@ -48,5 +49,5 @@ def draw_gel(gel: dict[str, Any]) -> Drawing:
     ... }
     >>> draw_gel(gel).write("gel.pdf")  # doctest: +SKIP
     """
-    drawn = call("gelSvg", gel)
-    return Drawing(gel.get("title") or "Gel", "drawGel", {"gel": gel}, drawn)
+    drawn = call("gel", "svg", gel)
+    return Drawing("gel", gel, drawn, gel.get("title") or "Gel")

@@ -69,11 +69,9 @@ export function measure(text: string, face: Face, size: number): number {
 }
 
 /**
- * `text` broken into lines no wider than `width`, as many words to a line as fit. A word wider
- * than a line breaks between letters, and a letter wider than a line takes a line alone.
- *
- * Every line fits the same width, so a caller that sets them all at one x, past a mark on the
- * first, gives a hanging indent.
+ * `text` broken into lines no wider than `width`, as many words to a line as fit, and none for
+ * text with no word. A word wider than a line breaks between letters, and a letter wider than a
+ * line takes a line alone.
  */
 export function wrap(
 	text: string,

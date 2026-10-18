@@ -1,4 +1,4 @@
-/** A record or a gel drawn live into an element of a page. */
+/** An input drawn live into an element of a page. */
 
 import { prepare, prepareGel } from "./drawing";
 import type { Scene } from "./scene";
