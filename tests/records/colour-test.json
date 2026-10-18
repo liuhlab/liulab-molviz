@@ -1,0 +1,358 @@
+{
+ "name": "colour-test",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTGAATTCGAGCTCGGTACCCGGGGATCCTCTAGAGTCGACCTGCAGGCATGCAAGCTTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "",
+   "type": "source",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 0,
+     "end": 2686
+    }
+   ]
+  },
+  {
+   "name": "split",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 100,
+     "end": 160
+    },
+    {
+     "start": 200,
+     "end": 260,
+     "color": "#00ff00"
+    },
+    {
+     "start": 300,
+     "end": 360,
+     "color": "#0000ff"
+    }
+   ],
+   "color": "#ff0000",
+   "translation": "SGRVSGCWRVSGLA*LCGIRPHRCVRRKYRIRRHSPFRLRYASWRKGDVLQGD*VG*RQG"
+  },
+  {
+   "name": "lacZ-alpha",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 469
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPSLHACRSTLEDPRVPSSNSLAVVLQRRDWENPGVTQLNRLAAHPPFASWRNSEEARTDRPSQQLRSLNGEWRLMRYFLLTHLCGISHRIWCTLSTICSDAA*"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 452
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "split-same-first",
+   "type": "misc_feature",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 400,
+     "end": 420
+    },
+    {
+     "start": 440,
+     "end": 460,
+     "color": "#123abc"
+    }
+   ],
+   "color": "#ffcc00"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 464,
+     "end": 481
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 488,
+     "end": 505
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "white",
+   "type": "promoter",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 500,
+     "end": 530
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 512,
+     "end": 519
+    },
+    {
+     "start": 519,
+     "end": 537
+    },
+    {
+     "start": 537,
+     "end": 543
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "uncoloured",
+   "type": "terminator",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 600,
+     "end": 640
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 866,
+     "end": 1455
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1625,
+     "end": 2417
+    },
+    {
+     "start": 2417,
+     "end": 2486
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2486,
+     "end": 2591
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "across",
+   "type": "misc_feature",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 2600,
+     "end": 2750
+    }
+   ],
+   "color": "#993366"
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "EcoRI",
+   "start": 395,
+   "end": 401,
+   "at": 396,
+   "stagger": 4
+  },
+  {
+   "enzyme": "SacI",
+   "start": 401,
+   "end": 407,
+   "at": 406,
+   "stagger": -4
+  },
+  {
+   "enzyme": "KpnI",
+   "start": 407,
+   "end": 413,
+   "at": 412,
+   "stagger": -4
+  },
+  {
+   "enzyme": "SmaI",
+   "start": 411,
+   "end": 417,
+   "at": 414,
+   "stagger": 0
+  },
+  {
+   "enzyme": "XmaI",
+   "start": 411,
+   "end": 417,
+   "at": 412,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BamHI",
+   "start": 416,
+   "end": 422,
+   "at": 417,
+   "stagger": 4
+  },
+  {
+   "enzyme": "XbaI",
+   "start": 422,
+   "end": 428,
+   "at": 423,
+   "stagger": 4
+  },
+  {
+   "enzyme": "SalI",
+   "start": 428,
+   "end": 434,
+   "at": 429,
+   "stagger": 4
+  },
+  {
+   "enzyme": "SbfI",
+   "start": 433,
+   "end": 441,
+   "at": 439,
+   "stagger": -4
+  },
+  {
+   "enzyme": "PstI",
+   "start": 434,
+   "end": 440,
+   "at": 439,
+   "stagger": -4
+  },
+  {
+   "enzyme": "SphI",
+   "start": 440,
+   "end": 446,
+   "at": 445,
+   "stagger": -4
+  },
+  {
+   "enzyme": "HindIII",
+   "start": 446,
+   "end": 452,
+   "at": 447,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 682,
+   "end": 689,
+   "at": 690,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 682,
+   "end": 689,
+   "at": 690,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1765,
+   "end": 1771,
+   "at": 1760,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 2682,
+   "end": 2688,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 2682,
+   "end": 2688,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}

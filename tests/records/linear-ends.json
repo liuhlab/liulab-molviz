@@ -1,0 +1,55 @@
+{
+ "name": "linear-ends",
+ "circular": false,
+ "bases": "CATGGCTGAATTCAAACTGCCGTAAAGCTATTATTTCAGCGGTCTCAT",
+ "features": [
+  {
+   "name": "orfA",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 0,
+     "end": 25
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MAEFKLP*",
+   "codon_start": 2
+  },
+  {
+   "name": "orfB",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 30,
+     "end": 48
+    }
+   ],
+   "translation": "MRPLK*"
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "EcoRI",
+   "start": 7,
+   "end": 13,
+   "at": 8,
+   "stagger": 4
+  }
+ ],
+ "insertions": [
+  {
+   "name": "5' adapter",
+   "at": 0,
+   "length": 8
+  },
+  {
+   "name": "3' adapter",
+   "at": 48,
+   "length": 8,
+   "color": "#ff8800"
+  }
+ ]
+}
