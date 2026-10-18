@@ -1,0 +1,18 @@
+{
+ "title": "eleven contents, all one colour",
+ "rows": 2,
+ "columns": 6,
+ "wells": {
+  "A1": "clone 1",
+  "A2": "clone 2",
+  "A3": "clone 3",
+  "A4": "clone 4",
+  "A5": "clone 5",
+  "A6": "clone 6",
+  "B1": "clone 7",
+  "B2": "clone 8",
+  "B3": "clone 9",
+  "B4": "clone 10",
+  "B5": "clone 11"
+ }
+}

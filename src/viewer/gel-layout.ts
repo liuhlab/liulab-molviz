@@ -3,21 +3,20 @@
  * right and y down, from (0, 0) at the drawing's top left.
  */
 
+import {
+	LEADING,
+	lines,
+	MARGIN,
+	MIN_WIDTH,
+	TITLE_GAP,
+	TITLE_SIZE,
+} from "./furniture";
 import type { Gel } from "./gel";
 import type { Scene, Shape } from "./scene";
-import { baseline, type Face, measure, wrap } from "./text";
+import { measure, wrap } from "./text";
 
-const MARGIN = 10;
-/** The least width a drawing takes, so a gel of few lanes still has room for its legend. */
-const MIN_WIDTH = 240;
-
-const TITLE_SIZE = 13;
-/** The room between the title and the lane marks. */
-const TITLE_GAP = 6;
 /** The size of every text but the title. */
 const TEXT_SIZE = 10;
-/** A line of text's height, per unit of its size. */
-const LEADING = 1.3;
 /** The room between the lane marks and the gel. */
 const MARKS_GAP = 5;
 /** The room between a ladder size and the gel. */
@@ -50,7 +49,6 @@ const GEL_FILL = "#15171c";
 const WELL_FILL = "#030407";
 const BAND_FILL = "#f3f0ff";
 const LADDER_FILL = "#a9bbff";
-const INK = "#1c1e21";
 const SIZE_INK = "#5c626b";
 
 /** A lane as drawn: its mark over the gel, its bands, and its line of the legend. */
@@ -109,14 +107,16 @@ export function layoutGel(gel: Gel): Scene {
 		const label = String(bp);
 		const x = left - SIZE_GAP - measure(label, "sans", TEXT_SIZE);
 		const lineTop = at(bp) - (LEADING * TEXT_SIZE) / 2;
-		shapes.push(text(label, "sans", TEXT_SIZE, x, lineTop, "start", SIZE_INK));
+		lines(shapes, [label], "sans", TEXT_SIZE, x, lineTop, { fill: SIZE_INK });
 		last = at(bp);
 	}
 	for (const [k, { mark, bands }] of lanes.entries()) {
 		const x = left + LANE_GAP + k * (LANE + LANE_GAP);
 		const markTop = top - MARKS_GAP - LEADING * TEXT_SIZE;
+		lines(shapes, [mark], "sans-bold", TEXT_SIZE, x + LANE / 2, markTop, {
+			anchor: "middle",
+		});
 		shapes.push(
-			text(mark, "sans-bold", TEXT_SIZE, x + LANE / 2, markTop, "middle", INK),
 			rect(x, top + WELL_TOP, LANE, WELL_DEPTH, WELL_FILL, 0),
 			...bands.map((bp) =>
 				rect(
@@ -151,29 +151,12 @@ function legend(
 	const textLeft = MARGIN + markWidth + MARK_GAP;
 	let y = top;
 	for (const { mark, caption } of lanes) {
-		shapes.push(text(mark, "sans-bold", TEXT_SIZE, MARGIN, y, "start", INK));
+		lines(shapes, [mark], "sans-bold", TEXT_SIZE, MARGIN, y);
 		const wrapped = wrap(caption, "sans", TEXT_SIZE, width - MARGIN - textLeft);
 		const end = lines(shapes, wrapped, "sans", TEXT_SIZE, textLeft, y);
 		y = Math.max(end, y + LEADING * TEXT_SIZE);
 	}
 	return y;
-}
-
-/** Add `wrapped` to `shapes`, one line under another from `top` at `x`. Returns where they end. */
-function lines(
-	shapes: Shape[],
-	wrapped: readonly string[],
-	face: Face,
-	size: number,
-	x: number,
-	top: number,
-): number {
-	for (const [i, line] of wrapped.entries()) {
-		shapes.push(
-			text(line, face, size, x, top + i * LEADING * size, "start", INK),
-		);
-	}
-	return top + wrapped.length * LEADING * size;
 }
 
 /** `lane`'s line of the legend: its name and its sizes in the order given, or no band. */
@@ -191,20 +174,6 @@ function runOf(bands: readonly number[]): (bp: number) => number {
 	const bottom = Math.log10(Math.min(...bands));
 	return (bp) =>
 		top === bottom ? 0.5 : (top - Math.log10(bp)) / (top - bottom);
-}
-
-/** `content` set in a line of text whose top is `top`. */
-function text(
-	content: string,
-	face: Face,
-	size: number,
-	x: number,
-	top: number,
-	anchor: "start" | "middle",
-	fill: string,
-): Shape {
-	const y = baseline(face, size, top + (LEADING * size) / 2);
-	return { shape: "text", text: content, face, size, x, y, anchor, fill };
 }
 
 function rect(

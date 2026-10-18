@@ -13,14 +13,18 @@ function objectProblem(issue: v.ObjectIssue): string {
 }
 
 /**
- * An object with these keys and no others. A list is not an object. Every unknown key is
- * reported, `__proto__` included, which valibot's own object schemas skip or stop after.
+ * An object that `schema` checks and that is not a list, with a problem `keyProblem` finds in a
+ * key reported at that key. Every key is checked, `__proto__` included, which valibot's own
+ * object and record schemas skip or stop after.
  */
-export function exact<E extends v.ObjectEntries>(entries: E) {
+export function keyed<S extends v.GenericSchema>(
+	schema: S,
+	keyProblem: (key: string) => string | undefined,
+) {
 	return v.pipe(
 		v.custom<unknown>((input) => !Array.isArray(input), "must be an object"),
 		v.intersect([
-			v.object(entries, objectProblem),
+			schema,
 			v.pipe(
 				v.unknown(),
 				v.rawCheck(({ dataset, addIssue }) => {
@@ -28,10 +32,11 @@ export function exact<E extends v.ObjectEntries>(entries: E) {
 						return;
 					const input = dataset.value as { [key: string]: unknown };
 					for (const key of Object.keys(input)) {
-						if (Object.hasOwn(entries, key)) continue;
+						const message = keyProblem(key);
+						if (message === undefined) continue;
 						const value = input[key];
 						addIssue({
-							message: "unknown key",
+							message,
 							path: [{ type: "object", origin: "key", input, key, value }],
 						});
 					}
@@ -41,9 +46,21 @@ export function exact<E extends v.ObjectEntries>(entries: E) {
 	);
 }
 
+/** An object with these keys and no others. */
+export function exact<E extends v.ObjectEntries>(entries: E) {
+	return keyed(v.object(entries, objectProblem), (key) =>
+		Object.hasOwn(entries, key) ? undefined : "unknown key",
+	);
+}
+
 export const Integer = v.pipe(
 	v.number("must be a number"),
 	v.integer("must be an integer"),
+);
+
+export const PositiveInteger = v.pipe(
+	Integer,
+	v.minValue(1, "must be 1 or more"),
 );
 
 export const Text = v.string("must be text");

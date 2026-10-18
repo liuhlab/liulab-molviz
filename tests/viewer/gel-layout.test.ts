@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { checkGel } from "../../src/viewer/gel";
 import { layoutGel } from "../../src/viewer/gel-layout";
-import type { Scene, Shape } from "../../src/viewer/scene";
+import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure } from "../../src/viewer/text";
 import longNames from "../gels/long-names.json";
 import oneSize from "../gels/one-size.json";
@@ -131,7 +131,7 @@ describe("layoutGel", () => {
 		const scene = layoutGel(checkGel(longNames));
 		for (const t of texts(scene)) {
 			const width = measure(t.text, t.face, t.size);
-			const from = t.anchor === "middle" ? t.x - width / 2 : t.x;
+			const from = leftEdge(t, width);
 			expect(from).toBeGreaterThanOrEqual(10);
 			expect(from + width).toBeLessThanOrEqual(scene.extent.width - 10);
 		}

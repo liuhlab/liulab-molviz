@@ -4,6 +4,8 @@ import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { layout } from "./line";
 import { checkOptions } from "./options";
+import { checkPlate } from "./plate";
+import { layoutPlate } from "./plate-layout";
 import { check, type Span } from "./record";
 import type { Scene } from "./scene";
 import { toSvg } from "./svg";
@@ -45,6 +47,11 @@ export function prepareGel(gel: unknown): Scene {
 	return layoutGel(checkGel(gel));
 }
 
+/** Check `plate` and lay it out. Throws one FormatError naming every problem in the plate. */
+export function preparePlate(plate: unknown): Scene {
+	return layoutPlate(checkPlate(plate));
+}
+
 /**
  * Draw `record` with `options` as SVG text, every letter an outline. Throws one FormatError
  * naming every problem in the record, or else in the options.
@@ -60,6 +67,14 @@ export function svg(record: unknown, options: unknown = {}): Drawing {
  */
 export function gelSvg(gel: unknown): Drawing {
 	return whole(toSvg(prepareGel(gel)));
+}
+
+/**
+ * Draw `plate` as SVG text, every letter an outline. Throws one FormatError naming every
+ * problem in the plate.
+ */
+export function plateSvg(plate: unknown): Drawing {
+	return whole(toSvg(preparePlate(plate)));
 }
 
 /** `svg` as a drawing of one page that counts no hidden label. */

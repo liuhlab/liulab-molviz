@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { draw, drawGel } from "../../src/viewer/draw";
+import { draw, drawGel, drawPlate } from "../../src/viewer/draw";
 import { FormatError } from "../../src/viewer/format";
 import { family, fontFaceCss } from "../../src/viewer/text";
 
@@ -22,6 +22,13 @@ const gel = {
 	title: "PCR products",
 	ladder: { name: "ladder", bands: [100, 1000] },
 	lanes: [{ name: "GFP", bands: [741] }],
+};
+
+const plate = {
+	title: "picked 1",
+	rows: 2,
+	columns: 3,
+	wells: { A1: "quarter 1", B3: "water" },
 };
 
 function spot(): HTMLElement {
@@ -125,6 +132,58 @@ describe("drawGel", () => {
 		expect(() =>
 			drawGel(element, { ...gel, lanes: [{ name: "GFP" }] }),
 		).toThrow(new FormatError("lanes[0].bands: missing"));
+		expect(element.children).toHaveLength(0);
+		expect(document.querySelectorAll("style")).toHaveLength(0);
+	});
+});
+
+describe("drawPlate", () => {
+	test("puts one SVG in the element, its letters as text in the viewer's faces", () => {
+		const element = spot();
+		drawPlate(element, plate);
+		expect(element.children).toHaveLength(1);
+		const svg = element.children[0];
+		expect(svg.namespaceURI).toBe("http://www.w3.org/2000/svg");
+		const texts = [...svg.querySelectorAll("text")];
+		expect(texts.map((t) => t.textContent)).toEqual(
+			expect.arrayContaining(["picked 1", "A", "B", "1", "3", "quarter 1"]),
+		);
+		for (const text of texts) {
+			expect(text.getAttribute("font-family")).toBe(family);
+		}
+		expect(document.querySelectorAll("style")).toHaveLength(1);
+	});
+
+	test("names a well and its contents when the pointer rests on it, an empty well by its name alone, and nothing else", () => {
+		const element = spot();
+		drawPlate(element, plate);
+		const titles = [...element.querySelectorAll("title")];
+		expect(
+			titles.map((title) => [title.parentElement?.tagName, title.textContent]),
+		).toEqual([
+			["rect", "A1: quarter 1"],
+			["rect", "A2"],
+			["rect", "A3"],
+			["rect", "B1"],
+			["rect", "B2"],
+			["rect", "B3: water"],
+		]);
+	});
+
+	test("returns a handle whose destroy removes the drawing", () => {
+		const element = spot();
+		const drawing = drawPlate(element, plate);
+		drawing.destroy();
+		expect(element.children).toHaveLength(0);
+	});
+
+	test("throws a FormatError on a bad plate, adding nothing to the page", () => {
+		const element = spot();
+		expect(() =>
+			drawPlate(element, { ...plate, wells: { C1: "water" } }),
+		).toThrow(
+			new FormatError("wells.C1: not on the plate, which runs A1 to B3"),
+		);
 		expect(element.children).toHaveLength(0);
 		expect(document.querySelectorAll("style")).toHaveLength(0);
 	});

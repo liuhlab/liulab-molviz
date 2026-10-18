@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { gelSvg, svg } from "../../src/viewer/drawing";
+import { gelSvg, plateSvg, svg } from "../../src/viewer/drawing";
 import { FormatError } from "../../src/viewer/format";
 
 const good = { name: "p", circular: false, bases: "ACGT".repeat(25) };
@@ -62,6 +62,27 @@ describe("gelSvg", () => {
 		const drawn = gelSvg(gel);
 		expect(drawn.svg).toMatch(/^<svg\b/);
 		expect(drawn.svg).toContain('fill="#15171c"');
+		expect(drawn.svg).not.toContain("<text");
+		expect(drawn.svg).not.toContain("<title");
+		expect(drawn.pages).toEqual([drawn.svg]);
+		expect(drawn.hidden).toEqual([]);
+		expect(drawn.notice).toBe("");
+	});
+});
+
+describe("plateSvg", () => {
+	const plate = { rows: 2, columns: 3, wells: { A1: "water" } };
+
+	test("checks the plate", () => {
+		expect(() => plateSvg({ ...plate, wells: { C1: "water" } })).toThrow(
+			new FormatError("wells.C1: not on the plate, which runs A1 to B3"),
+		);
+	});
+
+	test("draws the plate, every letter an outline, as the only page, hiding nothing", () => {
+		const drawn = plateSvg(plate);
+		expect(drawn.svg).toMatch(/^<svg\b/);
+		expect(drawn.svg).toContain('fill="#3f90da"');
 		expect(drawn.svg).not.toContain("<text");
 		expect(drawn.svg).not.toContain("<title");
 		expect(drawn.pages).toEqual([drawn.svg]);

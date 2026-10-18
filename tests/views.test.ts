@@ -17,12 +17,12 @@ test("the docs site draws each slot by its name, and says which name it does not
 	document.body.innerHTML = [
 		slot(null, "record", record),
 		slot("gel", "gel", gel),
-		slot("plate", "plate", {}),
+		slot("tube", "tube", {}),
 	].join("");
 	for (const file of ["src/molviz/viewer.js", "docs/assets/molviz/views.js"]) {
 		vm.runInThisContext(`{${readFileSync(file, "utf8")}\n}`);
 	}
 	const slots = [...document.querySelectorAll("[data-molviz]")];
 	expect(slots.map((s) => s.querySelectorAll("svg").length)).toEqual([1, 1, 0]);
-	expect(slots[2].querySelector("p")?.textContent).toContain('"plate"');
+	expect(slots[2].querySelector("p")?.textContent).toContain('"tube"');
 });

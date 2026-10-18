@@ -1,18 +1,18 @@
 /** The gel format: a ladder and sample lanes, each band by its size. */
 
 import * as v from "valibot";
-import { exact, Integer, list, parse, Text } from "./format";
-
-/** A band's size in bp. */
-const Band = v.pipe(Integer, v.minValue(1, "must be 1 or more"));
+import { exact, list, PositiveInteger, parse, Text } from "./format";
 
 const gelSchema = exact({
 	title: v.optional(Text),
 	ladder: exact({
 		name: Text,
-		bands: v.pipe(list(Band), v.minLength(1, "must hold at least one band")),
+		bands: v.pipe(
+			list(PositiveInteger),
+			v.minLength(1, "must hold at least one band"),
+		),
 	}),
-	lanes: list(exact({ name: Text, bands: list(Band) })),
+	lanes: list(exact({ name: Text, bands: list(PositiveInteger) })),
 });
 
 /** A gel as a caller hands it over. */

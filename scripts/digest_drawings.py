@@ -25,6 +25,7 @@ ENDINGS = (".html", ".svg", ".png", ".pdf")
 DRAWS: dict[str, Callable[[dict[str, Any]], molviz.Drawing]] = {
     "records": molviz.draw,
     "gels": molviz.draw_gel,
+    "plates": molviz.draw_plate,
 }
 
 

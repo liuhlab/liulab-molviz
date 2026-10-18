@@ -1,10 +1,12 @@
-"""Write mbio's example records and gels into ``tests/``, in the viewer's formats.
+"""Write mbio's example records, gels and plates into ``tests/``, in the viewer's formats.
 
-The records go to ``tests/records/``, and the gels, from mbio's protocol JSON, to
-``tests/gels/``. It runs in mbio's environment, and ``tests/records/README.md`` has the
-command. Each input is read at `REVISION` through ``git show``, so mbio's files on disk do not
-matter, but the mbio code it imports must match that commit. Every record carries the cuts of
-all of mbio's enzymes. The hand-made records in ``tests/records/`` are not written here.
+The records go to ``tests/records/``, and from mbio's protocol JSON the gels to ``tests/gels/``
+and the plates to ``tests/plates/``. It runs in mbio's environment, and
+``tests/records/README.md`` has the command. Each input is read at `REVISION` through
+``git show``, so mbio's files on disk do not matter, but the mbio code it imports must match
+that commit. Every record carries the cuts of all of mbio's enzymes. An input that repeats one
+already written, such as a plate two protocols declare alike, is written once. The hand-made
+records in ``tests/records/`` are not written here.
 """
 
 import inspect
@@ -13,6 +15,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +23,10 @@ import mbio  # pyright: ignore[reportMissingImports]
 from mbio.enzymes import enzymes  # pyright: ignore[reportMissingImports]
 from mbio.io import read_record  # pyright: ignore[reportMissingImports]
 from mbio.plot.layers import items, translation  # pyright: ignore[reportMissingImports]
+from mbio.protocol.model import (  # pyright: ignore[reportMissingImports]
+    read_project,
+    read_protocol,
+)
 from mbio.sites import find_sites  # pyright: ignore[reportMissingImports]
 
 #: The mbio commit the records are read at. To move it, edit it and run this again.
@@ -42,6 +49,13 @@ GELS = {
     "golden-gate": "docs/examples/pUC19-GFP/protocol.json",
     "restriction": "docs/examples/pUC19-GFP/restriction/protocol.json",
     "pcr-test": "tests/data/pcr-protocol.json",
+}
+
+#: Each protocol or project in mbio that declares plates, by the short name that starts each
+#: plate's file name in ``tests/plates/``. The plate's name, or a stamp's title, ends it.
+PLATES = {
+    "ap1": "docs/examples/ap1-library/protocol/project.json",
+    "ap1-readback": "docs/examples/ap1-readback/protocol.json",
 }
 
 _HEX = re.compile(r"#[0-9a-fA-F]{6}")
@@ -155,21 +169,99 @@ def _gels(data: dict[str, Any]) -> list[dict[str, Any]]:
     return [gel for step in steps for gel in step.get("gels", [])]
 
 
+def convert_plate(
+    plate: Any, title: str | None = None, wells: Mapping[str, str] | None = None
+) -> dict[str, Any]:
+    """Return an mbio ``Plate`` in the viewer's format, its wells in reading order.
+
+    The format becomes rows and columns. The title is the plate's name and the wells are
+    ``{**labels, **seating}``, as mbio's page draws them, unless `title` or `wells` is given.
+    A plate with no well filled has no ``wells``.
+    """
+    held = {**plate.labels, **plate.seating} if wells is None else wells
+    out: dict[str, Any] = {
+        "title": plate.name if title is None else title,
+        "rows": plate.rows,
+        "columns": plate.columns,
+    }
+    if held:
+        order = {name: i for i, name in enumerate(plate.well_names)}
+        out["wells"] = {name: held[name] for name in sorted(held, key=order.__getitem__)}
+    return out
+
+
+def _stamped(transfer: Any, plates: tuple[Any, ...]) -> list[dict[str, Any]]:
+    """Return the "From" and "Into" plates mbio's page draws for a transfer, or none.
+
+    mbio draws a transfer only where it is a stamp, both its plates are declared in `plates`,
+    and every well it touches is on its plate. Each touched well holds the transfer's title.
+    """
+    declared = {plate.name: plate for plate in plates}
+    source = declared.get(transfer.plates[0])
+    destination = declared.get(transfer.plates[-1])
+    if transfer.stamp is None or source is None or destination is None:
+        return []
+    title: str = transfer.title
+    taken: set[str] = {move.source.well for move in transfer.moves}
+    filled: set[str] = {move.destination.well for move in transfer.moves}
+    if not (taken <= set(source.well_names) and filled <= set(destination.well_names)):
+        return []
+    return [
+        convert_plate(source, f"From {source.name}", dict.fromkeys(taken, title)),
+        convert_plate(destination, f"Into {destination.name}", dict.fromkeys(filled, title)),
+    ]
+
+
+def _plates(protocol: Any) -> list[tuple[str, dict[str, Any]]]:
+    """Return each plate a protocol declares, then both plates of each stamp, each with a name."""
+    out = [(_slug(plate.name), convert_plate(plate)) for plate in protocol.plates]
+    for step in protocol.steps:
+        for transfer in step.transfers:
+            pair = zip(("from", "into"), _stamped(transfer, protocol.plates), strict=False)
+            out += [(_slug(f"{transfer.title} {side}"), plate) for side, plate in pair]
+    return out
+
+
+def _protocols(path: Path) -> tuple[Any, ...]:
+    """Return a protocol file's protocol, or each protocol of a project file, as mbio reads it."""
+    if "protocols" in json.loads(path.read_text(encoding="utf-8")):
+        return read_project(path).protocols
+    return (read_protocol(path),)
+
+
 def _slug(text: str) -> str:
     """Return ``text`` in lower case, with each run of characters other than a-z and 0-9 a dash."""
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
-def _write(path: Path, data: dict[str, Any]) -> None:
-    path.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+def _write(path: Path, data: dict[str, Any], written: dict[Path, str]) -> bool:
+    """Write ``data`` to ``path``, unless it repeats a file in ``written`` exactly.
+
+    Returns whether it wrote. Stops where two different inputs would both be written to ``path``.
+    """
+    text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
+    if text in written.values():
+        return False
+    if path in written:
+        sys.exit(f"two different inputs would both be written to {path.parent.name}/{path.name}")
+    written[path] = text
+    path.write_text(text, encoding="utf-8")
+    return True
 
 
 def _git(repo: Path, *args: str) -> bytes:
     return subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True).stdout
 
 
+def _show(repo: Path, path: str, scratch: Path) -> Path:
+    """Return a copy in ``scratch`` of mbio's file at ``path`` as it was at `REVISION`."""
+    copy = scratch / Path(path).name
+    copy.write_bytes(_git(repo, "show", f"{REVISION}:{path}"))
+    return copy
+
+
 def main() -> None:
-    """Write each record in `RECORDS` and each gel in `GELS` from mbio at `REVISION`."""
+    """Write the records in `RECORDS`, and the gels and plates in `GELS` and `PLATES`."""
     imported = Path(inspect.getfile(mbio)).resolve().parent
     repo = Path(_git(imported, "rev-parse", "--show-toplevel").decode().strip())
     changed = _git(repo, "diff", "--name-only", REVISION, "--", "src")
@@ -177,23 +269,29 @@ def main() -> None:
     if changed:
         sys.exit(f"the mbio imported from {repo} differs from {REVISION} in src/")
     tests = Path(__file__).resolve().parents[1] / "tests"
-    with tempfile.TemporaryDirectory() as scratch:
+    written: dict[Path, str] = {}
+    with tempfile.TemporaryDirectory() as temporary:
+        scratch = Path(temporary)
         for name, path in RECORDS.items():
-            input_file = Path(scratch) / Path(path).name
-            input_file.write_bytes(_git(repo, "show", f"{REVISION}:{path}"))
-            data = convert(read_record(input_file))
-            _write(tests / "records" / f"{name}.json", data)
-            counts = ", ".join(f"{len(v)} {k}" for k, v in data.items() if isinstance(v, list))
-            print(f"{name}: {len(data['bases'])} bp, {counts}")
-    written: set[str] = set()
-    for short, path in GELS.items():
-        for gel in _gels(json.loads(_git(repo, "show", f"{REVISION}:{path}"))):
-            name = _slug(f"{short} {gel.get('title', '')}")
-            if name in written:
-                sys.exit(f"two gels would both be written to {name}.json")
-            written.add(name)
-            _write(tests / "gels" / f"{name}.json", convert_gel(gel))
-            print(f"{name}: {len(gel['lanes'])} lanes")
+            data = convert(read_record(_show(repo, path, scratch)))
+            if _write(tests / "records" / f"{name}.json", data, written):
+                counts = ", ".join(f"{len(v)} {k}" for k, v in data.items() if isinstance(v, list))
+                print(f"{name}: {len(data['bases'])} bp, {counts}")
+        for short, path in GELS.items():
+            protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
+            for gel in _gels(protocol):
+                name = _slug(f"{short} {gel.get('title', '')}")
+                if _write(tests / "gels" / f"{name}.json", convert_gel(gel), written):
+                    print(f"{name}: {len(gel['lanes'])} lanes")
+        for short, path in PLATES.items():
+            for protocol in _protocols(_show(repo, path, scratch)):
+                for slug, plate in _plates(protocol):
+                    name = f"{short}-{slug}"
+                    if _write(tests / "plates" / f"{name}.json", plate, written):
+                        wells = len(plate.get("wells", {}))
+                        print(
+                            f"{name}: {plate['rows']} by {plate['columns']}, {wells} wells filled"
+                        )
     print(f"from mbio {REVISION}, at {repo}")
 
 

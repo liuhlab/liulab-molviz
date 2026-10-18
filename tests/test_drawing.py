@@ -138,6 +138,8 @@ GEL = {
     "lanes": [{"name": "GFP", "bands": [741]}, {"name": "empty vector", "bands": []}],
 }
 
+PLATE = {"title": "picked 1", "rows": 8, "columns": 12, "wells": {"A1": "quarter 1"}}
+
 # Each draw call with an input it draws, its page's title, and the call that page makes.
 DRAWS = [
     pytest.param(
@@ -153,6 +155,13 @@ DRAWS = [
         "PCR products",
         'molviz.drawGel(document.getElementById("drawing"), data("gel"));',
         id="gel",
+    ),
+    pytest.param(
+        molviz.draw_plate,
+        PLATE,
+        "picked 1",
+        'molviz.drawPlate(document.getElementById("drawing"), data("plate"));',
+        id="plate",
     ),
 ]
 

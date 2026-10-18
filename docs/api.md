@@ -30,9 +30,13 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.check_gel
 
+::: molviz.check_plate
+
 ::: molviz.draw
 
 ::: molviz.draw_gel
+
+::: molviz.draw_plate
 
 ::: molviz.Drawing
 
