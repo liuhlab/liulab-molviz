@@ -12,7 +12,8 @@ export type Face = "sans" | "sans-bold";
 export const family = "molviz Sans";
 
 const urls: Record<Face, string> = { sans: sansUrl, "sans-bold": sansBoldUrl };
-const weights: Record<Face, number> = { sans: 400, "sans-bold": 700 };
+/** The weight each face is declared at under `family`. */
+export const weights: Record<Face, number> = { sans: 400, "sans-bold": 700 };
 const fonts: Partial<Record<Face, Font>> = {};
 
 function font(face: Face): Font {
