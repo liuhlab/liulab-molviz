@@ -1,8 +1,9 @@
-"""Checking a gel, with the viewer's own code."""
+"""Checking a gel and drawing it, with the viewer's own code."""
 
 from typing import Any
 
 from molviz._runtime import call
+from molviz.drawing import Drawing
 
 
 def check_gel(gel: dict[str, Any]) -> None:
@@ -23,3 +24,29 @@ def check_gel(gel: dict[str, Any]) -> None:
     ValueError: ladder.bands[1]: must be 1 or more
     """
     call("checkGel", gel)
+
+
+def draw_gel(gel: dict[str, Any]) -> Drawing:
+    """Draw ``gel``, checking it with the viewer.
+
+    A gel hides no label, so the drawing's ``hidden`` is empty and its ``notice`` blank. A
+    page written from it takes the gel's title, or "Gel" when it has none.
+
+    Raises
+    ------
+    ValueError
+        If the gel breaks the format. The message names every problem by its path.
+    TypeError
+        If a value has no JSON form, such as a set.
+
+    Examples
+    --------
+    >>> gel = {
+    ...     "title": "PCR products",
+    ...     "ladder": {"name": "NEB 100 bp DNA Ladder (N3231)", "bands": [100, 200, 300]},
+    ...     "lanes": [{"name": "GFP", "bands": [741]}, {"name": "empty vector", "bands": []}],
+    ... }
+    >>> draw_gel(gel).write("gel.pdf")  # doctest: +SKIP
+    """
+    drawn = call("gelSvg", gel)
+    return Drawing(gel.get("title") or "Gel", "drawGel", {"gel": gel}, drawn)

@@ -31,7 +31,19 @@ def check(record: dict[str, Any]) -> None:
 
 
 class Drawing:
-    """A record drawn with its options, made by `draw`.
+    """A record or a gel drawn, made by `draw` or `draw_gel`.
+
+    Parameters
+    ----------
+    title : str
+        The title of a page written from it.
+    function : str
+        The viewer's function such a page calls to draw it, such as ``draw``.
+    inputs : dict[str, Any]
+        What the page hands ``function`` after the element to draw in, in order, each by the id of
+        the JSON block that holds it.
+    drawn : dict[str, Any]
+        The viewer's ``Drawing`` of the same inputs, defined in its ``drawing.ts``.
 
     Attributes
     ----------
@@ -45,12 +57,12 @@ class Drawing:
     """
 
     def __init__(
-        self, record: dict[str, Any], options: dict[str, Any], drawn: dict[str, Any]
+        self, title: str, function: str, inputs: dict[str, Any], drawn: dict[str, Any]
     ) -> None:
-        # As text, so a change the caller makes to either afterwards never reaches the page.
-        self._name: str = record["name"]
-        self._record = _json(record)
-        self._options = _json(options)
+        self._title = title
+        self._function = function
+        # As text, so a change the caller makes to an input afterwards never reaches the page.
+        self._inputs = {name: _json(value) for name, value in inputs.items()}
         self._svg: str = drawn["svg"]
         self._pages: list[str] = drawn["pages"]
         self.hidden: list[dict[str, Any]] = drawn["hidden"]
@@ -59,10 +71,10 @@ class Drawing:
     def write(self, path: str | PathLike[str], dpi: float = 300) -> None:
         """Write the drawing to ``path``, in the format its ending names, in any case.
 
-        The endings are ``.html``, a page that draws the record; ``.svg``; ``.png``, at
-        ``dpi`` pixels per inch; and ``.pdf``, with the map on page 1. One unit of the
-        drawing is one point, so a PDF page is the drawing's own size and a PNG is that size
-        in print, cut to whole pixels.
+        The endings are ``.html``, a page that draws it; ``.svg``; ``.png``, at ``dpi``
+        pixels per inch; and ``.pdf``, with a record's map on page 1. One unit of the drawing
+        is one point, so a PDF page is the drawing's own size and a PNG is that size in
+        print, cut to whole pixels.
 
         Raises
         ------
@@ -74,7 +86,7 @@ class Drawing:
         path = Path(path)
         match path.suffix.lower():
             case ".html":
-                path.write_bytes(_page(self._name, self._record, self._options).encode())
+                path.write_bytes(_page(self._title, self._function, self._inputs).encode())
             case ".svg":
                 path.write_bytes(self._svg.encode())
             case ".png":
@@ -107,25 +119,31 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, allow_nan=False).translate(_UNSAFE)
 
 
-def _page(name: str, record: str, options: str) -> str:
-    """Return a page titled ``name`` that draws the JSON ``record`` with ``options`` offline."""
+def _page(title: str, function: str, inputs: dict[str, str]) -> str:
+    """Return a page titled ``title`` that draws offline by calling the viewer's ``function``.
+
+    It hands ``function`` the element to draw in, then each of the JSON ``inputs`` in order.
+    """
+    blocks = "".join(
+        f'<script type="application/json" id="{name}">{text}</script>\n'
+        for name, text in inputs.items()
+    )
+    arguments = "".join(f', data("{name}")' for name in inputs)
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>{html.escape(name)}</title>
+<title>{html.escape(title)}</title>
 <style>body{{margin:16px;background:#ffffff;color:#252525}}</style>
 </head>
 <body>
 <div id="drawing"></div>
-<script type="application/json" id="record">{record}</script>
-<script type="application/json" id="options">{options}</script>
-<script>{viewer_script()}</script>
+{blocks}<script>{viewer_script()}</script>
 <script>
 const data = (id) => JSON.parse(document.getElementById(id).textContent);
-molviz.draw(document.getElementById("drawing"), data("record"), data("options"));
+molviz.{function}(document.getElementById("drawing"){arguments});
 </script>
 </body>
 </html>
@@ -153,4 +171,5 @@ def draw(record: dict[str, Any], **options: Any) -> Drawing:
     ...
     ValueError: options.bogus: unknown key
     """
-    return Drawing(record, options, call("svg", record, options))
+    drawn = call("svg", record, options)
+    return Drawing(record["name"], "draw", {"record": record, "options": options}, drawn)

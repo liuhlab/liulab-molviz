@@ -124,6 +124,7 @@ export function layoutGel(gel: Gel): Scene {
 					BAND_THICKNESS,
 					k === 0 ? LADDER_FILL : BAND_FILL,
 					BAND_CORNER,
+					`${bp} bp`,
 				),
 			),
 		);
@@ -211,6 +212,7 @@ function rect(
 	height: number,
 	fill: string,
 	corner: number,
+	hover?: string,
 ): Shape {
 	return {
 		shape: "rect",
@@ -222,5 +224,6 @@ function rect(
 		fill,
 		stroke: "none",
 		strokeWidth: 0,
+		hover,
 	};
 }

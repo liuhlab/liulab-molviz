@@ -14,16 +14,20 @@ type Letters = "outlines" | "text";
 
 type Attributes = readonly (readonly [name: string, value: string])[];
 
-/** One SVG element: its tag, its attributes in the order they are written, and its text. */
+/**
+ * One SVG element: its tag, its attributes in the order they are written, its text, and the
+ * shape's hover text.
+ */
 interface Tag {
 	readonly name: string;
 	readonly attributes: Attributes;
 	readonly text?: string;
+	readonly hover?: string;
 }
 
 /**
- * `scene` as one SVG document. Its width and height have no unit, so one unit is one point.
- * Every number has two decimals, so the same scene gives the same text.
+ * `scene` as one SVG document, with no hover text. Its width and height have no unit, so one
+ * unit is one point. Every number has two decimals, so the same scene gives the same text.
  */
 export function toSvg(scene: Scene): string {
 	const { root, children } = tags(scene, "outlines");
@@ -35,7 +39,8 @@ export function toSvg(scene: Scene): string {
 
 /**
  * `scene` as an `<svg>` element of `document`, the same as `toSvg` writes but for its letters,
- * which are `<text>` in the viewer's faces. The page must declare the faces.
+ * which are `<text>` in the viewer's faces, and each shape's hover text, a `<title>` in it. The
+ * page must declare the faces.
  */
 export function toElement(scene: Scene, document: Document): SVGSVGElement {
 	const { root, children } = tags(scene, "text");
@@ -46,6 +51,11 @@ export function toElement(scene: Scene, document: Document): SVGSVGElement {
 		for (const [name, value] of tag.attributes)
 			element.setAttribute(name, value);
 		if (tag.text !== undefined) element.textContent = tag.text;
+		if (tag.hover !== undefined) {
+			const title = document.createElementNS(NAMESPACE, "title");
+			title.textContent = tag.hover;
+			element.append(title);
+		}
 		svg.append(element);
 	}
 	return svg;
@@ -78,7 +88,13 @@ function tags(
 				`${twoDecimals(x)} ${twoDecimals(y)} ${twoDecimals(width)} ${twoDecimals(height)}`,
 			],
 		],
-		children: [ground, ...scene.shapes.map((shape) => tag(shape, letters))],
+		children: [
+			ground,
+			...scene.shapes.map((shape) => ({
+				...tag(shape, letters),
+				hover: shape.hover,
+			})),
+		],
 	};
 }
 
