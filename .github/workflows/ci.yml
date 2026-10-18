@@ -27,6 +27,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # For a branch with no pull request yet: `gh workflow run ci.yml --ref <branch>`.
+  workflow_dispatch:
 
 # Keyed on the workflow and the ref, so pushing again to a pull request cancels the run it
 # supersedes. `main` runs are never cancelled: a cancelled run on the branch everything
@@ -70,6 +72,13 @@ jobs:
       # the flag pixi would run it in `default`, which this job did not install.
       - run: pixi run -e test test
       - run: pixi run -e test test-js
+      # Linux's half of the same-bytes check below.
+      - run: pixi run -e test digest-drawings -- linux-64.sha256
+      - uses: actions/upload-artifact@v7
+        with:
+          name: drawings-linux-64
+          path: linux-64.sha256
+          if-no-files-found: error
 
   build:
     runs-on: ubuntu-latest
@@ -100,11 +109,31 @@ jobs:
         with:
           environments: docs
           locked: true
-      # `docs-build` is a task on the `docs` FEATURE, so pixi finds it in the one
-      # environment that has zensical and no `-e` flag is needed. The task carries
+      # `-e docs` is load-bearing: `docs-build` first builds the viewer, and without the flag
+      # pixi would build it in `default`, which this job did not install. The task carries
       # `--strict`, so a dead link or a bad reference fails here — but not every kind of
       # broken link, and not a `nav:` entry naming a missing file. The comment above
       # `validation:` in `mkdocs.yml` lists what this job catches and what it does not, so
       # a green run here is not a claim the site has no dead ends. This job builds the
       # site and stops; publishing it is `docs.yml`, on `main`.
-      - run: pixi run docs-build
+      - run: pixi run -e docs docs-build
+
+  # Promise 8, the same input writes the same bytes, across the two platforms. A job of its own
+  # because the platform differs. It digests the drawings of every test input on macOS and
+  # diffs them with the digests the `test` job wrote on Linux, so no stored digest goes stale
+  # on a drawing change.
+  same-bytes:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          environments: test
+          locked: true
+      - run: pixi run -e test digest-drawings -- osx-arm64.sha256
+      - uses: actions/download-artifact@v8
+        with:
+          name: drawings-linux-64
+          path: drawings
+      - run: pixi run -e test same-digests -- drawings/linux-64.sha256 osx-arm64.sha256

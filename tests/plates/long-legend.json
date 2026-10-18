@@ -1,0 +1,12 @@
+{
+ "title": "colony PCR with long notes",
+ "rows": 2,
+ "columns": 4,
+ "wells": {
+  "A1": "forward 1, reverse 1",
+  "A2": "water",
+  "A3": "no-template control, with water in place of the colony lysate from the second transformation",
+  "A4": "positive control",
+  "B1": "pUC19-GFP-with-a-very-long-unbroken-construct-name-from-a-database"
+ }
+}

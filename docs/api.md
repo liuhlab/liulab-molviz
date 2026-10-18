@@ -26,6 +26,31 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.viewer.viewer_script
 
+::: molviz.check
+
+::: molviz.check_gel
+
+::: molviz.check_plate
+
+::: molviz.draw
+
+::: molviz.draw_gel
+
+::: molviz.draw_plate
+
+::: molviz.Drawing
+
+## Options
+
+`draw` takes these options by name. Each says what the drawing starts with. An option it
+does not know is an error, and one left out takes its default.
+
+| Option | What it does | Default |
+| --- | --- | --- |
+| `span` | Draws only the bases from `start` to `end`, as in `{"start": 10, "end": 500}`. `start` counts from 0, and the base at `end` is not drawn. The line is numbered as the record is. On a circular record, `end` may pass the record's length to run across the origin. | the whole record |
+| `map` | The map to draw. For now it can only be `"line"`. | `"line"` |
+| `types_off` | The feature types to leave out. A type the record does not have is ignored. | `["source"]` |
+
 ## The command line
 
 The whole module, because typer makes every verb a plain function with a docstring, and

@@ -1,0 +1,17 @@
+{
+ "title": "ten contents, each its own colour",
+ "rows": 2,
+ "columns": 6,
+ "wells": {
+  "A1": "forward 1, reverse 1",
+  "A2": "forward 2, reverse 1",
+  "A3": "forward 3, reverse 1",
+  "A4": "forward 4, reverse 1",
+  "A5": "forward 1, reverse 2",
+  "A6": "forward 2, reverse 2",
+  "B1": "forward 3, reverse 2",
+  "B2": "forward 4, reverse 2",
+  "B3": "water",
+  "B4": "positive control"
+ }
+}
