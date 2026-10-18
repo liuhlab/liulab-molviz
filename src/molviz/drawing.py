@@ -4,26 +4,10 @@ import html
 import json
 from os import PathLike
 from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Any
 
 from molviz._runtime import call
 from molviz.viewer import viewer_script
-
-
-class Span(TypedDict):
-    """A stretch of a record, 0-based and half-open, as the format writes one."""
-
-    start: int
-    end: int
-
-
-class Hidden(TypedDict):
-    """A label left out because it would overlap."""
-
-    kind: Literal["features", "primers", "cuts", "insertions"]
-    """The kind, by its list's key in the record."""
-    name: str
-    spans: list[Span]
 
 
 def check(record: dict[str, Any]) -> None:
@@ -51,9 +35,10 @@ class Drawing:
 
     Attributes
     ----------
-    hidden : list[Hidden]
+    hidden : list[dict[str, Any]]
         The labels left out of the map because they would overlap: of the map a file draws at
-        full size, or of the map a page opens on.
+        full size, or of the map a page opens on. Each is the viewer's ``Hidden``, defined in
+        its ``drawing.ts``: the label's kind, its name and its spans.
     notice : str
         The sentence that counts the hidden labels, worded by the viewer. Empty when nothing
         hides.
@@ -62,11 +47,13 @@ class Drawing:
     def __init__(
         self, record: dict[str, Any], options: dict[str, Any], drawn: dict[str, Any]
     ) -> None:
-        self._record = record
-        self._options = options
+        # As text, so a change the caller makes to either afterwards never reaches the page.
+        self._name: str = record["name"]
+        self._record = _json(record)
+        self._options = _json(options)
         self._svg: str = drawn["svg"]
         self._pages: list[str] = drawn["pages"]
-        self.hidden: list[Hidden] = drawn["hidden"]
+        self.hidden: list[dict[str, Any]] = drawn["hidden"]
         self.notice: str = drawn["notice"]
 
     def write(self, path: str | PathLike[str], dpi: float = 300) -> None:
@@ -87,7 +74,7 @@ class Drawing:
         path = Path(path)
         match path.suffix.lower():
             case ".html":
-                path.write_bytes(_page(self._record, self._options).encode())
+                path.write_bytes(_page(self._name, self._record, self._options).encode())
             case ".svg":
                 path.write_bytes(self._svg.encode())
             case ".png":
@@ -120,21 +107,21 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, allow_nan=False).translate(_UNSAFE)
 
 
-def _page(record: dict[str, Any], options: dict[str, Any]) -> str:
-    """Return a page that draws ``record`` with ``options`` offline, the viewer inlined."""
+def _page(name: str, record: str, options: str) -> str:
+    """Return a page titled ``name`` that draws the JSON ``record`` with ``options`` offline."""
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>{html.escape(record["name"])}</title>
+<title>{html.escape(name)}</title>
 <style>body{{margin:16px;background:#ffffff;color:#252525}}</style>
 </head>
 <body>
 <div id="drawing"></div>
-<script type="application/json" id="record">{_json(record)}</script>
-<script type="application/json" id="options">{_json(options)}</script>
+<script type="application/json" id="record">{record}</script>
+<script type="application/json" id="options">{options}</script>
 <script>{viewer_script()}</script>
 <script>
 const data = (id) => JSON.parse(document.getElementById(id).textContent);
@@ -148,8 +135,8 @@ molviz.draw(document.getElementById("drawing"), data("record"), data("options"))
 def draw(record: dict[str, Any], **options: Any) -> Drawing:
     """Draw ``record`` with ``options``, checking both with the viewer.
 
-    The options are defined by the viewer, in ``src/viewer/options.ts``, and passed to it
-    as they are. Each one left out takes the viewer's default.
+    The options are the viewer's, passed to it as they are, and each one left out takes its
+    default. The API reference lists them: <https://liuhlab.github.io/liulab-molviz/api/#options>.
 
     Raises
     ------

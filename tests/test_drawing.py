@@ -1,3 +1,4 @@
+import copy
 import html
 import json
 import re
@@ -174,6 +175,18 @@ def test_a_page_inlines_the_viewer_and_embeds_the_record_once(drawing, tmp_path)
     assert title(written) == "pTest"
 
 
+def test_a_page_holds_the_record_and_options_as_checked(tmp_path) -> None:
+    record = copy.deepcopy(DRAWN)
+    types_off = ["CDS"]
+    drawing = molviz.draw(record, types_off=types_off)
+    record["features"][0]["segments"][0]["end"] = 1000
+    record["name"] = "changed"
+    types_off.append("misc_feature")
+    written = page(drawing, tmp_path)
+    assert [json.loads(block) for block in embedded(written)] == [DRAWN, {"types_off": ["CDS"]}]
+    assert title(written) == "pTest"
+
+
 # A `src` or `href`, or a CSS `url(` or `@import`, naming a URL with a host.
 NETWORK = re.compile(
     r"""(?:\b(?:src|href)\s*=\s*|\burl\(\s*|@import\s+)["']?\s*(?:https?:)?//""", re.IGNORECASE
@@ -197,8 +210,5 @@ def test_a_page_escapes_a_name_that_would_end_its_script(tmp_path) -> None:
 
 
 def test_a_pdf_embeds_no_font(drawing, tmp_path) -> None:
-    drawing.write(tmp_path / "map.svg")
-    if "<path" not in (tmp_path / "map.svg").read_text(encoding="utf-8"):
-        pytest.skip("the drawing has no outlined letters yet")
     drawing.write(tmp_path / "map.pdf")
     assert b"/Font" not in (tmp_path / "map.pdf").read_bytes()
