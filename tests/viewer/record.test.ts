@@ -149,6 +149,16 @@ describe("features", () => {
 		);
 	});
 
+	test("may have an empty name, as a source feature may", () => {
+		const source = {
+			name: "",
+			type: "source",
+			strand: 0,
+			segments: [{ start: 0, end: 100 }],
+		};
+		expect(checked(record(false, features(source)))).toEqual([]);
+	});
+
 	test("may carry colours, a translation and its codon_start", () => {
 		const coloured = {
 			color: "#1f77B4",
@@ -248,6 +258,11 @@ describe("primers", () => {
 		expect(checked(record(isCircular, primers(site)))).toEqual([]);
 	});
 
+	test("may have an empty name and bind nowhere", () => {
+		const unbound = { primers: [{ ...primer, name: "", sites: [] }] };
+		expect(checked(record(true, unbound))).toEqual([]);
+	});
+
 	test.each<[string, boolean, object, object, string[]]>([
 		[
 			"a mismatch outside its site",
@@ -324,6 +339,7 @@ describe("cuts", () => {
 		["a 5' overhang", false, {}],
 		["a 3' overhang", false, { enzyme: "PstI", at: 15, stagger: -4 }],
 		["a blunt cut", false, { enzyme: "EcoRV", at: 13, stagger: 0 }],
+		["a cut by an enzyme with an empty name", false, { enzyme: "" }],
 		["a site across the origin", true, { start: 98, end: 104, at: 99 }],
 		["a bottom-strand cut past the origin", true, nearTheEnd],
 	])("may make %s", (_, isCircular, change) => {
@@ -387,6 +403,7 @@ describe("insertions", () => {
 	test.each<[string, boolean, object]>([
 		["inside the record, with a colour", true, { color: "#00ff00" }],
 		["at the origin", true, { at: 0 }],
+		["unnamed", true, { name: "" }],
 		["at the end of a linear record", false, { at: 100, length: 1 }],
 	])("may sit %s", (_, isCircular, change) => {
 		expect(checked(record(isCircular, insertions(change)))).toEqual([]);
