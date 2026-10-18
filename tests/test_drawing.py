@@ -1,4 +1,7 @@
 import re
+import struct
+from pathlib import Path
+from xml.etree import ElementTree
 
 import pytest
 
@@ -65,3 +68,93 @@ def test_draw_returns_a_drawing_that_hides_nothing() -> None:
 def test_draw_rejects_an_unknown_option_by_name() -> None:
     with pytest.raises(ValueError, match=r"^options\.bogus: unknown key$"):
         molviz.draw(GOOD, bogus=1)
+
+
+DRAWN = {
+    "name": "pTest",
+    "circular": False,
+    "bases": "ACGT" * 25,
+    "features": [
+        {"name": "lacZ", "type": "CDS", "strand": 1, "segments": [{"start": 10, "end": 60}]}
+    ],
+}
+
+
+@pytest.fixture(scope="module")
+def drawing() -> Drawing:
+    return molviz.draw(DRAWN)
+
+
+def svg_root(drawing: Drawing, tmp_path: Path) -> ElementTree.Element:
+    drawing.write(tmp_path / "root.svg")
+    return ElementTree.parse(tmp_path / "root.svg").getroot()
+
+
+def extent(drawing: Drawing, tmp_path: Path) -> tuple[float, float]:
+    root = svg_root(drawing, tmp_path)
+    return float(root.get("width", "nan")), float(root.get("height", "nan"))
+
+
+def png_chunk(data: bytes, name: bytes) -> bytes:
+    at = data.index(name)
+    (length,) = struct.unpack(">I", data[at - 4 : at])
+    return data[at + 4 : at + 4 + length]
+
+
+def test_svg_writes_the_drawing(drawing, tmp_path) -> None:
+    assert svg_root(drawing, tmp_path).tag == "{http://www.w3.org/2000/svg}svg"
+
+
+@pytest.mark.parametrize(("options", "dpi"), [({}, 300), ({"dpi": 96}, 96)])
+def test_a_png_is_dpi_pixels_per_inch(drawing, tmp_path, options, dpi) -> None:
+    drawing.write(tmp_path / "map.png", **options)
+    data = (tmp_path / "map.png").read_bytes()
+    width, height = extent(drawing, tmp_path)
+    # vl-convert cuts the size to whole pixels, in single precision.
+    assert struct.unpack(">II", png_chunk(data, b"IHDR")[:8]) == pytest.approx(
+        (width * dpi / 72, height * dpi / 72), abs=1
+    )
+    per_metre = round(dpi / 0.0254)
+    assert png_chunk(data, b"pHYs") == struct.pack(">IIB", per_metre, per_metre, 1)
+
+
+def test_a_pdf_page_is_the_drawings_extent_in_points(drawing, tmp_path) -> None:
+    drawing.write(tmp_path / "map.pdf")
+    boxes = re.findall(rb"/MediaBox\s*\[([^\]]*)\]", (tmp_path / "map.pdf").read_bytes())
+    assert [[float(n) for n in box.split()] for box in boxes] == [
+        [0, 0, *extent(drawing, tmp_path)]
+    ]
+
+
+@pytest.mark.parametrize("ending", [".svg", ".png", ".pdf"])
+def test_a_record_drawn_twice_writes_the_same_bytes(tmp_path, ending) -> None:
+    molviz.draw(DRAWN).write(tmp_path / f"first{ending}")
+    molviz.draw(DRAWN).write(tmp_path / f"second{ending}")
+    first = (tmp_path / f"first{ending}").read_bytes()
+    assert first
+    assert first == (tmp_path / f"second{ending}").read_bytes()
+
+
+def test_an_ending_matches_whatever_its_case(drawing, tmp_path) -> None:
+    drawing.write(tmp_path / "MAP.PDF")
+    assert (tmp_path / "MAP.PDF").read_bytes().startswith(b"%PDF-")
+
+
+@pytest.mark.parametrize("name", ["map.jpg", "map"])
+def test_an_unknown_ending_raises_naming_the_endings(drawing, tmp_path, name) -> None:
+    with pytest.raises(ValueError, match=r"must be \.html, \.svg, \.png or \.pdf$"):
+        drawing.write(tmp_path / name)
+    assert not (tmp_path / name).exists()
+
+
+def test_a_page_is_not_written_yet(drawing, tmp_path) -> None:
+    with pytest.raises(NotImplementedError):
+        drawing.write(tmp_path / "map.html")
+
+
+def test_a_pdf_embeds_no_font(drawing, tmp_path) -> None:
+    drawing.write(tmp_path / "map.svg")
+    if "<path" not in (tmp_path / "map.svg").read_text(encoding="utf-8"):
+        pytest.skip("the drawing has no outlined letters yet")
+    drawing.write(tmp_path / "map.pdf")
+    assert b"/Font" not in (tmp_path / "map.pdf").read_bytes()
