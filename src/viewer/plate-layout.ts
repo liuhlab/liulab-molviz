@@ -126,11 +126,13 @@ export function layoutPlate(plate: Plate): Scene {
 			text(label, "sans", size, x, top + (row + ROW_DROP) * pitch, "start"),
 		);
 		for (let column = 0; column < columns; column++) {
-			const said = held[wellName(row, column)];
+			const name = wellName(row, column);
+			const said = held[name];
 			const fill = said === undefined ? EMPTY : (fills.get(said) ?? PALETTE[0]);
+			const hover = said === undefined ? name : `${name}: ${said}`;
 			const x = left + column * pitch + (pitch - well) / 2;
 			const y = top + row * pitch + (pitch - well) / 2;
-			shapes.push(disc(x, y, well, fill));
+			shapes.push(disc(x, y, well, fill, hover));
 		}
 	}
 	const grid = top + rows * pitch;
@@ -205,7 +207,13 @@ function text(
 }
 
 /** A circle `diameter` across, its box's top left at (`x`, `y`), outlined as a well is. */
-function disc(x: number, y: number, diameter: number, fill: string): Shape {
+function disc(
+	x: number,
+	y: number,
+	diameter: number,
+	fill: string,
+	hover?: string,
+): Shape {
 	return {
 		shape: "rect",
 		x,
@@ -216,5 +224,6 @@ function disc(x: number, y: number, diameter: number, fill: string): Shape {
 		fill,
 		stroke: RULE,
 		strokeWidth: RULE_WIDTH,
+		hover,
 	};
 }

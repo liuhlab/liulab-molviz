@@ -36,6 +36,8 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.draw_gel
 
+::: molviz.draw_plate
+
 ::: molviz.Drawing
 
 ## Options

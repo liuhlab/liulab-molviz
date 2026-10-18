@@ -13,8 +13,9 @@ INPUTS = {
         "a-first": {"name": "pA", "circular": True, "bases": "GATC" * 25},
     },
     "gels": {"a-first": {"ladder": {"name": "ladder", "bands": [100]}, "lanes": []}},
+    "plates": {"a-first": {"rows": 1, "columns": 2, "wells": {"A1": "water"}}},
 }
-DRAW = {"records": molviz.draw, "gels": molviz.draw_gel}
+DRAW = {"records": molviz.draw, "gels": molviz.draw_gel, "plates": molviz.draw_plate}
 
 
 def sha256_of_written(drawing: molviz.Drawing, path: Path) -> str:
@@ -34,7 +35,12 @@ def test_each_input_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None:
     expected = [
         f"{sha256_of_written(DRAW[folder](INPUTS[folder][stem]), tmp_path / f'w{ending}')}"
         f"  {folder}/{stem}{ending}"
-        for folder, stem in [("gels", "a-first"), ("records", "a-first"), ("records", "b-second")]
+        for folder, stem in [
+            ("gels", "a-first"),
+            ("plates", "a-first"),
+            ("records", "a-first"),
+            ("records", "b-second"),
+        ]
         for ending in (".html", ".pdf", ".png", ".svg")
     ]
     assert output.read_text(encoding="utf-8").splitlines() == expected

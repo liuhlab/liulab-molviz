@@ -10,7 +10,7 @@ def test_calls_name_each_inputs_calls_on_the_global() -> None:
     assert calls() == {
         "record": {"check": "check", "draw": "draw", "svg": "svg"},
         "gel": {"check": "checkGel", "draw": "drawGel", "svg": "gelSvg"},
-        "plate": {"check": "checkPlate"},
+        "plate": {"check": "checkPlate", "draw": "drawPlate", "svg": "plateSvg"},
     }
 
 

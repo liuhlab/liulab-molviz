@@ -1,6 +1,6 @@
 /** An input drawn live into an element of a page. */
 
-import { prepare, prepareGel } from "./drawing";
+import { prepare, prepareGel, preparePlate } from "./drawing";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { fontFaceCss } from "./text";
@@ -32,6 +32,14 @@ export function draw(
  */
 export function drawGel(element: Element, gel: unknown): Drawn {
 	return drawScene(element, prepareGel(gel));
+}
+
+/**
+ * Draw `plate` into `element`, after what it holds, its letters as real text. Throws one
+ * FormatError naming every problem in the plate.
+ */
+export function drawPlate(element: Element, plate: unknown): Drawn {
+	return drawScene(element, preparePlate(plate));
 }
 
 /** Draw `scene` into `element`, after what it holds, declaring the faces if no drawing has. */

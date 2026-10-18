@@ -25,6 +25,8 @@ const gel = {
 	lanes: [{ name: "GFP", bands: [741] }],
 };
 
+const plate = { rows: 2, columns: 3, wells: { A1: "quarter 1" } };
+
 /** The page the Python package's `draw`, or another of its calls, writes for `input`. */
 function written(call: string, input: unknown): string {
 	const folder = mkdtempSync(join(tmpdir(), "molviz-"));
@@ -64,4 +66,11 @@ test("a page the Python package writes for a gel draws it when it opens", () => 
 	expect(drawn).toHaveLength(1);
 	const titles = [...drawn[0].querySelectorAll("title")];
 	expect(titles.map((t) => t.textContent)).toContain("741 bp");
+});
+
+test("a page the Python package writes for a plate draws it when it opens", () => {
+	const drawn = open(written("draw_plate", plate));
+	expect(drawn).toHaveLength(1);
+	const titles = [...drawn[0].querySelectorAll("title")];
+	expect(titles.map((t) => t.textContent)).toContain("A1: quarter 1");
 });
