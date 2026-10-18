@@ -68,6 +68,39 @@ export function measure(text: string, face: Face, size: number): number {
 	return font(face).getAdvanceWidth(inFace(text, face), size, kerned);
 }
 
+/**
+ * `text` broken into lines no wider than `width`, as many words to a line as fit, and none for
+ * text with no word. A word wider than a line breaks between letters, and a letter wider than a
+ * line takes a line alone.
+ */
+export function wrap(
+	text: string,
+	face: Face,
+	size: number,
+	width: number,
+): string[] {
+	const fits = (line: string) => measure(line, face, size) <= width;
+	const lines: string[] = [];
+	let line = "";
+	for (const word of text.split(" ").filter(Boolean)) {
+		const joined = line ? `${line} ${word}` : word;
+		if (fits(joined)) {
+			line = joined;
+			continue;
+		}
+		if (line) lines.push(line);
+		let rest = [...word];
+		while (!fits(rest.join(""))) {
+			let cut = 1;
+			while (cut < rest.length && fits(rest.slice(0, cut + 1).join(""))) cut++;
+			lines.push(rest.slice(0, cut).join(""));
+			rest = rest.slice(cut);
+		}
+		line = rest.join("");
+	}
+	return line ? [...lines, line] : lines;
+}
+
 /** How far `face` reaches above and below its baseline, per unit of size. */
 export function metrics(face: Face): { ascent: number; descent: number } {
 	const f = font(face);
@@ -75,6 +108,12 @@ export function metrics(face: Face): { ascent: number; descent: number } {
 		ascent: f.ascender / f.unitsPerEm,
 		descent: -f.descender / f.unitsPerEm,
 	};
+}
+
+/** The baseline that centres a line of text in `face` at `size` on the height `middle`. */
+export function baseline(face: Face, size: number, middle: number): number {
+	const { ascent, descent } = metrics(face);
+	return middle + ((ascent - descent) / 2) * size;
 }
 
 /**

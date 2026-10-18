@@ -1,0 +1,33 @@
+{
+ "title": "Expected bands",
+ "ladder": {
+  "name": "1 kb ladder",
+  "bands": [
+   10000,
+   8000,
+   6000,
+   5000,
+   4000,
+   3000,
+   2000,
+   1500,
+   1000,
+   700,
+   500,
+   300,
+   100
+  ]
+ },
+ "lanes": [
+  {
+   "name": "Sample",
+   "bands": [
+    500
+   ]
+  },
+  {
+   "name": "No template",
+   "bands": []
+  }
+ ]
+}

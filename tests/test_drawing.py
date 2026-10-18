@@ -129,12 +129,43 @@ def test_a_pdf_page_is_the_drawings_extent_in_points(drawing, tmp_path) -> None:
     ]
 
 
-@pytest.mark.parametrize("ending", [".html", ".svg", ".png", ".pdf"])
-def test_a_record_drawn_twice_writes_the_same_bytes(tmp_path, ending) -> None:
-    molviz.draw(DRAWN).write(tmp_path / f"first{ending}")
-    molviz.draw(DRAWN).write(tmp_path / f"second{ending}")
+# Each ending a drawing writes, with how its file starts.
+ENDINGS = {".html": b"<!doctype html>", ".svg": b"<svg ", ".png": b"\x89PNG", ".pdf": b"%PDF-"}
+
+GEL = {
+    "title": "PCR products",
+    "ladder": {"name": "NEB 100 bp DNA Ladder (N3231)", "bands": [100, 200, 300]},
+    "lanes": [{"name": "GFP", "bands": [741]}, {"name": "empty vector", "bands": []}],
+}
+
+# Each draw call with an input it draws, its page's title, and the call that page makes.
+DRAWS = [
+    pytest.param(
+        molviz.draw,
+        DRAWN,
+        "pTest",
+        'molviz.draw(document.getElementById("drawing"), data("record"), data("options"));',
+        id="record",
+    ),
+    pytest.param(
+        molviz.draw_gel,
+        GEL,
+        "PCR products",
+        'molviz.drawGel(document.getElementById("drawing"), data("gel"));',
+        id="gel",
+    ),
+]
+
+
+@pytest.mark.parametrize(("draw", "data", "page_title", "bootstrap"), DRAWS)
+@pytest.mark.parametrize(("ending", "starts"), ENDINGS.items())
+def test_an_input_writes_each_ending_the_same_each_time(
+    tmp_path, draw, data, page_title, bootstrap, ending, starts
+) -> None:
+    draw(data).write(tmp_path / f"first{ending}")
+    draw(data).write(tmp_path / f"second{ending}")
     first = (tmp_path / f"first{ending}").read_bytes()
-    assert first
+    assert first.startswith(starts)
     assert first == (tmp_path / f"second{ending}").read_bytes()
 
 
@@ -168,11 +199,15 @@ def title(page: str) -> str:
     return html.unescape(found[1])
 
 
-def test_a_page_inlines_the_viewer_and_embeds_the_record_once(drawing, tmp_path) -> None:
-    written = page(drawing, tmp_path)
+@pytest.mark.parametrize(("draw", "data", "page_title", "bootstrap"), DRAWS)
+def test_a_page_inlines_the_viewer_and_draws_the_input_held_once(
+    tmp_path, draw, data, page_title, bootstrap
+) -> None:
+    written = page(draw(data), tmp_path)
     assert viewer_script() in written
-    assert [json.loads(block) for block in embedded(written)].count(DRAWN) == 1
-    assert title(written) == "pTest"
+    assert [json.loads(block) for block in embedded(written)].count(data) == 1
+    assert bootstrap in written
+    assert title(written) == page_title
 
 
 def test_a_page_holds_the_record_and_options_as_checked(tmp_path) -> None:

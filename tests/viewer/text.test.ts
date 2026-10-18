@@ -1,7 +1,7 @@
 import vm from "node:vm";
 import { build, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
-import { measure, metrics, outline } from "../../src/viewer/text";
+import { measure, metrics, outline, wrap } from "../../src/viewer/text";
 
 describe("measure", () => {
 	test("sums the face's advance widths, scaled to the size", () => {
@@ -42,6 +42,27 @@ describe("outline", () => {
 		expect(outline("AV", "sans", 2048, 0, 0)).toBe(
 			outline("A", "sans", 2048, 0, 0) + outline("V", "sans", 2048, 1270, 0),
 		);
+	});
+});
+
+describe("wrap", () => {
+	test("breaks at spaces, putting as many words on each line as fit", () => {
+		const width = measure("aa bb", "sans", 10);
+		expect(wrap("aa bb cc dd", "sans", 10, width)).toEqual(["aa bb", "cc dd"]);
+	});
+
+	test("breaks a word too long for a line between letters", () => {
+		const width = measure("abc", "sans", 10);
+		expect(wrap("abcdefgh", "sans", 10, width)).toEqual(["abc", "def", "gh"]);
+	});
+
+	test("gives a letter wider than the line a line of its own", () => {
+		expect(wrap("ab", "sans", 10, 1)).toEqual(["a", "b"]);
+	});
+
+	test("gives no lines for text with no words", () => {
+		expect(wrap("", "sans", 10, 100)).toEqual([]);
+		expect(wrap("   ", "sans", 10, 100)).toEqual([]);
 	});
 });
 

@@ -1,0 +1,169 @@
+import { describe, expect, test } from "vitest";
+import { checkGel } from "../../src/viewer/gel";
+import { layoutGel } from "../../src/viewer/gel-layout";
+import type { Scene, Shape } from "../../src/viewer/scene";
+import { measure } from "../../src/viewer/text";
+import longNames from "../gels/long-names.json";
+import oneSize from "../gels/one-size.json";
+import pcrTest from "../gels/pcr-test-expected-bands.json";
+import digests from "../gels/restriction-digests.json";
+
+// mbio's gel colours.
+const GEL = "#15171c";
+const BAND = "#f3f0ff";
+const LADDER = "#a9bbff";
+const WELL = "#030407";
+
+type Rect = Extract<Shape, { shape: "rect" }>;
+type Text = Extract<Shape, { shape: "text" }>;
+
+/** A gel of `ladder` and a lane for each of `lanes`, every name made up. */
+function lay(ladder: number[], lanes: number[][] = []): Scene {
+	return layoutGel(
+		checkGel({
+			ladder: { name: "ladder", bands: ladder },
+			lanes: lanes.map((bands, i) => ({ name: `lane ${i + 1}`, bands })),
+		}),
+	);
+}
+
+function rects(scene: Scene, fill: string): Rect[] {
+	return scene.shapes.filter(
+		(s): s is Rect => s.shape === "rect" && s.fill === fill,
+	);
+}
+
+function texts(scene: Scene): Text[] {
+	return scene.shapes.filter((s): s is Text => s.shape === "text");
+}
+
+/** The texts under the gel. */
+function under(scene: Scene): Text[] {
+	const [ground] = rects(scene, GEL);
+	return texts(scene).filter((t) => t.y > ground.y + ground.height);
+}
+
+/** The legend under the gel, a list of its texts for each line, left to right. */
+function legend(scene: Scene): string[][] {
+	const lines = new Map<number, Text[]>();
+	for (const t of under(scene)) lines.set(t.y, [...(lines.get(t.y) ?? []), t]);
+	return [...lines.entries()]
+		.sort(([a], [b]) => a - b)
+		.map(([, line]) => line.sort((a, b) => a.x - b.x).map((t) => t.text));
+}
+
+function middle(rect: Rect): number {
+	return rect.y + rect.height / 2;
+}
+
+describe("layoutGel", () => {
+	test("sets each band linear in the log of its size, over the ladder and lanes together", () => {
+		const scene = lay([100, 1000], [[10, 10000]]);
+		const [ground] = rects(scene, GEL);
+		const [small, large] = rects(scene, BAND)
+			.map(middle)
+			.sort((a, b) => a - b)
+			.reverse();
+		const [hundred, thousand] = rects(scene, LADDER)
+			.map(middle)
+			.sort((a, b) => b - a);
+		// mbio's run, down from the gel's top.
+		expect(large - ground.y).toBeCloseTo(26);
+		expect(small - large).toBeCloseTo(210);
+		expect(ground.y + ground.height - small).toBeCloseTo(16);
+		expect(thousand - large).toBeCloseTo(210 / 3);
+		expect(hundred - large).toBeCloseTo((2 * 210) / 3);
+	});
+
+	test("sets every band in the middle of the run when all are one size", () => {
+		const scene = layoutGel(checkGel(oneSize));
+		const [ground] = rects(scene, GEL);
+		const bands = [...rects(scene, LADDER), ...rects(scene, BAND)];
+		expect(bands).toHaveLength(4);
+		for (const band of bands) {
+			expect(middle(band) - ground.y).toBeCloseTo(26 + 210 / 2);
+		}
+	});
+
+	test("marks the ladder L and numbers the lanes from 1, each over its well", () => {
+		const scene = lay([100], [[200], [], [300]]);
+		const [ground] = rects(scene, GEL);
+		const marks = texts(scene).filter((t) => t.y < ground.y);
+		expect(marks.map((t) => t.text)).toEqual(["L", "1", "2", "3"]);
+		const wells = rects(scene, WELL).map((w) => w.x + w.width / 2);
+		expect(marks.map((t) => t.x)).toEqual(wells);
+		expect(marks.every((t) => t.anchor === "middle")).toBe(true);
+		expect(marks.every((t) => t.face === "sans-bold")).toBe(true);
+	});
+
+	test("labels the ladder's sizes down the left, leaving out one too close to the one above", () => {
+		const scene = lay([100, 990, 1000], [[]]);
+		const [ground] = rects(scene, GEL);
+		const labels = texts(scene).filter(
+			(t) => t.x < ground.x && t.y > ground.y && t.y < ground.y + ground.height,
+		);
+		expect(labels.map((t) => t.text)).toEqual(["1000", "100"]);
+		const rights = labels.map((t) => t.x + measure(t.text, t.face, t.size));
+		expect(rights[0]).toBeCloseTo(rights[1]);
+		expect(rights[0]).toBeLessThan(ground.x);
+		const bands = rects(scene, LADDER).map(middle);
+		for (const [i, label] of labels.entries()) {
+			const band = i === 0 ? Math.min(...bands) : Math.max(...bands);
+			expect(label.y).toBeGreaterThan(band);
+			expect(label.y - label.size).toBeLessThan(band);
+		}
+	});
+
+	test("gives the ladder's name in the legend, then each lane's name with its sizes, or no band", () => {
+		expect(legend(layoutGel(checkGel(pcrTest)))).toEqual([
+			["L", "1 kb ladder"],
+			["1", "Sample: 500 bp"],
+			["2", "No template: no band"],
+		]);
+		expect(legend(layoutGel(checkGel(digests)))).toEqual([
+			["L", "NEB 1 kb Plus DNA Ladder (N3200)"],
+			["1", "pUC19: 2684, 2 bp"],
+			["2", "GFP amplicon: 719 bp"],
+		]);
+	});
+
+	test("wraps a long title, and each legend line at a hanging indent, inside the margins", () => {
+		const scene = layoutGel(checkGel(longNames));
+		for (const t of texts(scene)) {
+			const width = measure(t.text, t.face, t.size);
+			const from = t.anchor === "middle" ? t.x - width / 2 : t.x;
+			expect(from).toBeGreaterThanOrEqual(10);
+			expect(from + width).toBeLessThanOrEqual(scene.extent.width - 10);
+		}
+		const title = texts(scene).filter((t) => t.size === 13);
+		expect(title.length).toBeGreaterThan(1);
+		expect(title.every((t) => t.face === "sans-bold")).toBe(true);
+		expect(title.map((t) => t.text).join(" ")).toBe(longNames.title);
+
+		const lines = under(scene).filter((t) => t.face === "sans");
+		expect(new Set(lines.map((t) => t.x)).size).toBe(1);
+		// Each entry's lines: a line with a mark starts one, and a line of text alone carries it on.
+		const entries: string[][] = [];
+		for (const line of legend(scene)) {
+			if (line.length === 2) entries.push([line[1]]);
+			else entries[entries.length - 1].push(...line);
+		}
+		const long = longNames.lanes[2];
+		expect(entries[3].length).toBeGreaterThan(1);
+		expect(entries[3].join("").replaceAll(" ", "")).toBe(
+			`${long.name}: ${long.bands[0]} bp`.replaceAll(" ", ""),
+		);
+	});
+
+	test("draws no title for a gel with none", () => {
+		expect(texts(lay([100])).filter((t) => t.size === 13)).toEqual([]);
+	});
+
+	test("is at least 240 wide, and wider when the gel needs it", () => {
+		expect(lay([100], [[200]]).extent.width).toBe(240);
+		const wide = lay([100], Array(12).fill([200]));
+		const [ground] = rects(wide, GEL);
+		expect(wide.extent.width).toBeGreaterThan(240);
+		expect(wide.extent.width).toBeCloseTo(ground.x + ground.width + 10);
+	});
+});

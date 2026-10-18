@@ -14,7 +14,7 @@ export interface Box {
 }
 
 /** One thing a scene draws. Lengths are in points; colours are written `#rrggbb`. */
-export type Shape =
+export type Shape = (
 	| {
 			readonly shape: "line";
 			readonly x1: number;
@@ -61,7 +61,11 @@ export type Shape =
 			readonly y: number;
 			readonly anchor: "start" | "middle";
 			readonly fill: string;
-	  };
+	  }
+) & {
+	/** What a page shows while the pointer rests on the shape. A file leaves it out. */
+	readonly hover?: string;
+};
 
 /** A drawing laid out: its shapes in the order they are drawn. */
 export interface Scene {

@@ -1,4 +1,4 @@
-"""Checking a record and drawing it, with the viewer's own code."""
+"""A drawing, and checking a record and drawing it, with the viewer's own code."""
 
 import html
 import json
@@ -6,7 +6,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
-from molviz._runtime import call
+from molviz._runtime import call, calls
 from molviz.viewer import viewer_script
 
 
@@ -27,30 +27,38 @@ def check(record: dict[str, Any]) -> None:
     ...
     ValueError: bases: has "X" at index 3, which is not an IUPAC nucleotide letter
     """
-    call("check", record)
+    call("record", "check", record)
 
 
 class Drawing:
-    """A record drawn with its options, made by `draw`.
+    """An input drawn, as each of molviz's draw calls returns it. A caller never makes one.
 
     Attributes
     ----------
     hidden : list[dict[str, Any]]
-        The labels left out of the map because they would overlap: of the map a file draws at
-        full size, or of the map a page opens on. Each is the viewer's ``Hidden``, defined in
-        its ``drawing.ts``: the label's kind, its name and its spans.
+        The labels left out because they would overlap: of what a file draws at full size, or
+        of what a page opens on. Each is the viewer's ``Hidden``, defined in its
+        ``drawing.ts``: the label's kind, its name and its spans.
     notice : str
         The sentence that counts the hidden labels, worded by the viewer. Empty when nothing
         hides.
     """
 
     def __init__(
-        self, record: dict[str, Any], options: dict[str, Any], drawn: dict[str, Any]
+        self,
+        name: str,
+        data: dict[str, Any],
+        drawn: dict[str, Any],
+        title: str,
+        options: dict[str, Any] | None = None,
     ) -> None:
-        # As text, so a change the caller makes to either afterwards never reaches the page.
-        self._name: str = record["name"]
-        self._record = _json(record)
-        self._options = _json(options)
+        # `drawn` is the viewer's drawing of `data`, the input called `name`. A page titled
+        # `title` hands that input's draw call `data`, then any `options`.
+        self._name = name
+        # As text, so a change the caller makes to an input afterwards never reaches the page.
+        self._data = _json(data)
+        self._options = None if options is None else _json(options)
+        self._title = title
         self._svg: str = drawn["svg"]
         self._pages: list[str] = drawn["pages"]
         self.hidden: list[dict[str, Any]] = drawn["hidden"]
@@ -59,10 +67,9 @@ class Drawing:
     def write(self, path: str | PathLike[str], dpi: float = 300) -> None:
         """Write the drawing to ``path``, in the format its ending names, in any case.
 
-        The endings are ``.html``, a page that draws the record; ``.svg``; ``.png``, at
-        ``dpi`` pixels per inch; and ``.pdf``, with the map on page 1. One unit of the
-        drawing is one point, so a PDF page is the drawing's own size and a PNG is that size
-        in print, cut to whole pixels.
+        The endings are ``.html``, a page that draws it; ``.svg``; ``.png``, at ``dpi``
+        pixels per inch; and ``.pdf``. One unit of the drawing is one point, so a PDF page is
+        the drawing's own size and a PNG is that size in print, cut to whole pixels.
 
         Raises
         ------
@@ -74,7 +81,8 @@ class Drawing:
         path = Path(path)
         match path.suffix.lower():
             case ".html":
-                path.write_bytes(_page(self._name, self._record, self._options).encode())
+                page = _page(self._title, self._name, self._data, self._options)
+                path.write_bytes(page.encode())
             case ".svg":
                 path.write_bytes(self._svg.encode())
             case ".png":
@@ -107,25 +115,32 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, allow_nan=False).translate(_UNSAFE)
 
 
-def _page(name: str, record: str, options: str) -> str:
-    """Return a page titled ``name`` that draws the JSON ``record`` with ``options`` offline."""
+def _page(title: str, name: str, data: str, options: str | None) -> str:
+    """Return a page titled ``title`` that draws offline, with the viewer's draw call for ``name``.
+
+    It hands that call the element to draw in, then the JSON ``data``, then any JSON ``options``.
+    """
+    texts = {name: data} if options is None else {name: data, "options": options}
+    blocks = "".join(
+        f'<script type="application/json" id="{block}">{text}</script>\n'
+        for block, text in texts.items()
+    )
+    arguments = "".join(f', data("{block}")' for block in texts)
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>{html.escape(name)}</title>
+<title>{html.escape(title)}</title>
 <style>body{{margin:16px;background:#ffffff;color:#252525}}</style>
 </head>
 <body>
 <div id="drawing"></div>
-<script type="application/json" id="record">{record}</script>
-<script type="application/json" id="options">{options}</script>
-<script>{viewer_script()}</script>
+{blocks}<script>{viewer_script()}</script>
 <script>
 const data = (id) => JSON.parse(document.getElementById(id).textContent);
-molviz.draw(document.getElementById("drawing"), data("record"), data("options"));
+molviz.{calls()[name]["draw"]}(document.getElementById("drawing"){arguments});
 </script>
 </body>
 </html>
@@ -153,4 +168,5 @@ def draw(record: dict[str, Any], **options: Any) -> Drawing:
     ...
     ValueError: options.bogus: unknown key
     """
-    return Drawing(record, options, call("svg", record, options))
+    drawn = call("record", "svg", record, options)
+    return Drawing("record", record, drawn, record["name"], options)

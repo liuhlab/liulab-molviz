@@ -4,7 +4,8 @@
  */
 
 import * as v from "valibot";
-import { exact, list, parse, type Record, span, Text } from "./record";
+import { exact, list, parse, Text } from "./format";
+import { type Record, span } from "./record";
 
 function optionsSchema(record: Record) {
 	const bounds = { length: record.bases.length, circular: record.circular };
@@ -26,5 +27,5 @@ export type Options = v.InferOutput<ReturnType<typeof optionsSchema>>;
  * problem by its path from `options`. An unknown option is a problem.
  */
 export function checkOptions(input: unknown, record: Record): Options {
-	return parse(optionsSchema(record), input, "options");
+	return parse(optionsSchema(record), input, { prefix: "options" });
 }

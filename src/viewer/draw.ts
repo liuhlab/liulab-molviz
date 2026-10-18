@@ -1,6 +1,7 @@
-/** A record drawn live into an element of a page. */
+/** An input drawn live into an element of a page. */
 
-import { prepare } from "./drawing";
+import { prepare, prepareGel } from "./drawing";
+import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { fontFaceCss } from "./text";
 
@@ -22,7 +23,19 @@ export function draw(
 	record: unknown,
 	options: unknown = {},
 ): Drawn {
-	const scene = prepare(record, options);
+	return drawScene(element, prepare(record, options));
+}
+
+/**
+ * Draw `gel` into `element`, after what it holds, its letters as real text. Throws one
+ * FormatError naming every problem in the gel.
+ */
+export function drawGel(element: Element, gel: unknown): Drawn {
+	return drawScene(element, prepareGel(gel));
+}
+
+/** Draw `scene` into `element`, after what it holds, declaring the faces if no drawing has. */
+function drawScene(element: Element, scene: Scene): Drawn {
 	const document = element.ownerDocument;
 	declareFaces(document);
 	const svg = toElement(scene, document);

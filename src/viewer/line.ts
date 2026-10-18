@@ -6,7 +6,7 @@
 import type { Options } from "./options";
 import type { Bounds, Record, Span } from "./record";
 import { type Box, leftEdge, type Scene, type Shape } from "./scene";
-import { type Face, measure, metrics } from "./text";
+import { baseline, type Face, measure, metrics } from "./text";
 
 /** The line's length. */
 const WIDTH = 720;
@@ -388,12 +388,6 @@ function staircase(
 function height(face: Face, size: number): number {
 	const { ascent, descent } = metrics(face);
 	return (ascent + descent) * size;
-}
-
-/** The baseline that centres a line of text in `face` at `size` on the height `middle`. */
-function baseline(face: Face, size: number, middle: number): number {
-	const { ascent, descent } = metrics(face);
-	return middle + ((ascent - descent) / 2) * size;
 }
 
 /** The box each shape takes, a line's stroke left out. */
