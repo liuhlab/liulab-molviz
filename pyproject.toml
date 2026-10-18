@@ -95,12 +95,22 @@ mkdocstrings-python = ">=2.0.7,<3"
 docs = "zensical serve"
 docs-build = "zensical build --clean --strict"
 
+# The source faces for the viewer's font subsets, which are committed: only a rebuild needs these.
+[tool.pixi.feature.fonts.dependencies]
+python = "3.13.*"
+fonttools = "*"
+font-ttf-dejavu = "2.37.*"
+
+[tool.pixi.feature.fonts.tasks]
+build-fonts = "python scripts/build_fonts.py"
+
 # `default` takes `test` so pyright can resolve pytest, and not `docs`, which exists so that
 # exactly one CI job installs it.
 [tool.pixi.environments]
 default = { features = ["test"], solve-group = "default" }
 test = { features = ["test"], solve-group = "default" }
 docs = { features = ["docs"], solve-group = "default" }
+fonts = { features = ["fonts"], no-default-feature = true }
 
 [tool.pixi.tasks]
 lint = "ruff check ."

@@ -1,0 +1,106 @@
+/// <reference types="vite/client" />
+/** Text in the faces the viewer carries: measured, and outlined as SVG paths. */
+
+import { type Font, parse } from "opentype.js";
+import sansUrl from "./fonts/sans.ttf?inline";
+import sansBoldUrl from "./fonts/sans-bold.ttf?inline";
+
+/** A face the viewer carries: DejaVu Sans, or its bold. */
+export type Face = "sans" | "sans-bold";
+
+/** The family a page declares both faces under. No installed font has it, so none stands in. */
+export const family = "molviz Sans";
+
+const urls: Record<Face, string> = { sans: sansUrl, "sans-bold": sansBoldUrl };
+const weights: Record<Face, number> = { sans: 400, "sans-bold": 700 };
+const fonts: Partial<Record<Face, Font>> = {};
+
+function font(face: Face): Font {
+	fonts[face] ??= parse(bytes(urls[face]));
+	return fonts[face];
+}
+
+const digits =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+/** The bytes of a base64 data URL, decoded by hand: mini-racer has no `atob`. */
+function bytes(url: string): ArrayBuffer {
+	const text = url.slice(url.indexOf(",") + 1).replace(/=+$/, "");
+	const value = new Uint8Array(128);
+	for (let i = 0; i < digits.length; i++) value[digits.charCodeAt(i)] = i;
+	const out = new Uint8Array((text.length * 3) >> 2);
+	let bits = 0;
+	let held = 0;
+	let o = 0;
+	for (let i = 0; i < text.length; i++) {
+		bits = (bits << 6) | value[text.charCodeAt(i)];
+		held += 6;
+		if (held >= 8) {
+			held -= 8;
+			out[o++] = (bits >> held) & 255;
+		}
+	}
+	return out.buffer;
+}
+
+// DejaVu files its kerning under the Latin script, and opentype.js reads only the default
+// script unless told.
+const kerned = { script: "latn" };
+
+/**
+ * `text` with each character `face` lacks replaced by U+FFFD, which it has.
+ *
+ * Text drawn as `<text>` must go through this too, or the browser finds the character in another
+ * font and the width no longer matches `measure`.
+ */
+export function inFace(text: string, face: Face): string {
+	const f = font(face);
+	let out = "";
+	for (const character of text) out += f.hasChar(character) ? character : "�";
+	return out;
+}
+
+/** The advance width of `text` set in `face` at `size`, kerned, in the units of `size`. */
+export function measure(text: string, face: Face, size: number): number {
+	return font(face).getAdvanceWidth(inFace(text, face), size, kerned);
+}
+
+/**
+ * SVG path data drawing `text` in `face` at `size`, starting at `x` on the baseline `y`.
+ *
+ * Every number has two decimals, so the same text always gives the same string.
+ */
+export function outline(
+	text: string,
+	face: Face,
+	size: number,
+	x: number,
+	y: number,
+): string {
+	const path = font(face).getPath(inFace(text, face), x, y, size, kerned);
+	let d = "";
+	for (const c of path.commands) {
+		if (c.type === "Z") d += "Z";
+		else if (c.type === "Q")
+			d += `Q${fixed(c.x1)} ${fixed(c.y1)} ${fixed(c.x)} ${fixed(c.y)}`;
+		else if (c.type === "C")
+			d += `C${fixed(c.x1)} ${fixed(c.y1)} ${fixed(c.x2)} ${fixed(c.y2)} ${fixed(c.x)} ${fixed(c.y)}`;
+		else d += `${c.type}${fixed(c.x)} ${fixed(c.y)}`;
+	}
+	return d;
+}
+
+function fixed(n: number): string {
+	return n.toFixed(2);
+}
+
+/** CSS `@font-face` rules declaring each face under `family`, by weight, as a data URL. */
+export function fontFaceCss(): string {
+	return (Object.keys(urls) as Face[])
+		.map(
+			(face) =>
+				`@font-face{font-family:"${family}";font-weight:${weights[face]};` +
+				`src:url(${urls[face]}) format("truetype")}`,
+		)
+		.join("\n");
+}
