@@ -112,6 +112,17 @@ One sample on a gel: its name and its bands, which may be none.
 
 DNA of one size in a lane, drawn where that size runs.
 
+### Plate
+
+A grid of wells in rows and columns, drawn with what each well holds. It holds no record, and
+is handed over on its own.
+
+### Well
+
+One place on a plate, named by its row letters and column number, such as `B3`, and the text
+of what it holds.
+_Avoid_: kind, for what a well holds, which is a record's word
+
 ### Page
 
 One HTML file that draws one or more records and opens offline.
