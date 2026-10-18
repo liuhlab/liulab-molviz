@@ -105,6 +105,7 @@ docs-viewer = { cmd = "cp src/molviz/viewer.js docs/assets/molviz/viewer.js", de
 [tool.pixi.feature.fonts.dependencies]
 python = "3.13.*"
 fonttools = "*"
+# The committed subsets were cut from this release.
 font-ttf-dejavu = "2.37.*"
 
 [tool.pixi.feature.fonts.tasks]

@@ -13,7 +13,14 @@ sets one.
 - `viewer_script()` returns the viewer's text, for a page to inline.
 - `check(record)` checks a record against the format.
 - `draw(record, **options)` checks a record and the options for drawing it, and returns a
-  `Drawing` that lists the labels it hides.
+  `Drawing` of the record as a line map. Its `map` option takes only `"line"` for now, so a
+  circular record's default map changes when the circle is added.
+- `Drawing.write(path, dpi=300)` writes the drawing in the format its ending names: `.html`,
+  a page that draws the record offline; `.svg`; `.png`, at `dpi` pixels per inch; or `.pdf`.
+- In the viewer, `molviz.draw(element, record, options)` draws a record into an element of a
+  page, and `molviz.svg(record, options)` returns the drawing as SVG text.
+- Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
+  opentype.js, built into the viewer, which reads its fonts.
 
 ### Removed
 
