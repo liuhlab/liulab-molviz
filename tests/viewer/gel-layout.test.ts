@@ -166,4 +166,40 @@ describe("layoutGel", () => {
 		expect(wide.extent.width).toBeGreaterThan(240);
 		expect(wide.extent.width).toBeCloseTo(ground.x + ground.width + 10);
 	});
+
+	test("centres a narrow gel with its sizes and marks, and keeps the title and legend at the left", () => {
+		const scene = layoutGel(
+			checkGel({
+				title: "A gel",
+				ladder: { name: "ladder", bands: [100, 1000] },
+				lanes: [{ name: "lane 1", bands: [200] }],
+			}),
+		);
+		const [ground] = rects(scene, GEL);
+		const sizes = texts(scene).filter(
+			(t) => t.x < ground.x && t.y > ground.y && t.y < ground.y + ground.height,
+		);
+		const blockLeft = Math.min(...sizes.map((t) => t.x));
+		const blockRight = ground.x + ground.width;
+		expect(scene.extent.width).toBe(240);
+		expect(blockLeft).toBeGreaterThan(10);
+		expect(blockLeft).toBeCloseTo(scene.extent.width - blockRight);
+		const marks = texts(scene).filter((t) => t.y < ground.y && t.size === 10);
+		const wells = rects(scene, WELL).map((w) => w.x + w.width / 2);
+		expect(marks.map((t) => t.x)).toEqual(wells);
+		const title = texts(scene).filter((t) => t.size === 13);
+		expect(title.map((t) => t.x)).toEqual([10]);
+		expect(Math.min(...under(scene).map((t) => t.x))).toBe(10);
+	});
+
+	test("leaves a gel wider than 240 at the left margin", () => {
+		const scene = layoutGel(checkGel(longNames));
+		const [ground] = rects(scene, GEL);
+		const sizes = texts(scene).filter(
+			(t) => t.x < ground.x && t.y > ground.y && t.y < ground.y + ground.height,
+		);
+		expect(scene.extent.width).toBeGreaterThan(240);
+		expect(Math.min(...sizes.map((t) => t.x))).toBeCloseTo(10);
+		expect(scene.extent.width - (ground.x + ground.width)).toBeCloseTo(10);
+	});
 });
