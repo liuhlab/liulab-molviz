@@ -18,6 +18,7 @@ site_description: "Draws DNA sequences and plasmids in the browser, from data a 
 # rule `agent-docs-unpublished` fails the build if you do.
 nav:
   - Home: index.md
+  - The line map: line-map.md
   - API reference: api.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not
@@ -56,6 +57,12 @@ validation:
 theme:
   name: material
 
+# The viewer, built and copied in by the `docs-viewer` task, then what draws each record a
+# page holds. Both load at the end of every page's body, in this order.
+extra_javascript:
+  - assets/molviz/viewer.js
+  - assets/molviz/views.js
+
 plugins:
   - search
   - mkdocstrings:
@@ -79,6 +86,11 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.highlight
   - pymdownx.inlinehilite
+  # A page draws a test record by inlining its file. `check_paths` fails the build on a
+  # missing one.
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
   - pymdownx.superfences
   - toc:
       permalink: true

@@ -94,8 +94,12 @@ mkdocstrings-python = ">=2.0.7,<3"
 # On the feature, so these resolve in the `docs` environment with no `-e` flag.
 # `serve` ignores `--strict` and says so, hence its absence.
 [tool.pixi.feature.docs.tasks]
-docs = "zensical serve"
-docs-build = "zensical build --clean --strict"
+docs = { cmd = "zensical serve", depends-on = ["docs-viewer"] }
+docs-build = { cmd = "zensical build --clean --strict", depends-on = ["docs-viewer"] }
+# The site's pages draw with the built viewer, and zensical serves only what is in `docs/`.
+docs-viewer = { cmd = "cp src/molviz/viewer.js docs/assets/molviz/viewer.js", depends-on = [
+    "build-js",
+] }
 
 # The source faces for the viewer's font subsets, which are committed: only a rebuild needs these.
 [tool.pixi.feature.fonts.dependencies]
