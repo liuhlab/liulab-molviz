@@ -5,4 +5,3 @@ export { gelSvg, plateSvg, svg } from "./drawing";
 export { checkGel } from "./gel";
 export { checkPlate } from "./plate";
 export { check } from "./record";
-export { measure } from "./text";

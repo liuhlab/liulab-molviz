@@ -3,9 +3,6 @@ import { build, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
 import { measure, metrics, outline, wrap } from "../../src/viewer/text";
 
-// Expected widths are the faces' advance widths and `kern` pairs, read from the subsets with
-// fontTools. Both faces have 2048 units to the em.
-
 describe("measure", () => {
 	test("sums the face's advance widths, scaled to the size", () => {
 		expect(measure("BsaI", "sans", 12)).toBe(25.376953125);
@@ -28,7 +25,6 @@ describe("measure", () => {
 
 describe("metrics", () => {
 	test("gives how far each face reaches above and below its baseline, per unit of size", () => {
-		// Both faces' `hhea` ascender is 1901 and descender -483, read with fontTools.
 		const expected = { ascent: 1901 / 2048, descent: 483 / 2048 };
 		expect(metrics("sans")).toEqual(expected);
 		expect(metrics("sans-bold")).toEqual(expected);
@@ -37,14 +33,12 @@ describe("metrics", () => {
 
 describe("outline", () => {
 	test("places the face's contours at x on the baseline y, scaled to the size", () => {
-		// Glyph I is the rectangle (201, 0) to (403, 1493) in font units.
 		expect(outline("I", "sans", 12, 10.5, 20.25)).toBe(
 			"M11.68 20.25L11.68 11.50L12.86 11.50L12.86 20.25L11.68 20.25",
 		);
 	});
 
 	test("sets each glyph at the kerned advance of those before it", () => {
-		// At 2048 one unit is one font unit: V starts at A's advance, 1401, less the pair's 131.
 		expect(outline("AV", "sans", 2048, 0, 0)).toBe(
 			outline("A", "sans", 2048, 0, 0) + outline("V", "sans", 2048, 1270, 0),
 		);

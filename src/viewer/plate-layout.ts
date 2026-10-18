@@ -3,8 +3,8 @@
  * right and y down, from (0, 0) at the drawing's top left.
  */
 
-import type { Scene, Shape } from "./line";
 import { type Plate, rowLabel, wellName } from "./plate";
+import type { Scene, Shape } from "./scene";
 import { baseline, type Face, measure, wrap } from "./text";
 
 const MARGIN = 10;

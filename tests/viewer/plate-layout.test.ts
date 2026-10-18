@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import type { Scene, Shape } from "../../src/viewer/line";
 import { checkPlate } from "../../src/viewer/plate";
 import { layoutPlate } from "../../src/viewer/plate-layout";
+import type { Scene, Shape } from "../../src/viewer/scene";
 import { measure } from "../../src/viewer/text";
 import eleven from "../plates/eleven-contents.json";
 import longLegend from "../plates/long-legend.json";
