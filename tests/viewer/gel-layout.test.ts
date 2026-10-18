@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { checkGel } from "../../src/viewer/gel";
 import { layoutGel } from "../../src/viewer/gel-layout";
-import type { Scene, Shape } from "../../src/viewer/line";
+import type { Scene, Shape } from "../../src/viewer/scene";
 import { measure } from "../../src/viewer/text";
 import longNames from "../gels/long-names.json";
 import oneSize from "../gels/one-size.json";

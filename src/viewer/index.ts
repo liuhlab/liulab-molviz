@@ -4,4 +4,3 @@ export { draw } from "./draw";
 export { gelSvg, svg } from "./drawing";
 export { checkGel } from "./gel";
 export { check } from "./record";
-export { measure } from "./text";

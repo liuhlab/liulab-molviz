@@ -3,7 +3,7 @@
  * with no font, or as elements of a page with its letters as real text.
  */
 
-import type { Scene, Shape } from "./line";
+import { leftEdge, type Scene, type Shape, twoDecimals } from "./scene";
 import { family, inFace, measure, outline, weights } from "./text";
 
 const GROUND = "#ffffff";
@@ -58,15 +58,26 @@ function tags(
 ): { root: Attributes; children: Tag[] } {
 	const { x, y, width, height } = scene.extent;
 	const size = [
-		["width", n(width)],
-		["height", n(height)],
+		["width", twoDecimals(width)],
+		["height", twoDecimals(height)],
 	] as const;
 	const ground: Tag = {
 		name: "rect",
-		attributes: [["x", n(x)], ["y", n(y)], ...size, ["fill", GROUND]],
+		attributes: [
+			["x", twoDecimals(x)],
+			["y", twoDecimals(y)],
+			...size,
+			["fill", GROUND],
+		],
 	};
 	return {
-		root: [...size, ["viewBox", `${n(x)} ${n(y)} ${n(width)} ${n(height)}`]],
+		root: [
+			...size,
+			[
+				"viewBox",
+				`${twoDecimals(x)} ${twoDecimals(y)} ${twoDecimals(width)} ${twoDecimals(height)}`,
+			],
+		],
 		children: [ground, ...scene.shapes.map((shape) => tag(shape, letters))],
 	};
 }
@@ -77,16 +88,18 @@ function tag(shape: Shape, letters: Letters): Tag {
 			return {
 				name: "line",
 				attributes: [
-					["x1", n(shape.x1)],
-					["y1", n(shape.y1)],
-					["x2", n(shape.x2)],
-					["y2", n(shape.y2)],
+					["x1", twoDecimals(shape.x1)],
+					["y1", twoDecimals(shape.y1)],
+					["x2", twoDecimals(shape.x2)],
+					["y2", twoDecimals(shape.y2)],
 					...stroke(shape),
 				],
 			};
 		case "polygon": {
 			const d = shape.points
-				.map(([x, y], i) => `${i ? "L" : "M"}${n(x)} ${n(y)}`)
+				.map(
+					([x, y], i) => `${i ? "L" : "M"}${twoDecimals(x)} ${twoDecimals(y)}`,
+				)
 				.join("");
 			return {
 				name: "path",
@@ -97,11 +110,11 @@ function tag(shape: Shape, letters: Letters): Tag {
 			return {
 				name: "rect",
 				attributes: [
-					["x", n(shape.x)],
-					["y", n(shape.y)],
-					["width", n(shape.width)],
-					["height", n(shape.height)],
-					["rx", n(shape.corner)],
+					["x", twoDecimals(shape.x)],
+					["y", twoDecimals(shape.y)],
+					["width", twoDecimals(shape.width)],
+					["height", twoDecimals(shape.height)],
+					["rx", twoDecimals(shape.corner)],
 					["fill", shape.fill],
 					...stroke(shape),
 				],
@@ -110,16 +123,16 @@ function tag(shape: Shape, letters: Letters): Tag {
 			return {
 				name: "circle",
 				attributes: [
-					["cx", n(shape.cx)],
-					["cy", n(shape.cy)],
-					["r", n(shape.r)],
+					["cx", twoDecimals(shape.cx)],
+					["cy", twoDecimals(shape.cy)],
+					["r", twoDecimals(shape.r)],
 					["fill", shape.fill],
 				],
 			};
 		case "text": {
 			const { text, face, size, y, fill } = shape;
 			const width = measure(text, face, size);
-			const x = shape.anchor === "middle" ? shape.x - width / 2 : shape.x;
+			const x = leftEdge(shape, width);
 			if (letters === "outlines") {
 				return {
 					name: "path",
@@ -132,13 +145,13 @@ function tag(shape: Shape, letters: Letters): Tag {
 			return {
 				name: "text",
 				attributes: [
-					["x", n(x)],
-					["y", n(y)],
+					["x", twoDecimals(x)],
+					["y", twoDecimals(y)],
 					["font-family", family],
-					["font-size", n(size)],
+					["font-size", twoDecimals(size)],
 					["font-weight", String(weights[face])],
 					// Holds the text to the width the layout measured, in whatever font the browser uses.
-					["textLength", n(width)],
+					["textLength", twoDecimals(width)],
 					["fill", fill],
 				],
 				text: inFace(text, face),
@@ -150,16 +163,10 @@ function tag(shape: Shape, letters: Letters): Tag {
 function stroke(shape: { stroke: string; strokeWidth: number }): Attributes {
 	return [
 		["stroke", shape.stroke],
-		["stroke-width", n(shape.strokeWidth)],
+		["stroke-width", twoDecimals(shape.strokeWidth)],
 	];
 }
 
 function written(attributes: Attributes): string {
 	return attributes.map(([name, value]) => ` ${name}="${value}"`).join("");
-}
-
-/** `value` with two decimals, and never as `-0.00`. */
-function n(value: number): string {
-	const text = value.toFixed(2);
-	return text === "-0.00" ? "0.00" : text;
 }

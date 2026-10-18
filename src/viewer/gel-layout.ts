@@ -4,7 +4,7 @@
  */
 
 import type { Gel } from "./gel";
-import type { Scene, Shape } from "./line";
+import type { Scene, Shape } from "./scene";
 import { baseline, type Face, measure, wrap } from "./text";
 
 const MARGIN = 10;

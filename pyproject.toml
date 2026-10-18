@@ -94,13 +94,18 @@ mkdocstrings-python = ">=2.0.7,<3"
 # On the feature, so these resolve in the `docs` environment with no `-e` flag.
 # `serve` ignores `--strict` and says so, hence its absence.
 [tool.pixi.feature.docs.tasks]
-docs = "zensical serve"
-docs-build = "zensical build --clean --strict"
+docs = { cmd = "zensical serve", depends-on = ["docs-viewer"] }
+docs-build = { cmd = "zensical build --clean --strict", depends-on = ["docs-viewer"] }
+# The site's pages draw with the built viewer, and zensical serves only what is in `docs/`.
+docs-viewer = { cmd = "cp src/molviz/viewer.js docs/assets/molviz/viewer.js", depends-on = [
+    "build-js",
+] }
 
 # The source faces for the viewer's font subsets, which are committed: only a rebuild needs these.
 [tool.pixi.feature.fonts.dependencies]
 python = "3.13.*"
 fonttools = "*"
+# The committed subsets were cut from this release.
 font-ttf-dejavu = "2.37.*"
 
 [tool.pixi.feature.fonts.tasks]
@@ -140,10 +145,11 @@ install-js = { cmd = "pnpm install --frozen-lockfile", inputs = [
 lint-js = "biome ci ."
 fmt-js = "biome check --write ."
 typecheck-js = { cmd = "pnpm exec tsc", depends-on = ["install-js"] }
-test-js = { cmd = "pnpm exec vitest run", depends-on = ["install-js"] }
+# A page test has Python write a page, which inlines the built viewer.
+test-js = { cmd = "pnpm exec vitest run", depends-on = ["build-js"] }
 build-js = { cmd = "pnpm exec vite build", depends-on = ["install-js"] }
-# Same bytes on both platforms: CI's `same-bytes` job runs the first on each and the second on
-# the two files, which prints their differences and fails if there are any.
+# Same bytes on both platforms: CI runs the first on Linux and on macOS, and the second on the
+# two files, which prints their differences and fails if there are any.
 digest-drawings = { cmd = "python scripts/digest_drawings.py tests/records", depends-on = [
     "build-js",
 ] }
