@@ -7,10 +7,34 @@ export class FormatError extends Error {
 	override name = "FormatError";
 }
 
-/** A strict object reports a wrong type, a missing key and an unknown key through one message. */
-function objectProblem(issue: v.StrictObjectIssue): string {
-	if (issue.expected === "never") return "unknown key";
+/** An object reports a wrong type and a missing key through one message. */
+function objectProblem(issue: v.ObjectIssue): string {
 	return issue.expected === "Object" ? "must be an object" : "missing";
+}
+
+/**
+ * An object with these keys and no others. Every unknown key is reported, `__proto__`
+ * included, which valibot's own object schemas skip or stop after.
+ */
+function exact<E extends v.ObjectEntries>(entries: E) {
+	return v.intersect([
+		v.object(entries, objectProblem),
+		v.pipe(
+			v.unknown(),
+			v.rawCheck(({ dataset, addIssue }) => {
+				if (typeof dataset.value !== "object" || dataset.value === null) return;
+				const input = dataset.value as { [key: string]: unknown };
+				for (const key of Object.keys(input)) {
+					if (Object.hasOwn(entries, key)) continue;
+					const value = input[key];
+					addIssue({
+						message: "unknown key",
+						path: [{ type: "object", origin: "key", input, key, value }],
+					});
+				}
+			}),
+		),
+	]);
 }
 
 /** What a coordinate is checked against: its record's length, and whether it is circular. */
@@ -24,26 +48,36 @@ const Integer = v.pipe(
 	v.integer("must be an integer"),
 );
 
+const NonNegative = v.pipe(Integer, v.minValue(0, "must be 0 or more"));
+
+function belowLength(
+	length: number,
+	reason = "",
+): v.LtValueAction<number, number, string> {
+	return v.ltValue(
+		length,
+		`must be less than the record's length, ${length}${reason}`,
+	);
+}
+
+function atMostLength(
+	length: number,
+): v.MaxValueAction<number, number, string> {
+	return v.maxValue(length, `must be at most the record's length, ${length}`);
+}
+
 /** A single base: its 0-based index. */
 export function base({ length }: Bounds) {
-	return v.pipe(
-		Integer,
-		v.minValue(0, "must be 0 or more"),
-		v.ltValue(length, `must be less than the record's length, ${length}`),
-	);
+	return v.pipe(NonNegative, belowLength(length));
 }
 
 /** A point between two bases: the number of bases before it. */
 export function point({ length, circular }: Bounds) {
 	return v.pipe(
-		Integer,
-		v.minValue(0, "must be 0 or more"),
+		NonNegative,
 		circular
-			? v.ltValue(
-					length,
-					`must be less than the record's length, ${length}: on a circular record that point is 0`,
-				)
-			: v.maxValue(length, `must be at most the record's length, ${length}`),
+			? belowLength(length, ": on a circular record that point is 0")
+			: atMostLength(length),
 	);
 }
 
@@ -54,21 +88,19 @@ export function point({ length, circular }: Bounds) {
 export function span(bounds: Bounds) {
 	const { length, circular } = bounds;
 	return v.pipe(
-		v.strictObject({ start: base(bounds), end: Integer }, objectProblem),
+		exact({
+			start: base(bounds),
+			end: circular ? Integer : v.pipe(Integer, atMostLength(length)),
+		}),
 		v.forward(
 			v.check(({ start, end }) => start < end, "must be greater than start"),
 			["end"],
 		),
 		v.forward(
-			circular
-				? v.check(
-						({ start, end }) => end - start <= length,
-						`must be at most start + ${length}, one turn of the record`,
-					)
-				: v.check(
-						({ end }) => end <= length,
-						`must be at most the record's length, ${length}`,
-					),
+			v.check(
+				({ start, end }) => !circular || end - start <= length,
+				`must be at most start + ${length}, one turn of the record`,
+			),
 			["end"],
 		),
 	);
@@ -88,14 +120,11 @@ const Bases = v.pipe(
 	),
 );
 
-const RecordSchema = v.strictObject(
-	{
-		name: v.string("must be text"),
-		circular: v.boolean("must be true or false"),
-		bases: Bases,
-	},
-	objectProblem,
-);
+const RecordSchema = exact({
+	name: v.string("must be text"),
+	circular: v.boolean("must be true or false"),
+	bases: Bases,
+});
 
 /** One DNA molecule as a caller hands it over. */
 export type Record = v.InferOutput<typeof RecordSchema>;
@@ -111,7 +140,7 @@ function pathOf(issue: v.BaseIssue<unknown>): string {
 }
 
 /** Return `input` as `schema` types it, or throw one FormatError naming every problem. */
-export function parse<const S extends v.GenericSchema>(
+export function parse<S extends v.GenericSchema>(
 	schema: S,
 	input: unknown,
 ): v.InferOutput<S> {

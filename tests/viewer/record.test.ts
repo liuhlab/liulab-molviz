@@ -17,9 +17,9 @@ describe("check", () => {
 		expect(check(good)).toEqual(good);
 	});
 
-	test("rejects a key the format does not have", () => {
-		expect(() => check({ ...good, colour: "red" })).toThrow(
-			new FormatError("colour: unknown key"),
+	test("rejects every key the format does not have", () => {
+		expect(() => check({ ...good, colour: "red", shape: "round" })).toThrow(
+			new FormatError("colour: unknown key\nshape: unknown key"),
 		);
 	});
 
@@ -123,6 +123,21 @@ describe("span", () => {
 			linear,
 			{ start: "1", end: 3 },
 			["segments[0].start: must be a number"],
+		],
+		[
+			"past a linear record's length, with a start that is not a number",
+			linear,
+			{ start: "1", end: 99999 },
+			[
+				"segments[0].start: must be a number",
+				"segments[0].end: must be at most the record's length, 2686",
+			],
+		],
+		[
+			"with keys a span does not have",
+			linear,
+			{ start: 0, end: 3, strand: 1, name: "a" },
+			["segments[0].strand: unknown key", "segments[0].name: unknown key"],
 		],
 	])("%s", (_, bounds, segment, expected) => {
 		expect(problems(kind(bounds), { segments: [segment] })).toEqual(expected);
