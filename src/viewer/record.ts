@@ -1,52 +1,13 @@
 /** The record format: what a caller hands the viewer. Its types come from these schemas. */
 
 import * as v from "valibot";
-
-/** Thrown when a record breaks the format. Its message names every problem by its path. */
-export class FormatError extends Error {
-	override name = "FormatError";
-}
-
-/** An object reports a wrong type and a missing key through one message. */
-function objectProblem(issue: v.ObjectIssue): string {
-	return issue.expected === "Object" ? "must be an object" : "missing";
-}
-
-/**
- * An object with these keys and no others. Every unknown key is reported, `__proto__`
- * included, which valibot's own object schemas skip or stop after.
- */
-function exact<E extends v.ObjectEntries>(entries: E) {
-	return v.intersect([
-		v.object(entries, objectProblem),
-		v.pipe(
-			v.unknown(),
-			v.rawCheck(({ dataset, addIssue }) => {
-				if (typeof dataset.value !== "object" || dataset.value === null) return;
-				const input = dataset.value as { [key: string]: unknown };
-				for (const key of Object.keys(input)) {
-					if (Object.hasOwn(entries, key)) continue;
-					const value = input[key];
-					addIssue({
-						message: "unknown key",
-						path: [{ type: "object", origin: "key", input, key, value }],
-					});
-				}
-			}),
-		),
-	]);
-}
+import { exact, Integer, list, parse, Text } from "./format";
 
 /** What a coordinate is checked against: its record's length, and whether it is circular. */
 export interface Bounds {
 	readonly length: number;
 	readonly circular: boolean;
 }
-
-const Integer = v.pipe(
-	v.number("must be a number"),
-	v.integer("must be an integer"),
-);
 
 const NonNegative = v.pipe(Integer, v.minValue(0, "must be 0 or more"));
 
@@ -113,10 +74,6 @@ function oneOf<const T extends readonly number[]>(values: T) {
 	return v.picklist(values, `must be ${listed}`);
 }
 
-function list<T extends v.GenericSchema>(item: T) {
-	return v.array(item, "must be a list");
-}
-
 /** An `end` more than one turn past `start`, which `from` names, reported at `keys`. */
 function* pastOneTurn(
 	keys: readonly Key[],
@@ -161,10 +118,10 @@ export function span(bounds: Bounds) {
 	return v.pipe(exact(spanKeys(bounds)), spanRule(bounds));
 }
 
+export type Span = v.InferOutput<ReturnType<typeof span>>;
+
 /** A record's length is unbounded where a record cannot say how long it is. */
 const UNBOUNDED = Number.POSITIVE_INFINITY;
-
-const Text = v.string("must be text");
 
 const Color = v.pipe(
 	Text,
@@ -392,31 +349,7 @@ function boundsOf(input: unknown): Bounds {
 	return { length: UNBOUNDED, circular: circular !== false };
 }
 
-/** Write an issue's path as `features[3].segments[0].end`. */
-function pathOf(issue: v.BaseIssue<unknown>): string {
-	let path = "";
-	for (const { key } of issue.path ?? []) {
-		path +=
-			typeof key === "number" ? `[${key}]` : `${path ? "." : ""}${String(key)}`;
-	}
-	return path || "record";
-}
-
-/** Return `input` as `schema` types it, or throw one FormatError naming every problem. */
-export function parse<S extends v.GenericSchema>(
-	schema: S,
-	input: unknown,
-): v.InferOutput<S> {
-	const result = v.safeParse(schema, input);
-	if (result.success) return result.output;
-	throw new FormatError(
-		result.issues
-			.map((issue) => `${pathOf(issue)}: ${issue.message}`)
-			.join("\n"),
-	);
-}
-
 /** Return `input` as a typed record, or throw one FormatError naming every problem. */
 export function check(input: unknown): Record {
-	return parse(recordSchema(boundsOf(input)), input);
+	return parse(recordSchema(boundsOf(input)), input, { name: "record" });
 }

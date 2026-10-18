@@ -1,0 +1,32 @@
+{
+ "name": "both-strands-and-insertions",
+ "circular": true,
+ "bases": "GCTAGTCAGTAATTGTGAGCGCTCACAATTCTGACTGATCAGTACGTCAGTTAGCATCGA",
+ "features": [
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 2,
+   "segments": [
+    {
+     "start": 10,
+     "end": 30
+    }
+   ],
+   "color": "#31849b"
+  }
+ ],
+ "insertions": [
+  {
+   "name": "barcode",
+   "at": 45,
+   "length": 20,
+   "color": "#ff8800"
+  },
+  {
+   "name": "spacer",
+   "at": 0,
+   "length": 3
+  }
+ ]
+}

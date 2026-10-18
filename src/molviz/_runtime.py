@@ -1,38 +1,53 @@
 """The viewer's JavaScript, run in V8 inside this process."""
 
 import json
+from functools import cache
 from typing import Any
 
 from molviz.viewer import viewer_script
 
-_CHECK = """((text) => {
+# The arguments cross as JSON text, so a key such as `__proto__` stays a key.
+_CALL = """((name, call, text) => {
     try {
-        molviz.check(JSON.parse(text));
-        return null;
+        return { value: molviz[molviz.calls[name][call]](...JSON.parse(text)) ?? null };
     } catch (error) {
-        if (error.name === "FormatError") return error.message;
+        if (error.name === "FormatError") return { problems: error.message };
         throw error;
     }
 })"""
 
 
-def check(record: dict[str, Any]) -> None:
-    """Check ``record`` against the format, with the viewer's own check.
+@cache
+def calls() -> dict[str, dict[str, str]]:
+    """Return the viewer's ``calls``: each input's calls by their names on the global."""
+    from py_mini_racer import MiniRacer
 
-    Any JavaScript error other than a format error is raised as it is, not as ``ValueError``.
+    with MiniRacer() as ctx:
+        ctx.eval(viewer_script())
+        text = ctx.eval("JSON.stringify(molviz.calls)")
+    return json.loads(str(text))
+
+
+def call(name: str, function: str, *arguments: Any) -> Any:
+    """Call the viewer's ``function``, such as ``svg``, for the input ``name`` with ``arguments``.
+
+    It returns the answer as JSON gives it. Each call runs in a fresh V8 context.
 
     Raises
     ------
     ValueError
-        If the record breaks the format. The message names every problem by its path.
+        If the viewer throws a format error. The message is the viewer's.
     TypeError
-        If a value has no JSON form, such as a set.
+        If an argument has no JSON form, such as a set.
+    py_mini_racer.JSEvalException
+        If the viewer throws any other error.
     """
     from py_mini_racer import MiniRacer
 
-    text = json.dumps(record, allow_nan=False)
+    text = json.dumps(arguments, allow_nan=False)
     with MiniRacer() as ctx:
         ctx.eval(viewer_script())
-        problems = ctx.call(_CHECK, text)
-    if problems is not None:
-        raise ValueError(problems)
+        answer = ctx.call(_CALL, name, function, text)
+    if "problems" in answer:
+        raise ValueError(answer["problems"])
+    return answer["value"]

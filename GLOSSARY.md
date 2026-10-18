@@ -46,13 +46,17 @@ What sort of thing is drawn on a record, such as a feature, a primer or a cut si
 
 ### Feature
 
-A named stretch of a record with a type, such as a CDS or a promoter, on one strand or none, in
-one segment or several joined.
+A named stretch of a record with a type, such as a CDS or a promoter, on one strand, both or
+none, in one segment or several joined.
 _Avoid_: annotation
 
 ### Primer
 
 An oligo drawn at each site it binds, with its 5' tail and the bases it does not pair with.
+
+### Cut
+
+One enzyme cutting a record once, at one place. The cuts at one position make a cut site.
 
 ### Cut site
 

@@ -1,0 +1,8 @@
+{
+ "title": "One tube of the positive control, kept apart from the strip",
+ "rows": 1,
+ "columns": 1,
+ "wells": {
+  "A1": "positive control"
+ }
+}

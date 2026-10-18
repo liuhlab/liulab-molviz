@@ -1,0 +1,13 @@
+{
+ "title": "lysate 1, with its corners and middle filled",
+ "rows": 32,
+ "columns": 48,
+ "wells": {
+  "A1": "positive control",
+  "A48": "positive control",
+  "P24": "sample",
+  "Q25": "sample",
+  "AF1": "no-template control",
+  "AF48": "no-template control"
+ }
+}
