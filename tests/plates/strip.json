@@ -1,0 +1,13 @@
+{
+ "title": "strip of 8 tubes",
+ "rows": 1,
+ "columns": 8,
+ "wells": {
+  "A1": "sample 1",
+  "A2": "sample 2",
+  "A3": "sample 3",
+  "A4": "sample 4",
+  "A7": "water",
+  "A8": "positive control"
+ }
+}

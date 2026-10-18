@@ -11,6 +11,35 @@ sets one.
 
 - The viewer: a JavaScript file built from TypeScript and shipped inside the package.
 - `viewer_script()` returns the viewer's text, for a page to inline.
+- `check(record)` checks a record against the format.
+- `draw(record, **options)` checks a record and the options for drawing it, and returns a
+  `Drawing` of the record as a line map. Its `map` option takes only `"line"` for now, so a
+  circular record's default map changes when the circle is added.
+- `Drawing.write(path, dpi=300)` writes the drawing in the format its ending names: `.html`,
+  a page that draws the record offline; `.svg`; `.png`, at `dpi` pixels per inch; or `.pdf`.
+- In the viewer, `molviz.draw(element, record, options)` draws a record into an element of a
+  page. `molviz.svg(record, options)` returns the drawing as `{svg, pages, hidden, notice}`:
+  its SVG text, one SVG for each PDF page, the hidden labels, and the notice.
+- `check_gel(gel)` checks a gel against the gel format: a ladder and its lanes, each band by
+  its size in bp.
+- `draw_gel(gel)` checks a gel and returns a `Drawing` of it, which writes the same four
+  endings as a record's. Its `hidden` is empty and its `notice` blank.
+- In the viewer, `molviz.checkGel(gel)` checks a gel, and `molviz.drawGel(element, gel)` draws
+  it into an element of a page. `molviz.gelSvg(gel)` returns the drawing as
+  `{svg, pages, hidden, notice}`, as `molviz.svg` does. On a page, resting the pointer on a
+  band shows its size.
+- `check_plate(plate)` checks a plate against the plate format: its rows and columns, and the
+  contents of each well by its name, such as `B3`.
+- `draw_plate(plate)` checks a plate and returns a `Drawing` of it, which writes the same four
+  endings as a record's. Its `hidden` is empty and its `notice` blank.
+- In the viewer, `molviz.checkPlate(plate)` checks a plate, and
+  `molviz.drawPlate(element, plate)` draws it into an element of a page.
+  `molviz.plateSvg(plate)` returns the drawing as `{svg, pages, hidden, notice}`, as
+  `molviz.svg` does. On a page, resting the pointer on a well shows its name and its contents.
+- In the viewer, `molviz.calls` names the calls for each input, `record`, `gel` or `plate`: the
+  one that checks it, the one that draws it into an element, and the one that returns SVG.
+- Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
+  opentype.js, built into the viewer, which reads its fonts.
 
 ### Removed
 

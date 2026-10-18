@@ -1,0 +1,42 @@
+{
+ "title": "Diagnostic digests of six candidate clones from the second transformation",
+ "ladder": {
+  "name": "GeneRuler 1 kb Plus DNA Ladder, ready-to-use (Thermo Fisher SM1333)",
+  "bands": [
+   75,
+   200,
+   300,
+   400,
+   500,
+   700,
+   1000,
+   1500,
+   2000,
+   3000,
+   4000,
+   5000,
+   7000,
+   10000,
+   20000
+  ]
+ },
+ "lanes": [
+  {
+   "name": "clone 1, EcoRI and HindIII-HF in rCutSmart, 37 °C for one hour",
+   "bands": [
+    2686,
+    741
+   ]
+  },
+  {
+   "name": "clone 2",
+   "bands": []
+  },
+  {
+   "name": "pUC19-GFP-with-a-very-long-unbroken-construct-name-from-a-database",
+   "bands": [
+    3427
+   ]
+  }
+ ]
+}

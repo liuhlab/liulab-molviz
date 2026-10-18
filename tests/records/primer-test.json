@@ -1,0 +1,156 @@
+{
+ "name": "primer-test",
+ "circular": false,
+ "bases": "TACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTGAATTCGAGCTCGGTACCCGGGGATCCTCTAGAGTCGACCTGCAGGCATGCAAGCTTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGG",
+ "features": [
+  {
+   "name": "cds-part",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 10,
+     "end": 190
+    }
+   ],
+   "color": "#993366",
+   "translation": "GERGMCCKAIKLGNARVFPVTTL*NDGQ*IRARYPGIL*SRPAGMQAWRNHGHSCFLCEI"
+  },
+  {
+   "name": "prom",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 200,
+     "end": 240
+    }
+   ],
+   "color": "#a6acb3"
+  }
+ ],
+ "primers": [
+  {
+   "name": "fwd-BsaI-tail",
+   "bases": "TTGGTCTCACAAGGCGATTAAGTTGGGTAAC",
+   "sites": [
+    {
+     "start": 30,
+     "end": 52,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "rev-mismatch",
+   "bases": "CCGAATTCGAGTTAGCTAACTCATTAGGCAC",
+   "sites": [
+    {
+     "start": 250,
+     "end": 272,
+     "strand": -1,
+     "mismatches": [
+      263
+     ]
+    }
+   ]
+  },
+  {
+   "name": "plain-fwd",
+   "bases": "CCTCTAGAGTCGACCTGCAG",
+   "sites": [
+    {
+     "start": 120,
+     "end": 140,
+     "strand": 1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "EcoRI",
+   "start": 95,
+   "end": 101,
+   "at": 96,
+   "stagger": 4
+  },
+  {
+   "enzyme": "SacI",
+   "start": 101,
+   "end": 107,
+   "at": 106,
+   "stagger": -4
+  },
+  {
+   "enzyme": "KpnI",
+   "start": 107,
+   "end": 113,
+   "at": 112,
+   "stagger": -4
+  },
+  {
+   "enzyme": "SmaI",
+   "start": 111,
+   "end": 117,
+   "at": 114,
+   "stagger": 0
+  },
+  {
+   "enzyme": "XmaI",
+   "start": 111,
+   "end": 117,
+   "at": 112,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BamHI",
+   "start": 116,
+   "end": 122,
+   "at": 117,
+   "stagger": 4
+  },
+  {
+   "enzyme": "XbaI",
+   "start": 122,
+   "end": 128,
+   "at": 123,
+   "stagger": 4
+  },
+  {
+   "enzyme": "SalI",
+   "start": 128,
+   "end": 134,
+   "at": 129,
+   "stagger": 4
+  },
+  {
+   "enzyme": "SbfI",
+   "start": 133,
+   "end": 141,
+   "at": 139,
+   "stagger": -4
+  },
+  {
+   "enzyme": "PstI",
+   "start": 134,
+   "end": 140,
+   "at": 139,
+   "stagger": -4
+  },
+  {
+   "enzyme": "SphI",
+   "start": 140,
+   "end": 146,
+   "at": 145,
+   "stagger": -4
+  },
+  {
+   "enzyme": "HindIII",
+   "start": 146,
+   "end": 152,
+   "at": 147,
+   "stagger": 4
+  }
+ ]
+}
