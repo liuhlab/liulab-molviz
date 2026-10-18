@@ -1,3 +1,5 @@
+import html
+import json
 import re
 import struct
 from pathlib import Path
@@ -6,7 +8,7 @@ from xml.etree import ElementTree
 import pytest
 
 import molviz
-from molviz import Drawing, check
+from molviz import Drawing, check, viewer_script
 
 GOOD = {"name": "pUC19", "circular": True, "bases": "GATCcatgRYN"}
 
@@ -126,7 +128,7 @@ def test_a_pdf_page_is_the_drawings_extent_in_points(drawing, tmp_path) -> None:
     ]
 
 
-@pytest.mark.parametrize("ending", [".svg", ".png", ".pdf"])
+@pytest.mark.parametrize("ending", [".html", ".svg", ".png", ".pdf"])
 def test_a_record_drawn_twice_writes_the_same_bytes(tmp_path, ending) -> None:
     molviz.draw(DRAWN).write(tmp_path / f"first{ending}")
     molviz.draw(DRAWN).write(tmp_path / f"second{ending}")
@@ -147,9 +149,51 @@ def test_an_unknown_ending_raises_naming_the_endings(drawing, tmp_path, name) ->
     assert not (tmp_path / name).exists()
 
 
-def test_a_page_is_not_written_yet(drawing, tmp_path) -> None:
-    with pytest.raises(NotImplementedError):
-        drawing.write(tmp_path / "map.html")
+def page(drawing: Drawing, tmp_path: Path) -> str:
+    drawing.write(tmp_path / "map.html")
+    return (tmp_path / "map.html").read_text(encoding="utf-8")
+
+
+def embedded(page: str) -> list[str]:
+    """The text of each JSON block on ``page``, read to where the HTML parser ends it."""
+    return re.findall(
+        r'<script type="application/json"[^>]*>(.*?)</script', page, re.DOTALL | re.IGNORECASE
+    )
+
+
+def title(page: str) -> str:
+    found = re.search(r"<title>(.*?)</title>", page, re.DOTALL)
+    assert found
+    return html.unescape(found[1])
+
+
+def test_a_page_inlines_the_viewer_and_embeds_the_record_once(drawing, tmp_path) -> None:
+    written = page(drawing, tmp_path)
+    assert viewer_script() in written
+    assert [json.loads(block) for block in embedded(written)].count(DRAWN) == 1
+    assert title(written) == "pTest"
+
+
+# A `src` or `href`, or a CSS `url(` or `@import`, naming a URL with a host.
+NETWORK = re.compile(
+    r"""(?:\b(?:src|href)\s*=\s*|\burl\(\s*|@import\s+)["']?\s*(?:https?:)?//""", re.IGNORECASE
+)
+
+
+def test_a_page_loads_nothing_over_the_network(drawing, tmp_path) -> None:
+    written = page(drawing, tmp_path)
+    assert NETWORK.search('<script src="https://example.org/viewer.js">')
+    assert not NETWORK.search(written)
+
+
+def test_a_page_escapes_a_name_that_would_end_its_script(tmp_path) -> None:
+    record = {**DRAWN, "name": "</script><script>alert(1)</script><!-- & \u2028\u2029"}
+    written = page(molviz.draw(record), tmp_path)
+    blocks = embedded(written)
+    assert [json.loads(block) for block in blocks].count(record) == 1
+    for block in blocks:
+        assert not set(block) & set("<>&\u2028\u2029")
+    assert title(written) == record["name"]
 
 
 def test_a_pdf_embeds_no_font(drawing, tmp_path) -> None:

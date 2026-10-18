@@ -15,5 +15,12 @@ They are mbio's example gels, with two keys renamed: `bands_bp` to `bands`, and 
 | `restriction` | `docs/examples/pUC19-GFP/restriction/protocol.json` | Four gels. Two are digests with a 2 bp band, far below the ladder's smallest. |
 | `pcr-test` | `tests/data/pcr-protocol.json` | The only lane with no band, and the only ladder listed largest first. |
 
-`scripts/write_test_records.py` writes these files along with the test records. To run it, see
-[the test records' README](../records/README.md).
+Two more are made by hand:
+
+| File | What it covers |
+| --- | --- |
+| `one-size.json` | Every band one size, so all of them sit in the middle of the gel. |
+| `long-names.json` | A long title, ladder name and lane name, which wrap, a word too long for any line, and a lane with no band. |
+
+`scripts/write_test_records.py` writes mbio's gels along with the test records, and does not
+touch the hand-made ones. To run it, see [the test records' README](../records/README.md).

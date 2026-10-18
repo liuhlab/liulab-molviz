@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { svg } from "../../src/viewer/drawing";
+import { gelSvg, svg } from "../../src/viewer/drawing";
 import { FormatError } from "../../src/viewer/record";
 
 const good = { name: "p", circular: false, bases: "ACGT".repeat(25) };
@@ -40,6 +40,29 @@ describe("svg", () => {
 			],
 		});
 		expect(drawn.svg).toContain('fill="#77aadd"');
+		expect(drawn.pages).toEqual([drawn.svg]);
+		expect(drawn.hidden).toEqual([]);
+		expect(drawn.notice).toBe("");
+	});
+});
+
+describe("gelSvg", () => {
+	const gel = {
+		ladder: { name: "ladder", bands: [100, 1000] },
+		lanes: [{ name: "GFP", bands: [741] }],
+	};
+
+	test("checks the gel", () => {
+		expect(() => gelSvg({ ...gel, lanes: [{ name: "GFP" }] })).toThrow(
+			new FormatError("lanes[0].bands: missing"),
+		);
+	});
+
+	test("draws the gel, every letter an outline, as the only page, hiding nothing", () => {
+		const drawn = gelSvg(gel);
+		expect(drawn.svg).toMatch(/^<svg\b/);
+		expect(drawn.svg).toContain('fill="#15171c"');
+		expect(drawn.svg).not.toContain("<text");
 		expect(drawn.pages).toEqual([drawn.svg]);
 		expect(drawn.hidden).toEqual([]);
 		expect(drawn.notice).toBe("");

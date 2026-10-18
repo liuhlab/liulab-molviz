@@ -1,5 +1,7 @@
-/** A record drawn as SVG text, with no DOM. */
+/** A record or a gel drawn as SVG text, with no DOM. */
 
+import { checkGel } from "./gel";
+import { layoutGel } from "./gel-layout";
 import { layout } from "./line";
 import { checkOptions } from "./options";
 import { check, type Span } from "./record";
@@ -16,7 +18,7 @@ export interface Hidden {
 	readonly spans: readonly Span[];
 }
 
-/** What `svg` returns. */
+/** What `svg` and `gelSvg` return. */
 export interface Drawing {
 	/** The whole drawing. Its width and height have no unit: one unit is one point. */
 	readonly svg: string;
@@ -34,6 +36,18 @@ export interface Drawing {
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
 	const checked = check(record);
-	const drawn = toSvg(layout(checked, checkOptions(options, checked)));
-	return { svg: drawn, pages: [drawn], hidden: [], notice: "" };
+	return whole(toSvg(layout(checked, checkOptions(options, checked))));
+}
+
+/**
+ * Draw `gel` as SVG text, every letter an outline. Throws one FormatError naming every problem
+ * in the gel.
+ */
+export function gelSvg(gel: unknown): Drawing {
+	return whole(toSvg(layoutGel(checkGel(gel))));
+}
+
+/** `svg` as a drawing of one page that leaves no label out. */
+function whole(svg: string): Drawing {
+	return { svg, pages: [svg], hidden: [], notice: "" };
 }

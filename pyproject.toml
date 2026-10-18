@@ -142,6 +142,12 @@ fmt-js = "biome check --write ."
 typecheck-js = { cmd = "pnpm exec tsc", depends-on = ["install-js"] }
 test-js = { cmd = "pnpm exec vitest run", depends-on = ["install-js"] }
 build-js = { cmd = "pnpm exec vite build", depends-on = ["install-js"] }
+# Same bytes on both platforms: CI's `same-bytes` job runs the first on each and the second on
+# the two files, which prints their differences and fails if there are any.
+digest-drawings = { cmd = "python scripts/digest_drawings.py tests/records", depends-on = [
+    "build-js",
+] }
+same-digests = "diff -u"
 # The static step list lives here and nowhere else; `check.sh` takes it as arguments.
 check-static = { cmd = "bash scripts/check.sh lint fmt-check typecheck vale markdownlint conformance lint-js typecheck-js", depends-on = [
     "install-js",

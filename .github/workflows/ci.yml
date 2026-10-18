@@ -27,6 +27,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # For a branch with no pull request yet: `gh workflow run ci.yml --ref <branch>`.
+  workflow_dispatch:
 
 # Keyed on the workflow and the ref, so pushing again to a pull request cancels the run it
 # supersedes. `main` runs are never cancelled: a cancelled run on the branch everything
@@ -108,3 +110,46 @@ jobs:
       # a green run here is not a claim the site has no dead ends. This job builds the
       # site and stops; publishing it is `docs.yml`, on `main`.
       - run: pixi run docs-build
+
+  # Promise 8, the same input writes the same bytes, across the two platforms. A job of its own
+  # because the platform differs. Each runner digests every test record's drawings, and
+  # `same-bytes-compare` diffs the two, so no stored digest goes stale on a drawing change.
+  same-bytes:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-64
+          - os: macos-latest
+            platform: osx-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          environments: test
+          locked: true
+      - run: pixi run -e test digest-drawings -- ${{ matrix.platform }}.sha256
+      - uses: actions/upload-artifact@v7
+        with:
+          name: drawings-${{ matrix.platform }}
+          path: ${{ matrix.platform }}.sha256
+          if-no-files-found: error
+
+  same-bytes-compare:
+    needs: same-bytes
+    runs-on: ubuntu-latest
+    steps:
+      # pixi needs the manifest to run the task; `test` is the environment the Linux runner
+      # above already cached.
+      - uses: actions/checkout@v7
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          environments: test
+          locked: true
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: drawings-*
+          path: drawings
+          merge-multiple: true
+      - run: pixi run -e test same-digests -- drawings/linux-64.sha256 drawings/osx-arm64.sha256
