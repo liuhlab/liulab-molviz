@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { layout, type Scene, type Shape } from "../../src/viewer/line";
+import { layout } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
+import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
 
@@ -369,7 +370,7 @@ type Rect = Extract<Shape, { shape: "rect" }>;
 function box(t: Text) {
 	const width = measure(t.text, t.face, t.size);
 	const { ascent, descent } = metrics(t.face);
-	const x = t.anchor === "middle" ? t.x - width / 2 : t.x;
+	const x = leftEdge(t, width);
 	return {
 		left: x,
 		right: x + width,

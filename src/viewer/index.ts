@@ -3,4 +3,3 @@
 export { draw } from "./draw";
 export { svg } from "./drawing";
 export { check } from "./record";
-export { measure } from "./text";

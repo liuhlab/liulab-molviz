@@ -4,73 +4,9 @@
  */
 
 import type { Options } from "./options";
-import type { Record } from "./record";
+import type { Bounds, Record, Span } from "./record";
+import { type Box, leftEdge, type Scene, type Shape } from "./scene";
 import { type Face, measure, metrics } from "./text";
-
-/** A rectangle: its top-left corner, width and height. */
-export interface Box {
-	readonly x: number;
-	readonly y: number;
-	readonly width: number;
-	readonly height: number;
-}
-
-/** One thing a scene draws. Lengths are in points; colours are written `#rrggbb`. */
-export type Shape =
-	| {
-			readonly shape: "line";
-			readonly x1: number;
-			readonly y1: number;
-			readonly x2: number;
-			readonly y2: number;
-			readonly stroke: string;
-			readonly strokeWidth: number;
-	  }
-	| {
-			readonly shape: "polygon";
-			readonly points: readonly (readonly [x: number, y: number])[];
-			readonly fill: string;
-			readonly stroke: string;
-			readonly strokeWidth: number;
-	  }
-	| {
-			readonly shape: "rect";
-			readonly x: number;
-			readonly y: number;
-			readonly width: number;
-			readonly height: number;
-			/** The radius of its rounded corners. */
-			readonly corner: number;
-			readonly fill: string;
-			readonly stroke: string;
-			readonly strokeWidth: number;
-	  }
-	| {
-			readonly shape: "circle";
-			readonly cx: number;
-			readonly cy: number;
-			readonly r: number;
-			readonly fill: string;
-	  }
-	| {
-			readonly shape: "text";
-			readonly text: string;
-			readonly face: Face;
-			readonly size: number;
-			/** Where the text starts, or its middle, as `anchor` says. */
-			readonly x: number;
-			/** The baseline. */
-			readonly y: number;
-			readonly anchor: "start" | "middle";
-			readonly fill: string;
-	  };
-
-/** A drawing laid out, with no SVG or DOM in it: its shapes in the order they are drawn. */
-export interface Scene {
-	/** What the drawing covers, its margin included. */
-	readonly extent: Box;
-	readonly shapes: readonly Shape[];
-}
 
 /** The line's length. */
 const WIDTH = 720;
@@ -113,6 +49,7 @@ const PAD_Y = 1;
 const GAP = 10;
 
 /** The colour of each group of feature types, by the types it holds. */
+// Paul Tol's light scheme, with `#aa3377` from his bright scheme.
 // biome-ignore format: a table reads better packed
 const GROUPS: readonly [color: string, types: readonly string[]][] = [
 	[
@@ -162,7 +99,8 @@ const CONNECTOR = "#666666";
 const CONNECTOR_WIDTH = 1.5;
 const OUTLINE_WIDTH = 0.8;
 
-const EDGE = 16;
+/** The room left around everything the drawing covers. */
+const MARGIN = 16;
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
 interface Piece {
@@ -206,14 +144,19 @@ type Feature = Record["features"][number];
 
 /** Lay out `record` as a line, drawn as `options` say. */
 export function layout(record: Record, options: Options): Scene {
-	const { start, end } = options.span;
-	const length = record.bases.length;
+	const { span } = options;
+	const { start, end } = span;
+	const bounds: Bounds = {
+		length: record.bases.length,
+		circular: record.circular,
+	};
+	const { length } = bounds;
 	const at = (position: number) => ((position - start) * WIDTH) / (end - start);
 	const off = new Set(options.types_off);
 	const bars: Bar[] = [];
 	for (const feature of record.features) {
 		if (off.has(feature.type)) continue;
-		const found = pieces(feature, start, end, length, record.circular);
+		const found = pieces(feature, span, bounds);
 		bars.push(...barsOf(feature, found, at));
 	}
 	const tiers = pack(bars);
@@ -221,7 +164,7 @@ export function layout(record: Record, options: Options): Scene {
 	const shapes: Shape[] = [
 		...backbone(),
 		...ends(record.circular || start > 0, record.circular || end < length),
-		...ruler(start, end, length, record.circular, at),
+		...ruler(span, bounds, at),
 	];
 	const named = new Set(tiers.filter((_, i) => isUnder(placed[i])));
 	const lineHeight = height("sans", LABEL_SIZE);
@@ -283,7 +226,7 @@ export function layout(record: Record, options: Options): Scene {
 	}
 	const boxed = bars.filter((_, i) => placed[i] === "boxed");
 	shapes.push(...boxes(boxed));
-	shapes.push(...title(record.name, length, options.span, y + GAP));
+	shapes.push(...title(record.name, length, span, y + GAP));
 	return { extent: extent(shapes), shapes };
 }
 
@@ -477,7 +420,7 @@ function bounds(shape: Shape): Box | null {
 		case "text": {
 			const width = measure(shape.text, shape.face, shape.size);
 			return {
-				x: shape.anchor === "middle" ? shape.x - width / 2 : shape.x,
+				x: leftEdge(shape, width),
 				y: shape.y - metrics(shape.face).ascent * shape.size,
 				width,
 				height: height(shape.face, shape.size),
@@ -486,16 +429,16 @@ function bounds(shape: Shape): Box | null {
 	}
 }
 
-/** What `shapes` cover, the backbone's strokes included, and `EDGE` beyond. */
+/** What `shapes` cover, the backbone's strokes included, and `MARGIN` beyond. */
 function extent(shapes: readonly Shape[]): Box {
 	const boxes = [
 		{ x: 0, y: -BACKBONE / 2, width: WIDTH, height: STRANDS_APART + BACKBONE },
 		...shapes.flatMap((shape) => bounds(shape) ?? []),
 	];
-	const left = Math.min(...boxes.map((b) => b.x)) - EDGE;
-	const top = Math.min(...boxes.map((b) => b.y)) - EDGE;
-	const right = Math.max(...boxes.map((b) => b.x + b.width)) + EDGE;
-	const bottom = Math.max(...boxes.map((b) => b.y + b.height)) + EDGE;
+	const left = Math.min(...boxes.map((b) => b.x)) - MARGIN;
+	const top = Math.min(...boxes.map((b) => b.y)) - MARGIN;
+	const right = Math.max(...boxes.map((b) => b.x + b.width)) + MARGIN;
+	const bottom = Math.max(...boxes.map((b) => b.y + b.height)) + MARGIN;
 	return { x: left, y: top, width: right - left, height: bottom - top };
 }
 
@@ -504,10 +447,8 @@ function extent(shapes: readonly Shape[]): Box {
  * multiple of the step, and a longer one the origin, where the span runs across it.
  */
 function ruler(
-	start: number,
-	end: number,
-	length: number,
-	circular: boolean,
+	{ start, end }: Span,
+	{ length, circular }: Bounds,
 	at: (position: number) => number,
 ): Shape[] {
 	const below = STRANDS_APART + BACKBONE / 2;
@@ -564,12 +505,7 @@ function tickStep(bases: number): number {
 }
 
 /** The record's name in bold over its length, or over the span drawn, from the height `top`. */
-function title(
-	name: string,
-	length: number,
-	span: { start: number; end: number },
-	top: number,
-): Shape[] {
+function title(name: string, length: number, span: Span, top: number): Shape[] {
 	const bases = span.end - span.start;
 	const whole = span.start === 0 && span.end === length;
 	const first = (span.start % length) + 1;
@@ -632,15 +568,13 @@ function ends(left: boolean, right: boolean): Shape[] {
 }
 
 /**
- * What of `feature` lies in the span from `start` to `end`, in order along it. On a circular
- * record a feature may lie in the span a turn before or after where its segments count it.
+ * What of `feature` lies in the span, in order along it. On a circular record a feature may lie
+ * in the span a turn before or after where its segments count it.
  */
 function pieces(
 	feature: Feature,
-	start: number,
-	end: number,
-	length: number,
-	circular: boolean,
+	{ start, end }: Span,
+	{ length, circular }: Bounds,
 ): Piece[] {
 	const { segments } = feature;
 	const runs: [number, number, string | null][] = [];

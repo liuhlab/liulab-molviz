@@ -4,6 +4,7 @@
 import { type Font, parse } from "opentype.js";
 import sansUrl from "./fonts/sans.ttf?inline";
 import sansBoldUrl from "./fonts/sans-bold.ttf?inline";
+import { twoDecimals } from "./scene";
 
 /** A face the viewer carries: DejaVu Sans, or its bold. */
 export type Face = "sans" | "sans-bold";
@@ -21,14 +22,15 @@ function font(face: Face): Font {
 	return fonts[face];
 }
 
-const digits =
+const base64Alphabet =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /** The bytes of a base64 data URL, decoded by hand: mini-racer has no `atob`. */
 function bytes(url: string): ArrayBuffer {
 	const text = url.slice(url.indexOf(",") + 1).replace(/=+$/, "");
 	const value = new Uint8Array(128);
-	for (let i = 0; i < digits.length; i++) value[digits.charCodeAt(i)] = i;
+	for (let i = 0; i < base64Alphabet.length; i++)
+		value[base64Alphabet.charCodeAt(i)] = i;
 	const out = new Uint8Array((text.length * 3) >> 2);
 	let bits = 0;
 	let held = 0;
@@ -92,16 +94,12 @@ export function outline(
 	for (const c of path.commands) {
 		if (c.type === "Z") d += "Z";
 		else if (c.type === "Q")
-			d += `Q${fixed(c.x1)} ${fixed(c.y1)} ${fixed(c.x)} ${fixed(c.y)}`;
+			d += `Q${twoDecimals(c.x1)} ${twoDecimals(c.y1)} ${twoDecimals(c.x)} ${twoDecimals(c.y)}`;
 		else if (c.type === "C")
-			d += `C${fixed(c.x1)} ${fixed(c.y1)} ${fixed(c.x2)} ${fixed(c.y2)} ${fixed(c.x)} ${fixed(c.y)}`;
-		else d += `${c.type}${fixed(c.x)} ${fixed(c.y)}`;
+			d += `C${twoDecimals(c.x1)} ${twoDecimals(c.y1)} ${twoDecimals(c.x2)} ${twoDecimals(c.y2)} ${twoDecimals(c.x)} ${twoDecimals(c.y)}`;
+		else d += `${c.type}${twoDecimals(c.x)} ${twoDecimals(c.y)}`;
 	}
 	return d;
-}
-
-function fixed(n: number): string {
-	return n.toFixed(2);
 }
 
 /** CSS `@font-face` rules declaring each face under `family`, by weight, as a data URL. */

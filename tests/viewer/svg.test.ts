@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { Scene } from "../../src/viewer/line";
+import type { Scene } from "../../src/viewer/scene";
 import { toSvg } from "../../src/viewer/svg";
 import { measure, outline } from "../../src/viewer/text";
 
@@ -116,11 +116,26 @@ describe("toSvg", () => {
 		);
 	});
 
-	test("never writes a negative zero", () => {
+	test("never writes a negative zero, in a shape or a letter's outline", () => {
 		const tiny: Scene = {
 			extent: { x: 0, y: 0, width: 10, height: 10 },
-			shapes: [{ shape: "circle", cx: -0.001, cy: 0, r: 1, fill: "#000000" }],
+			shapes: [
+				{ shape: "circle", cx: -0.001, cy: 0, r: 1, fill: "#000000" },
+				{
+					shape: "text",
+					text: "I",
+					face: "sans",
+					size: 12,
+					x: 0,
+					y: -0.001,
+					anchor: "start",
+					fill: "#000000",
+				},
+			],
 		};
-		expect(toSvg(tiny)).toContain('cx="0.00"');
+		const written = toSvg(tiny);
+		expect(written).toContain('cx="0.00"');
+		expect(written).toMatch(/<path d="M[^"]* 0\.00L/);
+		expect(written).not.toContain("-0.00");
 	});
 });

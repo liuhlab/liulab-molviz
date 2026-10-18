@@ -3,6 +3,7 @@
 import { layout } from "./line";
 import { checkOptions } from "./options";
 import { check, type Span } from "./record";
+import type { Scene } from "./scene";
 import { toSvg } from "./svg";
 
 /** A kind, by its list's key in the record. */
@@ -29,11 +30,19 @@ export interface Drawing {
 }
 
 /**
+ * Check `record`, then `options` against it, and lay the record out as they say. Throws one
+ * FormatError naming every problem in the record, or else in the options.
+ */
+export function prepare(record: unknown, options: unknown): Scene {
+	const checked = check(record);
+	return layout(checked, checkOptions(options, checked));
+}
+
+/**
  * Draw `record` with `options` as SVG text, every letter an outline. Throws one FormatError
  * naming every problem in the record, or else in the options.
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
-	const checked = check(record);
-	const drawn = toSvg(layout(checked, checkOptions(options, checked)));
+	const drawn = toSvg(prepare(record, options));
 	return { svg: drawn, pages: [drawn], hidden: [], notice: "" };
 }

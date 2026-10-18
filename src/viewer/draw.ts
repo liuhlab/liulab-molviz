@@ -1,8 +1,6 @@
 /** A record drawn live into an element of a page. */
 
-import { layout } from "./line";
-import { checkOptions } from "./options";
-import { check } from "./record";
+import { prepare } from "./drawing";
 import { toElement } from "./svg";
 import { fontFaceCss } from "./text";
 
@@ -24,8 +22,7 @@ export function draw(
 	record: unknown,
 	options: unknown = {},
 ): Drawn {
-	const checked = check(record);
-	const scene = layout(checked, checkOptions(options, checked));
+	const scene = prepare(record, options);
 	const document = element.ownerDocument;
 	declareFaces(document);
 	const svg = toElement(scene, document);
