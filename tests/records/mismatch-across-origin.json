@@ -1,0 +1,22 @@
+{
+ "name": "mismatch-across-origin",
+ "circular": true,
+ "bases": "CAGTTCGATAGCTTACGGATTCGAGTACTGAATCGCTTGA",
+ "primers": [
+  {
+   "name": "fwd-across",
+   "bases": "GATCAATGGCTTGACAATTC",
+   "sites": [
+    {
+     "start": 30,
+     "end": 46,
+     "strand": 1,
+     "mismatches": [
+      33,
+      2
+     ]
+    }
+   ]
+  }
+ ]
+}
