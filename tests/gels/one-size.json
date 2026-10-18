@@ -1,0 +1,24 @@
+{
+ "title": "One size",
+ "ladder": {
+  "name": "a ladder of one band",
+  "bands": [
+   500
+  ]
+ },
+ "lanes": [
+  {
+   "name": "the same size",
+   "bands": [
+    500
+   ]
+  },
+  {
+   "name": "twice over",
+   "bands": [
+    500,
+    500
+   ]
+  }
+ ]
+}
