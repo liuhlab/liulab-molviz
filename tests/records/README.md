@@ -26,9 +26,10 @@ over the span `(2600, 2750)`. That span runs across the origin, as its `across` 
 
 ## Making the records again
 
-`scripts/write_test_records.py` writes the four records from mbio. It runs in mbio's own pixi
-environment and changes nothing there. It reads each mbio file at the commit named by
-`REVISION` in the script. It stops if the mbio code it runs differs from that commit in `src/`.
+`scripts/write_test_records.py` writes the four records from mbio, and the test gels in
+`tests/gels/`. It runs in mbio's own pixi environment and changes nothing there. It reads each
+mbio file at the commit named by `REVISION` in the script. It stops if the mbio code it runs
+differs from that commit in `src/`.
 
 From the root of this repo, with mbio checked out at `../liulab-mbio`:
 

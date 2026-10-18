@@ -43,7 +43,7 @@ export interface Bounds {
 	readonly circular: boolean;
 }
 
-const Integer = v.pipe(
+export const Integer = v.pipe(
 	v.number("must be a number"),
 	v.integer("must be an integer"),
 );
@@ -394,30 +394,38 @@ function boundsOf(input: unknown): Bounds {
 	return { length: UNBOUNDED, circular: circular !== false };
 }
 
-/** Write an issue's path as `features[3].segments[0].end`, after `root` if one is given. */
-function pathOf(issue: v.BaseIssue<unknown>, root = ""): string {
+/**
+ * Write an issue's path as `features[3].segments[0].end`, after `root` if one is given, or
+ * as `whole` where the path is empty.
+ */
+function pathOf(
+	issue: v.BaseIssue<unknown>,
+	root = "",
+	whole = "record",
+): string {
 	let path = root;
 	for (const { key } of issue.path ?? []) {
 		path +=
 			typeof key === "number" ? `[${key}]` : `${path ? "." : ""}${String(key)}`;
 	}
-	return path || "record";
+	return path || whole;
 }
 
 /**
  * Return `input` as `schema` types it, or throw one FormatError naming every problem. Each
- * path starts at `root`, if one is given.
+ * path starts at `root`, if one is given, and a problem with the whole input is named `whole`.
  */
 export function parse<S extends v.GenericSchema>(
 	schema: S,
 	input: unknown,
 	root?: string,
+	whole?: string,
 ): v.InferOutput<S> {
 	const result = v.safeParse(schema, input);
 	if (result.success) return result.output;
 	throw new FormatError(
 		result.issues
-			.map((issue) => `${pathOf(issue, root)}: ${issue.message}`)
+			.map((issue) => `${pathOf(issue, root, whole)}: ${issue.message}`)
 			.join("\n"),
 	);
 }

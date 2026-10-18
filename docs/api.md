@@ -28,6 +28,8 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.check
 
+::: molviz.check_gel
+
 ::: molviz.draw
 
 ::: molviz.Drawing

@@ -1,9 +1,10 @@
-"""Write mbio's example records into ``tests/records/``, in the viewer's format.
+"""Write mbio's example records and gels into ``tests/``, in the viewer's formats.
 
-It runs in mbio's environment, and ``tests/records/README.md`` has the command. Each input is
-read at `REVISION` through ``git show``, so mbio's files on disk do not matter, but the mbio
-code it imports must match that commit. Every record carries the cuts of all of mbio's
-enzymes. The hand-made records in ``tests/records/`` are not written here.
+The records go to ``tests/records/``, and the gels, from mbio's protocol JSON, to
+``tests/gels/``. It runs in mbio's environment, and ``tests/records/README.md`` has the
+command. Each input is read at `REVISION` through ``git show``, so mbio's files on disk do not
+matter, but the mbio code it imports must match that commit. Every record carries the cuts of
+all of mbio's enzymes. The hand-made records in ``tests/records/`` are not written here.
 """
 
 import inspect
@@ -30,6 +31,17 @@ RECORDS = {
     "ap1-product": "docs/examples/ap1-library/product.dna",
     "colour-test": "tests/data/colour-test-snapgene.gbk",
     "primer-test": "tests/data/primer-test.dna",
+}
+
+#: Each protocol or project in mbio whose steps hold gels, by the short name that starts each
+#: gel's file name in ``tests/gels/``. The gel's title ends it.
+GELS = {
+    "ap1": "docs/examples/ap1-library/protocol/project.json",
+    "gateway": "docs/examples/gateway/protocol.json",
+    "gibson": "docs/examples/pUC19-GFP/gibson/protocol.json",
+    "golden-gate": "docs/examples/pUC19-GFP/protocol.json",
+    "restriction": "docs/examples/pUC19-GFP/restriction/protocol.json",
+    "pcr-test": "tests/data/pcr-protocol.json",
 }
 
 _HEX = re.compile(r"#[0-9a-fA-F]{6}")
@@ -122,28 +134,66 @@ def convert(record: Any) -> dict[str, Any]:
     return out
 
 
+def convert_gel(gel: dict[str, Any]) -> dict[str, Any]:
+    """Return a gel from mbio's protocol JSON in the viewer's format, leaving out an empty title.
+
+    ``bands_bp`` becomes ``bands``, and a lane's ``label`` becomes its ``name``.
+    """
+    # A hand-written mbio file may leave out a key that has a default, as mbio's reader allows.
+    out: dict[str, Any] = {"title": title} if (title := gel.get("title")) else {}
+    out["ladder"] = {"name": gel["ladder"]["name"], "bands": gel["ladder"]["bands_bp"]}
+    out["lanes"] = [
+        {"name": lane["label"], "bands": lane.get("bands_bp", [])} for lane in gel["lanes"]
+    ]
+    return out
+
+
+def _gels(data: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return every gel of a protocol, or of each protocol in a project, in step order."""
+    protocols = data.get("protocols", [data])
+    steps = [step for protocol in protocols for step in protocol.get("steps", [])]
+    return [gel for step in steps for gel in step.get("gels", [])]
+
+
+def _slug(text: str) -> str:
+    """Return ``text`` in lower case, with each run of characters other than a-z and 0-9 a dash."""
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
+def _write(path: Path, data: dict[str, Any]) -> None:
+    path.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def _git(repo: Path, *args: str) -> bytes:
     return subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True).stdout
 
 
 def main() -> None:
-    """Write each record in `RECORDS` from mbio at `REVISION`."""
+    """Write each record in `RECORDS` and each gel in `GELS` from mbio at `REVISION`."""
     imported = Path(inspect.getfile(mbio)).resolve().parent
     repo = Path(_git(imported, "rev-parse", "--show-toplevel").decode().strip())
     changed = _git(repo, "diff", "--name-only", REVISION, "--", "src")
     changed += _git(repo, "status", "--porcelain", "--untracked-files=all", "--", "src")
     if changed:
         sys.exit(f"the mbio imported from {repo} differs from {REVISION} in src/")
-    out = Path(__file__).resolve().parents[1] / "tests" / "records"
+    tests = Path(__file__).resolve().parents[1] / "tests"
     with tempfile.TemporaryDirectory() as scratch:
         for name, path in RECORDS.items():
             input_file = Path(scratch) / Path(path).name
             input_file.write_bytes(_git(repo, "show", f"{REVISION}:{path}"))
             data = convert(read_record(input_file))
-            text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
-            (out / f"{name}.json").write_text(text, encoding="utf-8")
+            _write(tests / "records" / f"{name}.json", data)
             counts = ", ".join(f"{len(v)} {k}" for k, v in data.items() if isinstance(v, list))
             print(f"{name}: {len(data['bases'])} bp, {counts}")
+    written: set[str] = set()
+    for short, path in GELS.items():
+        for gel in _gels(json.loads(_git(repo, "show", f"{REVISION}:{path}"))):
+            name = _slug(f"{short} {gel.get('title', '')}")
+            if name in written:
+                sys.exit(f"two gels would both be written to {name}.json")
+            written.add(name)
+            _write(tests / "gels" / f"{name}.json", convert_gel(gel))
+            print(f"{name}: {len(gel['lanes'])} lanes")
     print(f"from mbio {REVISION}, at {repo}")
 
 
