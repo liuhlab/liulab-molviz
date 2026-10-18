@@ -1,10 +1,13 @@
 """Checking a record and drawing it, with the viewer's own code."""
 
+import html
+import json
 from os import PathLike
 from pathlib import Path
 from typing import Any, Literal, TypedDict
 
 from molviz._runtime import call
+from molviz.viewer import viewer_script
 
 
 class Span(TypedDict):
@@ -79,12 +82,12 @@ class Drawing:
         ValueError
             If the ending is none of those.
         NotImplementedError
-            For ``.html``, and for a PDF of more than one page.
+            For a PDF of more than one page.
         """
         path = Path(path)
         match path.suffix.lower():
             case ".html":
-                raise NotImplementedError(f"cannot write {path!s}: a page is not written yet")
+                path.write_bytes(_page(self._record, self._options).encode())
             case ".svg":
                 path.write_bytes(self._svg.encode())
             case ".png":
@@ -106,6 +109,40 @@ class Drawing:
                 raise ValueError(
                     f"cannot write {path!s}: its ending must be .html, .svg, .png or .pdf"
                 )
+
+
+# Characters unsafe in a script element or in JavaScript source, each written as its JSON escape.
+_UNSAFE = str.maketrans({c: f"\\u{ord(c):04x}" for c in "<>&\u2028\u2029"})
+
+
+def _json(value: Any) -> str:
+    """Return ``value`` as JSON text that a ``<script>`` element holds as it is."""
+    return json.dumps(value, ensure_ascii=False, allow_nan=False).translate(_UNSAFE)
+
+
+def _page(record: dict[str, Any], options: dict[str, Any]) -> str:
+    """Return a page that draws ``record`` with ``options`` offline, the viewer inlined."""
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>{html.escape(record["name"])}</title>
+<style>body{{margin:16px;background:#ffffff;color:#252525}}</style>
+</head>
+<body>
+<div id="drawing"></div>
+<script type="application/json" id="record">{_json(record)}</script>
+<script type="application/json" id="options">{_json(options)}</script>
+<script>{viewer_script()}</script>
+<script>
+const data = (id) => JSON.parse(document.getElementById(id).textContent);
+molviz.draw(document.getElementById("drawing"), data("record"), data("options"));
+</script>
+</body>
+</html>
+"""
 
 
 def draw(record: dict[str, Any], **options: Any) -> Drawing:
