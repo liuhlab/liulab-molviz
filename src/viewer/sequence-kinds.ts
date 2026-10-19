@@ -1,4 +1,7 @@
-/** The sequence view's primers, cut sites and insertions, each row's shelves and marks of them. */
+/**
+ * The sequence view's primers, reads, cut sites, insertions and disagreements at a point, each
+ * row's shelves and marks of them.
+ */
 
 import {
 	type Arrow,
@@ -10,7 +13,13 @@ import {
 } from "./arrows";
 import { cutSites } from "./cuts";
 import { folded } from "./format";
-import { insertionLabel, type Label, primerLabel } from "./labels";
+import {
+	disagreementLabel,
+	insertionLabel,
+	type Label,
+	primerLabel,
+	readLabel,
+} from "./labels";
 import {
 	CUT_BOX,
 	CUT_BOX_WIDTH,
@@ -22,6 +31,7 @@ import {
 	shaded,
 } from "./paint";
 import { isWhole, pieces, turns } from "./pieces";
+import type { Record } from "./record";
 import type { Box, Shape } from "./scene";
 import type { Row, RowMarks, RunOn, Shelf, Strands } from "./sequence";
 import type { Anchored } from "./staircase";
@@ -62,12 +72,12 @@ export function acrossStrands(row: Row, strands: Strands): RowMarks {
 }
 
 /**
- * What a row holds of one primer site and its tail: where that starts and ends, the arrow of its
- * site and the line of its tail where the row holds them, and the cell of each base of the site it
- * does not pair with.
+ * What a row holds of one primer site and its tail, or of one read: where that starts and ends,
+ * the arrow of its site and the line of its tail where the row holds them, and the cell of each
+ * base of the site it marks.
  */
 interface Primed {
-	/** The site, as the record gives it. */
+	/** The site or the read, as the record gives it. */
 	readonly site: object;
 	readonly start: number;
 	readonly end: number;
@@ -80,11 +90,11 @@ interface Primed {
 }
 
 /**
- * The primer sites on `strand` in `row`, each an arrow, its 5' tail and its mismatches, in tiers
- * packed by start on a shelf from `top` down, the first tier nearest the bases: the forward
- * primers' above the numbers, the reverse primers' under the strands. Sites starting together
- * keep the order of the tiers they took in the row before, `before`. Each is labelled above the
- * row where the row holds part of its site.
+ * The primer sites and reads on `strand` in `row`, each an arrow, a site's 5' tail and the bases
+ * each marks, in tiers packed by start on a shelf from `top` down, the first tier nearest the
+ * bases: the forward ones' above the numbers, the reverse ones' under the strands. Those starting
+ * together keep the order of the tiers they took in the row before, `before`. Each is labelled
+ * above the row where the row holds part of it.
  */
 export function primers(
 	row: Row,
@@ -143,70 +153,127 @@ export function primers(
 	return { shapes, labels, bottom: top + count * TIER, after };
 }
 
-/** What `row` holds of each primer site on `strand`, with its tail. */
+/** What `row` holds of each primer site and read on `strand`, with its tail. */
 function primed(row: Row, strand: 1 | -1): Primed[] {
-	const { record, options, bounds, at } = row;
-	if (options.kinds_off.includes("primers")) return [];
+	const { bounds, at } = row;
 	const found: Primed[] = [];
-	for (const { name, bases, sites } of record.primers) {
-		for (const site of sites) {
-			if (site.strand !== strand) continue;
-			const { start, end } = site;
-			const label = primerLabel(name, site, bounds.length, options.highlight);
-			const { color } = label;
-			const tail = bases.length - (end - start);
-			const whole =
+	for (const { site, start, end, label, tail, mismatched } of sites(
+		row,
+		strand,
+	)) {
+		const { color } = label;
+		const whole =
+			strand === 1
+				? { start: start - tail, end, color }
+				: { start, end: end + tail, color };
+		for (const piece of pieces([whole], row, bounds)) {
+			// The site as it lies in the row: here, or a turn on or back.
+			const shift =
+				turns(bounds).find(
+					(s) => whole.start + s <= piece.start && piece.end <= whole.end + s,
+				) ?? 0;
+			const [low, high] = [start + shift, end + shift];
+			const [first, last] = [
+				Math.max(piece.start, low),
+				Math.min(piece.end, high),
+			];
+			const [near, far] =
 				strand === 1
-					? { start: start - tail, end, color }
-					: { start, end: end + tail, color };
-			for (const piece of pieces([whole], row, bounds)) {
-				// The site as it lies in the row: here, or a turn on or back.
-				const shift =
-					turns(bounds).find(
-						(s) => whole.start + s <= piece.start && piece.end <= whole.end + s,
-					) ?? 0;
-				const [low, high] = [start + shift, end + shift];
-				const [first, last] = [
-					Math.max(piece.start, low),
-					Math.min(piece.end, high),
-				];
-				const [near, far] =
-					strand === 1
-						? [Math.min(piece.end, low), piece.start]
-						: [Math.max(piece.start, high), piece.end];
-				const tailed = strand === 1 ? far < near : near < far;
+					? [Math.min(piece.end, low), piece.start]
+					: [Math.max(piece.start, high), piece.end];
+			const tailed = strand === 1 ? far < near : near < far;
+			found.push({
+				site,
+				start: at(piece.start),
+				end: at(piece.end),
+				label,
+				arrow:
+					first < last
+						? {
+								start: at(first),
+								end: at(last),
+								color,
+								headStart: strand === -1 && first === low,
+								headEnd: strand === 1 && last === high,
+								cutStart: first > low,
+								cutEnd: last < high,
+							}
+						: null,
+				tail: tailed
+					? [at(near), at(near + Math.sign(far - near)), at(far)]
+					: null,
+				bends: strand === 1 ? low <= piece.end : piece.start <= high,
+				mismatches: mismatched.flatMap((base) => {
+					// A site across the origin holds the bases past it a turn on.
+					const position =
+						low + ((base - start + bounds.length) % bounds.length);
+					return first <= position && position < last
+						? [[at(position), at(position + 1)] as const]
+						: [];
+				}),
+			});
+		}
+	}
+	return found;
+}
+
+/** A primer site or a read, which a row draws alike. */
+interface Site {
+	readonly site: object;
+	readonly start: number;
+	readonly end: number;
+	readonly label: Label;
+	/** How many bases its tail adds past its 5' end. */
+	readonly tail: number;
+	/** The bases it marks, as the record counts them. */
+	readonly mismatched: readonly number[];
+}
+
+/**
+ * Each primer site and read on `strand` the options leave on. A primer marks the bases it does
+ * not pair with; a read, those of each disagreement over a span that names it.
+ */
+function sites({ record, options, bounds }: Row, strand: 1 | -1): Site[] {
+	const { highlight } = options;
+	const off = new Set(options.kinds_off);
+	const found: Site[] = [];
+	if (!off.has("primers")) {
+		for (const { name, bases, sites } of record.primers) {
+			for (const site of sites) {
+				if (site.strand !== strand) continue;
+				const { start, end } = site;
 				found.push({
 					site,
-					start: at(piece.start),
-					end: at(piece.end),
-					label,
-					arrow:
-						first < last
-							? {
-									start: at(first),
-									end: at(last),
-									color,
-									headStart: strand === -1 && first === low,
-									headEnd: strand === 1 && last === high,
-									cutStart: first > low,
-									cutEnd: last < high,
-								}
-							: null,
-					tail: tailed
-						? [at(near), at(near + Math.sign(far - near)), at(far)]
-						: null,
-					bends: strand === 1 ? low <= piece.end : piece.start <= high,
-					mismatches: (site.mismatches ?? []).flatMap((base) => {
-						// A site across the origin holds the bases past it a turn on.
-						const position =
-							low + ((base - start + bounds.length) % bounds.length);
-						return first <= position && position < last
-							? [[at(position), at(position + 1)] as const]
-							: [];
-					}),
+					start,
+					end,
+					label: primerLabel(name, site, bounds.length, highlight),
+					tail: bases.length - (end - start),
+					mismatched: site.mismatches ?? [],
 				});
 			}
 		}
+	}
+	if (off.has("reads")) return found;
+	for (const read of record.reads) {
+		if (read.strand !== strand) continue;
+		found.push({
+			site: read,
+			start: read.start,
+			end: read.end,
+			label: readLabel(read, bounds.length, highlight),
+			tail: 0,
+			mismatched: off.has("disagreements") ? [] : disagreed(record, read.name),
+		});
+	}
+	return found;
+}
+
+/** Each base of each disagreement over a span that names the read `name`. */
+function disagreed(record: Record, name: string): number[] {
+	const found: number[] = [];
+	for (const one of record.disagreements) {
+		if (one.at !== undefined || !one.reads.includes(name)) continue;
+		for (let base = one.start; base < one.end; base++) found.push(base);
 	}
 	return found;
 }
@@ -326,24 +393,34 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 }
 
 /**
- * Each insertion in `row` as a line through both strands, or the top one, at its point, in the
- * row holding the base after it. It is labelled with what it adds, its name and point on hover.
+ * Each insertion and disagreement at a point in `row` as a line through both strands, or the top
+ * one, at its point, in the row holding the base after it. An insertion is labelled with what it
+ * adds, a disagreement with its name; each has its name and point on hover.
  */
 function insertions(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
-	if (options.kinds_off.includes("insertions")) return NOTHING;
+	const { highlight } = options;
+	const off = new Set(options.kinds_off);
+	const marked: { at: number; label: Label; hover: string }[] = [];
+	if (!off.has("insertions")) {
+		for (const insertion of record.insertions) {
+			const { label, hover } = insertionLabel(insertion, bounds, highlight);
+			marked.push({ at: insertion.at, label, hover });
+		}
+	}
+	if (!off.has("disagreements")) {
+		for (const one of record.disagreements) {
+			if (one.at === undefined) continue;
+			marked.push({ at: one.at, ...disagreementLabel(one, bounds, highlight) });
+		}
+	}
 	const [y1, y2] = [top[0], bottom ? bottom[1] : rail];
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
-	for (const insertion of record.insertions) {
-		const { label, hover } = insertionLabel(
-			insertion,
-			bounds,
-			options.highlight,
-		);
+	for (const { at: point, label, hover } of marked) {
 		for (const shift of turns(bounds)) {
-			const p = insertion.at + shift;
+			const p = point + shift;
 			if (!holds(row, p, true)) continue;
 			const x = at(p);
 			shapes.push({
