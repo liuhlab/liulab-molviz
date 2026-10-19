@@ -1,15 +1,14 @@
 /** An input drawn as SVG text, with no DOM. */
 
-import { prepareFigure } from "./figure";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
 import { layout } from "./line";
-import { checkOptions } from "./options";
+import { checkOptions, type Options } from "./options";
 import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
 import { layoutPlate } from "./plate-layout";
-import { check } from "./record";
+import { check, type Record } from "./record";
 import type { Scene } from "./scene";
 import { layoutSequence, type SequenceScene } from "./sequence";
 import { toSvg } from "./svg";
@@ -47,10 +46,14 @@ export function prepareViews(
 	where: { page?: boolean } = {},
 ): Views {
 	const checked = check(record);
-	const drawn = checkOptions(options, checked, where);
+	return layoutViews(checked, checkOptions(options, checked, where));
+}
+
+/** Lay `record`'s map out as `options` say, and its sequence view if they draw one. */
+export function layoutViews(record: Record, options: Options): Views {
 	return {
-		map: layout(checked, drawn),
-		sequence: drawn.sequence_view ? layoutSequence(checked, drawn) : null,
+		map: layout(record, options),
+		sequence: options.sequence_view ? layoutSequence(record, options) : null,
 	};
 }
 
@@ -93,14 +96,6 @@ export function svg(record: unknown, options: unknown = {}): Drawing {
 		...drawing,
 		pages: [views.map, ...rowPages(views.sequence)].map(toSvg),
 	};
-}
-
-/**
- * Draw `records` stacked, each with `options`, as SVG text, every letter an outline. Throws one
- * FormatError naming every problem in the records, or else in the options.
- */
-export function figureSvg(records: unknown, options: unknown = {}): Drawing {
-	return whole(prepareFigure(records, options));
 }
 
 /**

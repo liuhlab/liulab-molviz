@@ -1,12 +1,20 @@
 /** A figure: records stacked top to bottom, each drawn to one set of options. */
 
 import * as v from "valibot";
+import {
+	type Drawing,
+	drawn,
+	layoutViews,
+	stackedViews,
+	type Views,
+} from "./drawing";
 import { FormatError, list, parse } from "./format";
 import type { MapScene } from "./labels";
-import { layout } from "./line";
 import { checkOptions, type Options } from "./options";
+import { rowPages } from "./pages";
 import { type Record, recordSchemaOf } from "./record";
-import { moved, type Shape } from "./scene";
+import { moved, type Scene, type Shape } from "./scene";
+import { toSvg } from "./svg";
 import { baseline, type Face, height } from "./text";
 
 /** How a stacked record's name is set above it, as mbio sets it. */
@@ -35,17 +43,90 @@ export function checkFigure(input: unknown): Record[] {
 	return parse(schema, input, { prefix: "records" });
 }
 
-/**
- * Check `records`, then `options` against each, and lay the records out stacked as they say.
- */
-export function prepareFigure(records: unknown, options: unknown): MapScene {
+/** One of a figure's records laid out: its name, and its views drawn to the figure's options. */
+interface Laid {
+	readonly name: string;
+	readonly views: Views;
+}
+
+/** Check `records`, then `options` against each, and lay each record's views out. */
+function layOut(records: unknown, options: unknown): Laid[] {
 	const checked = checkFigure(records);
 	const each = checkEach(options, checked);
-	const scenes = checked.map((record, i) => layout(record, each[i]));
+	return checked.map((record, i) => ({
+		name: record.name,
+		views: layoutViews(record, each[i]),
+	}));
+}
+
+/** The names set above `laid`'s records: none for one record. */
+function namesOf(laid: readonly Laid[]): string[] | null {
+	return laid.length > 1 ? laid.map(({ name }) => name) : null;
+}
+
+/** `laid` stacked, each record as `svg` draws it. */
+function whole(laid: readonly Laid[]): MapScene {
 	return stacked(
-		checked.map(({ name }) => name),
-		scenes,
+		laid.map(({ views }) => stackedViews(views)),
+		namesOf(laid),
 	);
+}
+
+/**
+ * Check `records`, then `options` against each, and lay the records out stacked, each as `svg`
+ * draws it.
+ */
+export function prepareFigure(records: unknown, options: unknown): MapScene {
+	return whole(layOut(records, options));
+}
+
+/** A figure laid out as a file draws it. */
+export interface FigureFile {
+	/** The whole drawing. */
+	readonly scene: MapScene;
+	/** One scene per PDF page, or null when the whole drawing is the one page. */
+	readonly pages: readonly Scene[] | null;
+}
+
+/**
+ * `prepareFigure`, with a PDF's pages when the records draw their sequence views: the maps
+ * stacked, then each record's rows in record order, the first of them under the record's name
+ * when two or more stack.
+ */
+export function prepareFigureFile(
+	records: unknown,
+	options: unknown,
+): FigureFile {
+	const laid = layOut(records, options);
+	const scene = whole(laid);
+	if (laid.every(({ views }) => views.sequence === null)) {
+		return { scene, pages: null };
+	}
+	const names = namesOf(laid);
+	const maps = stacked(
+		laid.map(({ views }) => views.map),
+		names,
+	);
+	const rows = laid.flatMap(({ name, views }) => {
+		if (views.sequence === null) return [];
+		const [first, ...rest] = rowPages(views.sequence);
+		return [stacked([first], names && [name]), ...rest];
+	});
+	return { scene, pages: [maps, ...rows] };
+}
+
+/**
+ * Draw `records` stacked, each with `options`, as SVG text, every letter an outline. A PDF has
+ * the maps on its first page and each record's sequence-view rows on the pages after. Throws one
+ * FormatError naming every problem in the records, or else in the options.
+ */
+export function figureSvg(records: unknown, options: unknown = {}): Drawing {
+	const { scene, pages } = prepareFigureFile(records, options);
+	const drawing = drawn(scene, toSvg);
+	return {
+		...drawing,
+		pages: pages === null ? [drawing.svg] : pages.map(toSvg),
+	};
 }
 
 /**
@@ -76,15 +157,17 @@ function checkEach(input: unknown, records: readonly Record[]): Options[] {
 }
 
 /**
- * `scenes` one under another, each keeping its x and set under its name from `names`. One
- * scene is left as it is, with no name. Each scene's own title holds its name, so its extent
- * already covers the name.
+ * `scenes` one under another, each keeping its x and set under its name from `names`. With no
+ * names there is one scene, left as it is.
  */
 function stacked(
-	names: readonly string[],
-	scenes: readonly MapScene[],
+	scenes: readonly (Scene | MapScene)[],
+	names: readonly string[] | null,
 ): MapScene {
-	if (scenes.length === 1) return scenes[0];
+	const hidden = scenes.flatMap((scene) =>
+		"hidden" in scene ? scene.hidden : [],
+	);
+	if (names === null) return { ...scenes[0], hidden };
 	const left = Math.min(...scenes.map(({ extent }) => extent.x));
 	const right = Math.max(
 		...scenes.map(({ extent }) => extent.x + extent.width),
@@ -115,6 +198,6 @@ function stacked(
 	return {
 		extent: { x: left, y: top, width: right - left, height: bottom - top },
 		shapes,
-		hidden: scenes.flatMap(({ hidden }) => hidden),
+		hidden,
 	};
 }

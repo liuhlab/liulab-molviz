@@ -12,9 +12,10 @@ more records stack, each one's name is set above it in grey.
 
 The figures are the files in `tests/figures/` in the repo. Each is one of the figures of mbio,
 the lab's tools for cloning, from its AP-1 project. That project builds a gene in three
-rounds, adding one part to the vector in each round. Each figure lights one name: what it
+rounds, adding one part to the vector in each round. Most figures light one name: what it
 names keeps its colour, and all else turns pale grey, so a record that does not hold it turns
-pale all over. Each record's line, numbers and title stay dark. Nothing moves.
+pale all over. Each record's line, numbers and title stay dark. Nothing moves. The last two
+figures add the sequence view under the map.
 
 If a figure cannot be drawn, its place on the page says why.
 
@@ -87,5 +88,38 @@ vector once.
 </script>
 <script type="application/json" data-options>
 {"map": "line", "span": {"start": 280, "end": 490}, "highlight": ["internal stuffer"]}
+</script>
+</div>
+
+## ap1-stuffer
+
+One record with its sequence view: the empty vector from base 346 to 424, where BbsI cuts out
+the short stuffer that a part later replaces. The bases sit in rows under the map. A PDF of a
+figure puts the map on its first page and the rows on the pages after.
+
+<div data-molviz="figure">
+<script type="application/json" data-figure>
+[
+--8<-- "tests/records/ap1-block-vector-1.json"
+]
+</script>
+<script type="application/json" data-options>
+{"map": "line", "span": {"start": 346, "end": 424}, "sequence_view": true, "enzymes": ["BbsI", "BsmBI"]}
+</script>
+</div>
+
+## ap1-cargo
+
+One record with its sequence view: the finished gene from base 346 to 398, where BsaI cuts
+to free it.
+
+<div data-molviz="figure">
+<script type="application/json" data-figure>
+[
+--8<-- "tests/records/ap1-product.json"
+]
+</script>
+<script type="application/json" data-options>
+{"map": "line", "span": {"start": 346, "end": 398}, "sequence_view": true, "enzymes": ["BsaI"]}
 </script>
 </div>

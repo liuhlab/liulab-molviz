@@ -2,7 +2,6 @@ import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
 import { draw, drawFigure, drawGel, drawPlate } from "../../src/viewer/draw";
 import {
-	figureSvg,
 	gelSvg,
 	plateSvg,
 	prepare,
@@ -12,7 +11,7 @@ import {
 	stackedViews,
 	svg,
 } from "../../src/viewer/drawing";
-import { prepareFigure } from "../../src/viewer/figure";
+import { figureSvg, prepareFigure } from "../../src/viewer/figure";
 import { FormatError } from "../../src/viewer/format";
 import {
 	figureStillSvg,

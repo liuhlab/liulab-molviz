@@ -1,0 +1,16 @@
+{
+ "records": [
+  "ap1-product"
+ ],
+ "options": {
+  "map": "line",
+  "span": {
+   "start": 346,
+   "end": 398
+  },
+  "sequence_view": true,
+  "enzymes": [
+   "BsaI"
+  ]
+ }
+}

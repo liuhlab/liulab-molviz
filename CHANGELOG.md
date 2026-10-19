@@ -39,7 +39,9 @@ sets one.
 - `draw_figure(records, **options)` checks records and the options they share, and returns a
   `Drawing` of them stacked top to bottom, which writes the same four endings as a record's.
   When two or more stack, each has its name above it. A name to highlight lights what answers
-  to it in every record, and a record with nothing lit is dimmed whole.
+  to it in every record, and a record with nothing lit is dimmed whole. With the sequence view,
+  each record's rows sit under its map, and a PDF has the maps on its first page, then each
+  record's rows on the pages after.
 - In the viewer, `molviz.checkFigure(records)` checks a figure's records,
   `molviz.drawFigure(element, records, options)` draws them into an element of a page, and
   `molviz.figureSvg(records, options)` returns the drawing as `{svg, pages, hidden, notice}`.

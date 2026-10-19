@@ -53,6 +53,8 @@ FIGURES = {
     "ap1-round-2": (_AP1, "round-2-ligate"),
     "ap1-round-3": (_AP1, "round-3-ligate"),
     "ap1-barcode": (_AP1, "barcode-wells"),
+    "ap1-stuffer": (_AP1, "assemble-cargo"),
+    "ap1-cargo": (_AP1, "assemble-into-working-vector"),
 }
 
 #: Each protocol or project in mbio whose steps hold gels, by the short name that starts each

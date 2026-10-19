@@ -1,8 +1,8 @@
 /** The viewer. The build exposes each export here on the global `molviz`. */
 
 import { draw, drawFigure, drawGel, drawPlate } from "./draw";
-import { figureSvg, gelSvg, plateSvg, svg } from "./drawing";
-import { checkFigure } from "./figure";
+import { gelSvg, plateSvg, svg } from "./drawing";
+import { checkFigure, figureSvg } from "./figure";
 import { checkGel } from "./gel";
 import { LIMIT } from "./options";
 import { checkPlate } from "./plate";

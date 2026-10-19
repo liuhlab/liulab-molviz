@@ -10,6 +10,8 @@ of them is drawn with. A record is named by its file name in `tests/records/`, w
 | `ap1-round-2.json` | the same, step `round-2-ligate` | `ap1-round-1` above `ap1-round-2`. `DBD_JUN` is lit, and only the lower record has it. |
 | `ap1-round-3.json` | the same, step `round-3-ligate` | `ap1-round-2` above `ap1-product`. `C_JUN` is lit, and only the lower record has it. |
 | `ap1-barcode.json` | the same, step `barcode-wells` | One record, `ap1-block-vector-1`, as a line from base 280 to 490, with its `internal stuffer` lit and its unique cutters drawn. |
+| `ap1-stuffer.json` | the same, step `assemble-cargo` | One record, `ap1-block-vector-1`, from base 346 to 424 with its sequence view, and the cut sites of BbsI and BsmBI. |
+| `ap1-cargo.json` | the same, step `assemble-into-working-vector` | One record, `ap1-product`, from base 346 to 398 with its sequence view, and the cut sites of BsaI. |
 
 ## Making the figures again
 

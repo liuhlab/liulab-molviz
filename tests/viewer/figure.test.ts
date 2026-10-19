@@ -1,9 +1,21 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
 import { drawFigure } from "../../src/viewer/draw";
-import { figureSvg, prepare, svg } from "../../src/viewer/drawing";
-import { checkFigure, prepareFigure } from "../../src/viewer/figure";
+import {
+	prepare,
+	prepareViews,
+	stackedViews,
+	svg,
+} from "../../src/viewer/drawing";
+import {
+	checkFigure,
+	figureSvg,
+	prepareFigure,
+	prepareFigureFile,
+} from "../../src/viewer/figure";
+
 import { FormatError } from "../../src/viewer/format";
+import { rowPages } from "../../src/viewer/pages";
 import { DIM, INK } from "../../src/viewer/paint";
 import { check } from "../../src/viewer/record";
 import {
@@ -90,22 +102,38 @@ function down(shape: Shape, dy: number): unknown {
 	}
 }
 
+/** Rows of 20 bases, so each record's sequence view runs to more than one PDF page. */
+const viewed = {
+	span: { start: 0, end: 100 },
+	sequence_view: true,
+	bases_per_row: 20,
+};
+
 describe("prepareFigure", () => {
 	const options = { span: { start: 0, end: 100 } };
 
-	test("stacks the records in order, each as it draws alone moved down only", () => {
-		const figure = prepareFigure([first, second], options);
-		const [top, bottom] = [first, second].map((r) => prepare(r, options));
-		const drawn = figure.shapes.filter(
-			(s) => !("fill" in s && s.fill === MUTED),
-		);
-		expect(drawn.slice(0, top.shapes.length)).toEqual(top.shapes);
-		const dy = said(figure, "round 2", INK).y - said(bottom, "round 2", INK).y;
-		expect(dy).toBeGreaterThan(top.extent.height);
-		expect(drawn.slice(top.shapes.length)).toEqual(
-			bottom.shapes.map((s) => down(s, dy)),
-		);
-	});
+	test.each([
+		["its map", options],
+		["its map with its sequence view under it", viewed],
+	])(
+		"stacks the records in order, each as it draws alone moved down only: %s",
+		(_, options) => {
+			const figure = prepareFigure([first, second], options);
+			const [top, bottom] = [first, second].map((r) =>
+				stackedViews(prepareViews(r, options)),
+			);
+			const drawn = figure.shapes.filter(
+				(s) => !("fill" in s && s.fill === MUTED),
+			);
+			expect(drawn.slice(0, top.shapes.length)).toEqual(top.shapes);
+			const dy =
+				said(figure, "round 2", INK).y - said(bottom, "round 2", INK).y;
+			expect(dy).toBeGreaterThan(top.extent.height);
+			expect(drawn.slice(top.shapes.length)).toEqual(
+				bottom.shapes.map((s) => down(s, dy)),
+			);
+		},
+	);
 
 	test("sets each name above its record at the left edge, 12 points under the record before", () => {
 		const figure = prepareFigure([first, second], options);
@@ -148,11 +176,67 @@ describe("prepareFigure", () => {
 	});
 });
 
-describe("figureSvg", () => {
-	test("draws one record exactly as svg does", () => {
-		const options = { span: { start: 20, end: 90 }, highlight: ["lacZ"] };
-		expect(figureSvg([first], options)).toEqual(svg(first, options));
+describe("prepareFigureFile", () => {
+	test("has no pages of its own when no record draws its sequence view", () => {
+		const options = { span: { start: 0, end: 100 } };
+		expect(prepareFigureFile([first, second], options)).toEqual({
+			scene: prepareFigure([first, second], options),
+			pages: null,
+		});
 	});
+
+	test("puts the maps on page 1, as the figure draws them without the sequence view", () => {
+		const { pages } = prepareFigureFile([first, second], viewed);
+		const maps = prepareFigure([first, second], {
+			...viewed,
+			sequence_view: false,
+		});
+		expect(pages?.[0]).toMatchObject({
+			extent: maps.extent,
+			shapes: maps.shapes,
+		});
+	});
+
+	test("then each record's rows in record order, the first page of each under its name", () => {
+		const { pages } = prepareFigureFile([first, second], viewed);
+		const rows = [first, second].map((r) => {
+			const { sequence } = prepareViews(r, viewed);
+			return sequence ? rowPages(sequence) : [];
+		});
+		expect(rows.every((own) => own.length > 1)).toBe(true);
+		expect(pages).toHaveLength(1 + rows.flat().length);
+		let at = 1;
+		for (const [i, [plain, ...rest]] of rows.entries()) {
+			const page = pages?.[at] as Scene;
+			const name = said(page, [first, second][i].name, MUTED);
+			expect(name).toMatchObject({ face: "sans-bold", size: 13.5 });
+			const top = name.y - metrics(name.face).ascent * name.size;
+			const margin = 16;
+			expect(leftEdge(name, 0)).toBeCloseTo(plain.extent.x + margin, 9);
+			expect(top + height(name.face, name.size)).toBeLessThanOrEqual(
+				plain.extent.y,
+			);
+			expect(page.extent.y).toBeCloseTo(top - margin, 9);
+			expect(page.extent.y + page.extent.height).toBe(
+				plain.extent.y + plain.extent.height,
+			);
+			expect(page.shapes.filter((s) => s !== name)).toEqual(plain.shapes);
+			expect(pages?.slice(at + 1, at + 1 + rest.length)).toEqual(rest);
+			at += 1 + rest.length;
+		}
+	});
+});
+
+describe("figureSvg", () => {
+	test.each([
+		{ span: { start: 20, end: 90 }, highlight: ["lacZ"] },
+		{ ...viewed, highlight: ["lacZ"] },
+	])(
+		"draws one record exactly as svg does, its PDF pages too: %o",
+		(options) => {
+			expect(figureSvg([first], options)).toEqual(svg(first, options));
+		},
+	);
 
 	test("joins what each record hid, in order, in one notice, and keeps each record's own", () => {
 		const drawn = figureSvg([crowded, first, crowded], {});
