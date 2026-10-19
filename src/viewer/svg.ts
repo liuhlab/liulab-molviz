@@ -56,11 +56,15 @@ export function toSvg(scene: Scene): string {
 
 /**
  * `scene` as an `<svg>` element of `document`, the same as `toSvg` writes but for its letters,
- * which are `<text>` in the viewer's faces, and each shape's hover text, a `<title>` in it. The
- * page must declare the faces.
+ * which are `<text>` in the viewer's faces, and each shape's tip or else its hover text, a
+ * `<title>` in it. The page must declare the faces.
  */
 export function toElement(scene: Scene, document: Document): SVGSVGElement {
-	const { root, children } = tags(scene);
+	const { root, children } = tags(
+		scene,
+		undefined,
+		(shape) => shape.tip ?? shape.hover,
+	);
 	const svg = document.createElementNS(NAMESPACE, "svg");
 	for (const [name, value] of root) svg.setAttribute(name, value);
 	svg.append(...children.map((tag) => element(tag, document)));
@@ -79,11 +83,12 @@ export function toStill(scene: Scene): string {
 
 /**
  * The root's attributes, and the elements inside it: the glyphs `defined`, if letters are
- * outlines, then the ground, then each shape in order.
+ * outlines, then the ground, then each shape in order with the text `hover` gives it.
  */
 function tags(
 	scene: Scene,
 	defined?: Defined,
+	hover = (shape: Shape) => shape.hover,
 ): { root: Attributes; children: Tag[] } {
 	const { x, y, width, height } = scene.extent;
 	const size = [
@@ -101,7 +106,7 @@ function tags(
 	};
 	const shapes = scene.shapes.map((shape) => ({
 		...tag(shape, defined),
-		hover: shape.hover,
+		hover: hover(shape),
 	}));
 	const defs: Tag[] = defined?.size
 		? [

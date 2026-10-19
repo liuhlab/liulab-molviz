@@ -4,6 +4,7 @@
  */
 
 import { layoutMap } from "./drawing";
+import { hoverBox } from "./hover";
 import type { MapScene } from "./labels";
 import { LIMIT, type Options } from "./options";
 import type { Record } from "./record";
@@ -123,6 +124,7 @@ export function openPage(
 		const scene = layoutMap(record, state.options, map);
 		if (map.zoom === 1) sizes.set(name, scene.extent);
 		const svg = toElement(scene, document);
+		hoverBox(svg);
 		if (shown === null) box.append(svg);
 		else shown.svg.replaceWith(svg);
 		shown = { name, zoom: map.zoom, extent: scene.extent, svg };

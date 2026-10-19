@@ -31,6 +31,7 @@ import {
 	PAD_Y,
 	primerLabel,
 	SMALL_SIZE,
+	tipped,
 } from "./labels";
 import {
 	BACKBONE,
@@ -183,17 +184,20 @@ export function layoutCircle(
 	const shapes: Shape[] = [
 		...backbone(circle),
 		...ruler(circle),
-		...drawn.flatMap(featureShapes),
-		...sites.map(({ arrow }) => arrowShape(arrow)),
-		...marks.map(({ bar }) => bar),
+		...drawn.flatMap((feature) =>
+			tipped(featureShapes(feature), feature.label),
+		),
+		...sites.flatMap(({ arrow, label }) => tipped([arrowShape(arrow)], label)),
+		...marks.flatMap(({ bar, label }) => tipped([bar], label)),
 	];
 	const boxes: Box[] = [];
 	for (const [i, one] of placed.entries()) {
 		if (!one) continue;
 		const { label, angle, inward } = outside[i];
 		const [from, to] = one.leader;
-		if (inward) shapes.push(leader(xy(backboneEdge, angle), from));
-		shapes.push(leader(from, to), ...labelShapes(label, one.box));
+		const leaders = [leader(from, to)];
+		if (inward) leaders.unshift(leader(xy(backboneEdge, angle), from));
+		shapes.push(...tipped([...leaders, ...labelShapes(label, one.box)], label));
 		boxes.push(one.box);
 	}
 	shapes.push(...middle.shapes);

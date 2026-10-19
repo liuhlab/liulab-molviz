@@ -104,6 +104,11 @@ export type Shape = (
 ) & {
 	/** What a page shows while the pointer rests on the shape. A file leaves it out. */
 	readonly hover?: string;
+	/**
+	 * What a live page's hover box shows in place of `hover`: lines, the first in bold, as an
+	 * item's name, type, span and length. A still page and a file leave it out.
+	 */
+	readonly tip?: string;
 };
 
 /** A drawing laid out: its shapes in the order they are drawn. */
