@@ -38,10 +38,10 @@ UNICODES = [
 
 # What Sans Mono draws: bases in either case, amino acids and the stop, and U+FFFD.
 BASES = "ACGTURYSWKMBDHVN"
-MONO = sorted({ord(c) for c in f"{BASES}{BASES.lower()}ABCDEFGHIJKLMNOPQRSTUVWXYZ*�"})
+MONO_UNICODES = sorted({ord(c) for c in f"{BASES}{BASES.lower()}ABCDEFGHIJKLMNOPQRSTUVWXYZ*�"})
 
 
-def options(*, retain_gids: bool = False) -> Any:
+def subset_options(*, retain_gids: bool = False) -> Any:
     """Return the subsetter's options, keeping each glyph's id if ``retain_gids``."""
     out = subset.Options(layout_features=["kern"], hinting=False, name_IDs=["*"])
     out.drop_tables += ["FFTM", "MATH"]
@@ -49,9 +49,9 @@ def options(*, retain_gids: bool = False) -> Any:
     return out
 
 
-def cut(font: Any, unicodes: list[int], cutting: Any) -> None:
+def subset_to(font: Any, unicodes: list[int], options: Any) -> None:
     """Keep only ``unicodes`` in ``font``."""
-    subsetter = subset.Subsetter(cutting)
+    subsetter = subset.Subsetter(options)
     subsetter.populate(unicodes=unicodes)
     subsetter.subset(font)
 
@@ -61,16 +61,16 @@ def main() -> None:
     source = Path(sys.prefix) / "fonts"
     target = Path(__file__).resolve().parents[1] / "src" / "viewer" / "fonts"
     for name, face in FACES.items():
-        cutting = options()
-        font = subset.load_font(source / name, cutting)
-        cut(font, UNICODES, cutting)
-        # Cut again to what it draws, each glyph keeping its id: a file names its glyphs by id.
+        options = subset_options()
+        font = subset.load_font(source / name, options)
+        subset_to(font, UNICODES, options)
+        # Subset again to what it draws, each glyph keeping its id: a file names its glyphs by id.
         if face == "mono":
-            cut(font, MONO, options(retain_gids=True))
+            subset_to(font, MONO_UNICODES, subset_options(retain_gids=True))
         for flavor, ending in [(None, "ttf"), ("woff2", "woff2")]:
             # `save_font` takes the flavour from the options, not from the font.
-            cutting.flavor = flavor
-            subset.save_font(font, target / f"{face}.{ending}", cutting)
+            options.flavor = flavor
+            subset.save_font(font, target / f"{face}.{ending}", options)
 
 
 if __name__ == "__main__":
