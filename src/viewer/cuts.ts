@@ -1,7 +1,7 @@
 /** A record's cuts: counted per enzyme over the whole record, and merged into cut sites. */
 
+import { folded } from "./format";
 import type { Label, Run } from "./labels";
-import { folded } from "./options";
 import { ENZYME } from "./paint";
 import type { Record } from "./record";
 import type { Face } from "./text";

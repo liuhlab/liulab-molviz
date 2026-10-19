@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import type { FormatError } from "../../src/viewer/format";
-import { answersTo, checkOptions, folded } from "../../src/viewer/options";
+import { type FormatError, folded } from "../../src/viewer/format";
+import { answersTo, checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 
 /** A 100 bp record. */
