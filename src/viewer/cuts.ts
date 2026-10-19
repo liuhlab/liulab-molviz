@@ -1,8 +1,8 @@
 /** A record's cuts: counted per enzyme over the whole record, and merged into cut sites. */
 
 import { folded } from "./format";
-import type { Label, Run } from "./labels";
-import { ENZYME, painted, unlit } from "./paint";
+import { type Label, labelOf, type Run } from "./labels";
+import { ENZYME } from "./paint";
 import type { Record } from "./record";
 import type { Face } from "./text";
 
@@ -80,16 +80,20 @@ function siteLabel(
 	}
 	// On a circle, a cut at the origin follows the last base.
 	add(` (${record.circular && at === 0 ? record.bases.length : at})`, "sans");
-	const dim = unlit(highlight, enzymes);
-	return {
-		kind: "cuts",
-		name: enzymes.join(SEPARATOR),
-		spans: [{ start: at, end: at }],
+	return labelOf(
+		{
+			kind: "cuts",
+			name: enzymes.join(SEPARATOR),
+			spans: [{ start: at, end: at }],
+		},
 		runs,
-		color: painted(ENZYME, dim),
-		dim,
-		cuts: Math.min(...enzymes.map((enzyme) => counts.get(enzyme) ?? 0)),
-	};
+		ENZYME,
+		highlight,
+		{
+			names: enzymes,
+			cuts: Math.min(...enzymes.map((enzyme) => counts.get(enzyme) ?? 0)),
+		},
+	);
 }
 
 /** Names in order whatever their case, and by case where that is all they differ by. */

@@ -1,6 +1,6 @@
 /** A map's labels, which the line and the circle share. */
 
-import { INK, OUTLINE_WIDTH, shaded, textColor } from "./paint";
+import { INK, OUTLINE_WIDTH, painted, shaded, textColor, unlit } from "./paint";
 import type { Span } from "./record";
 import type { Box, Scene, Shape } from "./scene";
 import { baseline, type Face, height, measure } from "./text";
@@ -53,6 +53,24 @@ export interface Label extends Hidden {
 	readonly dim: boolean;
 	/** For a cut site, the fewest times one of its enzymes cuts the record; else 0. */
 	readonly cuts: number;
+}
+
+/**
+ * The label of `item` that says `runs` in `color`, dimmed to one grey when `highlight` names
+ * something but none of `names`. Only a cut site's label passes `cuts`.
+ */
+export function labelOf(
+	item: Hidden,
+	runs: readonly Run[],
+	color: string,
+	highlight: readonly string[],
+	{
+		names = [item.name],
+		cuts = 0,
+	}: { names?: readonly string[]; cuts?: number } = {},
+): Label {
+	const dim = unlit(highlight, names);
+	return { ...item, runs, color: painted(color, dim), dim, cuts };
 }
 
 /** The radius of a box's corners. */

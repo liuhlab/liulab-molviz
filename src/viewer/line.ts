@@ -11,6 +11,7 @@ import {
 	type Kind,
 	LABEL_SIZE,
 	type Label,
+	labelOf,
 	type MapScene,
 	noticeShapes,
 	PAD_X,
@@ -28,7 +29,6 @@ import {
 	painted,
 	shaded,
 	textColor,
-	unlit,
 } from "./paint";
 import type { Bounds, Record, Span } from "./record";
 import { type Box, leftEdge, type Shape } from "./scene";
@@ -237,13 +237,22 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 	const bars: Bar[] = [];
 	for (const feature of record.features) {
 		if (off.has(feature.type)) continue;
-		const dim = unlit(options.highlight, [feature.name]);
+		const label = labelOf(
+			{
+				kind: "features",
+				name: feature.name,
+				spans: feature.segments.map(({ start, end }) => ({ start, end })),
+			},
+			[{ text: feature.name, face: "sans" }],
+			colorOf(feature, feature.segments[0]),
+			options.highlight,
+		);
 		const colored = feature.segments.map((segment) => ({
 			...segment,
-			color: painted(colorOf(feature, segment), dim),
+			color: painted(colorOf(feature, segment), label.dim),
 		}));
 		const found = pieces(colored, options.span, bounds);
-		bars.push(...barsOf(feature, dim, found, at));
+		bars.push(...barsOf(feature, label, found, at));
 	}
 	const tiers = pack(bars);
 	const placed = places(bars, tiers);
@@ -334,21 +343,15 @@ function primers({ record, options, bounds, at }: Along): Drawn {
 	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_BAND / 2;
 	const drawn: { arrow: Arrow; label: Label }[] = [];
 	for (const { name, sites } of record.primers) {
-		const dim = unlit(options.highlight, [name]);
-		const color = painted(PRIMER, dim);
 		for (const site of sites) {
 			const { start, end } = site;
-			const label: Label = {
-				kind: "primers",
-				name,
-				spans: [{ start, end }],
-				runs: [
-					{ text: `${name} (${spanText(site, bounds.length)})`, face: "sans" },
-				],
-				color,
-				dim,
-				cuts: 0,
-			};
+			const label = labelOf(
+				{ kind: "primers", name, spans: [{ start, end }] },
+				[{ text: `${name} (${spanText(site, bounds.length)})`, face: "sans" }],
+				PRIMER,
+				options.highlight,
+			);
+			const { color } = label;
 			const colored = [{ start, end, color }];
 			for (const piece of pieces(colored, options.span, bounds)) {
 				const arrow: Arrow = {
@@ -406,20 +409,20 @@ function insertions({
 	];
 	for (const insertion of record.insertions) {
 		const point = insertion.at;
-		const dim = unlit(options.highlight, [insertion.name]);
-		const color = painted(insertion.color?.toLowerCase() ?? INSERTION, dim);
 		const hover = [insertion.name.trim(), pointText(point, bounds)]
 			.filter(Boolean)
 			.join(" · ");
-		const label: Label = {
-			kind: "insertions",
-			name: insertion.name,
-			spans: [{ start: point, end: point }],
-			runs: [{ text: `+${insertion.length} bp`, face: "sans" }],
-			color,
-			dim,
-			cuts: 0,
-		};
+		const label = labelOf(
+			{
+				kind: "insertions",
+				name: insertion.name,
+				spans: [{ start: point, end: point }],
+			},
+			[{ text: `+${insertion.length} bp`, face: "sans" }],
+			insertion.color?.toLowerCase() ?? INSERTION,
+			options.highlight,
+		);
+		const { color } = label;
 		for (const x of points(point, options.span, bounds).map(at)) {
 			shapes.push({
 				shape: "line",
@@ -773,22 +776,13 @@ function pieces(
 	return found.sort((a, b) => a.start - b.start || a.end - b.end);
 }
 
-/** The bars `found` draws, each run of pieces that follow on from one another, dimmed if `dim`. */
+/** The bars `found` draws, each run of pieces that follow on from one another, named by `label`. */
 function barsOf(
 	feature: Feature,
-	dim: boolean,
+	label: Label,
 	found: readonly Piece[],
 	at: (position: number) => number,
 ): Bar[] {
-	const label: Label = {
-		kind: "features",
-		name: feature.name,
-		spans: feature.segments.map(({ start, end }) => ({ start, end })),
-		runs: [{ text: feature.name, face: "sans" }],
-		color: painted(colorOf(feature, feature.segments[0]), dim),
-		dim,
-		cuts: 0,
-	};
 	const groups: Piece[][] = [];
 	for (const piece of found) {
 		const group = groups[groups.length - 1];
