@@ -3,7 +3,13 @@
  * with no font, or as elements of a page with its letters as real text.
  */
 
-import { leftEdge, type Scene, type Shape, twoDecimals } from "./scene";
+import {
+	leftEdge,
+	type PathCommand,
+	type Scene,
+	type Shape,
+	twoDecimals,
+} from "./scene";
 import { families, glyphs, inFace, measure, unitsPerEm, weights } from "./text";
 
 const GROUND = "#ffffff";
@@ -127,6 +133,15 @@ function tag(shape: Shape, defined?: Defined): Tag {
 				attributes: [["d", `${d}Z`], ["fill", shape.fill], ...stroke(shape)],
 			};
 		}
+		case "path":
+			return {
+				name: "path",
+				attributes: [
+					["d", shape.commands.map(step).join("")],
+					["fill", shape.fill],
+					...stroke(shape),
+				],
+			};
 		case "rect":
 			return {
 				name: "rect",
@@ -206,6 +221,22 @@ function tag(shape: Shape, defined?: Defined): Tag {
 				],
 				text: inFace(text, face),
 			};
+		}
+	}
+}
+
+/** One step of a path as path data, every number with two decimals. */
+function step(command: PathCommand): string {
+	switch (command[0]) {
+		case "Z":
+			return "Z";
+		case "A": {
+			const [, r, large, sweep, x, y] = command;
+			return `A${twoDecimals(r)} ${twoDecimals(r)} 0 ${large} ${sweep} ${twoDecimals(x)} ${twoDecimals(y)}`;
+		}
+		default: {
+			const [letter, x, y] = command;
+			return `${letter}${twoDecimals(x)} ${twoDecimals(y)}`;
 		}
 	}
 }

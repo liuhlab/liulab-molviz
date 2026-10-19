@@ -543,13 +543,17 @@ function bounds(shape: Shape): Box | null {
 			return null;
 		case "rect":
 			return shape;
-		case "polygon": {
-			const xs = shape.points.map(([x]) => x);
-			const ys = shape.points.map(([, y]) => y);
-			const x = Math.min(...xs);
-			const y = Math.min(...ys);
-			return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
-		}
+		case "polygon":
+			return around(shape.points);
+		case "path":
+			return around(
+				shape.commands.flatMap((command) => {
+					if (command[0] === "Z") return [];
+					// An arc's box is its ends', its bulge left out.
+					if (command[0] === "A") return [[command[4], command[5]] as const];
+					return [[command[1], command[2]] as const];
+				}),
+			);
 		case "circle":
 			return {
 				x: shape.cx - shape.r,
@@ -567,6 +571,18 @@ function bounds(shape: Shape): Box | null {
 			};
 		}
 	}
+}
+
+/** The box around `points`, or nothing for none. */
+function around(
+	points: readonly (readonly [x: number, y: number])[],
+): Box | null {
+	if (!points.length) return null;
+	const xs = points.map(([x]) => x);
+	const ys = points.map(([, y]) => y);
+	const x = Math.min(...xs);
+	const y = Math.min(...ys);
+	return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
 }
 
 /** What `shapes`, a backbone `width` long and the boxes `more` cover, and `MARGIN` beyond. */

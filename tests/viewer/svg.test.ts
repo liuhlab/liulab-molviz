@@ -189,6 +189,29 @@ describe("toSvg", () => {
 		expect(written).toMatch(/<path id="[^"]+" d="M[^"]* 0\.00L/);
 		expect(written).not.toContain("-0.00");
 	});
+
+	test("writes a path's steps as one path, an arc with its radius both ways", () => {
+		const path: Scene = {
+			extent: { x: 0, y: 0, width: 10, height: 10 },
+			shapes: [
+				{
+					shape: "path",
+					commands: [
+						["M", 1, 2],
+						["L", 3.456, 4],
+						["A", 5, 1, 0, 6, 7.5],
+						["Z"],
+					],
+					fill: "none",
+					stroke: "#7f7f7f",
+					strokeWidth: 1,
+				},
+			],
+		};
+		expect(toSvg(path)).toContain(
+			'<path d="M1.00 2.00L3.46 4.00A5.00 5.00 0 1 0 6.00 7.50Z" fill="none" stroke="#7f7f7f" stroke-width="1.00"/>',
+		);
+	});
 });
 
 describe("toElement", () => {
