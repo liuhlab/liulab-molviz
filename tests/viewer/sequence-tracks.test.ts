@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { describe, expect, test } from "vitest";
 import { prepare } from "../../src/viewer/drawing";
 import { checkOptions } from "../../src/viewer/options";
@@ -5,6 +6,12 @@ import { check } from "../../src/viewer/record";
 import type { Box, Shape } from "../../src/viewer/scene";
 import { layoutSequence, type SequenceScene } from "../../src/viewer/sequence";
 import { height, measure } from "../../src/viewer/text";
+
+/** The Sanger trace's records, read forward and reversed. */
+const TRACES = import.meta.glob("../records/trace-3730*.json", {
+	eager: true,
+	import: "default",
+});
 
 /** 300 bases on a linear record, unless `record` says otherwise. */
 const BASES = "ACGT".repeat(75);
@@ -297,4 +304,34 @@ describe("a track", () => {
 			);
 		}
 	});
+
+	test.each(Object.entries(TRACES))(
+		"from %s lays each peak over its base's middle, the curves running along its read",
+		(name, record) => {
+			const checked = check(record);
+			const scene = layoutSequence(
+				checked,
+				checkOptions({ sequence_view: true }, checked),
+			);
+			const step = name.includes("reversed") ? -1 : 1;
+			const [{ peaks }] = checked.tracks;
+			expect(scene.rows).toHaveLength(2);
+			for (const [i, row] of scene.rows.entries()) {
+				const [points, ...others] = curves(scene, row);
+				expect(others).toEqual([]);
+				const xs = points.map(([x]) => x);
+				expect(xs.slice(1).every((x, j) => Math.sign(x - xs[j]) === step)).toBe(
+					true,
+				);
+				expect(xs.every((x) => x >= 0 && x < 60 * CELL)).toBe(true);
+				const middles = peaks
+					.filter(([, base]) => Math.floor(base / 60) === i)
+					.map(([, base]) => (base - i * 60 + 0.5) * CELL);
+				expect(middles).toHaveLength(60);
+				for (const x of middles) {
+					expect(xs.some((one) => Math.abs(one - x) < 1e-9)).toBe(true);
+				}
+			}
+		},
+	);
 });
