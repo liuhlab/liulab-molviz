@@ -1,5 +1,6 @@
 /** An input drawn as SVG text, with no DOM. */
 
+import { prepareFigure } from "./figure";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
@@ -48,6 +49,15 @@ export function preparePlate(plate: unknown): Scene {
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
 	const scene = prepare(record, options);
+	return whole(toSvg(scene), scene.hidden);
+}
+
+/**
+ * Draw `records` stacked, each with `options`, as SVG text, every letter an outline. Throws one
+ * FormatError naming every problem in the records, or else in the options.
+ */
+export function figureSvg(records: unknown, options: unknown = {}): Drawing {
+	const scene = prepareFigure(records, options);
 	return whole(toSvg(scene), scene.hidden);
 }
 

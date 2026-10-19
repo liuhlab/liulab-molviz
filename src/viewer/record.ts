@@ -342,7 +342,12 @@ function boundsOf(input: unknown): Bounds {
 	return { length: UNBOUNDED, circular: circular !== false };
 }
 
+/** What `input` is checked against as a record: the format, bound by its own bases. */
+export function recordSchemaOf(input: unknown) {
+	return recordSchema(boundsOf(input));
+}
+
 /** Return `input` as a typed record, or throw one FormatError naming every problem. */
 export function check(input: unknown): Record {
-	return parse(recordSchema(boundsOf(input)), input, { name: "record" });
+	return parse(recordSchemaOf(input), input, { name: "record" });
 }

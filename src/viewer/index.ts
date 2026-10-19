@@ -1,18 +1,22 @@
 /** The viewer. The build exposes each export here on the global `molviz`. */
 
-import { draw, drawGel, drawPlate } from "./draw";
-import { gelSvg, plateSvg, svg } from "./drawing";
+import { draw, drawFigure, drawGel, drawPlate } from "./draw";
+import { figureSvg, gelSvg, plateSvg, svg } from "./drawing";
+import { checkFigure } from "./figure";
 import { checkGel } from "./gel";
 import { checkPlate } from "./plate";
 import { check } from "./record";
 
 const exported = {
 	check,
+	checkFigure,
 	checkGel,
 	checkPlate,
 	draw,
+	drawFigure,
 	drawGel,
 	drawPlate,
+	figureSvg,
 	gelSvg,
 	plateSvg,
 	svg,
@@ -20,11 +24,14 @@ const exported = {
 
 export {
 	check,
+	checkFigure,
 	checkGel,
 	checkPlate,
 	draw,
+	drawFigure,
 	drawGel,
 	drawPlate,
+	figureSvg,
 	gelSvg,
 	plateSvg,
 	svg,
@@ -41,6 +48,7 @@ export const calls = {
 	record: { check: "check", draw: "draw", svg: "svg" },
 	gel: { check: "checkGel", draw: "drawGel", svg: "gelSvg" },
 	plate: { check: "checkPlate", draw: "drawPlate", svg: "plateSvg" },
+	figure: { check: "checkFigure", draw: "drawFigure", svg: "figureSvg" },
 } as const satisfies {
 	readonly [name: string]: {
 		readonly check: Call;

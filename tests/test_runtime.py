@@ -11,6 +11,7 @@ def test_calls_name_each_inputs_calls_on_the_global() -> None:
         "record": {"check": "check", "draw": "draw", "svg": "svg"},
         "gel": {"check": "checkGel", "draw": "drawGel", "svg": "gelSvg"},
         "plate": {"check": "checkPlate", "draw": "drawPlate", "svg": "plateSvg"},
+        "figure": {"check": "checkFigure", "draw": "drawFigure", "svg": "figureSvg"},
     }
 
 

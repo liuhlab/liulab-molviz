@@ -1,6 +1,7 @@
 /** An input drawn live into an element of a page. */
 
 import { prepare, prepareGel, preparePlate } from "./drawing";
+import { prepareFigure } from "./figure";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { fontFaceCss } from "./text";
@@ -24,6 +25,19 @@ export function draw(
 	options: unknown = {},
 ): Drawn {
 	return drawScene(element, prepare(record, options));
+}
+
+/**
+ * Draw `records` stacked, each with `options`, into `element`, after what it holds, its letters
+ * as real text. A still drawing, with no switches. Throws one FormatError naming every problem
+ * in the records, or else in the options.
+ */
+export function drawFigure(
+	element: Element,
+	records: unknown,
+	options: unknown = {},
+): Drawn {
+	return drawScene(element, prepareFigure(records, options));
 }
 
 /**

@@ -74,6 +74,24 @@ export interface Scene {
 	readonly shapes: readonly Shape[];
 }
 
+/** `shape` moved `dy` down. */
+export function movedDown(shape: Shape, dy: number): Shape {
+	switch (shape.shape) {
+		case "line":
+			return { ...shape, y1: shape.y1 + dy, y2: shape.y2 + dy };
+		case "polygon":
+			return {
+				...shape,
+				points: shape.points.map(([x, y]) => [x, y + dy] as const),
+			};
+		case "circle":
+			return { ...shape, cy: shape.cy + dy };
+		case "rect":
+		case "text":
+			return { ...shape, y: shape.y + dy };
+	}
+}
+
 /** Where a line of text `width` wide starts, from its `x` and its `anchor`. */
 export function leftEdge(
 	{ x, anchor }: { readonly x: number; readonly anchor: "start" | "middle" },
