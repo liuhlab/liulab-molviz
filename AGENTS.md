@@ -21,10 +21,10 @@ reasons.
 - **Reader promises.** All nine in section 5 of
   [the drawings note](docs/research/molviz-mbio-drawings.md)
   hold. A crowded label is hidden and counted.
-- **Releases.** A release ships the Python package `liulab-molviz`. It inlines the viewer in a
-  record's page, writes still drawings elsewhere, and exports SVG, PNG and PDF with no
-  browser. mbio and liulab-protein pin it. The Python side holds no layout and no biology; the
-  drawing is JavaScript.
+- **Releases.** A release ships the Python package `liulab-molviz`, which exports SVG, PNG and
+  PDF with no browser. A record's page inlines the viewer, a gel's or plate's a still drawing.
+  mbio and liulab-protein pin it. The Python side holds no layout or biology; the drawing is
+  JavaScript.
 - **The roadmap** is a `wayfinder:map` issue here. Its destination: a release mbio can pin that
   draws everything mbio draws today.
 
