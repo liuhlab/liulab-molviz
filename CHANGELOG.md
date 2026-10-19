@@ -50,11 +50,12 @@ sets one.
   viewer. It is laid out as the `.svg` file is and hides the same labels; each hover is a
   tooltip. `font_rules()` returns the CSS such a page writes once, in a `<style>` element,
   to load the viewer's fonts.
-- In the viewer, `molviz.stillSvg(record, options)`, `molviz.gelStillSvg(gel)` and
-  `molviz.plateStillSvg(plate)` return a still drawing as `{svg, hidden, notice}`, and
-  `molviz.fontRules()` returns the font rules. `molviz.calls` names each input's still call.
-- A gel's or a plate's `.html` page holds its still drawing and the font rules, and no
-  viewer. A record's page still draws it with the viewer.
+- In the viewer, `molviz.stillSvg(record, options)`, `molviz.gelStillSvg(gel)`,
+  `molviz.plateStillSvg(plate)` and `molviz.figureStillSvg(records, options)` return a still
+  drawing as `{svg, hidden, notice}`, and `molviz.fontRules()` returns the font rules.
+  `molviz.calls` names each input's still call.
+- A gel's, a plate's or a figure's `.html` page holds its still drawing and the font rules,
+  and no viewer. A record's page still draws it with the viewer.
 - Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
   opentype.js, built into the viewer, which reads its fonts.
 - `draw(record, sequence_view=True)` draws the sequence view under the map: the bases in rows

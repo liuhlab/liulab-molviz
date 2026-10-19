@@ -64,6 +64,5 @@ def test_each_input_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None:
         ]
         for folder, draw in [DRAW[name]]
         for ending in (".html", ".pdf", ".png", ".still.svg", ".svg")
-        if not (name == "figures" and ending == ".still.svg")
     ]
     assert output.read_text(encoding="utf-8").splitlines() == expected

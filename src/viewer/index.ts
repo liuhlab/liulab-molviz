@@ -7,7 +7,13 @@ import { checkGel } from "./gel";
 import { LIMIT } from "./options";
 import { checkPlate } from "./plate";
 import { check } from "./record";
-import { fontRules, gelStillSvg, plateStillSvg, stillSvg } from "./still";
+import {
+	figureStillSvg,
+	fontRules,
+	gelStillSvg,
+	plateStillSvg,
+	stillSvg,
+} from "./still";
 
 /** The most bases of a span the sequence view draws. */
 export const SEQUENCE_VIEW_LIMIT = LIMIT;
@@ -21,6 +27,7 @@ const exported = {
 	drawFigure,
 	drawGel,
 	drawPlate,
+	figureStillSvg,
 	figureSvg,
 	fontRules,
 	gelStillSvg,
@@ -40,6 +47,7 @@ export {
 	drawFigure,
 	drawGel,
 	drawPlate,
+	figureStillSvg,
 	figureSvg,
 	fontRules,
 	gelStillSvg,
@@ -72,12 +80,17 @@ export const calls = {
 		svg: "plateSvg",
 		still: "plateStillSvg",
 	},
-	figure: { check: "checkFigure", draw: "drawFigure", svg: "figureSvg" },
+	figure: {
+		check: "checkFigure",
+		draw: "drawFigure",
+		svg: "figureSvg",
+		still: "figureStillSvg",
+	},
 } as const satisfies {
 	readonly [name: string]: {
 		readonly check: Call;
 		readonly draw: Call;
 		readonly svg: Call;
-		readonly still?: Call;
+		readonly still: Call;
 	};
 };

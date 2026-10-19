@@ -1,7 +1,8 @@
 import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
-import { draw, drawGel, drawPlate } from "../../src/viewer/draw";
+import { draw, drawFigure, drawGel, drawPlate } from "../../src/viewer/draw";
 import {
+	figureSvg,
 	gelSvg,
 	plateSvg,
 	prepare,
@@ -11,8 +12,10 @@ import {
 	stackedViews,
 	svg,
 } from "../../src/viewer/drawing";
+import { prepareFigure } from "../../src/viewer/figure";
 import { FormatError } from "../../src/viewer/format";
 import {
+	figureStillSvg,
 	fontRules,
 	gelStillSvg,
 	plateStillSvg,
@@ -26,6 +29,7 @@ import primers from "../records/primer-test.json";
 
 const every = { enzymes: [...new Set(crowded.cuts.map((cut) => cut.enzyme))] };
 const view = { sequence_view: true };
+const figure = [crowded, primers];
 
 /** The root's opening tag, and each element inside it as written. */
 function elements(written: string): { root: string; children: string[] } {
@@ -67,6 +71,13 @@ const drawings = [
 		file: svg(primers, view),
 		scene: stackedViews(prepareViews(primers, view)),
 		live: undefined,
+	},
+	{
+		input: "a figure of two records",
+		still: figureStillSvg(figure, every),
+		file: figureSvg(figure, every),
+		scene: prepareFigure(figure, every),
+		live: (element: Element) => drawFigure(element, figure, every),
 	},
 	{
 		input: "a gel",

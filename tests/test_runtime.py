@@ -16,7 +16,12 @@ def test_calls_name_each_inputs_calls_on_the_global() -> None:
             "svg": "plateSvg",
             "still": "plateStillSvg",
         },
-        "figure": {"check": "checkFigure", "draw": "drawFigure", "svg": "figureSvg"},
+        "figure": {
+            "check": "checkFigure",
+            "draw": "drawFigure",
+            "svg": "figureSvg",
+            "still": "figureStillSvg",
+        },
     }
 
 

@@ -60,8 +60,6 @@ def digests(tests: Path) -> list[str]:
                     drawing.write(written)
                     name = f"{set_name}/{path.stem}{ending}"
                     lines[name] = f"{hashlib.sha256(written.read_bytes()).hexdigest()}  {name}"
-                if set_name == "figures":
-                    continue
                 name = f"{set_name}/{path.stem}.still.svg"
                 still = drawing.still_svg().encode()
                 lines[name] = f"{hashlib.sha256(still).hexdigest()}  {name}"

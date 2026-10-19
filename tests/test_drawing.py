@@ -192,7 +192,7 @@ DRAWS = [
 # The draws whose page draws live, with the viewer, and those whose page holds the still
 # drawing and no viewer.
 LIVE = [draw for draw in DRAWS if draw.id in ("record", "record with its sequence view")]
-STILL = [draw for draw in DRAWS if draw.id in ("gel", "plate")]
+STILL = [draw for draw in DRAWS if draw not in LIVE]
 
 
 @pytest.mark.parametrize(("draw", "data", "page_title"), DRAWS)
@@ -249,17 +249,6 @@ def test_a_records_page_inlines_the_viewer_and_draws_the_record_held_once(
         in written
     )
     assert title(written) == page_title
-
-
-def test_a_figures_page_inlines_the_viewer_and_draws_the_records_held_once(tmp_path) -> None:
-    written = page(molviz.draw_figure(FIGURE), tmp_path)
-    assert viewer_script() in written
-    assert [json.loads(block) for block in embedded(written)].count(FIGURE) == 1
-    assert (
-        'molviz.drawFigure(document.getElementById("drawing"), data("figure"), data("options"));'
-        in written
-    )
-    assert title(written) == "pTest, pTest 2"
 
 
 @pytest.mark.parametrize(("draw", "data", "page_title"), STILL)

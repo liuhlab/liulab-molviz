@@ -77,8 +77,8 @@ A page can show a drawing in two ways.
 A page that does both needs no font rules, since `draw` adds them. Written anyway, they cost
 their size twice.
 
-molviz's own pages work the same way. A record's page draws it live. A gel's or a plate's
-page holds its still drawing.
+molviz's own pages work the same way. A record's page draws it live. A gel's, a plate's or a
+figure's page holds its still drawing.
 
 ```python
 import molviz

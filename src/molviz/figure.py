@@ -12,7 +12,8 @@ def draw_figure(records: list[dict[str, Any]], **options: Any) -> Drawing:
     The options are `draw`'s, shared by every record. When two or more records stack, each
     has its name set above it; a lone record draws as `draw` draws it. A name to highlight
     must name something in at least one record, and a record with nothing lit is dimmed whole.
-    A page written from it is titled with the records' names, joined by commas.
+    A page written from it holds its still drawing, titled with the records' names joined by
+    commas.
 
     Raises
     ------

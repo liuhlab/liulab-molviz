@@ -25,7 +25,7 @@ _PNG_PIXELS = 2**28
 _POINTS_PER_INCH = 72
 
 # The inputs whose page draws live, with the viewer; any other's page holds its still drawing.
-_LIVE = frozenset({"record", "figure"})
+_LIVE = frozenset({"record"})
 
 
 def check(record: dict[str, Any]) -> None:

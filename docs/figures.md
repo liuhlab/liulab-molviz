@@ -2,6 +2,8 @@
 
 This page draws each test figure in your browser when the page opens. It uses the same viewer
 the Python package carries, so what you see here is what a page written by the package shows.
+That page holds the figure already drawn, with no script, so it looks the same but has no
+viewer in it.
 
 A figure is a still drawing to set beside a step of a protocol. It draws one record, or a few
 stacked top to bottom, each as a line over the same stretch of bases. Each record keeps its
