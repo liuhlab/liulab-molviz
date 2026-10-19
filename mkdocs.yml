@@ -20,6 +20,7 @@ nav:
   - Home: index.md
   - The line map: line-map.md
   - The circle: circle.md
+  - The sequence view: sequence-view.md
   - Gels: gels.md
   - Plates: plates.md
   - API reference: api.md

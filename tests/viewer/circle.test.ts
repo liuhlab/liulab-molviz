@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { describe, expect, test } from "vitest";
-import { bounds } from "../../src/viewer/bounds";
+import { boxOf } from "../../src/viewer/bounds";
 import { layoutCircle } from "../../src/viewer/circle";
 import { type Hidden, type MapScene, notice } from "../../src/viewer/labels";
 import { checkOptions } from "../../src/viewer/options";
@@ -885,14 +885,14 @@ function labelsOf(scene: Scene): Outside[] {
 		} else open = false;
 	}
 	return found.map(({ lines, parts }) => ({
-		box: boxOf(parts),
+		box: labelBox(parts),
 		leader: lines[lines.length - 1],
 		inward: lines.length > 1 ? lines[0] : null,
 	}));
 }
 
 /** A label's box: its rectangle, or its text with 3 points either side and 1 above and below. */
-function boxOf(parts: readonly (Rect | Text)[]): Box {
+function labelBox(parts: readonly (Rect | Text)[]): Box {
 	const [first] = parts;
 	if (first.shape === "rect") return first;
 	const last = parts[parts.length - 1] as Text;
@@ -1079,7 +1079,7 @@ describe.each(CIRCULAR)("%s drawn whole", (_, file) => {
 				}
 				const { extent } = scene;
 				for (const shown of notices) {
-					const box = bounds(shown) as Box;
+					const box = boxOf(shown) as Box;
 					expect(box.x + box.width).toBeCloseTo(extent.x + extent.width - 16);
 					expect(box.y + box.height).toBeLessThanOrEqual(
 						extent.y + extent.height - 16,

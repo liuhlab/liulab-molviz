@@ -8,7 +8,7 @@ import type { Box, Shape } from "./scene";
 const SPACING = 2;
 const LEADER_WIDTH = 0.8;
 
-/** How far above the drawing a box may reach, at any length of line. */
+/** How far above the line a box may reach, at any length of line, unless told otherwise. */
 const RISE = 730;
 
 /** A label's box, and the `x` its leader rises at. */
@@ -27,20 +27,21 @@ export interface Anchored {
 
 /**
  * The shapes that set `anchored` above `top` with their leaders, no box reaching more than
- * `RISE` above it; the box each label shown takes; and the labels left out to keep them there,
+ * `rise` above it; the box each label shown takes; and the labels left out to keep them there,
  * each once, in the order they hid. A label anchored more than once is left out only when it
  * shows nowhere.
  */
 export function labelsAbove(
 	anchored: readonly Anchored[],
 	top: number,
+	rise = RISE,
 ): { shapes: Shape[]; boxes: Box[]; hidden: Label[] } {
 	const sized = anchored.map(({ label, x }) => ({ ...labelSize(label), x }));
 	const base = top - GAP;
 	const order = [...anchored.keys()].sort((i, j) =>
 		hidingOrder(anchored[i].label, anchored[j].label),
 	);
-	const gone = hide(sized, order, base, top - RISE);
+	const gone = hide(sized, order, base, top - rise);
 	const out = new Set(gone);
 	const shown = anchored.filter((_, i) => !out.has(i));
 	const placed = staircase(

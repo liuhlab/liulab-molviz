@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { type FormatError, folded } from "../../src/viewer/format";
+import { SEQUENCE_VIEW_LIMIT } from "../../src/viewer/index";
 import { answersTo, checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 
@@ -41,6 +42,9 @@ describe("checkOptions", () => {
 			kinds_off: [],
 			enzymes: [],
 			highlight: [],
+			sequence_view: false,
+			bases_per_row: 60,
+			bottom_strand: true,
 		});
 	});
 
@@ -77,6 +81,9 @@ describe("checkOptions", () => {
 			kinds_off: [],
 			enzymes: [],
 			highlight: [],
+			sequence_view: true,
+			bases_per_row: 10,
+			bottom_strand: false,
 		};
 		expect(checkOptions(given, record(true))).toStrictEqual(given);
 	});
@@ -131,6 +138,14 @@ describe("checkOptions", () => {
 			],
 		],
 		[
+			"a sequence view neither on nor off, and rows of no bases",
+			{ sequence_view: "yes", bases_per_row: 0 },
+			[
+				"options.sequence_view: must be true or false",
+				"options.bases_per_row: must be 1 or more",
+			],
+		],
+		[
 			"a highlight that names nothing in the record",
 			{ highlight: ["lacZ", "SacI", "bogus"] },
 			[
@@ -148,6 +163,34 @@ describe("checkOptions", () => {
 		).toEqual([
 			'options.map: must be "line" when span is not the whole record',
 		]);
+	});
+});
+
+describe("the sequence view", () => {
+	const long = check({
+		name: "long",
+		circular: false,
+		bases: "ACGT".repeat(25_001),
+	});
+
+	test("draws a span of up to 100,000 bases, the limit on the global", () => {
+		expect(SEQUENCE_VIEW_LIMIT).toBe(100_000);
+		const span = { start: 1, end: 100_001 };
+		expect(checkOptions({ sequence_view: true, span }, long)).toMatchObject({
+			sequence_view: true,
+			span,
+		});
+	});
+
+	test("is an error past that, at the option", () => {
+		expect(() =>
+			checkOptions(
+				{ sequence_view: true, span: { start: 0, end: 100_001 } },
+				long,
+			),
+		).toThrow(
+			/^options\.sequence_view: must be false past 100,000 bases, and the span holds 100,001$/,
+		);
 	});
 });
 

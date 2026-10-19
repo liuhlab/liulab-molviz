@@ -19,6 +19,7 @@ def circular(path: Path) -> bool:
     [
         ("line-map.md", "records", every),
         ("circle.md", "records", circular),
+        ("sequence-view.md", "records", every),
         ("gels.md", "gels", every),
         ("plates.md", "plates", every),
     ],

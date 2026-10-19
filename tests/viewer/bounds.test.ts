@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { bounds } from "../../src/viewer/bounds";
+import { boxOf } from "../../src/viewer/bounds";
 import type { Box } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 
@@ -9,10 +9,10 @@ function near(box: Box | null, expected: Box): void {
 		expect(box?.[key]).toBeCloseTo(expected[key], 9);
 }
 
-describe("bounds", () => {
+describe("boxOf", () => {
 	test("holds a path's arcs where they bulge past their ends", () => {
 		const paint = { fill: "none", stroke: "#252525", strokeWidth: 2.6 };
-		const circle = bounds({
+		const circle = boxOf({
 			shape: "path",
 			commands: [
 				["M", 0, -220],
@@ -24,7 +24,7 @@ describe("bounds", () => {
 		});
 		near(circle, { x: -220, y: -220, width: 440, height: 440 });
 		// Three quarters of a turn clockwise from the left of its centre, (220, -220), to its foot.
-		const large = bounds({
+		const large = boxOf({
 			shape: "path",
 			commands: [
 				["M", 0, -220],
@@ -45,7 +45,7 @@ describe("bounds", () => {
 		const width = measure("100", "sans", 10);
 		const { ascent, descent } = metrics("sans");
 		// A quarter turn clockwise about (5, 0) runs the line down from there, its letters' tops right.
-		const turned = bounds({
+		const turned = boxOf({
 			shape: "text",
 			...text,
 			x: 5,
@@ -63,7 +63,7 @@ describe("bounds", () => {
 
 	test("holds each letter of a name along a curve, turned at its place", () => {
 		const { ascent } = metrics("sans");
-		const box = bounds({
+		const box = boxOf({
 			shape: "letters",
 			text: "ab",
 			face: "sans",

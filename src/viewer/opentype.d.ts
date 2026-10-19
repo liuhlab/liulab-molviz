@@ -18,23 +18,35 @@ declare module "opentype.js" {
 		script?: string;
 	}
 
+	export interface Glyph {
+		index: number;
+		advanceWidth: number;
+		getPath(
+			x: number,
+			y: number,
+			fontSize: number,
+		): { commands: PathCommand[] };
+	}
+
 	export interface Font {
 		ascender: number;
 		descender: number;
 		unitsPerEm: number;
 		hasChar(character: string): boolean;
+		charToGlyph(character: string): Glyph;
 		getAdvanceWidth(
 			text: string,
 			fontSize: number,
 			options?: RenderOptions,
 		): number;
-		getPath(
+		forEachGlyph(
 			text: string,
 			x: number,
 			y: number,
 			fontSize: number,
-			options?: RenderOptions,
-		): { commands: PathCommand[] };
+			options: RenderOptions,
+			callback: (glyph: Glyph, x: number, y: number, fontSize: number) => void,
+		): number;
 	}
 
 	export function parse(buffer: ArrayBuffer): Font;

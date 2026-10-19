@@ -1,13 +1,13 @@
 /** The box each shape of a scene covers. */
 
 import { type Box, leftEdge, type PathCommand, type Shape } from "./scene";
-import { height, measure, metrics } from "./text";
+import { height, measure, metrics, textWidth } from "./text";
 
 type Point = readonly [x: number, y: number];
 type Arc = Extract<PathCommand, readonly ["A", ...unknown[]]>;
 
 /** The box `shape` covers, a stroke left out, or `null` for a line, which covers none. */
-export function bounds(shape: Shape): Box | null {
+export function boxOf(shape: Shape): Box | null {
 	switch (shape.shape) {
 		case "line":
 			return null;
@@ -29,7 +29,7 @@ export function bounds(shape: Shape): Box | null {
 				};
 				return corners(box).map((c) => turn(c, [x, y], rotate));
 			});
-			return points.length ? around(points) : null;
+			return around(points);
 		}
 		case "circle":
 			return {
@@ -39,7 +39,7 @@ export function bounds(shape: Shape): Box | null {
 				height: 2 * shape.r,
 			};
 		case "text": {
-			const width = measure(shape.text, shape.face, shape.size);
+			const width = textWidth(shape.text, shape.face, shape.size, shape.cell);
 			const box = {
 				x: leftEdge(shape, width),
 				y: shape.y - metrics(shape.face).ascent * shape.size,
@@ -72,8 +72,9 @@ function turn([x, y]: Point, [px, py]: Point, degrees: number): Point {
 	return [px + dx * cos - dy * sin, py + dx * sin + dy * cos];
 }
 
-/** The least box around `points`. */
-function around(points: readonly Point[]): Box {
+/** The least box around `points`, or nothing for none. */
+export function around(points: readonly Point[]): Box | null {
+	if (!points.length) return null;
 	const xs = points.map(([x]) => x);
 	const ys = points.map(([, y]) => y);
 	const x = Math.min(...xs);

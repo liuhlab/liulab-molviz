@@ -6,6 +6,7 @@ import { layout } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { leftEdge } from "../../src/viewer/scene";
+import { layoutSequence } from "../../src/viewer/sequence";
 import { measure, metrics } from "../../src/viewer/text";
 
 const good = { name: "p", circular: false, bases: "ACGT".repeat(25) };
@@ -131,6 +132,61 @@ describe("svg", () => {
 			(s) => s.shape === "text" && s.text === "across (996 .. 5)",
 		);
 		expect(said).toHaveLength(1);
+	});
+});
+
+describe("svg with the sequence view", () => {
+	const record = { ...good, bases: "ACGT".repeat(500) };
+	const drawn = svg(record, { sequence_view: true });
+	const size = (text: string) => {
+		const root = /^<svg\b[^>]*>/.exec(text)?.[0] ?? "";
+		const [width, height] = ["width", "height"].map((name) =>
+			Number(new RegExp(`\\s${name}="([^"]*)"`).exec(root)?.[1]),
+		);
+		return { width, height };
+	};
+
+	test("draws the view under the map, centred, as wide as the wider", () => {
+		const checked = check(record);
+		const view = layoutSequence(
+			checked,
+			checkOptions({ sequence_view: true }, checked),
+		).extent;
+		const map = size(svg(record).svg);
+		const whole = size(drawn.svg);
+		expect(whole.width).toBeCloseTo(Math.max(map.width, view.width), 2);
+		expect(whole.height).toBeCloseTo(map.height + view.height, 2);
+	});
+
+	test("pages the map alone, then the rows on pages as wide as the view", () => {
+		const [map, ...rows] = drawn.pages;
+		expect(map).toBe(svg(record).svg);
+		expect(rows.length).toBeGreaterThan(1);
+		const { width } = size(rows[0]);
+		for (const page of rows) {
+			expect(size(page).width).toBe(width);
+			expect(size(page).height).toBeLessThanOrEqual(width * Math.SQRT2);
+		}
+	});
+
+	test("hides nothing it would not hide without the view", () => {
+		expect(drawn.hidden).toEqual([]);
+		expect(drawn.notice).toBe("");
+	});
+
+	test("draws a whole circular record's circle above the view, the circle its first page", () => {
+		const circular = check({ ...record, circular: true });
+		const both = svg(circular, { sequence_view: true });
+		const circle = svg(circular);
+		expect(both.pages[0]).toBe(circle.svg);
+		const view = layoutSequence(
+			circular,
+			checkOptions({ sequence_view: true }, circular),
+		).extent;
+		expect(size(both.svg).height).toBeCloseTo(
+			size(circle.svg).height + view.height,
+			2,
+		);
 	});
 });
 

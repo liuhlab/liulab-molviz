@@ -3,7 +3,7 @@
  * right and y down. A position's angle runs clockwise from the top.
  */
 
-import { bounds } from "./bounds";
+import { boxOf } from "./bounds";
 import { type Anchored, columns, type Point, REACH } from "./columns";
 import { cutSites } from "./cuts";
 import {
@@ -20,7 +20,7 @@ import {
 	PAD_Y,
 	SMALL_SIZE,
 } from "./labels";
-import { pointText, spanText, tickStep } from "./line";
+import { tickStep } from "./line";
 import type { Options } from "./options";
 import {
 	CONNECTOR,
@@ -34,6 +34,7 @@ import {
 	shaded,
 	textColor,
 } from "./paint";
+import { pointText, spanText } from "./pieces";
 import type { Record, Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
 import { baseline, type Face, height, measure, wrap } from "./text";
@@ -215,7 +216,7 @@ export function layoutCircle(
 		covered.y + covered.height - MARGIN,
 	);
 	shapes.push(...notice);
-	const below = notice.flatMap((s) => bounds(s) ?? []);
+	const below = notice.flatMap((s) => boxOf(s) ?? []);
 	return {
 		extent: below.length ? around([covered, around(below, MARGIN)]) : covered,
 		shapes,
