@@ -90,7 +90,7 @@ describe("noticeShapes", () => {
 			text: "1 cut site and 1 primer are hidden",
 			face: "sans",
 			size: 10.5,
-			hover: "EcoRI (396)\nM13 fwd (1 .. 17)",
+			title: "EcoRI (396)\nM13 fwd (1 .. 17)",
 			tip: "1 cut site and 1 primer are hidden\nEcoRI (396)\nM13 fwd (1 .. 17)",
 		});
 		if (text.shape !== "text") throw new Error("not text");

@@ -16,7 +16,7 @@ import { toElement } from "./svg";
 import { families } from "./text";
 
 /** The style element holding the frames' rules, shared by every frame on a page. */
-const STYLE = "molviz-frame";
+const STYLE_ID = "molviz-frame";
 
 type MapName = Options["map"];
 
@@ -380,9 +380,9 @@ function redrawSequence(
 
 /** Add the frames' rules to `document`, unless a frame already has. */
 function declareStyle(document: Document): void {
-	if (document.getElementById(STYLE)) return;
+	if (document.getElementById(STYLE_ID)) return;
 	const style = document.createElement("style");
-	style.id = STYLE;
+	style.id = STYLE_ID;
 	style.textContent = css();
 	document.head.append(style);
 }

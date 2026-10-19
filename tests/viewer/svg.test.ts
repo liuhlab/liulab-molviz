@@ -324,7 +324,7 @@ describe("toSvg", () => {
 		const hovered: Scene = {
 			extent: { x: 0, y: 0, width: 10, height: 10 },
 			shapes: [
-				{ shape: "circle", cx: 5, cy: 5, r: 1, fill: "#000000", hover: "A1" },
+				{ shape: "circle", cx: 5, cy: 5, r: 1, fill: "#000000", title: "A1" },
 			],
 		};
 		expect(toSvg(hovered)).not.toContain("<title");
@@ -374,7 +374,7 @@ test("a live drawing shows a shape's tip in place of its hover; a still one, its
 				cy: 5,
 				r: 1,
 				fill: "#000000",
-				hover: "ins · 12^13",
+				title: "ins · 12^13",
 				tip: "ins\ninsertion\n12^13\n6 bp",
 			},
 		],

@@ -284,14 +284,20 @@ function primers({ record, options, bounds, at }: Along): LineMarks {
 		(row) => first - row * step,
 	);
 	const tops = middles.map((middle) => middle - PRIMER_SHAFT / 2 - reach);
-	const shapes: Shape[] = drawn.map(({ arrow, label }, i) => ({
-		shape: "polygon",
-		points: outline(arrow, middles[i], PRIMER_SHAFT),
-		fill: arrow.color,
-		stroke: shaded(arrow.color),
-		strokeWidth: OUTLINE_WIDTH,
-		tip: label.tip,
-	}));
+	const shapes = drawn.flatMap(({ arrow, label }, i) =>
+		tipped(
+			[
+				{
+					shape: "polygon",
+					points: outline(arrow, middles[i], PRIMER_SHAFT),
+					fill: arrow.color,
+					stroke: shaded(arrow.color),
+					strokeWidth: OUTLINE_WIDTH,
+				},
+			],
+			label,
+		),
+	);
 	const labels = drawn.map(({ arrow, label }, i) => ({
 		label,
 		x: (arrow.start + arrow.end) / 2,
@@ -327,17 +333,23 @@ function insertions({
 		);
 		const { color } = label;
 		for (const x of points(point, options.span, bounds).map(at)) {
-			shapes.push({
-				shape: "line",
-				x1: x,
-				y1,
-				x2: x,
-				y2,
-				stroke: color,
-				strokeWidth: INSERTION_WIDTH,
-				hover,
-				tip: label.tip,
-			});
+			shapes.push(
+				...tipped(
+					[
+						{
+							shape: "line",
+							x1: x,
+							y1,
+							x2: x,
+							y2,
+							stroke: color,
+							strokeWidth: INSERTION_WIDTH,
+							title: hover,
+						},
+					],
+					label,
+				),
+			);
 			covers.push({
 				x: x - INSERTION_WIDTH / 2,
 				y: y1,

@@ -268,7 +268,7 @@ function insertions(
 			y2,
 			stroke: label.color,
 			strokeWidth: INSERTION_WIDTH,
-			hover,
+			title: hover,
 		};
 		return { bar, label, angle };
 	});

@@ -183,7 +183,7 @@ function rect(
 	height: number,
 	fill: string,
 	corner: number,
-	hover?: string,
+	title?: string,
 ): Shape {
 	return {
 		shape: "rect",
@@ -195,6 +195,6 @@ function rect(
 		fill,
 		stroke: "none",
 		strokeWidth: 0,
-		hover,
+		title,
 	};
 }

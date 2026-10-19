@@ -34,31 +34,31 @@ type Attributes = readonly (readonly [name: string, value: string])[];
 
 /**
  * One SVG element: its tag, its attributes in the order they are written, its text or the
- * elements inside it, and the shape's hover text.
+ * elements inside it, and the text of its `<title>`.
  */
 interface Tag {
 	readonly name: string;
 	readonly attributes: Attributes;
 	readonly text?: string;
 	readonly children?: readonly Tag[];
-	readonly hover?: string;
+	readonly title?: string;
 }
 
 /**
- * `scene` as one SVG document, with no hover text. Its width and height have no unit, so one
+ * `scene` as one SVG document, with no `<title>`. Its width and height have no unit, so one
  * unit is one point. Each glyph is defined once and used for every letter it draws. Every
  * number has two decimals but a glyph's scale, so the same scene gives the same text.
  */
 export function toSvg(scene: Scene): string {
 	const { root, children } = tags(scene, new Map());
-	const inside = children.map(({ hover, ...tag }) => markup(tag)).join("");
+	const inside = children.map(({ title, ...tag }) => markup(tag)).join("");
 	return `<svg xmlns="${NAMESPACE}" xmlns:xlink="${XLINK}"${written(root)}>${inside}</svg>`;
 }
 
 /**
  * `scene` as an `<svg>` element of `document`, the same as `toSvg` writes but for its letters,
- * which are `<text>` in the viewer's faces, and each shape's tip or else its hover text, a
- * `<title>` in it. Without `tips`, its hover text only, as `toStill` writes. The page must
+ * which are `<text>` in the viewer's faces, and each shape's tip or else its title, a
+ * `<title>` in it. Without `tips`, its title only, as `toStill` writes. The page must
  * declare the faces.
  */
 export function toElement(
@@ -67,7 +67,7 @@ export function toElement(
 	{ tips = true }: { readonly tips?: boolean } = {},
 ): SVGSVGElement {
 	const { root, children } = tags(scene, undefined, (shape) =>
-		tips ? (shape.tip ?? shape.hover) : shape.hover,
+		tips ? (shape.tip ?? shape.title) : shape.title,
 	);
 	const svg = document.createElementNS(NAMESPACE, "svg");
 	for (const [name, value] of root) svg.setAttribute(name, value);
@@ -77,7 +77,7 @@ export function toElement(
 
 /**
  * `scene` as one SVG document that draws as `toElement` does, for a page to hold as it is: its
- * letters `<text>` in the viewer's faces, each shape's hover text a `<title>` in it. The page
+ * letters `<text>` in the viewer's faces, each shape's title a `<title>` in it. The page
  * must declare the faces.
  */
 export function toStill(scene: Scene): string {
@@ -87,12 +87,12 @@ export function toStill(scene: Scene): string {
 
 /**
  * The root's attributes, and the elements inside it: the glyphs `defined`, if letters are
- * outlines, then the ground, then each shape in order with the text `hover` gives it.
+ * outlines, then the ground, then each shape in order with the `<title>` text `titleOf` gives it.
  */
 function tags(
 	scene: Scene,
 	defined?: Defined,
-	hover = (shape: Shape) => shape.hover,
+	titleOf = (shape: Shape) => shape.title,
 ): { root: Attributes; children: Tag[] } {
 	const { x, y, width, height } = scene.extent;
 	const size = [
@@ -110,7 +110,7 @@ function tags(
 	};
 	const shapes = scene.shapes.map((shape) => ({
 		...tag(shape, defined),
-		hover: hover(shape),
+		title: titleOf(shape),
 	}));
 	const defs: Tag[] = defined?.size
 		? [
@@ -335,13 +335,13 @@ function stroke(shape: { stroke: string; strokeWidth: number }): Attributes {
 	];
 }
 
-/** `tag` as SVG text: its text, then the elements inside it, then its hover as a `<title>`. */
+/** `tag` as SVG text: its text, then the elements inside it, then its `<title>`. */
 function markup(tag: Tag): string {
 	const open = `<${tag.name}${written(tag.attributes)}`;
 	const inside =
 		(tag.text === undefined ? "" : escaped(tag.text)) +
 		(tag.children ?? []).map(markup).join("") +
-		(tag.hover === undefined ? "" : `<title>${escaped(tag.hover)}</title>`);
+		(tag.title === undefined ? "" : `<title>${escaped(tag.title)}</title>`);
 	return inside ? `${open}>${inside}</${tag.name}>` : `${open}/>`;
 }
 
@@ -350,9 +350,9 @@ function element(tag: Tag, document: Document): Element {
 	for (const [name, value] of tag.attributes) out.setAttribute(name, value);
 	if (tag.text !== undefined) out.textContent = tag.text;
 	for (const child of tag.children ?? []) out.append(element(child, document));
-	if (tag.hover !== undefined) {
+	if (tag.title !== undefined) {
 		const title = document.createElementNS(NAMESPACE, "title");
-		title.textContent = tag.hover;
+		title.textContent = tag.title;
 		out.append(title);
 	}
 	return out;

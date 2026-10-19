@@ -291,7 +291,7 @@ export function noticeShapes(
 			y: baseline("sans", SMALL_SIZE, middle),
 			anchor: "start",
 			fill: INK,
-			hover: hidden.map(textOf).join("\n"),
+			title: hidden.map(textOf).join("\n"),
 			tip: [text, ...hidden.map(textOf)].join("\n"),
 		},
 	];

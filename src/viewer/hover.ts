@@ -9,7 +9,7 @@ const HOVER = "data-molviz-hover";
 /** How far the box keeps from the pointer. */
 const OFFSET = 14;
 
-const STYLE = [
+const BOX_CSS = [
 	"position:fixed",
 	"z-index:10",
 	"pointer-events:none",
@@ -112,7 +112,7 @@ function boxIn(document: Document): HTMLElement {
 	if (kept?.isConnected) return kept;
 	const box = document.createElement("div");
 	box.className = "molviz-hover";
-	box.style.cssText = STYLE;
+	box.style.cssText = BOX_CSS;
 	box.hidden = true;
 	document.body.append(box);
 	boxes.set(document, box);

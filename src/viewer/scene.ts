@@ -102,10 +102,13 @@ export type Shape = (
 			readonly cell?: number;
 	  }
 ) & {
-	/** What a page shows while the pointer rests on the shape. A file leaves it out. */
-	readonly hover?: string;
 	/**
-	 * What a live page's hover box shows in place of `hover`: lines, the first in bold, as an
+	 * What a still drawing shows while the pointer rests on the shape, as its `<title>`. A file
+	 * leaves it out.
+	 */
+	readonly title?: string;
+	/**
+	 * What a live map's hover box shows in place of `title`: lines, the first in bold, as an
 	 * item's name, type, span and length. A still drawing and a file leave it out.
 	 */
 	readonly tip?: string;

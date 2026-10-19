@@ -33,9 +33,9 @@ export function draw(
 	options: unknown = {},
 ): LiveDrawing {
 	const checked = check(record);
-	const drawn = checkOptions(options, checked, { page: true });
+	const checkedOptions = checkOptions(options, checked, { page: true });
 	declareFaces(element.ownerDocument);
-	return { destroy: openRecord(element, checked, drawn).destroy };
+	return { destroy: openRecord(element, checked, checkedOptions).destroy };
 }
 
 /**
