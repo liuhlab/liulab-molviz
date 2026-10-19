@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { defineConfig } from "vitest/config";
+import { fontTables } from "./scripts/font_tables.ts";
 
 /**
  * A comment holding the licence of each package bundled from `modules`, and of the fonts.
@@ -31,6 +32,7 @@ function notices(modules: string[]): string {
 }
 
 export default defineConfig({
+	plugins: [fontTables()],
 	build: {
 		// One self-contained script that sets the global `molviz`, so a page inlines it in a plain
 		// <script>. A fixed name and no hash: the same release must ship the same bytes.

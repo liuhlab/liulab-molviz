@@ -3,7 +3,7 @@ import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
 import type { Scene } from "../../src/viewer/scene";
 import { toElement, toStill, toSvg } from "../../src/viewer/svg";
-import { type Face, glyphs, measure } from "../../src/viewer/text";
+import { type Face, glyphs, measure, outlineOf } from "../../src/viewer/text";
 
 const scene: Scene = {
 	extent: { x: -16, y: -30.5, width: 752, height: 120.25 },
@@ -106,7 +106,9 @@ describe("toSvg", () => {
 		];
 		const expected = new Map(
 			texts.flatMap(([text, face]) =>
-				glyphs(text, face, 10).map((g) => [g.id, g.outline] as const),
+				glyphs(text, face, 10).map(
+					(g) => [g.id, outlineOf(face, g.index)] as const,
+				),
 			),
 		);
 		expect(defined).toEqual([...expected]);

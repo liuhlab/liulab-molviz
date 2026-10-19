@@ -14,6 +14,7 @@ import {
 	families,
 	glyphs,
 	inFace,
+	outlineOf,
 	textWidth,
 	unitsPerEm,
 	weights,
@@ -195,8 +196,9 @@ function tag(shape: Shape, defined?: Defined): Tag {
 				const scale = size / unitsPerEm(face);
 				const uses: Tag[] = [];
 				for (const glyph of glyphs(text, face, size, cell)) {
-					if (!glyph.outline) continue;
-					defined.set(glyph.id, glyph.outline);
+					const outline = outlineOf(face, glyph.index);
+					if (!outline) continue;
+					defined.set(glyph.id, outline);
 					uses.push({
 						name: "use",
 						attributes: [
