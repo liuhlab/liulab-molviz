@@ -61,16 +61,19 @@ test("a page the Python package writes draws its record when it opens", () => {
 	expect(texts.map((t) => t.textContent)).toContain("lacZ");
 });
 
-test("a page the Python package writes for a gel draws it when it opens", () => {
-	const drawn = open(written("draw_gel", gel));
-	expect(drawn).toHaveLength(1);
-	const titles = [...drawn[0].querySelectorAll("title")];
-	expect(titles.map((t) => t.textContent)).toContain("741 bp");
-});
-
-test("a page the Python package writes for a plate draws it when it opens", () => {
-	const drawn = open(written("draw_plate", plate));
-	expect(drawn).toHaveLength(1);
-	const titles = [...drawn[0].querySelectorAll("title")];
-	expect(titles.map((t) => t.textContent)).toContain("A1: quarter 1");
-});
+test.each([
+	{ input: "gel", call: "draw_gel", data: gel, hover: "741 bp" },
+	{ input: "plate", call: "draw_plate", data: plate, hover: "A1: quarter 1" },
+])(
+	"a page the Python package writes for a $input holds its drawing, with no script",
+	({ call, data, hover }) => {
+		const drawn = open(written(call, data));
+		expect(document.querySelectorAll("script")).toHaveLength(0);
+		expect(drawn).toHaveLength(1);
+		const titles = [...drawn[0].querySelectorAll("title")];
+		expect(titles.map((t) => t.textContent)).toContain(hover);
+		expect(document.querySelector("style")?.textContent).toContain(
+			"@font-face",
+		);
+	},
+);

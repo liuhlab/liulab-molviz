@@ -3,8 +3,9 @@
     pixi run digest-drawings [-- OUTPUT]
 
 Each input in a folder of `DRAWS` under ``--tests`` is drawn by that folder's call with its
-defaults and written as ``.html``, ``.svg``, ``.png`` at the default dpi, and ``.pdf``. Each
-line is ``<sha256>  <folder>/<input>.<ending>``, sorted by file, the form ``sha256sum`` writes.
+defaults and written as ``.html``, ``.svg``, ``.png`` at the default dpi, and ``.pdf``; its
+still SVG is digested as ``.still.svg``. Each line is ``<sha256>  <folder>/<input>.<ending>``,
+sorted by file, the form ``sha256sum`` writes.
 CI writes this on each platform and compares the two, so the same input writing the same bytes
 is checked without a stored digest to keep up to date.
 """
@@ -44,6 +45,9 @@ def digests(tests: Path) -> list[str]:
                     drawing.write(written)
                     name = f"{folder}/{path.stem}{ending}"
                     lines[name] = f"{hashlib.sha256(written.read_bytes()).hexdigest()}  {name}"
+                name = f"{folder}/{path.stem}.still.svg"
+                still = drawing.still_svg().encode()
+                lines[name] = f"{hashlib.sha256(still).hexdigest()}  {name}"
     return [lines[name] for name in sorted(lines)]
 
 

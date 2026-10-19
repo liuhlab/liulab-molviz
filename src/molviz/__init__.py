@@ -5,7 +5,7 @@ from importlib.metadata import version
 from molviz.drawing import Drawing, check, draw
 from molviz.gel import check_gel, draw_gel
 from molviz.plate import check_plate, draw_plate
-from molviz.viewer import viewer_script
+from molviz.viewer import font_rules, viewer_script
 
 #: Read from the installed distribution's metadata, which hatch-vcs fills from the newest
 #: git tag. No version string is written by hand anywhere in this repo.
@@ -20,5 +20,6 @@ __all__ = [
     "draw",
     "draw_gel",
     "draw_plate",
+    "font_rules",
     "viewer_script",
 ]
