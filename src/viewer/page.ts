@@ -298,8 +298,11 @@ function css(): string {
 .molviz .bar .views label:has(:checked) { background: #252525; color: #ffffff; }
 .molviz .bar .views label:has(:focus-visible) { outline: 2px solid #0077bb; }
 .molviz .bar .views input { position: absolute; opacity: 0; pointer-events: none; }
-.molviz .bar .zoom { align-items: center; gap: 10px; margin-left: auto; }
-.molviz .bar .views ~ .zoom { margin-left: 0; }
+.molviz .bar .end {
+	display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center;
+	gap: 6px 24px; margin-left: auto;
+}
+.molviz .bar .zoom { align-items: center; gap: 10px; }
 .molviz .bar .zoom input { width: 96px; }
 .molviz .bar .zoom button {
 	padding: 2px 10px; border: 1px solid #7f7f7f; background: #ffffff;

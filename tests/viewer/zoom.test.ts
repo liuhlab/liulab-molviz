@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
 import { layoutMap } from "../../src/viewer/drawing";
+import { hoverBox } from "../../src/viewer/hover";
 import { checkOptions } from "../../src/viewer/options";
 import { openPage, type Page } from "../../src/viewer/page";
 import { check } from "../../src/viewer/record";
@@ -37,8 +38,12 @@ function opened(record: unknown, options: unknown = {}): Page {
 
 /** The map `page` shows, as a fresh layout at `view` would draw it. */
 function laidOut(page: Page, view: { zoom?: number; turn?: number }): string {
-	return toElement(layoutMap(page.record, page.state.options, view), document)
-		.outerHTML;
+	const svg = toElement(
+		layoutMap(page.record, page.state.options, view),
+		document,
+	);
+	hoverBox(svg);
+	return svg.outerHTML;
 }
 
 /** A wheel over `page`'s map, and whether the page kept the browser from scrolling. */
@@ -115,9 +120,13 @@ describe("anchored", () => {
 });
 
 describe("a page's zoom", () => {
-	test("sits at the bar's right: a slider from 1× to 8×, and Reset", () => {
+	test("sits at the bar's right after the views: a slider from 1× to 8×, and Reset", () => {
 		const page = opened(circular);
-		expect(page.bar.lastElementChild).toBe(zoom(page));
+		const end = page.bar.lastElementChild;
+		expect([...(end?.children ?? [])].map((one) => one.className)).toEqual([
+			"views",
+			"zoom",
+		]);
 		const slider = zoom(page).querySelector("input");
 		expect([slider?.type, slider?.min, slider?.max, slider?.value]).toEqual([
 			"range",

@@ -150,8 +150,13 @@ export function addZoom(page: Page): void {
 	reset.textContent = "Reset";
 	const set = document.createElement("fieldset");
 	set.className = "zoom";
+	set.setAttribute("aria-label", "Zoom");
 	set.append(label, reset);
-	bar.append(set);
+	// The views and the zoom wrap together, at the bar's right.
+	const end = document.createElement("div");
+	end.className = "end";
+	end.append(...bar.querySelectorAll(".views"), set);
+	bar.append(end);
 
 	let asked: { level: number; at: Spot } | null = null;
 	const soon = eachFrame(document.defaultView, () => {
