@@ -29,4 +29,5 @@ Every position a reader sees is 1-based and inclusive, and the viewer writes it:
   data cannot tell it from a real join.
 - **A linear record's segments always ascend, and the caller splits a feature across the end.**
   The reader sees two features where SnapGene and mbio show one, and its translation breaks.
-- **A linear record's segments in any order.** Nothing would say which way a join runs, so it could not be drawn.
+- **A linear record's segments in any order.** Nothing would say which way a join runs, so it could
+  not be drawn.
