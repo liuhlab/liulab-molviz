@@ -57,7 +57,7 @@ export function cutSites(
 }
 
 /**
- * The label of the cut site at `at`: its `enzymes` joined, then the base after the cut, as
+ * The label of the cut site at `at`: its `enzymes` joined, then the base before the cut, as
  * `BanII - SacI (406)`. The name of an enzyme that cuts the record once is bold.
  */
 function siteLabel(

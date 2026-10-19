@@ -49,7 +49,7 @@ describe("cutSites", () => {
 		).toEqual(["EcoRI (396)", "BanII - SacI (406)", "HincII - HinP1I (900)"]);
 	});
 
-	test("numbers a site by the base after the cut, the last base on a circle cut at its origin", () => {
+	test("numbers a site by the base before the cut, the last base on a circle cut at its origin", () => {
 		const circle = cutBy([["EcoRI", 0]], { length: 48 });
 		expect(said(circle, ["EcoRI"])).toEqual(["EcoRI (48)"]);
 		const line = cutBy(
