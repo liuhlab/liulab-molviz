@@ -40,6 +40,22 @@ everything else turns pale grey. Nothing moves.
 </script>
 </div>
 
+## puc19-gfp-verification
+
+The same product checked against one consensus read. The read runs the whole length of the
+record and is drawn as a primer is. It disagrees with the record at two bases, and each is a
+bar with its name, packed with the features. `696 A>G` lies in the GFP insert, a region that
+fails, so it is red. `2687 C>T` lies in AmpR, outside every region checked, so it is grey.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-gfp-verification.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
+</div>
+
 ## puc19-backbone-amplicon
 
 A linear PCR product that starts inside lacZα. The lacZα CDS runs past the record's right end
@@ -160,5 +176,28 @@ An N inside a CDS, so one codon translates as X, and an EcoRI cut at the origin.
 </script>
 <script type="application/json" data-options>
 {"map": "line"}
+</script>
+</div>
+
+## trace-3730
+
+The 120 bases around one changed base in a Sanger read. The read covers them all, and its one
+disagreement, `61 G>C`, is red. The record also holds the read's trace, which only the
+sequence view draws.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/trace-3730.json"
+</script>
+</div>
+
+## trace-3730-reversed
+
+The same bases turned to the other strand, so the read runs along the bottom strand and its
+disagreement is `60 C>G`.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/trace-3730-reversed.json"
 </script>
 </div>
