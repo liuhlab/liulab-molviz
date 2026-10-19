@@ -138,4 +138,14 @@ describe("toSvg", () => {
 		expect(written).toMatch(/<path d="M[^"]* 0\.00L/);
 		expect(written).not.toContain("-0.00");
 	});
+
+	test("writes no hover text, though a shape has one", () => {
+		const hovered: Scene = {
+			extent: { x: 0, y: 0, width: 10, height: 10 },
+			shapes: [
+				{ shape: "circle", cx: 5, cy: 5, r: 1, fill: "#000000", hover: "A1" },
+			],
+		};
+		expect(toSvg(hovered)).not.toContain("<title");
+	});
 });

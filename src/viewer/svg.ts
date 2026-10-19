@@ -1,6 +1,6 @@
 /**
  * A scene as SVG on a white ground: as text with every letter an outline, so it draws the same
- * with no font, or as elements of a page with its letters as real text.
+ * with no font, or with its letters as real text, as elements of a page or as text for one.
  */
 
 import { leftEdge, type Scene, type Shape, twoDecimals } from "./scene";
@@ -59,6 +59,16 @@ export function toElement(scene: Scene, document: Document): SVGSVGElement {
 		svg.append(element);
 	}
 	return svg;
+}
+
+/**
+ * `scene` as one SVG document that draws as `toElement` does, for a page to hold as it is: its
+ * letters `<text>` in the viewer's faces, each shape's hover text a `<title>` in it. The page
+ * must declare the faces.
+ */
+export function toStill(scene: Scene): string {
+	const { root, children } = tags(scene, "text");
+	return `<svg xmlns="${NAMESPACE}"${written(root)}>${children.map(markup).join("")}</svg>`;
 }
 
 /** The root's attributes, and the elements inside it: the ground, then each shape in order. */
@@ -181,6 +191,23 @@ function stroke(shape: { stroke: string; strokeWidth: number }): Attributes {
 		["stroke", shape.stroke],
 		["stroke-width", twoDecimals(shape.strokeWidth)],
 	];
+}
+
+/** `tag` as SVG text: its text, then its hover as a `<title>`. */
+function markup(tag: Tag): string {
+	const open = `<${tag.name}${written(tag.attributes)}`;
+	const inside =
+		(tag.text === undefined ? "" : escaped(tag.text)) +
+		(tag.hover === undefined ? "" : `<title>${escaped(tag.hover)}</title>`);
+	return inside ? `${open}>${inside}</${tag.name}>` : `${open}/>`;
+}
+
+/** `text` as SVG text that reads back as `text`. */
+function escaped(text: string): string {
+	return text
+		.replaceAll("&", "&amp;")
+		.replaceAll("<", "&lt;")
+		.replaceAll(">", "&gt;");
 }
 
 function written(attributes: Attributes): string {
