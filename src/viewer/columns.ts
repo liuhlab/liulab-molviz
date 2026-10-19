@@ -23,9 +23,9 @@ import type { Box } from "./scene";
 export const REACH = 390;
 
 /** How far beyond the circle the ellipse starts. */
-const GAP = 14;
+const ELLIPSE_GAP = 14;
 /** The least room between a box and the vertical line through the centre. */
-const MARGIN = 3;
+const MIDLINE_GAP = 3;
 /** How much the ellipse grows each time a column does not fit or a leader enters the circle. */
 const GROWTH = 1.04;
 /** How many heights, from halfway up a box towards its touching point, a leader tries. */
@@ -38,7 +38,7 @@ export interface Point {
 }
 
 /** A label to place: its box's size, and the point its leader starts from. */
-export interface Anchored {
+export interface Unplaced {
 	readonly width: number;
 	readonly height: number;
 	readonly anchor: Point;
@@ -62,11 +62,11 @@ export interface Columns {
  * Place `labels` in two columns round the circle of `radius`, hiding labels while a crowd
  * reaches past `reach` above or below the centre.
  *
- * Each anchor lies outside the circle and less than `GAP` beyond it. `order` holds every
+ * Each anchor lies outside the circle and less than `ELLIPSE_GAP` beyond it. `order` holds every
  * label's index once, the first to hide first.
  */
 export function columns(
-	labels: readonly Anchored[],
+	labels: readonly Unplaced[],
 	order: readonly number[],
 	radius: number,
 	reach = REACH,
@@ -87,7 +87,7 @@ export function columns(
 
 /** The labels to hide so the rest lie within `reach`, in `order`. */
 function hide(
-	labels: readonly Anchored[],
+	labels: readonly Unplaced[],
 	order: readonly number[],
 	radius: number,
 	reach: number,
@@ -100,7 +100,11 @@ function hide(
 	for (const column of sides(labels)) {
 		let shown = column;
 		for (;;) {
-			const { middles, crowds } = spreadOut(shown, labels, radius + GAP);
+			const { middles, crowds } = spreadOut(
+				shown,
+				labels,
+				radius + ELLIPSE_GAP,
+			);
 			const at: number[] = [];
 			shown.forEach((i, k) => {
 				at[i] = middles[k];
@@ -120,8 +124,8 @@ function hide(
 }
 
 /** Place every label, as `columns` does, hiding none. */
-function place(labels: readonly Anchored[], radius: number): Placed[] {
-	const start = radius + GAP;
+function place(labels: readonly Unplaced[], radius: number): Placed[] {
+	const start = radius + ELLIPSE_GAP;
 	const [right, left] = sides(labels);
 	const middles: number[] = new Array(labels.length);
 	for (const column of [right, left]) {
@@ -135,7 +139,9 @@ function place(labels: readonly Anchored[], radius: number): Placed[] {
 	let b = start;
 	for (;;) {
 		// A box level with the ellipse's top or bottom would reach the other column.
-		if (nearest.some((near) => near ** 2 >= b * b * (1 - (MARGIN / a) ** 2))) {
+		if (
+			nearest.some((near) => near ** 2 >= b * b * (1 - (MIDLINE_GAP / a) ** 2))
+		) {
 			b *= GROWTH;
 			continue;
 		}
@@ -164,7 +170,7 @@ function place(labels: readonly Anchored[], radius: number): Placed[] {
 }
 
 /** The right column's labels and the left's, each from the top down. */
-function sides(labels: readonly Anchored[]): [number[], number[]] {
+function sides(labels: readonly Unplaced[]): [number[], number[]] {
 	const angles = labels.map(({ anchor }) => clockwise(anchor));
 	const indices = labels.map((_, i) => i);
 	const right = indices
@@ -192,7 +198,7 @@ function clockwise({ x, y }: Point): number {
  */
 function spreadOut(
 	column: readonly number[],
-	labels: readonly Anchored[],
+	labels: readonly Unplaced[],
 	start: number,
 ): { middles: number[]; crowds: number[][] } {
 	const offsets = [0];
@@ -226,7 +232,7 @@ function spreadOut(
 }
 
 /** The height, within a box whose middle is at `middle`, nearest the centre's. */
-function nearestHeight({ height }: Anchored, middle: number): number {
+function nearestHeight({ height }: Unplaced, middle: number): number {
 	return Math.min(Math.max(0, middle - height / 2), middle + height / 2);
 }
 

@@ -4,7 +4,7 @@ import { layoutCircle } from "./circle";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
-import { layout } from "./line";
+import { layoutLine } from "./line";
 import { checkOptions } from "./options";
 import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
@@ -52,7 +52,7 @@ export function prepareViews(
 		map:
 			drawn.map === "circle"
 				? layoutCircle(checked, drawn)
-				: layout(checked, drawn),
+				: layoutLine(checked, drawn),
 		sequence: drawn.sequence_view ? layoutSequence(checked, drawn) : null,
 	};
 }

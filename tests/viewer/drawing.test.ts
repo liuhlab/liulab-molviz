@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { layoutCircle } from "../../src/viewer/circle";
 import { gelSvg, plateSvg, prepare, svg } from "../../src/viewer/drawing";
 import { FormatError } from "../../src/viewer/format";
-import { layout } from "../../src/viewer/line";
+import { layoutLine } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { leftEdge } from "../../src/viewer/scene";
@@ -32,7 +32,7 @@ describe("svg", () => {
 			layoutCircle(circular, checkOptions({}, circular)),
 		);
 		expect(prepare(circular, { map: "line" })).toStrictEqual(
-			layout(circular, checkOptions({ map: "line" }, circular)),
+			layoutLine(circular, checkOptions({ map: "line" }, circular)),
 		);
 	});
 

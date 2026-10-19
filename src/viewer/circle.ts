@@ -15,7 +15,7 @@ import {
 	roomiest,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
-import { type Anchored, columns, type Point, REACH } from "./columns";
+import { columns, type Point, REACH, type Unplaced } from "./columns";
 import { cutSites } from "./cuts";
 import {
 	hiddenOf,
@@ -93,7 +93,7 @@ interface Arrow {
 }
 
 /** A feature as the circle draws it: its arrows in order, its name, and where it lies. */
-interface Drawn {
+interface CircleFeature {
 	readonly label: Label;
 	readonly arrows: readonly Arrow[];
 	readonly hull: Span;
@@ -110,7 +110,7 @@ interface Outside {
 }
 
 /** Everything a part of the circle is laid out against. */
-interface Ring {
+interface Circle {
 	readonly length: number;
 	/** The backbone's radius. */
 	readonly radius: number;
@@ -128,26 +128,28 @@ export function layoutCircle(
 	rotation = 0,
 	zoom = 1,
 ): MapScene {
-	const ring: Ring = {
+	const circle: Circle = {
 		length: record.bases.length,
 		radius: RADIUS * zoom,
 		turn: (rotation * Math.PI) / 180,
 	};
 	const off = new Set(options.kinds_off);
-	const middle = centre(record.name, ring);
+	const middle = centre(record.name, circle);
 	const drawn = off.has("features")
 		? []
-		: features(record, options, ring, middle.reach);
-	const sites = off.has("primers") ? [] : primers(record, options, ring);
-	const marks = off.has("insertions") ? [] : insertions(record, options, ring);
-	const backboneEdge = ring.radius + BACKBONE / 2;
+		: features(record, options, circle, middle.reach);
+	const sites = off.has("primers") ? [] : primers(record, options, circle);
+	const marks = off.has("insertions")
+		? []
+		: insertions(record, options, circle);
+	const backboneEdge = circle.radius + BACKBONE / 2;
 	const drawing = Math.max(
 		backboneEdge,
 		...sites.map(
 			({ arrow }) => arrow.radius + arrow.width / 2 + overhang(arrow.width),
 		),
 	);
-	const midway = ({ start, end }: Span) => angleOf((start + end) / 2, ring);
+	const midway = ({ start, end }: Span) => angleOf((start + end) / 2, circle);
 	const outside: Outside[] = [
 		...drawn.flatMap(({ label, hull, name }) =>
 			name === null && label.name.trim()
@@ -164,23 +166,23 @@ export function layoutCircle(
 			: cutSites(record, options.enzymes, options.highlight)
 		).map(({ label, at }) => ({
 			label,
-			angle: angleOf(at, ring),
+			angle: angleOf(at, circle),
 			inward: true,
 		})),
 		...marks.map(({ label, angle }) => ({ label, angle, inward: true })),
 	];
-	const anchored: Anchored[] = outside.map(({ label, angle }) => ({
+	const unplaced: Unplaced[] = outside.map(({ label, angle }) => ({
 		...labelSize(label),
 		anchor: xy(drawing + ANCHOR, angle),
 	}));
 	const order = [...outside.keys()].sort((i, j) =>
 		hidingOrder(outside[i].label, outside[j].label),
 	);
-	const cap = REACH + ring.radius - RADIUS;
-	const { placed, hidden } = columns(anchored, order, drawing, cap);
+	const cap = REACH + circle.radius - RADIUS;
+	const { placed, hidden } = columns(unplaced, order, drawing, cap);
 	const shapes: Shape[] = [
-		...backbone(ring),
-		...ruler(ring),
+		...backbone(circle),
+		...ruler(circle),
 		...drawn.flatMap(featureShapes),
 		...sites.map(({ arrow }) => arrowShape(arrow)),
 		...marks.map(({ bar }) => bar),
@@ -239,19 +241,19 @@ function leader(from: Point, to: Point): Shape {
 function insertions(
 	record: Record,
 	options: Options,
-	ring: Ring,
+	circle: Circle,
 ): { bar: Shape; label: Label; angle: number }[] {
-	const bounds = { length: ring.length, circular: true };
+	const bounds = { length: circle.length, circular: true };
 	return record.insertions.map((insertion) => {
 		const { label, hover } = insertionLabel(
 			insertion,
 			bounds,
 			options.highlight,
 		);
-		const angle = angleOf(insertion.at, ring);
-		const [x1, y1] = pointAt(inside(ring) - INSERTION_REACH, angle);
+		const angle = angleOf(insertion.at, circle);
+		const [x1, y1] = pointAt(inside(circle) - INSERTION_REACH, angle);
 		const [x2, y2] = pointAt(
-			ring.radius + BACKBONE / 2 + INSERTION_REACH,
+			circle.radius + BACKBONE / 2 + INSERTION_REACH,
 			angle,
 		);
 		const bar: Shape = {
@@ -269,7 +271,7 @@ function insertions(
 }
 
 /** The angle of `position`, in radians clockwise from the top. */
-function angleOf(position: number, { length, turn }: Ring): number {
+function angleOf(position: number, { length, turn }: Circle): number {
 	return (2 * Math.PI * position) / length + turn;
 }
 
@@ -304,15 +306,15 @@ function arc(radius: number, start: number, end: number): PathCommand[] {
 function features(
 	record: Record,
 	options: Options,
-	ring: Ring,
+	circle: Circle,
 	clear: number,
-): Drawn[] {
+): CircleFeature[] {
 	const shown = coloredFeatures(record, options);
-	const hulls = shown.map(({ feature }) => hullOf(feature, ring.length));
-	const onRing = rings(hulls, ring);
+	const hulls = shown.map(({ feature }) => hullOf(feature, circle.length));
+	const onRing = rings(hulls, circle);
 	const count = Math.max(0, ...onRing) + 1;
 	const outer =
-		inside(ring) -
+		inside(circle) -
 		TICK -
 		2 * PAD_Y -
 		height("sans", SMALL_SIZE) -
@@ -325,7 +327,7 @@ function features(
 		0,
 		Math.min(
 			RING_STEP,
-			count > 1 ? (outer - CENTRE * ring.radius) / (count - 1) : RING_STEP,
+			count > 1 ? (outer - CENTRE * circle.radius) / (count - 1) : RING_STEP,
 			(outer - clear) / (count - 1 + half),
 		),
 	);
@@ -338,8 +340,8 @@ function features(
 			const headStart = k === 0 && startHead;
 			const headEnd = k === last && endHead;
 			const heads = Number(headStart) + Number(headEnd);
-			const start = angleOf(segment.start, ring);
-			const end = angleOf(segment.end, ring);
+			const start = angleOf(segment.start, circle);
+			const end = angleOf(segment.end, circle);
 			return {
 				start,
 				end,
@@ -433,7 +435,7 @@ function hullOf({ segments }: Feature, length: number): Span {
  * Each hull's ring, 0 outermost: the first where it overlaps nothing, room for a gap of
  * `RING_PADDING` on the backbone left at each end, taking the longest first.
  */
-function rings(hulls: readonly Span[], { length, radius }: Ring): number[] {
+function rings(hulls: readonly Span[], { length, radius }: Circle): number[] {
 	const padding = (length * RING_PADDING) / (2 * Math.PI * radius);
 	const order = [...hulls.keys()].sort(
 		(i, j) =>
@@ -460,7 +462,7 @@ function rings(hulls: readonly Span[], { length, radius }: Ring): number[] {
 }
 
 /** A feature's arrows, each joined to the next by a thin arc across any gap between them. */
-function featureShapes({ label, arrows, name }: Drawn): Shape[] {
+function featureShapes({ label, arrows, name }: CircleFeature): Shape[] {
 	const shapes: Shape[] = [];
 	for (const [k, after] of arrows.entries()) {
 		const before = arrows[k - 1];
@@ -498,23 +500,23 @@ function arrowShape(arrow: Arrow): Shape {
 function primers(
 	record: Record,
 	options: Options,
-	ring: Ring,
+	circle: Circle,
 ): { arrow: Arrow; label: Label; hull: Span }[] {
 	const sites = record.primers.flatMap(({ name, sites }) =>
 		sites.map((site) => ({ name, site })),
 	);
 	const hulls = sites.map(({ site }) => ({ start: site.start, end: site.end }));
-	const onRing = rings(hulls, ring);
+	const onRing = rings(hulls, circle);
 	const beyond = overhang(PRIMER_BAND);
 	const step = PRIMER_BAND + 2 * beyond + PRIMER_GAP;
 	const first =
-		ring.radius + BACKBONE / 2 + PRIMER_GAP + beyond + PRIMER_BAND / 2;
+		circle.radius + BACKBONE / 2 + PRIMER_GAP + beyond + PRIMER_BAND / 2;
 	return sites.map(({ name, site }, i) => {
 		const hull = hulls[i];
-		const label = primerLabel(name, hull, ring.length, options.highlight);
+		const label = primerLabel(name, hull, circle.length, options.highlight);
 		const radius = first + onRing[i] * step;
-		const start = angleOf(site.start, ring);
-		const end = angleOf(site.end, ring);
+		const start = angleOf(site.start, circle);
+		const end = angleOf(site.end, circle);
 		const [headStart, headEnd] = headsOn(site.strand);
 		const arrow: Arrow = {
 			start,
@@ -561,7 +563,7 @@ function outline(arrow: Arrow): PathCommand[] {
 }
 
 /** Where the backbone's inner strand ends, inside it. */
-function inside({ radius }: Ring): number {
+function inside({ radius }: Circle): number {
 	return radius - STRANDS_APART - BACKBONE / 2;
 }
 
@@ -574,15 +576,15 @@ function normal(degrees: number): number {
  * The ticks and numbers inside the backbone, at each multiple of the step. A number reads along
  * its tick, turned to read upright on the lower half, and keeps clear of the origin's tick.
  */
-function ruler(ring: Ring): Shape[] {
-	const { length } = ring;
-	const from = inside(ring);
+function ruler(circle: Circle): Shape[] {
+	const { length } = circle;
+	const from = inside(circle);
 	const middle = from - TICK - PAD_Y - height("sans", SMALL_SIZE) / 2;
 	const rise = baseline("sans", SMALL_SIZE, 0);
 	const shapes: Shape[] = [];
 	const step = tickStep(length);
 	for (let position = step; position < length; position += step) {
-		const angle = angleOf(position, ring);
+		const angle = angleOf(position, circle);
 		const [x1, y1] = pointAt(from, angle);
 		const [x2, y2] = pointAt(from - TICK, angle);
 		shapes.push({
@@ -621,9 +623,12 @@ function ruler(ring: Ring): Shape[] {
  * their corners reach. A name too wide to fit inside `CENTRE` of the radius wraps onto lines that
  * do.
  */
-function centre(name: string, ring: Ring): { shapes: Shape[]; reach: number } {
-	const room = CENTRE * ring.radius;
-	const length = `${ring.length} bp`;
+function centre(
+	name: string,
+	circle: Circle,
+): { shapes: Shape[]; reach: number } {
+	const room = CENTRE * circle.radius;
+	const length = `${circle.length} bp`;
 	const block = (named: readonly string[]) => {
 		const lines = titleLines(named, length);
 		const tall = lines.reduce((sum, [, f, size]) => sum + height(f, size), 0);
@@ -646,8 +651,8 @@ function centre(name: string, ring: Ring): { shapes: Shape[]; reach: number } {
 }
 
 /** The two strands, from the origin round, and the origin's tick inside them. */
-function backbone(ring: Ring): Shape[] {
-	const { radius, turn } = ring;
+function backbone(circle: Circle): Shape[] {
+	const { radius, turn } = circle;
 	const strands: Shape[] = [radius, radius - STRANDS_APART].map((r) => ({
 		shape: "path",
 		commands: [
@@ -659,8 +664,8 @@ function backbone(ring: Ring): Shape[] {
 		stroke: INK,
 		strokeWidth: BACKBONE,
 	}));
-	const [x1, y1] = pointAt(inside(ring), turn);
-	const [x2, y2] = pointAt(inside(ring) - ORIGIN_TICK, turn);
+	const [x1, y1] = pointAt(inside(circle), turn);
+	const [x2, y2] = pointAt(inside(circle) - ORIGIN_TICK, turn);
 	return [
 		...strands,
 		{

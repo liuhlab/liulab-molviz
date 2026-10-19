@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import {
-	type Anchored,
 	type Columns,
 	columns,
 	REACH,
+	type Unplaced,
 } from "../../src/viewer/columns";
 import {
 	closestToCentre,
@@ -28,7 +28,7 @@ function label(
 	width: number,
 	height = 16,
 	radius = RADIUS,
-): Anchored {
+): Unplaced {
 	return { width, height, anchor: point(degrees, radius + 4) };
 }
 

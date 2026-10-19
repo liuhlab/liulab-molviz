@@ -125,7 +125,7 @@ const ORDER: { readonly [K in Kind]: number } = {
 };
 
 /** Lay out `record` as a line `width` long, drawn as `options` say. */
-export function layout(
+export function layoutLine(
 	record: Record,
 	options: Options,
 	width = WIDTH,

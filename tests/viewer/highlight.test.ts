@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { describe, expect, test } from "vitest";
 import type { MapScene } from "../../src/viewer/labels";
-import { layout } from "../../src/viewer/line";
+import { layoutLine } from "../../src/viewer/line";
 import { answersTo, checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import type { Shape } from "../../src/viewer/scene";
@@ -57,7 +57,7 @@ const RECORD = {
 
 function lay(record: unknown, options: object = {}): MapScene {
 	const checked = check(record);
-	return layout(checked, checkOptions(options, checked));
+	return layoutLine(checked, checkOptions(options, checked));
 }
 
 type Text = Extract<Shape, { shape: "text" }>;

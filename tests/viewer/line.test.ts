@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { MapScene } from "../../src/viewer/labels";
-import { layout } from "../../src/viewer/line";
+import { layoutLine } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
@@ -43,7 +43,7 @@ function lay(
 		})),
 		...record,
 	});
-	return layout(checked, checkOptions(options, checked), width);
+	return layoutLine(checked, checkOptions(options, checked), width);
 }
 
 type Polygon = Extract<Shape, { shape: "polygon" }>;
@@ -207,7 +207,7 @@ describe("the ends", () => {
 });
 
 describe("a span across the origin", () => {
-	const scene = layout(colourTest, checkOptions(ACROSS, colourTest));
+	const scene = layoutLine(colourTest, checkOptions(ACROSS, colourTest));
 
 	test("draws a feature across the origin whole, its head at its end", () => {
 		const [across] = arrows(scene, "#993366");
@@ -260,7 +260,7 @@ describe("the ruler", () => {
 	);
 
 	test("numbers a span across the origin as the record does, with a long tick at the origin", () => {
-		const scene = layout(colourTest, checkOptions(ACROSS, colourTest));
+		const scene = layoutLine(colourTest, checkOptions(ACROSS, colourTest));
 		expect(numbers(scene)).toEqual([
 			...steps(2620, 2680, 20),
 			...steps(20, 60, 20),
@@ -291,7 +291,7 @@ describe("the ruler", () => {
 
 	test("leaves out a number too near the origin's tick", () => {
 		const options = { span: { start: 2650, end: 2700 } };
-		const scene = layout(colourTest, checkOptions(options, colourTest));
+		const scene = layoutLine(colourTest, checkOptions(options, colourTest));
 		expect(numbers(scene)).toEqual([...steps(2655, 2680, 5), "5", "10"]);
 	});
 });
@@ -314,7 +314,7 @@ describe("the title", () => {
 	});
 
 	test("gives a span's bases as the record numbers them", () => {
-		const scene = layout(colourTest, checkOptions(ACROSS, colourTest));
+		const scene = layoutLine(colourTest, checkOptions(ACROSS, colourTest));
 		const [length] = texts(scene, 10.5).filter((t) => t.y > 40);
 		expect(length.text).toBe("2601 .. 64 (150 bp)");
 	});
@@ -370,7 +370,7 @@ describe("colours", () => {
 				},
 			],
 		});
-		const segmented = layout(own, checkOptions({}, own));
+		const segmented = layoutLine(own, checkOptions({}, own));
 		expect(arrows(scene, "#123abc")).toHaveLength(2);
 		expect(arrows(segmented, "#123abc")).toHaveLength(1);
 		expect(arrows(segmented, "#00ff00")).toHaveLength(1);
@@ -616,7 +616,11 @@ describe("hidden labels", () => {
 	/** Each label `record` hides along `width` points, as its name and its point or start. */
 	function hiddenOn(record: unknown, options: object, width: number): string[] {
 		const checked = check(record);
-		return layout(checked, checkOptions(options, checked), width).hidden.map(
+		return layoutLine(
+			checked,
+			checkOptions(options, checked),
+			width,
+		).hidden.map(
 			(one) => `${one.name} ${"at" in one ? one.at : one.spans[0].start}`,
 		);
 	}
