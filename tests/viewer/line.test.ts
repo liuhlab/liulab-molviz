@@ -26,6 +26,7 @@ function lay(
 	features: Made[],
 	options: object = {},
 	record: object = {},
+	width?: number,
 ): Scene {
 	const checked = check({
 		name: "test",
@@ -40,7 +41,7 @@ function lay(
 		})),
 		...record,
 	});
-	return layout(checked, checkOptions(options, checked));
+	return layout(checked, checkOptions(options, checked), width);
 }
 
 type Polygon = Extract<Shape, { shape: "polygon" }>;
@@ -266,6 +267,24 @@ describe("the ruler", () => {
 			.filter((l) => l.x1 === l.x2)
 			.sort((a, b) => b.y2 - b.y1 - (a.y2 - a.y1))[0];
 		expect(longest.x1).toBe(((2686 - 2600) * 720) / 150);
+	});
+
+	test("keeps at most ten numbers per 720 points of a longer line", () => {
+		const scene = lay(
+			[{ segments: [[100, 500]], color: "#000001" }],
+			{},
+			{},
+			1440,
+		);
+		expect(numbers(scene)).toEqual(steps(50, 1000, 50));
+		const [arrow] = arrows(scene, "#000001");
+		expect([left(arrow), right(arrow)]).toEqual([144, 720]);
+		const backbone = lines(scene, "#252525").filter((l) => l.y1 === l.y2);
+		expect(backbone.map((l) => [l.x1, l.x2])).toEqual([
+			[0, 1440],
+			[0, 1440],
+		]);
+		expect(texts(scene, 13.5)[0].x).toBe(720);
 	});
 
 	test("leaves out a number too near the origin's tick", () => {
@@ -527,5 +546,20 @@ describe("types_off", () => {
 		const chosen = lay(features, { types_off: ["misc_feature"] });
 		expect(arrows(chosen, "#000001")).toHaveLength(1);
 		expect(arrows(chosen, "#000002")).toEqual([]);
+	});
+});
+
+describe("kinds_off", () => {
+	test("leaves out every feature, its name and its box when features are off", () => {
+		const features = [
+			{ name: "lacZ", segments: [[0, 500]], color: "#000001" },
+			{ name: "first", segments: [[600, 610]], color: "#000001" },
+			{ name: "second long name", segments: [[630, 640]], color: "#000002" },
+		] as Made[];
+		expect(rects(lay(features))).toHaveLength(1);
+		const off = lay(features, { kinds_off: ["features"] });
+		expect(off.shapes.filter((s) => s.shape === "polygon")).toEqual([]);
+		expect(rects(off)).toEqual([]);
+		expect(texts(off, 11.5)).toEqual([]);
 	});
 });

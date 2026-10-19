@@ -3,12 +3,34 @@
  * the right and y down, the line running right from (0, 0).
  */
 
+import {
+	GAP,
+	hiddenOf,
+	KINDS,
+	type Kind,
+	LABEL_SIZE,
+	type Label,
+	type MapScene,
+	noticeShapes,
+	PAD_X,
+	PAD_Y,
+	SMALL_SIZE,
+} from "./labels";
 import type { Options } from "./options";
+import {
+	CONNECTOR,
+	colorOf,
+	INK,
+	OUTLINE_WIDTH,
+	shaded,
+	textColor,
+} from "./paint";
 import type { Bounds, Record, Span } from "./record";
-import { type Box, leftEdge, type Scene, type Shape } from "./scene";
-import { baseline, type Face, measure, metrics } from "./text";
+import { type Box, leftEdge, type Shape } from "./scene";
+import { type Anchored, labelsAbove } from "./staircase";
+import { baseline, type Face, height, measure, metrics } from "./text";
 
-/** The line's length. */
+/** The line's length, unless a layout is given another. */
 const WIDTH = 720;
 
 // A feature's arrow: the band's thickness, how far a head reaches beyond the band, the least room
@@ -35,72 +57,52 @@ const TICK_WIDTH = 1.2;
 const ORIGIN_TICK = 12;
 const ORIGIN_TICK_WIDTH = 2.4;
 const CLEAR = 10;
-/** The most numbers the ruler gives along the line. */
+/** The most numbers the ruler gives along each `WIDTH` points of the line. */
 const NUMBERS = 10;
 
-const LABEL_SIZE = 11.5;
 const NAME_SIZE = 13.5;
-const SMALL_SIZE = 10.5;
 
-// The room around text: either side of it, and above and below it.
-const PAD_X = 3;
-const PAD_Y = 1;
-/** The room between the drawing and the title. */
-const GAP = 10;
-
-/** The colour of each group of feature types, by the types it holds. */
-// Paul Tol's light scheme, with `#aa3377` from his bright scheme.
-// biome-ignore format: a table reads better packed
-const GROUPS: readonly [color: string, types: readonly string[]][] = [
-	[
-		"#77aadd",
-		[
-			"CDS", "gene", "mat_peptide", "sig_peptide", "transit_peptide", "propeptide",
-			"proprotein", "exon", "C_region", "D_segment", "J_segment", "N_region", "S_region",
-			"V_region", "V_segment",
-		],
-	],
-	[
-		"#ee8866",
-		[
-			"promoter", "enhancer", "RBS", "-10_signal", "-35_signal", "CAAT_signal",
-			"TATA_signal", "GC_signal", "attenuator", "misc_signal", "5'UTR", "regulatory",
-		],
-	],
-	["#ffaabb", ["terminator", "polyA_signal", "polyA_site", "3'UTR"]],
-	["#eedd88", ["rep_origin", "oriT"]],
-	["#99ddff", ["protein_bind", "misc_binding"]],
-	[
-		"#44bb99",
-		["ncRNA", "misc_RNA", "mRNA", "tRNA", "rRNA", "tmRNA", "precursor_RNA", "prim_transcript"],
-	],
-	["#bbcc33", ["LTR", "repeat_region", "mobile_element", "misc_recomb", "stem_loop", "D-loop"]],
-	["#aa3377", ["primer_bind"]],
-];
-
-/** The colour of a type in no group. */
-const OTHER = "#dddddd";
-
-const DEFAULTS = new Map(
-	GROUPS.flatMap(([color, types]) => types.map((t) => [t, color])),
-);
-
-/** How much of each channel of its fill an arrow's outline keeps. */
-const OUTLINE_SHADE = 0.45;
-
-// A label in a box above the backbone: the room between boxes, its corners, and its leader.
-const SPACING = 2;
-const CORNER = 2;
-const LEADER = "#7f7f7f";
-const LEADER_WIDTH = 0.8;
-
-const INK = "#252525";
-const CONNECTOR = "#666666";
 const CONNECTOR_WIDTH = 1.5;
-const OUTLINE_WIDTH = 0.8;
 
 /** The room left around everything the drawing covers. */
 const MARGIN = 16;
+
+/** What every kind is drawn against. */
+export interface Along {
+	readonly record: Record;
+	readonly options: Options;
+	readonly bounds: Bounds;
+	/** The x of a position counted as the span counts it. */
+	readonly at: (position: number) => number;
+	/** The backbone's top edge, where a leader from the backbone starts. */
+	readonly backboneTop: number;
+}
+
+/** What one kind draws on the line. */
+export interface Drawn {
+	/** Its marks, in the order they are drawn. */
+	readonly shapes: readonly Shape[];
+	/** Its labels, to set above the line. */
+	readonly labels: readonly Anchored[];
+	/** How high its marks reach, which the labels clear, and how low, which the title clears. */
+	readonly top: number;
+	readonly bottom: number;
+}
+
+const NOTHING: Drawn = {
+	shapes: [],
+	labels: [],
+	top: Number.POSITIVE_INFINITY,
+	bottom: Number.NEGATIVE_INFINITY,
+};
+
+/** How the line draws each kind. Kinds draw in `KINDS` order, and one switched off is skipped. */
+const DRAWS: { readonly [K in Kind]: (along: Along) => Drawn } = {
+	primers: () => NOTHING,
+	insertions: () => NOTHING,
+	features,
+	cuts: () => NOTHING,
+};
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
 interface Piece {
@@ -129,9 +131,8 @@ interface Bar {
 	readonly end: number;
 	readonly arrows: readonly Arrow[];
 	readonly gaps: readonly (readonly [number, number])[];
-	/** The feature's name, and the colour its box takes. */
-	readonly name: string;
-	readonly color: string;
+	/** The feature's name, which every bar of the feature shares. */
+	readonly label: Label;
 }
 
 /**
@@ -142,8 +143,12 @@ type Place = { inside: Arrow } | { under: number } | "boxed" | null;
 
 type Feature = Record["features"][number];
 
-/** Lay out `record` as a line, drawn as `options` say. */
-export function layout(record: Record, options: Options): Scene {
+/** Lay out `record` as a line `width` long, drawn as `options` say. */
+export function layout(
+	record: Record,
+	options: Options,
+	width = WIDTH,
+): MapScene {
 	const { span } = options;
 	const { start, end } = span;
 	const bounds: Bounds = {
@@ -151,29 +156,70 @@ export function layout(record: Record, options: Options): Scene {
 		circular: record.circular,
 	};
 	const { length } = bounds;
-	const at = (position: number) => ((position - start) * WIDTH) / (end - start);
+	const at = (position: number) => ((position - start) * width) / (end - start);
+	const backboneTop = -BACKBONE / 2;
+	const along: Along = { record, options, bounds, at, backboneTop };
+	const off = new Set(options.kinds_off);
+	const drawn = KINDS.filter((kind) => !off.has(kind)).map((kind) =>
+		DRAWS[kind](along),
+	);
+	const shapes: Shape[] = [
+		...backbone(width),
+		...ends(
+			record.circular || start > 0,
+			record.circular || end < length,
+			width,
+		),
+		...ruler(span, bounds, at, width),
+		...drawn.flatMap((one) => one.shapes),
+	];
+	const top = Math.min(backboneTop, ...drawn.map((one) => one.top));
+	const above = labelsAbove(
+		drawn.flatMap((one) => one.labels),
+		top,
+	);
+	shapes.push(...above.shapes);
+	const bottom = Math.max(ruled(), ...drawn.map((one) => one.bottom));
+	shapes.push(...title(record.name, length, span, bottom + GAP, width));
+	const covered = extent(shapes, width);
+	shapes.push(
+		...noticeShapes(
+			above.hidden,
+			covered.x + covered.width - MARGIN,
+			covered.y + covered.height - MARGIN,
+		),
+	);
+	return {
+		extent: extent(shapes, width),
+		shapes,
+		hidden: above.hidden.map(hiddenOf),
+	};
+}
+
+/** Where the ruler's numbers end, under the backbone. */
+function ruled(): number {
+	return (
+		STRANDS_APART + BACKBONE / 2 + TICK + 2 * PAD_Y + height("sans", SMALL_SIZE)
+	);
+}
+
+/**
+ * Each feature as arrows in tiers under the ruler, its name inside them, under them, or boxed
+ * above the line.
+ */
+function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 	const off = new Set(options.types_off);
 	const bars: Bar[] = [];
 	for (const feature of record.features) {
 		if (off.has(feature.type)) continue;
-		const found = pieces(feature, span, bounds);
+		const found = pieces(feature, options.span, bounds);
 		bars.push(...barsOf(feature, found, at));
 	}
 	const tiers = pack(bars);
 	const placed = places(bars, tiers);
-	const shapes: Shape[] = [
-		...backbone(),
-		...ends(record.circular || start > 0, record.circular || end < length),
-		...ruler(span, bounds, at),
-	];
 	const named = new Set(tiers.filter((_, i) => isUnder(placed[i])));
 	const lineHeight = height("sans", LABEL_SIZE);
-	let y =
-		STRANDS_APART +
-		BACKBONE / 2 +
-		TICK +
-		2 * PAD_Y +
-		height("sans", SMALL_SIZE);
+	let y = ruled();
 	const middles: number[] = [];
 	for (let tier = 0; tier <= Math.max(-1, ...tiers); tier++) {
 		y += TIER_GAP;
@@ -181,6 +227,7 @@ export function layout(record: Record, options: Options): Scene {
 		y += 2 * OVERHANG + BAND;
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
+	const shapes: Shape[] = [];
 	for (const [i, bar] of bars.entries()) {
 		const middle = middles[tiers[i]];
 		for (const [x1, x2] of bar.gaps) {
@@ -205,17 +252,18 @@ export function layout(record: Record, options: Options): Scene {
 		}
 		const place = placed[i];
 		if (place === "boxed" || place === null) continue;
+		const { name } = bar.label;
 		const [x, fill, textMiddle] =
 			"inside" in place
 				? [middleOf(body(place.inside)), textColor(place.inside.color), middle]
 				: [
-						place.under + measure(bar.name, "sans", LABEL_SIZE) / 2,
+						place.under + measure(name, "sans", LABEL_SIZE) / 2,
 						INK,
 						middle + BAND / 2 + OVERHANG + PAD_Y + lineHeight / 2,
 					];
 		shapes.push({
 			shape: "text",
-			text: bar.name,
+			text: name,
 			face: "sans",
 			size: LABEL_SIZE,
 			x,
@@ -224,10 +272,12 @@ export function layout(record: Record, options: Options): Scene {
 			fill,
 		});
 	}
-	const boxed = bars.filter((_, i) => placed[i] === "boxed");
-	shapes.push(...boxes(boxed));
-	shapes.push(...title(record.name, length, span, y + GAP));
-	return { extent: extent(shapes), shapes };
+	const labels = bars.flatMap((bar, i) =>
+		placed[i] === "boxed"
+			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: backboneTop }]
+			: [],
+	);
+	return { shapes, labels, top: Number.POSITIVE_INFINITY, bottom: y };
 }
 
 function isUnder(place: Place): place is { under: number } {
@@ -272,11 +322,12 @@ function places(bars: readonly Bar[], tiers: readonly number[]): Place[] {
 		let last = Number.NEGATIVE_INFINITY;
 		for (const i of inTier) {
 			const bar = bars[i];
-			if (!bar.name.trim()) {
+			const { name } = bar.label;
+			if (!name.trim()) {
 				placed[i] = null;
 				continue;
 			}
-			const width = measure(bar.name, "sans", LABEL_SIZE);
+			const width = measure(name, "sans", LABEL_SIZE);
 			const roomiest = bar.arrows.reduce((a, b) => (room(b) > room(a) ? b : a));
 			if (width + 2 * PAD_X <= room(roomiest) && lineHeight <= BAND) {
 				placed[i] = { inside: roomiest };
@@ -295,99 +346,6 @@ function places(bars: readonly Bar[], tiers: readonly number[]): Place[] {
 		}
 	}
 	return placed;
-}
-
-/** The boxes above the backbone that name `boxed`, each on a leader down to its bar. */
-function boxes(boxed: readonly Bar[]): Shape[] {
-	const foot = -BACKBONE / 2;
-	const lineHeight = height("sans", LABEL_SIZE);
-	const sized = boxed.map((bar) => ({
-		width: measure(bar.name, "sans", LABEL_SIZE) + 2 * PAD_X,
-		height: lineHeight + 2 * PAD_Y,
-		x: (bar.start + bar.end) / 2,
-	}));
-	const placed = staircase(sized, foot - GAP);
-	const shapes: Shape[] = [];
-	for (const [i, bar] of boxed.entries()) {
-		const at = placed[i];
-		shapes.push(
-			{
-				shape: "line",
-				x1: sized[i].x,
-				y1: foot,
-				x2: sized[i].x,
-				y2: at.y + at.height,
-				stroke: LEADER,
-				strokeWidth: LEADER_WIDTH,
-			},
-			{
-				shape: "rect",
-				...at,
-				corner: CORNER,
-				fill: bar.color,
-				stroke: shaded(bar.color),
-				strokeWidth: OUTLINE_WIDTH,
-			},
-			{
-				shape: "text",
-				text: bar.name,
-				face: "sans",
-				size: LABEL_SIZE,
-				x: at.x + PAD_X,
-				y: baseline("sans", LABEL_SIZE, at.y + at.height / 2),
-				anchor: "start",
-				fill: textColor(bar.color),
-			},
-		);
-	}
-	return shapes;
-}
-
-/**
- * Place boxes in rows above `base`, each over the point `x` its leader rises from, so close
- * neighbours rise in a staircase and no leader crosses another box.
- *
- * Boxes are placed from the right. A box hangs right from its `x`, just above every box already
- * placed that it meets. It hangs left instead where that puts it lower and it reaches no other
- * `x`, so a box beside a crowd is not lifted over it.
- */
-function staircase(
-	sized: readonly { width: number; height: number; x: number }[],
-	base: number,
-): Box[] {
-	const xs = sized.map((one) => one.x);
-	const ordered = [...xs].sort((a, b) => a - b);
-	// Each box placed: its left edge, its right edge and `SPACING` beyond, and the lowest a box
-	// above it may end.
-	const taken: [number, number, number][] = [];
-	const bottom = (left: number, width: number) => {
-		const right = left + width + SPACING;
-		let low = base;
-		for (const [from, to, under] of taken) {
-			if (from < right && left < to) low = Math.min(low, under);
-		}
-		return low;
-	};
-	const placed: Box[] = new Array(sized.length);
-	const order = [...sized.keys()].sort((i, j) => xs[j] - xs[i] || i - j);
-	for (const i of order) {
-		const { width, height, x } = sized[i];
-		const right = bottom(x, width);
-		const near = ordered.filter(
-			(other) => x - width - SPACING <= other && other <= x,
-		);
-		const left = near.length <= 1 ? bottom(x - width, width) : right;
-		const [low, from] = left > right ? [left, x - width] : [right, x];
-		taken.push([from, from + width + SPACING, low - height - SPACING]);
-		placed[i] = { x: from, y: low - height, width, height };
-	}
-	return placed;
-}
-
-/** The height of a line of text in `face` at `size`. */
-function height(face: Face, size: number): number {
-	const { ascent, descent } = metrics(face);
-	return (ascent + descent) * size;
 }
 
 /** The box each shape takes, a line's stroke left out. */
@@ -423,10 +381,10 @@ function bounds(shape: Shape): Box | null {
 	}
 }
 
-/** What `shapes` cover, the backbone's strokes included, and `MARGIN` beyond. */
-function extent(shapes: readonly Shape[]): Box {
+/** What `shapes` and a backbone `width` long cover, and `MARGIN` beyond. */
+function extent(shapes: readonly Shape[], width: number): Box {
 	const boxes = [
-		{ x: 0, y: -BACKBONE / 2, width: WIDTH, height: STRANDS_APART + BACKBONE },
+		{ x: 0, y: -BACKBONE / 2, width, height: STRANDS_APART + BACKBONE },
 		...shapes.flatMap((shape) => bounds(shape) ?? []),
 	];
 	const left = Math.min(...boxes.map((b) => b.x)) - MARGIN;
@@ -444,6 +402,7 @@ function ruler(
 	{ start, end }: Span,
 	{ length, circular }: Bounds,
 	at: (position: number) => number,
+	width: number,
 ): Shape[] {
 	const below = STRANDS_APART + BACKBONE / 2;
 	const middle = below + TICK + PAD_Y + height("sans", SMALL_SIZE) / 2;
@@ -460,7 +419,7 @@ function ruler(
 			strokeWidth: width,
 		});
 	if (origin !== null) tick(origin, ORIGIN_TICK, ORIGIN_TICK_WIDTH);
-	const step = tickStep(end - start);
+	const step = tickStep(end - start, width);
 	let right = Number.NEGATIVE_INFINITY;
 	for (const offset of circular ? [0, length] : [0]) {
 		const first =
@@ -489,17 +448,31 @@ function ruler(
 	return shapes;
 }
 
-/** The least of 1, 2 or 5 times a power of ten that gives at most `NUMBERS` numbers. */
-function tickStep(bases: number): number {
+/**
+ * The least of 1, 2 or 5 times a power of ten that gives at most `NUMBERS` numbers along each
+ * `WIDTH` points of a line `width` long drawing `bases`.
+ */
+function tickStep(bases: number, width: number): number {
 	for (let power = 1; ; power *= 10) {
 		for (const factor of [1, 2, 5]) {
-			if (factor * power * NUMBERS >= bases) return factor * power;
+			if (factor * power * NUMBERS * width >= bases * WIDTH) {
+				return factor * power;
+			}
 		}
 	}
 }
 
-/** The record's name in bold over its length, or over the span drawn, from the height `top`. */
-function title(name: string, length: number, span: Span, top: number): Shape[] {
+/**
+ * The record's name in bold over its length, or over the span drawn, from the height `top`,
+ * centred on a line `width` long.
+ */
+function title(
+	name: string,
+	length: number,
+	span: Span,
+	top: number,
+	width: number,
+): Shape[] {
 	const bases = span.end - span.start;
 	const whole = span.start === 0 && span.end === length;
 	const first = (span.start % length) + 1;
@@ -523,7 +496,7 @@ function title(name: string, length: number, span: Span, top: number): Shape[] {
 			text,
 			face,
 			size,
-			x: WIDTH / 2,
+			x: width / 2,
 			y: baseline(face, size, y + h / 2),
 			anchor: "middle",
 			fill: INK,
@@ -533,24 +506,24 @@ function title(name: string, length: number, span: Span, top: number): Shape[] {
 	return shapes;
 }
 
-function backbone(): Shape[] {
+function backbone(width: number): Shape[] {
 	return [0, STRANDS_APART].map((y) => ({
 		shape: "line",
 		x1: 0,
 		y1: y,
-		x2: WIDTH,
+		x2: width,
 		y2: y,
 		stroke: INK,
 		strokeWidth: BACKBONE,
 	}));
 }
 
-/** `• • •` beyond each end of the line the molecule carries on past. */
-function ends(left: boolean, right: boolean): Shape[] {
+/** `• • •` beyond each end of a line `width` long that the molecule carries on past. */
+function ends(left: boolean, right: boolean, width: number): Shape[] {
 	const offsets = [0, 1, 2].map((i) => DOT_START + i * DOT_STEP);
 	const xs = [
 		...(left ? offsets.map((offset) => -offset) : []),
-		...(right ? offsets.map((offset) => WIDTH + offset) : []),
+		...(right ? offsets.map((offset) => width + offset) : []),
 	];
 	return xs.map((cx) => ({
 		shape: "circle",
@@ -605,6 +578,15 @@ function barsOf(
 	found: readonly Piece[],
 	at: (position: number) => number,
 ): Bar[] {
+	const label: Label = {
+		kind: "features",
+		name: feature.name,
+		spans: feature.segments.map(({ start, end }) => ({ start, end })),
+		runs: [{ text: feature.name, face: "sans" }],
+		color: colorOf(feature, feature.segments[0]),
+		dim: false,
+		cuts: 0,
+	};
 	const groups: Piece[][] = [];
 	for (const piece of found) {
 		const group = groups[groups.length - 1];
@@ -638,8 +620,7 @@ function barsOf(
 			end: at(group[group.length - 1].end),
 			arrows,
 			gaps,
-			name: feature.name,
-			color: colorOf(feature, feature.segments[0]),
+			label,
 		});
 	}
 	return bars;
@@ -684,45 +665,4 @@ function outline(arrow: Arrow, middle: number): [number, number][] {
 	points.push([last, bottom], [first, bottom]);
 	if (arrow.headStart) points.push([first, bottom + OVERHANG]);
 	return points;
-}
-
-function channels(color: string): [number, number, number] {
-	return [1, 3, 5].map((i) => Number.parseInt(color.slice(i, i + 2), 16)) as [
-		number,
-		number,
-		number,
-	];
-}
-
-/** The colour `segment` of `feature` fills: its own, else the feature's, else its type's. */
-function colorOf(
-	feature: Feature,
-	segment: Feature["segments"][number],
-): string {
-	const color =
-		segment.color ?? feature.color ?? DEFAULTS.get(feature.type) ?? OTHER;
-	return color.toLowerCase();
-}
-
-/** `color` darkened, so even a white arrow's outline shows on a white ground. */
-function shaded(color: string): string {
-	return `#${channels(color)
-		.map((c) =>
-			Math.round(OUTLINE_SHADE * c)
-				.toString(16)
-				.padStart(2, "0"),
-		)
-		.join("")}`;
-}
-
-/** Black or white, whichever contrasts more with `fill` by WCAG 2's ratio, black on a tie. */
-function textColor(fill: string): string {
-	const [r, g, b] = channels(fill).map((c) => {
-		const v = c / 255;
-		return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
-	});
-	const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-	return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05)
-		? "#000000"
-		: "#ffffff";
 }

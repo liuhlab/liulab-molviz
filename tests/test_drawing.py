@@ -73,6 +73,25 @@ def test_draw_rejects_an_unknown_option_by_name() -> None:
         molviz.draw(GOOD, bogus=1)
 
 
+LIT = {
+    **GOOD,
+    "features": [
+        {"name": "lacZ", "type": "CDS", "strand": 1, "segments": [{"start": 0, "end": 6}]}
+    ],
+    "cuts": [{"enzyme": "EcoRI", "start": 0, "end": 6, "at": 1, "stagger": 4}],
+}
+
+
+def test_draw_passes_the_kinds_enzymes_and_highlight_through() -> None:
+    drawing = molviz.draw(LIT, kinds_off=["primers"], enzymes=["EcoRI"], highlight=["LACZ"])
+    assert drawing.hidden == []
+
+
+def test_draw_rejects_a_highlight_that_names_nothing() -> None:
+    with pytest.raises(ValueError, match=r"^options\.highlight\[0\]: names nothing in the record$"):
+        molviz.draw(LIT, highlight=["SacI"])
+
+
 DRAWN = {
     "name": "pTest",
     "circular": False,

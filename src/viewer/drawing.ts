@@ -2,24 +2,14 @@
 
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
+import { type Hidden, type MapScene, notice } from "./labels";
 import { layout } from "./line";
 import { checkOptions } from "./options";
 import { checkPlate } from "./plate";
 import { layoutPlate } from "./plate-layout";
-import { check, type Span } from "./record";
+import { check } from "./record";
 import type { Scene } from "./scene";
 import { toSvg } from "./svg";
-
-/** A kind, by its list's key in the record. */
-export type Kind = "features" | "primers" | "cuts" | "insertions";
-
-/** A label left out because it would overlap. */
-export interface Hidden {
-	readonly kind: Kind;
-	readonly name: string;
-	/** The spans the label belongs to. */
-	readonly spans: readonly Span[];
-}
 
 /** What each call that draws as SVG text returns. */
 export interface Drawing {
@@ -37,7 +27,7 @@ export interface Drawing {
  * Check `record`, then `options` against it, and lay the record out as they say. Throws one
  * FormatError naming every problem in the record, or else in the options.
  */
-export function prepare(record: unknown, options: unknown): Scene {
+export function prepare(record: unknown, options: unknown): MapScene {
 	const checked = check(record);
 	return layout(checked, checkOptions(options, checked));
 }
@@ -57,7 +47,10 @@ export function preparePlate(plate: unknown): Scene {
  * naming every problem in the record, or else in the options.
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
-	return whole(toSvg(prepare(record, options)));
+	const scene = prepare(record, options);
+	const svg = toSvg(scene);
+	const { hidden } = scene;
+	return { svg, pages: [svg], hidden, notice: notice(hidden) };
 }
 
 /**
