@@ -111,6 +111,48 @@ describe("a highlight", () => {
 		expect(gaps(lit)).toEqual([DIM]);
 	});
 
+	test("lights or dims a feature across a linear record's end whole, both bars and joins", () => {
+		const record = {
+			...RECORD,
+			features: [
+				feature("Lit", [[100, 400]], "#000080"),
+				feature(
+					"across",
+					[
+						[900, 960],
+						[20, 50],
+					],
+					"#ee8866",
+				),
+			],
+		};
+		// The arrows' fills and the joins' strokes, sorted.
+		const paintsOf = (scene: MapScene) =>
+			scene.shapes
+				.flatMap((s) =>
+					s.shape === "polygon"
+						? [s.fill]
+						: s.shape === "line" && s.strokeWidth === 1.5
+							? [s.stroke]
+							: [],
+				)
+				.sort();
+		expect(paintsOf(lay(record, { highlight: ["ACROSS"] }))).toEqual([
+			"#666666",
+			"#666666",
+			DIM,
+			"#ee8866",
+			"#ee8866",
+		]);
+		expect(paintsOf(lay(record, { highlight: ["Lit"] }))).toEqual([
+			"#000080",
+			DIM,
+			DIM,
+			DIM,
+			DIM,
+		]);
+	});
+
 	test("dims an unlit primer, cut site and insertion, and keeps their leaders", () => {
 		const record = {
 			...RECORD,

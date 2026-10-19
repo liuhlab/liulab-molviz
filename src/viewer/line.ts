@@ -103,6 +103,8 @@ export interface LineMarks {
 	readonly shapes: readonly Shape[];
 	/** Its labels, to set above the line. */
 	readonly labels: readonly Anchored[];
+	/** Its labels shown on what they name, which are never counted hidden. */
+	readonly named?: readonly Label[];
 	/** How high its marks reach, which the labels clear, and how low, which the title clears. */
 	readonly top: number;
 	readonly bottom: number;
@@ -171,13 +173,15 @@ export function layout(
 		top,
 	);
 	shapes.push(...above.shapes);
+	const named = new Set(drawn.flatMap((one) => one.named ?? []));
+	const hidden = above.hidden.filter((label) => !named.has(label));
 	const bottom = Math.max(rulerBottom(), ...drawn.map((one) => one.bottom));
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
 	const boxes = [...above.boxes, ...drawn.flatMap((one) => one.covers ?? [])];
 	const covered = extent(shapes, width, boxes);
 	shapes.push(
 		...noticeShapes(
-			above.hidden,
+			hidden,
 			covered.x + covered.width - MARGIN,
 			covered.y + covered.height - MARGIN,
 		),
@@ -185,7 +189,7 @@ export function layout(
 	return {
 		extent: extent(shapes, width, boxes),
 		shapes,
-		hidden: above.hidden.map(hiddenOf),
+		hidden: hidden.map(hiddenOf),
 	};
 }
 
@@ -234,7 +238,10 @@ function features({
 			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: backboneTop }]
 			: [],
 	);
-	return { ...NOTHING, shapes, labels, bottom: y };
+	const inPlace = bars.flatMap((bar, i) =>
+		placed[i] && placed[i] !== "boxed" ? [bar.label] : [],
+	);
+	return { ...NOTHING, shapes, labels, named: inPlace, bottom: y };
 }
 
 /** Each cut site in the span, its label on a leader from the backbone's top at the cut. */

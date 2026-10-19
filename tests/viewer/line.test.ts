@@ -182,6 +182,47 @@ describe("a joined feature", () => {
 		expect([tips(first), tips(second)]).toEqual([[72], []]);
 		expect(lines(scene, "#666666")).toEqual([]);
 	});
+
+	test("across a linear record's end joins each piece to the end it runs off or on from", () => {
+		const scene = lay([
+			{
+				strand: 2,
+				segments: [
+					[900, 960],
+					[20, 50],
+				],
+				color: "#000001",
+			},
+		]);
+		const [after, before] = arrows(scene, "#000001");
+		// Its head on each strand is where the feature starts, 900, and ends, 50.
+		expect([left(after), right(after), tips(after)]).toEqual([14.4, 36, [36]]);
+		expect([left(before), right(before), tips(before)]).toEqual([
+			648,
+			691.2,
+			[648],
+		]);
+		const y = middle(after);
+		expect(middle(before)).toBe(y);
+		expect(lines(scene, "#666666")).toEqual([
+			expect.objectContaining({ x1: 0, x2: 14.4, y1: y, y2: y }),
+			expect.objectContaining({ x1: 691.2, x2: 720, y1: y, y2: y }),
+		]);
+	});
+
+	test("across a linear record's end draws no join to an end it meets", () => {
+		const scene = lay([
+			{
+				segments: [
+					[900, 1000],
+					[0, 50],
+				],
+				color: "#000001",
+			},
+		]);
+		expect(arrows(scene, "#000001")).toHaveLength(2);
+		expect(lines(scene, "#666666")).toEqual([]);
+	});
 });
 
 /** The x of each dot, left to right. */
@@ -595,6 +636,29 @@ describe("hidden labels", () => {
 				expect(overlap(edges(a), edges(b))).toBe(false);
 			}
 		}
+	});
+
+	test("never count a name hidden that shows inside another bar of its feature", () => {
+		// The feature's piece before the end, in a crowd, is boxed; the longest name, it hides
+		// first. Its piece after the end has room for the name inside.
+		const name = "a feature off its end";
+		const scene = lay([
+			{
+				name,
+				segments: [
+					[990, 995],
+					[100, 600],
+				],
+				color: "#000004",
+			},
+			...Array.from({ length: 50 }, (_, i) => ({
+				name: `feature number ${i}`,
+				segments: [[979 - 2 * i, 980 - 2 * i]] as [number, number][],
+				color: "#000001",
+			})),
+		]);
+		expect(label(scene, name).fill).toBe("#ffffff");
+		expect(scene.hidden.map((one) => one.name)).not.toContain(name);
 	});
 
 	test("never hide a name inside or under an arrow", () => {
