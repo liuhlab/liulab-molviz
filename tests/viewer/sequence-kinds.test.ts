@@ -114,6 +114,11 @@ function strokes(scene: SequenceScene, stroke: string): number[][] {
 		.sort((a, b) => a[1] - b[1] || a[0] - b[0] || a[3] - b[3] || a[2] - b[2]);
 }
 
+/** The red marks on bases, which alone are red rects with no stroke. */
+function redMarks(scene: SequenceScene): Rect[] {
+	return rects(scene, "#cc3311").filter((r) => r.stroke === "none");
+}
+
 function rects(scene: SequenceScene, fill: string): Rect[] {
 	return scene.shapes
 		.filter((s): s is Rect => s.shape === "rect" && s.fill === fill)
@@ -539,5 +544,249 @@ describe("a highlight", () => {
 		const lit = lay(record, { highlight: ["P1", "ecori", "INS"] });
 		expect(paints(lit)).toEqual(paints(lay(record)));
 		expect(paints(lit)).toContain("#cc3311");
+	});
+});
+
+describe("a read", () => {
+	test("lies as a primer does, a reverse one under the bottom strand with its head at its start, labelled by name and span", () => {
+		const scene = lay({
+			reads: [
+				{ name: "fwd", start: 2, end: 12, strand: 1 },
+				{ name: "rev", start: 20, end: 30, strand: -1 },
+			],
+		});
+		const [fwd, rev] = polygons(scene, PRIMER);
+		expect(polygons(scene, PRIMER)).toHaveLength(2);
+		const around = (p: Polygon) => p.points.map(([x, y]) => [x, y - middle(p)]);
+		expect(around(fwd)).toEqual([
+			[22, -2],
+			[126, -2],
+			[126, -4],
+			[132, 0],
+			[126, 4],
+			[126, 2],
+			[22, 2],
+		]);
+		expect(around(rev)).toEqual([
+			[220, 0],
+			[226, -4],
+			[226, -2],
+			[330, -2],
+			[330, 2],
+			[226, 2],
+			[226, 4],
+		]);
+		const [{ bottom }] = strands(scene);
+		const ten = texts(scene, "sans").find((t) => t.text === "10") as Text;
+		expect(ys(fwd)[1]).toBeLessThan(ten.y);
+		expect(ys(rev)[0]).toBeGreaterThan(bottom?.[1] ?? 0);
+		expect(paths(scene, PRIMER)).toEqual([]);
+		expect(labels(scene).map((t) => [t.text, t.fill])).toEqual([
+			["fwd (3 .. 12)", PRIMER],
+			["rev (21 .. 30)", PRIMER],
+		]);
+	});
+});
+
+describe("a read's marks", () => {
+	/** A circular record as long as pUC19-GFP, its read over it whole and two disagreements. */
+	const verified = {
+		circular: true,
+		bases: "ACGT".repeat(837).slice(0, 3347),
+		reads: [{ name: "consensus.fasta", start: 0, end: 3347, strand: 1 }],
+		disagreements: [
+			{
+				name: "696 A>G",
+				start: 695,
+				end: 696,
+				bases: "G",
+				reads: ["consensus.fasta"],
+				color: "#cc3311",
+			},
+			{
+				name: "698 C>T",
+				start: 697,
+				end: 698,
+				bases: "T",
+				reads: ["consensus.fasta"],
+			},
+		],
+	};
+	const closeUp = {
+		span: { start: 665, end: 726 },
+		bases_per_row: 61,
+		kinds_off: ["features"],
+	};
+
+	test("are a red box 7 by 8 in each cell a disagreement naming the read covers, whatever its colour", () => {
+		const scene = lay(verified, closeUp);
+		const [read] = polygons(scene, PRIMER);
+		const marks = redMarks(scene);
+		expect(marks.map((r) => [r.x, r.width, r.height])).toEqual([
+			[332, 7, 8],
+			[354, 7, 8],
+		]);
+		for (const mark of marks) {
+			expect(mark.y + mark.height / 2).toBeCloseTo(middle(read), 9);
+		}
+	});
+
+	test("cover a deletion's bases, but nothing at a point, outside the read or for a read not named", () => {
+		const scene = lay({
+			reads: [
+				{ name: "r", start: 2, end: 20, strand: 1 },
+				{ name: "other", start: 2, end: 20, strand: -1 },
+			],
+			disagreements: [
+				{ name: "deleted", start: 5, end: 7, bases: "", reads: ["r"] },
+				{ name: "edge", start: 18, end: 22, bases: "AAAA", reads: ["r"] },
+				{ name: "added", at: 10, bases: "A", reads: ["r", "other"] },
+				{ name: "past", start: 30, end: 31, bases: "A", reads: ["r"] },
+			],
+		});
+		const [r] = polygons(scene, PRIMER);
+		const marks = redMarks(scene);
+		expect(marks.map((m) => m.x)).toEqual([57, 68, 200, 211]);
+		for (const mark of marks) {
+			expect(mark.y + mark.height / 2).toBeCloseTo(middle(r), 9);
+		}
+	});
+
+	test("lie on either side of the origin, for a read or a disagreement across it", () => {
+		const scene = lay(
+			{
+				circular: true,
+				reads: [{ name: "r", start: 35, end: 45, strand: 1 }],
+				disagreements: [
+					{ name: "d", start: 39, end: 41, bases: "AA", reads: ["r"] },
+				],
+			},
+			{ bases_per_row: 20 },
+		);
+		expect(redMarks(scene).map((m) => m.x)).toEqual([2, 211]);
+	});
+
+	test("dim with their read, and need both reads and disagreements on", () => {
+		const fills = (options: object) =>
+			lay(verified, { ...closeUp, ...options }).shapes.flatMap((s) =>
+				s.shape === "rect" && s.stroke === "none" ? [s.fill] : [],
+			);
+		expect(fills({ highlight: ["696 A>G"] })).toEqual(["#dddddd", "#dddddd"]);
+		expect(fills({ highlight: ["consensus.fasta"] })).toEqual([
+			"#cc3311",
+			"#cc3311",
+		]);
+		expect(fills({ kinds_off: ["disagreements"] })).toEqual([]);
+		expect(fills({ kinds_off: ["reads"] })).toEqual([]);
+		expect(
+			polygons(
+				lay(verified, { ...closeUp, kinds_off: ["disagreements"] }),
+				PRIMER,
+			),
+		).toHaveLength(1);
+	});
+});
+
+describe("a disagreement at a point", () => {
+	test("is drawn as an insertion in its colour, grey without one, labelled with its name", () => {
+		const record = {
+			reads: [{ name: "r", start: 0, end: 40, strand: 1 }],
+			insertions: [{ name: "ins", at: 5, length: 3 }],
+			disagreements: [
+				{ name: "added", at: 10, bases: "A", reads: ["r"] },
+				{ name: "red", at: 40, bases: "AC", reads: ["r"], color: "#CC3311" },
+			],
+		};
+		const scene = lay(record, { bases_per_row: 10 });
+		const rows = strands(scene);
+		const marks = (scene: SequenceScene) =>
+			scene.shapes.flatMap((s) =>
+				s.shape === "line" && s.strokeWidth === 2
+					? [[s.x1, s.y1, s.y2, s.stroke, s.title]]
+					: [],
+			);
+		expect(marks(scene)).toEqual([
+			[55, rows[0].top[0], rows[0].bottom?.[1], "#cc3311", "ins · 5^6"],
+			[0, rows[1].top[0], rows[1].bottom?.[1], "#bbbbbb", "added · 10^11"],
+			[110, rows[3].top[0], rows[3].bottom?.[1], "#cc3311", "red · 40^41"],
+		]);
+		const named = labels(scene).filter((t) => !t.text.startsWith("r ("));
+		expect(named.map((t) => [t.text, t.fill])).toEqual([
+			["+3 bp", "#cc3311"],
+			["added", "#bbbbbb"],
+			["red", "#cc3311"],
+		]);
+		const off = (kinds: string[]) =>
+			marks(lay(record, { bases_per_row: 10, kinds_off: kinds })).map(
+				(m) => m[4],
+			);
+		expect(off(["disagreements"])).toEqual(["ins · 5^6"]);
+		expect(off(["insertions"])).toEqual(["added · 10^11", "red · 40^41"]);
+	});
+});
+
+describe("a disagreement over a span", () => {
+	/** A close-up of pUC19-GFP's `696 A>G`, under GFP, with a grey disagreement beside it. */
+	const record = {
+		circular: true,
+		bases: "ACGT".repeat(837).slice(0, 3347),
+		features: [
+			{
+				name: "GFP",
+				type: "CDS",
+				strand: 1,
+				segments: [{ start: 395, end: 1112 }],
+			},
+		],
+		// A read away from the close-up.
+		reads: [{ name: "consensus.fasta", start: 0, end: 10, strand: 1 }],
+		disagreements: [
+			{
+				name: "696 A>G",
+				start: 695,
+				end: 696,
+				bases: "G",
+				reads: ["consensus.fasta"],
+				color: "#cc3311",
+			},
+			{
+				name: "grey",
+				start: 712,
+				end: 714,
+				bases: "",
+				reads: ["consensus.fasta"],
+			},
+		],
+	};
+	const closeUp = { span: { start: 665, end: 726 }, bases_per_row: 61 };
+
+	test("is a bar with no heads in the tier under the feature it lies in, its name under it", () => {
+		const scene = lay(record, closeUp);
+		const [gfp] = polygons(scene, "#77aadd");
+		const [bar] = polygons(scene, "#cc3311");
+		const [grey] = polygons(scene, "#bbbbbb");
+		expect(bar.points.map(([x]) => x)).toEqual([330, 341, 341, 330]);
+		expect(grey.points.map(([x]) => x)).toEqual([517, 539, 539, 517]);
+		expect(middle(bar) - middle(gfp)).toBe(27);
+		expect(middle(grey)).toBe(middle(bar));
+		const name = labels(scene).find((t) => t.text === "696 A>G") as Text;
+		expect([name.x, name.fill, name.anchor]).toEqual([335.5, INK, "middle"]);
+		expect(name.y).toBeGreaterThan(ys(bar)[1]);
+	});
+
+	test("dims to grey when unlit, stays when a feature type is off, and goes with its kind", () => {
+		const fills = (options: object) =>
+			lay(record, { ...closeUp, ...options })
+				.shapes.filter(
+					(s): s is Polygon => s.shape === "polygon" && s.points.length === 4,
+				)
+				.map((p) => p.fill);
+		expect(fills({})).toEqual(["#cc3311", "#bbbbbb"]);
+		expect(fills({ highlight: ["GFP"] })).toEqual(["#dddddd", "#dddddd"]);
+		expect(fills({ types_off: ["CDS", ""], kinds_off: ["features"] })).toEqual([
+			"#cc3311",
+			"#bbbbbb",
+		]);
+		expect(fills({ kinds_off: ["disagreements"] })).toEqual([]);
 	});
 });

@@ -7,7 +7,6 @@ import {
 	barShapes,
 	barsOf,
 	type ColoredFeature,
-	coloredFeatures,
 	isUnder,
 	OVERHANG,
 	pack,
@@ -21,7 +20,7 @@ import { MARGIN } from "./line";
 import type { Options } from "./options";
 import { INK, RAIL } from "./paint";
 import { pieces } from "./pieces";
-import type { Bounds, Record } from "./record";
+import { type Bounds, type Record, recordBounds } from "./record";
 import {
 	type Box,
 	moved,
@@ -29,8 +28,10 @@ import {
 	type Scene,
 	type Shape,
 } from "./scene";
-import { acrossStrands, primers } from "./sequence-kinds";
+import { acrossStrands, sites } from "./sequence-kinds";
+import { type Sampled, sampledRows, strips } from "./sequence-tracks";
 import { chips } from "./sequence-translation";
+import { shownBars } from "./shown";
 import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, height, measure } from "./text";
 
@@ -82,8 +83,8 @@ export interface Shelf extends RowMarks {
 }
 
 /**
- * The tier each item running on from one row into the next took, by the item: a feature by its
- * label, a primer by its site.
+ * The tier each item running on from one row into the next took, by the item: a bar by its
+ * label, a primer site or a read by itself.
  */
 export type RunOn = Map<object, number>;
 
@@ -101,10 +102,7 @@ export function layoutSequence(
 	options: Options,
 ): SequenceScene {
 	const { span, bases_per_row: perRow } = options;
-	const bounds: Bounds = {
-		length: record.bases.length,
-		circular: record.circular,
-	};
+	const bounds = recordBounds(record);
 	const starts: number[] = [];
 	for (let start = span.start; start < span.end; start += perRow) {
 		starts.push(start);
@@ -116,9 +114,8 @@ export function layoutSequence(
 		perRow * CELL +
 		LAST_GAP +
 		Math.max(...lasts.map((text) => measure(text, "sans", SMALL_SIZE)));
-	const drawables = options.kinds_off.includes("features")
-		? []
-		: coloredFeatures(record, options);
+	const shown = shownBars(record, options);
+	const sampled = sampledRows(record, options);
 	const shapes: Shape[] = [];
 	const rows: Box[] = [];
 	let before: RunOn = new Map();
@@ -133,7 +130,7 @@ export function layoutSequence(
 			end,
 			at: (position) => (position - start) * CELL,
 		};
-		const laid = layoutRow(row, drawables, before, lasts[i], right);
+		const laid = layoutRow(row, shown, sampled[i], before, lasts[i], right);
 		const shift = top - laid.box.y;
 		shapes.push(...laid.shapes.map((shape) => moved(shape, 0, shift)));
 		rows.push({ ...laid.box, y: top });
@@ -155,18 +152,20 @@ export function layoutSequence(
 
 /**
  * One row laid out from the height 0 down, its last position `last` ending at `right`, with the
- * tier each item running on from the row before took there in `before`: its shapes, the box they
- * take, and the tier of each item running on into the row after.
+ * tier each item running on from the row before took there in `before`, the bars of `shown`, and
+ * the strips of what `sampled` holds of each track under everything else: its shapes, the box
+ * they take, and the tier of each item running on into the row after.
  */
 function layoutRow(
 	row: Row,
-	drawables: readonly ColoredFeature[],
+	shown: readonly ColoredFeature[],
+	sampled: readonly Sampled[],
 	before: RunOn,
 	last: string,
 	right: number,
 ): { shapes: Shape[]; box: Box; after: RunOn } {
 	const { record, start, end } = row;
-	const forward = primers(row, 0, 1, before);
+	const forward = sites(row, 0, 1, before);
 	let y = forward.bottom;
 	const shapes: Shape[] = [...numbers(row, y + height("sans", SMALL_SIZE) / 2)];
 	y += height("sans", SMALL_SIZE) + NUMBERS_GAP;
@@ -193,14 +192,20 @@ function layoutRow(
 		anchor: "start",
 		fill: INK,
 	});
-	const reverse = primers(row, y, -1, before);
-	const bars = featureBars(row, drawables, before, reverse.bottom);
+	const reverse = sites(row, y, -1, before);
+	const barred = bars(row, shown, before, reverse.bottom);
 	const across = acrossStrands(row, {
 		top: topStrand,
 		rail,
 		bottom: bottomStrand,
 	});
-	const drawn = [bars, forward, reverse, across];
+	const drawn = [
+		barred,
+		forward,
+		reverse,
+		across,
+		strips(row, sampled, barred.bottom),
+	];
 	shapes.push(...drawn.flatMap((one) => one.shapes));
 	const above = labelsAbove(
 		drawn.flatMap((one) => one.labels),
@@ -211,28 +216,29 @@ function layoutRow(
 	);
 	shapes.push(...above.shapes);
 	const box = aroundBoxes([
-		{ x: 0, y: 0, width: right, height: bars.bottom },
+		{ x: 0, y: 0, width: right, height: barred.bottom },
 		...shapes.flatMap((shape) => boxOf(shape) ?? []),
 		...above.boxes,
 		...drawn.flatMap((one) => one.covers ?? []),
 	]);
-	const after = new Map([...bars.after, ...forward.after, ...reverse.after]);
+	const after = new Map([...barred.after, ...forward.after, ...reverse.after]);
 	return { shapes, box, after };
 }
 
 /**
- * Each feature's bars in `row`, in tiers from the height `top` down, each translated bar under
- * its chips. A bar's name goes inside it, under it, or in a box above the row. Bars starting
- * together keep the order of the tiers they took in the row before, `before`.
+ * The bars in `row` of each of `shown`, a feature or a disagreement over a span, in tiers from
+ * the height `top` down, each translated bar under its chips. A bar's name goes inside it, under
+ * it, or in a box above the row. Bars starting together keep the order of the tiers they took in
+ * the row before, `before`.
  */
-function featureBars(
+function bars(
 	row: Row,
-	drawables: readonly ColoredFeature[],
+	shown: readonly ColoredFeature[],
 	before: RunOn,
 	top: number,
 ): Shelf & { after: RunOn } {
 	const { start, end, at, bounds, options } = row;
-	const found = drawables.flatMap(({ feature, label, segments }, order) =>
+	const found = shown.flatMap(({ feature, label, segments }, order) =>
 		barsOf(feature, label, pieces(segments, { start, end }, bounds), at).map(
 			(bar) => ({ bar, feature, order }),
 		),

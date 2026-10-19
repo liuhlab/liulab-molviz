@@ -10,6 +10,7 @@ import { baseline, height, measure, metrics } from "../../src/viewer/text";
 import ap1File from "../records/ap1-product.json";
 import colourTestFile from "../records/colour-test.json";
 import puc19File from "../records/puc19-gfp-product.json";
+import verifiedFile from "../records/puc19-gfp-verification.json";
 import {
 	closestToCentre,
 	crosses,
@@ -884,6 +885,118 @@ test("AP-1 with every enzyme hides the sites of the enzymes that cut it most, as
 	]);
 });
 
+describe("pUC19-GFP's verification map", () => {
+	// mbio's page draws its map with no cut sites, lighting the disagreements and the read.
+	const record = check(verifiedFile);
+	const scene = layoutCircle(
+		record,
+		checkOptions(
+			{
+				kinds_off: ["cuts"],
+				highlight: ["696 A>G", "2687 C>T", "consensus.fasta"],
+			},
+			record,
+		),
+	);
+
+	test("takes the room mbio's map takes", () => {
+		const { x, y, width, height } = scene.extent;
+		expect([x, y, width, height]).toEqual(
+			[-327.74, -273.5, 812.6, 556.89].map((v) => expect.closeTo(v, 2)),
+		);
+	});
+
+	test("draws the read as a ring just outside the backbone, its head at its end", () => {
+		const [read, ...more] = arrows(scene, "#aa3377");
+		expect(more).toEqual([]);
+		expect(radii(read)).toEqual(primerRadii(PRIMER_MIDDLE));
+		expect(tips(read, PRIMER_MIDDLE).map((d) => d % 360)).toEqual([0]);
+	});
+
+	test("boxes each disagreement's name in its colour in a column", () => {
+		const boxed = rects(scene).filter((r) =>
+			["#cc3311", "#bbbbbb"].includes(r.fill),
+		);
+		expect(boxed.map((r) => r.fill).sort()).toEqual(["#bbbbbb", "#cc3311"]);
+		const names = texts(scene).filter((t) => / [ACGT]>[ACGT]$/.test(t.text));
+		expect(names.map((t) => [t.text, t.fill]).sort()).toEqual([
+			["2687 C>T", "#000000"],
+			["696 A>G", "#ffffff"],
+		]);
+	});
+});
+
+describe("a disagreement", () => {
+	/** A record with one read over it all and `disagreements` that it shows. */
+	function verified(features: Made[], disagreements: object[]) {
+		return {
+			record: {
+				reads: [{ name: "r1", start: 0, end: 1000, strand: 1 }],
+				disagreements: disagreements.map((one) => ({
+					bases: "A",
+					reads: ["r1"],
+					...one,
+				})),
+			},
+			features,
+		};
+	}
+
+	test("over a span packs into the features' rings, a bar in its colour with no heads", () => {
+		const { record, features } = verified(
+			[{ segments: [[0, 250]], color: "#000001" }],
+			[{ name: "d", start: 100, end: 101, color: "#cc3311" }],
+		);
+		const scene = lay(features, { record });
+		const [bar, ...more] = arrows(scene, "#cc3311");
+		expect(more).toEqual([]);
+		const inner = OUTER - 25;
+		expect(radii(bar)).toEqual(
+			[inner - 7.5, inner + 7.5].map((r) => Number(r.toFixed(3))),
+		);
+	});
+
+	test("at a point is a bar across the backbone in its colour, labelled with its name, its name and point on hover", () => {
+		const { record } = verified(
+			[],
+			[{ name: "insertion after 250", at: 250, color: "#ee7733" }],
+		);
+		const scene = lay([], { record, options: { kinds_off: ["reads"] } });
+		const [mark, ...more] = lines(scene).filter((l) => l.stroke === "#ee7733");
+		expect(more).toEqual([]);
+		expect(mark.strokeWidth).toBe(2);
+		expect(mark.title).toBe("insertion after 250 · 250^251");
+		expect([mark.x1, mark.x2]).toEqual([
+			expect.closeTo(214.9 - 1.5),
+			expect.closeTo(221.3 + 1.5),
+		]);
+		const [label] = texts(scene).filter(
+			(t) => t.text === "insertion after 250",
+		);
+		expect(label.fill).toBe("#ee7733");
+		const [inward] = leaders(scene);
+		expect([inward.x1, inward.y1]).toEqual([
+			expect.closeTo(221.3),
+			expect.closeTo(0),
+		]);
+	});
+
+	test("is left out with its label when disagreements are off, as a read is when reads are off", () => {
+		const { record, features } = verified(
+			[],
+			[
+				{ name: "over", start: 100, end: 101, color: "#cc3311" },
+				{ name: "at", at: 500, color: "#cc3311" },
+			],
+		);
+		const off = lay(features, {
+			record,
+			options: { kinds_off: ["disagreements", "reads"] },
+		});
+		expect(off.shapes).toEqual(lay([]).shapes);
+	});
+});
+
 /** A label set in a column: its box, its leader, and the leader's part carried on to the backbone. */
 interface Outside {
 	readonly box: Box;
@@ -955,7 +1068,14 @@ const CIRCULAR = Object.entries(RECORDS)
 	.map(([path, file]) => [path.slice("../records/".length, -5), file] as const);
 
 /** Each kind's place in the order labels hide. */
-const HIDING = ["cuts", "primers", "features", "insertions"];
+const HIDING = [
+	"cuts",
+	"primers",
+	"reads",
+	"features",
+	"insertions",
+	"disagreements",
+];
 
 /** Where `hidden` comes in the order labels hide, for `record` with no highlight. */
 function hidingKey(hidden: Hidden, record: Record): number[] {
@@ -964,7 +1084,11 @@ function hidingKey(hidden: Hidden, record: Record): number[] {
 	for (const { enzyme } of record.cuts)
 		counts.set(enzyme, (counts.get(enzyme) ?? 0) + 1);
 	if ("at" in hidden) {
-		if (hidden.kind === "insertions") return [3, 0, 0];
+		if (hidden.kind === "insertions")
+			return [HIDING.indexOf("insertions"), 0, 0];
+		if (hidden.kind === "disagreements") {
+			return [HIDING.indexOf("disagreements"), 0, -hidden.name.length];
+		}
 		const fewest = Math.min(
 			...hidden.name.split(" - ").map((e) => counts.get(e) ?? 0),
 		);
@@ -973,7 +1097,7 @@ function hidingKey(hidden: Hidden, record: Record): number[] {
 	}
 	const [{ start, end }] = hidden.spans;
 	const text =
-		hidden.kind === "primers"
+		hidden.kind === "primers" || hidden.kind === "reads"
 			? `${hidden.name} (${(start % length) + 1} .. ${((end - 1) % length) + 1})`
 			: hidden.name;
 	return [HIDING.indexOf(hidden.kind), 0, -text.length];
@@ -1014,7 +1138,11 @@ describe.each(CIRCULAR)("%s drawn whole", (_, file) => {
 					record.primers.flatMap((p) => p.sites).length +
 					new Set(record.cuts.filter((c) => on.has(c.enzyme)).map((c) => c.at))
 						.size +
-					record.insertions.length;
+					record.insertions.length +
+					record.reads.length +
+					record.disagreements.filter(
+						(d) => d.at !== undefined || d.name.trim(),
+					).length;
 				expect(
 					letters(scene).length + placed.length + scene.hidden.length,
 				).toBe(items);

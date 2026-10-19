@@ -49,6 +49,20 @@ export const ENZYME = "#000000";
 /** An insertion's mark and label, where it has no colour of its own. */
 export const INSERTION = "#cc3311";
 
+/** A read's arrow and label, a primer's, since a read is drawn as one. */
+export const READ = PRIMER;
+
+/** A disagreement's bar, mark and label, where it has no colour of its own: mbio's grey. */
+export const DISAGREEMENT = "#bbbbbb";
+
+/** A track's curve for each base, and that base's letter in the track's key. */
+export const CURVES = {
+	A: "#228833",
+	C: "#4477aa",
+	G: "#000000",
+	T: "#cc3311",
+} as const;
+
 /** The thickness of an insertion's mark. */
 export const INSERTION_WIDTH = 2;
 
@@ -79,8 +93,11 @@ export const RAIL = LEADER;
 export const CUT_BOX = "#73777d";
 export const CUT_BOX_WIDTH = 1;
 
-/** The mark on a base a primer does not pair with. */
-export const MISMATCH = INSERTION;
+/**
+ * The mark on a base a primer does not pair with, or that a read disagrees at, whatever the
+ * disagreement's colour.
+ */
+export const BASE_MARK = INSERTION;
 
 /** A stop's amino-acid chip. */
 export const STOP = INSERTION;

@@ -96,8 +96,8 @@ function drawScene(element: Element, scene: Scene): LiveDrawing {
 	return { destroy: () => svg.remove() };
 }
 
-/** Add the faces' `@font-face` rules to `document`, unless a drawing already has. */
-function declareFaces(document: Document): void {
+/** Add the font rules to `document` once, for every drawing on it, live or still. */
+export function declareFaces(document: Document): void {
 	if (document.getElementById(FONTS)) return;
 	const style = document.createElement("style");
 	style.id = FONTS;

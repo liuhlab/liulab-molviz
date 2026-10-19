@@ -92,6 +92,30 @@ sets one.
 - The viewer measures text from tables made from its fonts when it is built, and a page loads
   the fonts as WOFF2. Its script is about a third of the size it was, and every drawing is
   the same.
+- A record may hold reads, disagreements and tracks.
+  - A read is one sequencing result: its name, the bases it covers, and its strand.
+  - A disagreement is a place where reads differ from the record. It lies over a span, or at a
+    point where the reads add bases. It gives the bases the reads hold there, which may be none,
+    the names of the reads that show it, and a colour, grey by default.
+  - A track is a trace's four curves, `A`, `C`, `G` and `T`, and its peaks. A peak says which
+    sample lies over which base.
+  - `check` refuses two reads with one name, and a disagreement that names a read the record
+    does not hold.
+  - `kinds_off` takes `"reads"`, `"disagreements"` and `"tracks"`, and `highlight` takes their
+    names.
+  - Where labels crowd, a read's label hides after a primer's and before a feature's. A
+    disagreement's label hides last. The notice counts them as reads and disagreements.
+  - The line and the circle draw a read as they draw a primer, among the primers. A
+    disagreement over a span is a bar in its colour among the features. One at a point is a
+    mark in its colour, as an insertion's is, labelled with its name.
+  - The sequence view draws a read on its strand as it draws a primer. The read marks in red
+    each base of a disagreement that names it. A disagreement over a span is a bar among the
+    features, and one at a point is a mark through the strands.
+  - The sequence view draws each track as a strip under each row its peaks reach: its name,
+    the key of its four colours, and its curves. A highlight that names something else dims
+    the strip.
+- In the viewer, `molviz.declareFaces(document)` adds the font rules to a page once. `draw`
+  calls it, and so may a script that writes still drawings into a page.
 
 ### Removed
 

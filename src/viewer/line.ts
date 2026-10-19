@@ -8,7 +8,6 @@ import {
 	type Bar,
 	barShapes,
 	barsOf,
-	coloredFeatures,
 	headsOn,
 	isUnder,
 	OVERHANG,
@@ -22,27 +21,23 @@ import {
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
-import { cutSites } from "./cuts";
 import {
 	GAP,
 	hiddenOf,
-	insertionLabel,
-	KINDS,
-	type Kind,
 	LABEL_SIZE,
 	type Label,
 	type MapScene,
 	noticeShapes,
 	PAD_Y,
-	primerLabel,
 	SMALL_SIZE,
 	tipped,
 } from "./labels";
 import type { Options } from "./options";
 import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
 import { pieces, points, spanText } from "./pieces";
-import type { Bounds, Record, Span } from "./record";
+import { type Bounds, type Record, recordBounds, type Span } from "./record";
 import type { Box, Shape } from "./scene";
+import { shownBars, shownCuts, shownMarks, shownSites } from "./shown";
 import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, type Face, height, measure } from "./text";
 
@@ -88,7 +83,7 @@ export interface Along {
 	readonly backboneTop: number;
 }
 
-/** What one kind draws on the line. */
+/** What one shelf draws on the line. */
 export interface LineMarks {
 	/** Its marks, in the order they are drawn. */
 	readonly shapes: readonly Shape[];
@@ -103,7 +98,7 @@ export interface LineMarks {
 	readonly covers?: readonly Box[];
 }
 
-/** A kind that draws nothing, which reaches no height either way: what each kind starts from. */
+/** A shelf that draws nothing, which reaches no height either way: what each shelf starts from. */
 const NOTHING: LineMarks = {
 	shapes: [],
 	labels: [],
@@ -111,21 +106,16 @@ const NOTHING: LineMarks = {
 	bottom: Number.NEGATIVE_INFINITY,
 };
 
-/** How the line draws each kind. One switched off is skipped. */
-const DRAWS: { readonly [K in Kind]: (along: Along) => LineMarks } = {
-	features,
-	primers,
-	insertions,
+/**
+ * The line's shelves, in the order they draw and their labels gather, the first lowest at one x:
+ * bars, sites, marks at a point, and cut sites. Tracks draw nothing on the line.
+ */
+const SHELVES: readonly ((along: Along) => LineMarks)[] = [
+	bars,
+	sites,
+	marks,
 	cuts,
-};
-
-/** Each kind's place in the order kinds draw and their labels gather, the first lowest at one x. */
-const ORDER: { readonly [K in Kind]: number } = {
-	features: 0,
-	primers: 1,
-	insertions: 2,
-	cuts: 3,
-};
+];
 
 /** Lay out `record` as a line `width` long, drawn as `options` say. */
 export function layoutLine(
@@ -135,19 +125,12 @@ export function layoutLine(
 ): MapScene {
 	const { span } = options;
 	const { start, end } = span;
-	const bounds: Bounds = {
-		length: record.bases.length,
-		circular: record.circular,
-	};
+	const bounds = recordBounds(record);
 	const { length } = bounds;
 	const at = (position: number) => ((position - start) * width) / (end - start);
 	const backboneTop = -BACKBONE / 2;
 	const along: Along = { record, options, bounds, at, backboneTop };
-	const off = new Set(options.kinds_off);
-	const drawn = [...KINDS]
-		.sort((a, b) => ORDER[a] - ORDER[b])
-		.filter((kind) => !off.has(kind))
-		.map((kind) => DRAWS[kind](along));
+	const drawn = SHELVES.map((shelf) => shelf(along));
 	const shapes: Shape[] = [
 		...backbone(width),
 		...ends(
@@ -194,25 +177,19 @@ function rulerBottom(): number {
 }
 
 /**
- * Each feature as arrows in tiers under the ruler, its name inside them, under them, or boxed
- * above the line.
+ * Each feature, then each disagreement over a span, as arrows packed in tiers under the ruler,
+ * its name inside them, under them, or boxed above the line.
  */
-function features({
-	record,
-	options,
-	bounds,
-	at,
-	backboneTop,
-}: Along): LineMarks {
-	const bars: Bar[] = [];
-	for (const { feature, label, segments } of coloredFeatures(record, options)) {
+function bars({ record, options, bounds, at, backboneTop }: Along): LineMarks {
+	const laid: Bar[] = [];
+	for (const { feature, label, segments } of shownBars(record, options)) {
 		const found = pieces(segments, options.span, bounds);
-		bars.push(
+		laid.push(
 			...barsOf(feature, label, found, at).filter((bar) => bar.arrows.length),
 		);
 	}
-	const tiers = pack(bars);
-	const placed = places(bars, tiers);
+	const tiers = pack(laid);
+	const placed = places(laid, tiers);
 	const named = new Set(tiers.filter((_, i) => isUnder(placed[i])));
 	const lineHeight = height("sans", LABEL_SIZE);
 	let y = rulerBottom();
@@ -223,15 +200,15 @@ function features({
 		y += 2 * OVERHANG + SHAFT;
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
-	const shapes = bars.flatMap((bar, i) =>
+	const shapes = laid.flatMap((bar, i) =>
 		tipped(barShapes(bar, middles[tiers[i]], placed[i], false), bar.label),
 	);
-	const labels = bars.flatMap((bar, i) =>
+	const labels = laid.flatMap((bar, i) =>
 		placed[i] === "boxed"
 			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: backboneTop }]
 			: [],
 	);
-	const inPlace = bars.flatMap((bar, i) =>
+	const inPlace = laid.flatMap((bar, i) =>
 		placed[i] && placed[i] !== "boxed" ? [bar.label] : [],
 	);
 	return { ...NOTHING, shapes, labels, inPlace, bottom: y };
@@ -239,8 +216,7 @@ function features({
 
 /** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
 function cuts({ record, options, bounds, at, backboneTop }: Along): LineMarks {
-	const sites = cutSites(record, options.enzymes, options.highlight);
-	const labels = sites.flatMap((site) =>
+	const labels = shownCuts(record, options).flatMap((site) =>
 		points(site.at, options.span, bounds).map((point) => ({
 			label: site.label,
 			x: at(point),
@@ -251,33 +227,29 @@ function cuts({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 }
 
 /**
- * Each primer site as a thin arrow above the backbone, its head at the 3' end, in rows packed
- * by start, labelled by the primer's name and the bases the site spans.
+ * Each primer site, then each read, as a thin arrow above the backbone, its head at the 3' end,
+ * in rows packed by start, labelled by its name and the bases it spans.
  */
-function primers({ record, options, bounds, at }: Along): LineMarks {
+function sites({ record, options, bounds, at }: Along): LineMarks {
 	const reach = overhang(PRIMER_SHAFT);
 	const step = PRIMER_SHAFT + 2 * reach + PRIMER_GAP;
 	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_SHAFT / 2;
 	const drawn: { arrow: Arrow; label: Label }[] = [];
-	for (const { name, sites } of record.primers) {
-		for (const site of sites) {
-			const { start, end } = site;
-			const label = primerLabel(name, site, bounds.length, options.highlight);
-			const { color } = label;
-			const colored = [{ start, end, color }];
-			const [headStart, headEnd] = headsOn(site.strand);
-			for (const piece of pieces(colored, options.span, bounds)) {
-				const arrow: Arrow = {
-					start: at(piece.start),
-					end: at(piece.end),
-					color,
-					headStart: piece.starts && headStart,
-					headEnd: piece.ends && headEnd,
-					cutStart: piece.cutStart,
-					cutEnd: piece.cutEnd,
-				};
-				drawn.push({ arrow, label });
-			}
+	for (const { start, end, strand, label } of shownSites(record, options)) {
+		const { color } = label;
+		const colored = [{ start, end, color }];
+		const [headStart, headEnd] = headsOn(strand);
+		for (const piece of pieces(colored, options.span, bounds)) {
+			const arrow: Arrow = {
+				start: at(piece.start),
+				end: at(piece.end),
+				color,
+				headStart: piece.starts && headStart,
+				headEnd: piece.ends && headEnd,
+				cutStart: piece.cutStart,
+				cutEnd: piece.cutEnd,
+			};
+			drawn.push({ arrow, label });
 		}
 	}
 	const middles = pack(drawn.map(({ arrow }) => arrow)).map(
@@ -307,16 +279,11 @@ function primers({ record, options, bounds, at }: Along): LineMarks {
 }
 
 /**
- * Each insertion as a bar across both strands at its point, labelled with what it adds, its
- * name and point on hover.
+ * Each insertion, then each disagreement at a point, as a bar across both strands at its point
+ * in its colour, labelled with what the insertion adds or the disagreement's name, its name and
+ * point on hover.
  */
-function insertions({
-	record,
-	options,
-	bounds,
-	at,
-	backboneTop,
-}: Along): LineMarks {
+function marks({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
@@ -324,13 +291,7 @@ function insertions({
 		backboneTop - INSERTION_REACH,
 		STRANDS_APART + BACKBONE / 2 + INSERTION_REACH,
 	];
-	for (const insertion of record.insertions) {
-		const point = insertion.at;
-		const { label, hover } = insertionLabel(
-			insertion,
-			bounds,
-			options.highlight,
-		);
+	for (const { at: point, label, hover } of shownMarks(record, options)) {
 		const { color } = label;
 		for (const x of points(point, options.span, bounds).map(at)) {
 			shapes.push(
