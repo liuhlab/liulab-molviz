@@ -10,10 +10,13 @@ page is exactly that size, and its PNG at `dpi` is that size in print. The PDF d
 figure with no cropping and no white margin, and shows the same in every PDF reader. Printing
 it on paper takes the reader's "fit to page".
 
-`molviz.svg(record, options)` returns `{svg, pages, hidden, notice}`. Python writes `svg`, the
-whole drawing, as `.svg` and `.png`. `pages` holds one SVG per PDF page, the map first, and
-Python converts each with vl-convert. The viewer decides the paging, so Python holds no layout.
-A drawing with no sequence view has one page, its `svg`.
+`molviz.svg(record, options)` returns `{svg, pages, hidden, notice}`. `svg` is the whole
+drawing: the map, with the sequence view under it when drawn, the narrower centred under the
+wider. Python writes it as `.svg` and `.png`. `pages` holds one SVG per PDF page: the map first,
+then the sequence view's rows. A row page is as wide as the view and holds as many whole rows as
+fit in √2 times that width, the shape of A4. A row taller than that stands alone. Python
+converts each page with vl-convert and joins them with pypdf. The viewer decides the paging, so
+Python holds no layout. A drawing with no sequence view has one page, its `svg`.
 
 ## Considered options
 
@@ -28,5 +31,7 @@ A drawing with no sequence view has one page, its `svg`.
 
 - The pages of one PDF can differ in size.
 - A one-page drawing crosses from the viewer with its SVG twice.
-- Joining pages into one PDF needs a library this package does not carry, so a drawing with a
-  second page cannot be written as a PDF until it does.
+- A PDF of more than one page is joined by pypdf. A one-page PDF skips it and keeps
+  vl-convert's own bytes.
+- A PNG past 2²² pixels on a side or 2²⁸ in all is refused, and the message points at the PDF,
+  which has no such limit.
