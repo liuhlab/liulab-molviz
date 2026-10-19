@@ -61,7 +61,7 @@ sets one.
   `molviz.svg` raises an error.
 - On a linear record, a feature may run off the end and on from the start, once: one of its
   segments may start lower than the one before it. The map and the sequence view draw each
-  piece where it lies, with a thin line to the end it meets.
+  piece where it lies, with a grey join to the end it meets.
 
 ### Removed
 

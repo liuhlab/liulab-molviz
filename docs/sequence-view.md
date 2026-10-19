@@ -28,7 +28,7 @@ A Golden Gate product. Its lacZα CDS is joined across the GFP insert, and some 
 
 ## puc19-backbone-amplicon
 
-A linear PCR product that starts inside lacZα. The lacZα CDS runs past the last row's end and on from the first row's start. In each of those rows a thin line joins its piece to the record's end, and its amino acids read on from one piece to the other.
+A linear PCR product that starts inside lacZα. The lacZα CDS runs past the last row's end and on from the first row's start. In each of those rows a grey join runs from its piece to the record's end, and its amino acids read on from one piece to the other.
 
 <div data-molviz>
 <script type="application/json" data-record>
@@ -223,7 +223,7 @@ The cut sites of all 40 enzymes. The map hides many of their labels, and the seq
 
 ## puc19-backbone-amplicon, its first 48 bases
 
-Only the first 48 bases, with BbsI's cut site, the forward primer, the BbsI site and the TGGC overhang lit. The small piece of lacZα at the start is grey, and its thin line runs to the record's start.
+Only the first 48 bases, with BbsI's cut site, the forward primer, the BbsI site and the TGGC overhang lit. The small piece of lacZα at the start is grey, and its join runs to the record's start.
 
 <div data-molviz>
 <script type="application/json" data-record>
@@ -236,7 +236,7 @@ Only the first 48 bases, with BbsI's cut site, the forward primer, the BbsI site
 
 ## puc19-backbone-amplicon, from 2580 to the end
 
-Only the bases from 2580 to the end. The large piece of lacZα stops at base 2644, and a thin line joins it to the record's end.
+Only the bases from 2580 to the end. The large piece of lacZα stops at base 2644, and a grey join runs from it to the record's end.
 
 <div data-molviz>
 <script type="application/json" data-record>

@@ -38,8 +38,8 @@ everything else turns pale grey. Nothing moves.
 ## puc19-backbone-amplicon
 
 A linear PCR product that starts inside lacZα. The lacZα CDS runs past the record's right end
-and on from its left end, so the map draws it in two pieces. A thin line joins each piece to
-the end it meets.
+and on from its left end, so the map draws it in two pieces. A grey join runs from each piece
+to the end it meets.
 
 <div data-molviz>
 <script type="application/json" data-record>
