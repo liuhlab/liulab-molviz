@@ -2,7 +2,7 @@
 
 from importlib.metadata import version
 
-from molviz.drawing import Drawing, check, draw
+from molviz.drawing import SEQUENCE_VIEW_LIMIT, Drawing, check, draw
 from molviz.gel import check_gel, draw_gel
 from molviz.plate import check_plate, draw_plate
 from molviz.viewer import viewer_script
@@ -12,6 +12,7 @@ from molviz.viewer import viewer_script
 __version__ = version("liulab-molviz")
 
 __all__ = [
+    "SEQUENCE_VIEW_LIMIT",
     "Drawing",
     "__version__",
     "check",

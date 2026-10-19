@@ -78,7 +78,7 @@ const written = toSvg(scene);
 describe("toSvg", () => {
 	test("sizes the drawing to its extent with no unit, so one unit is one point", () => {
 		expect(written).toMatch(
-			/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="752\.00" height="120\.25" viewBox="-16\.00 -30\.50 752\.00 120\.25">/,
+			/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink" width="752\.00" height="120\.25" viewBox="-16\.00 -30\.50 752\.00 120\.25">/,
 		);
 	});
 
@@ -115,7 +115,7 @@ describe("toSvg", () => {
 	test("sets each text from where its anchor puts it, scaled from its face's units", () => {
 		const uses = (text: string, face: Face) =>
 			glyphs(text, face, 2048)
-				.map((g) => `<use href="#${g.id}" x="${g.x.toFixed(2)}"/>`)
+				.map((g) => `<use xlink:href="#${g.id}" x="${g.x.toFixed(2)}"/>`)
 				.join("");
 		const start = 360 - measure("lacZ", "sans", 11.5) / 2;
 		expect(written).toContain(
@@ -130,8 +130,8 @@ describe("toSvg", () => {
 		const [a, c, g] = glyphs("ACG", "mono", 11);
 		expect(written).toContain(
 			'<g transform="translate(0.00 90.00) scale(0.00537109375)" fill="#1c1e21">' +
-				`<use href="#${a.id}" x="407.50"/><use href="#${c.id}" x="2455.50"/>` +
-				`<use href="#${g.id}" x="4503.50"/><use href="#${a.id}" x="6551.50"/></g>`,
+				`<use xlink:href="#${a.id}" x="407.50"/><use xlink:href="#${c.id}" x="2455.50"/>` +
+				`<use xlink:href="#${g.id}" x="4503.50"/><use xlink:href="#${a.id}" x="6551.50"/></g>`,
 		);
 	});
 

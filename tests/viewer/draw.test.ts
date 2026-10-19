@@ -31,6 +31,13 @@ const plate = {
 	wells: { A1: "quarter 1", B3: "water" },
 };
 
+/** The map `draw` puts in an element for `record`, with no sequence view. */
+function drawnMap(): Element {
+	const element = document.createElement("div");
+	draw(element, record, {});
+	return element.children[0];
+}
+
 function spot(): HTMLElement {
 	const element = document.createElement("div");
 	document.body.append(element);
@@ -78,6 +85,21 @@ describe("draw", () => {
 		expect([...element.children]).toEqual([before]);
 		expect(other.querySelectorAll("svg")).toHaveLength(1);
 		expect(document.querySelectorAll("style")).toHaveLength(1);
+	});
+
+	test("adds the sequence view under the map, its bases as text, and destroy removes both", () => {
+		const element = spot();
+		const drawing = draw(element, record, { sequence_view: true });
+		const [map, view] = element.children;
+		expect(element.children).toHaveLength(2);
+		expect(map.outerHTML).toBe(drawnMap().outerHTML);
+		expect((view as SVGSVGElement).style.display).toBe("block");
+		const bases = [...view.querySelectorAll("text")].filter(
+			(t) => t.getAttribute("font-family") === families.mono,
+		);
+		expect(bases[0].textContent).toBe("ACGT".repeat(15));
+		drawing.destroy();
+		expect(element.children).toHaveLength(0);
 	});
 
 	test("throws a FormatError on a bad record, adding nothing to the page", () => {

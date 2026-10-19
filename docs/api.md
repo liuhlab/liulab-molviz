@@ -40,6 +40,8 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.Drawing
 
+::: molviz.SEQUENCE_VIEW_LIMIT
+
 ## Options
 
 `draw` takes these options by name. Each says what the drawing starts with. An option it
@@ -53,6 +55,9 @@ does not know is an error, and one left out takes its default.
 | `kinds_off` | The kinds of thing to leave out: any of `"features"`, `"primers"`, `"cuts"` and `"insertions"`. | `[]` |
 | `enzymes` | The enzymes whose cut sites are drawn. A name matches in any case. A name that does not cut the record is ignored. | each enzyme that cuts the record once |
 | `highlight` | The names to light up: a feature, a primer, an insertion, or an enzyme, which lights every site it cuts. All else turns one pale grey, and nothing moves. Where labels crowd, a lit label is the last to hide. A name in any case matches. A name that matches nothing in the record is an error. | `[]` |
+| `sequence_view` | Draws the sequence view under the map: the bases in rows, on both strands, with each thing drawn on them at its bases. A PDF has the map on its first page and the rows on the pages after. It draws at most `SEQUENCE_VIEW_LIMIT` bases, 100,000, so past that `true` is an error. | `false` |
+| `bases_per_row` | How many bases a row of the sequence view holds. The last row may hold fewer. | `60` |
+| `bottom_strand` | Whether the sequence view draws the bottom strand under the top one. | `true` |
 
 ## The command line
 
