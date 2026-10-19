@@ -51,7 +51,7 @@ function open(html: string): NodeListOf<SVGSVGElement> {
 	for (const script of document.querySelectorAll("script:not([type])")) {
 		vm.runInThisContext(`{${script.textContent ?? ""}\n}`);
 	}
-	return document.querySelectorAll("#drawing > svg");
+	return document.querySelectorAll("#drawing svg");
 }
 
 test("a page the Python package writes draws its record when it opens", () => {

@@ -127,7 +127,7 @@ test.each(
 		expect(held.children).toHaveLength(1);
 		// The parser keeps the namespace as an attribute too, which draws nothing.
 		held.children[0].removeAttribute("xmlns");
-		const [ours, theirs] = [held.children[0], drawn.children[0]];
+		const [ours, theirs] = [held.children[0], drawn.querySelectorAll("svg")[0]];
 		if (theirs.querySelector("[data-molviz-hover]")) {
 			expect(unhovered(ours).isEqualNode(unhovered(theirs))).toBe(true);
 		} else {
@@ -210,7 +210,7 @@ describe("the still SVG of a record with its sequence view", () => {
 	const { document } = new Window();
 	const live = document.createElement("div");
 	draw(live as unknown as Element, primers, view);
-	const [map, sequence] = [...live.children];
+	const [map, sequence] = [...live.querySelectorAll("svg")];
 	const held = document.createElement("div");
 	held.innerHTML = stillSvg(primers, view).svg;
 	const [ground, ...still] = [...held.children[0].children];
