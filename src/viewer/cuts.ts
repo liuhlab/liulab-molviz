@@ -93,7 +93,7 @@ function siteLabel(
 }
 
 /** Names in order whatever their case, and by case where that is all they differ by. */
-function byName(a: string, b: string): number {
+export function byName(a: string, b: string): number {
 	const [x, y] = [folded(a), folded(b)];
 	if (x !== y) return x < y ? -1 : 1;
 	return a < b ? -1 : a > b ? 1 : 0;

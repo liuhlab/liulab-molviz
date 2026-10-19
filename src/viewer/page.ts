@@ -262,6 +262,8 @@ function css(): string {
 	display: inline-flex; align-items: center; gap: 4px; margin: 0; white-space: nowrap;
 }
 .molviz .bar input { margin: 0; }
+.molviz .bar fieldset:disabled { color: #7f7f7f; }
+.molviz .bar summary { cursor: pointer; }
 .molviz .bar .views { gap: 0; margin-left: auto; }
 .molviz .bar .views label {
 	position: relative; padding: 2px 10px; border: 1px solid #7f7f7f; cursor: pointer;
