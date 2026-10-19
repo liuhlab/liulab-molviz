@@ -17,6 +17,8 @@ const STRIP = 40;
 const CURVE_WIDTH = 0.8;
 const FOOT_WIDTH = 0.5;
 
+const LETTERS = Object.keys(CURVES) as (keyof typeof CURVES)[];
+
 /** A sample's index, and where it lies in bases, counted as the span counts them. */
 type Sample = readonly [sample: number, at: number];
 
@@ -27,8 +29,8 @@ export interface Sampled {
 }
 
 /**
- * What each row of the sequence view `options` give draws of each track of `record` it reaches,
- * row by row, the tracks in the record's order.
+ * For each row of the sequence view `options` give of `record`, what it draws of each track it
+ * reaches, in the record's order.
  */
 export function sampledRows(record: Record, options: Options): Sampled[][] {
 	const { span, bases_per_row: perRow, kinds_off } = options;
@@ -73,11 +75,7 @@ function sampled(track: Track, span: Span, length: number): Sample[][] {
 			continue;
 		}
 		const peak = [sample, at + 0.5] as const;
-		if (
-			last !== null &&
-			sample > last[0] &&
-			Math.abs(peak[1] - last[1]) === 1
-		) {
+		if (last !== null && Math.abs(peak[1] - last[1]) === 1) {
 			runs[runs.length - 1].push(peak);
 		} else {
 			runs.push([peak]);
@@ -145,15 +143,14 @@ export function strips(
 		y += height("sans", SMALL_SIZE) + NAME_GAP;
 		const foot = y + STRIP;
 		covers.push({ x: 0, y, width, height: STRIP });
-		const letters = Object.keys(CURVES) as (keyof typeof CURVES)[];
-		const highest = Math.max(
-			0,
-			...runs.flatMap((run) =>
-				run.flatMap(([sample]) =>
-					letters.map((letter) => track.curves[letter][sample]),
-				),
-			),
-		);
+		let highest = 0;
+		for (const run of runs) {
+			for (const [sample] of run) {
+				for (const letter of LETTERS) {
+					highest = Math.max(highest, track.curves[letter][sample]);
+				}
+			}
+		}
 		const scale = highest > 0 ? STRIP / highest : 0;
 		shapes.push({
 			shape: "line",
@@ -165,7 +162,7 @@ export function strips(
 			strokeWidth: FOOT_WIDTH,
 		});
 		for (const run of runs) {
-			for (const letter of letters) {
+			for (const letter of LETTERS) {
 				const values = track.curves[letter];
 				shapes.push({
 					shape: "path",
