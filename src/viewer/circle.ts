@@ -20,7 +20,7 @@ import {
 	PAD_Y,
 	SMALL_SIZE,
 } from "./labels";
-import { pointText, spanText, tickStep, title } from "./line";
+import { pointText, spanText, tickStep } from "./line";
 import type { Options } from "./options";
 import {
 	CONNECTOR,
@@ -36,7 +36,7 @@ import {
 } from "./paint";
 import type { Record, Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
-import { baseline, height, measure } from "./text";
+import { baseline, type Face, height, measure, wrap } from "./text";
 
 /** The backbone's radius at a zoom of 1. */
 const RADIUS = 220;
@@ -63,6 +63,9 @@ const RING_PADDING = 3;
 const CENTRE = 0.4;
 
 const CONNECTOR_WIDTH = 1.5;
+
+/** The size of the record's name in the centre. */
+const NAME_SIZE = 13.5;
 
 // An insertion's bar: how far it reaches past the backbone either side, and how thick it is.
 const INSERTION_REACH = 1.5;
@@ -653,22 +656,80 @@ function ruler(ring: Ring): Shape[] {
 
 /**
  * The record's name in bold over its length, centred on the centre, and how far from the centre
- * their corners reach.
+ * their corners reach. A name too wide to fit inside `CENTRE` of the radius wraps onto lines that
+ * do.
  */
-function centre(
-	name: string,
-	{ length }: Ring,
-): { shapes: Shape[]; reach: number } {
-	const whole = { start: 0, end: length };
-	const lines = title(name, length, whole, 0, 0).filter(
-		(s) => s.shape === "text",
-	);
-	const tall = lines.reduce((sum, t) => sum + height(t.face, t.size), 0);
-	const wide = Math.max(...lines.map((t) => measure(t.text, t.face, t.size)));
-	return {
-		shapes: title(name, length, whole, -tall / 2, 0),
-		reach: Math.hypot(wide / 2, tall / 2),
+function centre(name: string, ring: Ring): { shapes: Shape[]; reach: number } {
+	const room = CENTRE * ring.radius;
+	const length = `${ring.length} bp`;
+	const block = (named: readonly string[]) => {
+		const lines: [string, Face, number][] = [
+			...named.map((text): [string, Face, number] => [
+				text,
+				"sans-bold",
+				NAME_SIZE,
+			]),
+			[length, "sans", SMALL_SIZE],
+		];
+		const tall = lines.reduce((sum, [, f, size]) => sum + height(f, size), 0);
+		const wide = Math.max(...lines.map(([t, f, size]) => measure(t, f, size)));
+		return { lines, tall, reach: Math.hypot(wide / 2, tall / 2) };
 	};
+	let found = block(name.trim() ? [name] : []);
+	for (let count = 2; found.reach > room; count++) {
+		const tall =
+			count * height("sans-bold", NAME_SIZE) + height("sans", SMALL_SIZE);
+		if (tall >= 2 * room) break;
+		const named = wrapName(name, 2 * Math.sqrt(room ** 2 - (tall / 2) ** 2));
+		if (named.length <= count) found = block(named);
+	}
+	const shapes: Shape[] = [];
+	let y = -found.tall / 2;
+	for (const [text, face, size] of found.lines) {
+		const h = height(face, size);
+		shapes.push({
+			shape: "text",
+			text,
+			face,
+			size,
+			x: 0,
+			y: baseline(face, size, y + h / 2),
+			anchor: "middle",
+			fill: INK,
+		});
+		y += h;
+	}
+	return { shapes, reach: found.reach };
+}
+
+/**
+ * `name` broken into lines no wider than `width` in the centre's bold: at spaces; a word too wide
+ * for a line after a `-` or `_`; and a piece still too wide anywhere.
+ */
+function wrapName(name: string, width: number): string[] {
+	const fits = (text: string) => measure(text, "sans-bold", NAME_SIZE) <= width;
+	const lines: string[] = [];
+	let line = "";
+	for (const word of name.split(" ").filter(Boolean)) {
+		const joined = line ? `${line} ${word}` : word;
+		if (fits(joined)) {
+			line = joined;
+			continue;
+		}
+		if (line) lines.push(line);
+		line = "";
+		for (const piece of word.match(/[^-_]*[-_]+|[^-_]+/g) ?? []) {
+			if (fits(line + piece)) {
+				line += piece;
+				continue;
+			}
+			if (line) lines.push(line);
+			const broken = wrap(piece, "sans-bold", NAME_SIZE, width);
+			lines.push(...broken.slice(0, -1));
+			line = broken[broken.length - 1];
+		}
+	}
+	return line ? [...lines, line] : lines;
 }
 
 /** The two strands, from the origin round, and the origin's tick inside them. */

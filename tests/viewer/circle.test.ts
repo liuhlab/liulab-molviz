@@ -308,7 +308,7 @@ describe("rings", () => {
 	});
 
 	test("keep clear of a long name in the centre", () => {
-		const name = "pTEST-a-long-name-for-a-record";
+		const name = "pTEST-a-long-name-fo";
 		const scene = lay(
 			Array.from({ length: 8 }, (_, i) => ({
 				segments: [[0, 100 + 10 * i]] as [number, number][],
@@ -324,7 +324,70 @@ describe("rings", () => {
 				.map(nearest),
 		);
 		expect(corner).toBeGreaterThan(88 - (0.46 * (OUTER - 88)) / 7);
+		expect(corner).toBeLessThan(88);
 		expect(innermost).toBeCloseTo(corner, 6);
+	});
+});
+
+/** Eight features on rings of their own, which reach in to 0.4 of the radius. */
+const EIGHT_RINGS: Made[] = Array.from({ length: 8 }, (_, i) => ({
+	segments: [[0, 100 + 10 * i]],
+	color: `#00000${i + 1}`,
+}));
+
+describe("a name too wide for the centre", () => {
+	// Each name, and how its lines join up again: at spaces, after `-` or `_`, or anywhere.
+	test.each([
+		["pTEST-a-long-name-for-a-record", "-"],
+		["pTEST_a_long_name_for_a_record", "_"],
+		["a plasmid with a name of many short words", " "],
+		["x".repeat(60), ""],
+		["pUC19 GFPinsertwithoutanywheretobreakatall", "a space, then anywhere"],
+	])(
+		"%s wraps onto lines inside 0.4 of the radius, which the rings keep clear of",
+		(name, at) => {
+			const scene = lay(EIGHT_RINGS, { record: { name } });
+			const middle = texts(scene).filter((t) => t.rotate === undefined);
+			const named = middle.filter((t) => t.face === "sans-bold");
+			const lines = named.map((t) => t.text);
+			expect(lines.length).toBeGreaterThan(1);
+			const joined =
+				at === " "
+					? lines.join(" ")
+					: at.length > 1
+						? `${lines[0]} ${lines.slice(1).join("")}`
+						: lines.join("");
+			expect(joined).toBe(name);
+			if (at === "-" || at === "_")
+				for (const line of lines.slice(0, -1))
+					expect(line.endsWith(at)).toBe(true);
+			for (const t of middle) expect([t.x, t.anchor]).toEqual([0, "middle"]);
+			const wide = Math.max(
+				...middle.map((t) => measure(t.text, t.face, t.size)),
+			);
+			const tall = middle.reduce((sum, t) => sum + height(t.face, t.size), 0);
+			const corner = Math.hypot(wide / 2, tall / 2);
+			expect(corner).toBeLessThanOrEqual(88);
+			const top = named[0].y - metrics("sans-bold").ascent * 13.5;
+			expect(top).toBeCloseTo(-tall / 2);
+			const innermost = Math.min(
+				...paths(scene)
+					.filter((p) => p.fill !== "none")
+					.map(nearest),
+			);
+			expect(innermost).toBeGreaterThanOrEqual(corner - 1e-9);
+			expect(innermost).toBeGreaterThan(88 - (0.46 * (OUTER - 88)) / 7 - 1);
+		},
+	);
+
+	test("breaks at a space before it breaks a word", () => {
+		const name = "pUC19 with-a-very-long-insert-name-in-it";
+		const scene = lay([], { record: { name } });
+		const lines = texts(scene)
+			.filter((t) => t.face === "sans-bold")
+			.map((t) => t.text);
+		expect(lines[0]).toBe("pUC19");
+		expect(lines.slice(1).join("")).toBe("with-a-very-long-insert-name-in-it");
 	});
 });
 
