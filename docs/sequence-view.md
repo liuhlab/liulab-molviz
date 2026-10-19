@@ -66,6 +66,45 @@ A larger product with many features, some on no strand. Its `rop` and `lacI` sta
 </script>
 </div>
 
+## ap1-block-vector-1
+
+The vector the AP-1 library is built in, before any part goes in. A short stuffer sits where the first part will go.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-block-vector-1.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true}
+</script>
+</div>
+
+## ap1-round-1
+
+The vector after the first round. The part `N_JUN` and its barcode have replaced the stuffer, and a new stuffer sits where the next part will go.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-round-1.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true}
+</script>
+</div>
+
+## ap1-round-2
+
+The vector after the second round, with `DBD_JUN` joined after `N_JUN`.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-round-2.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true}
+</script>
+</div>
+
 ## colour-test
 
 Joined, white and grey features. The `split` CDS joins three segments, and the `across` feature runs over the origin.

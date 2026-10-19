@@ -11,6 +11,9 @@ file through the viewer's check, so the records stay valid as the format grows.
 | `puc19-backbone-amplicon.json` | mbio's `docs/examples/pUC19-GFP/puc19-backbone-amplicon.dna` | A linear PCR product that starts inside `lacZα`, a CDS on the reverse strand. `lacZα` runs off the record's end and on from its start, so its second segment starts lower than its first. Its two primers, one at each end, have 5' tails. |
 | `gfp-amplicon.json` | mbio's `docs/examples/pUC19-GFP/gfp-amplicon.dna` | A linear PCR product of GFP. Its forward `GFP` CDS ends at a Golden Gate overhang, and its two primers have 5' tails. |
 | `ap1-product.json` | mbio's `docs/examples/ap1-library/product.dna` | A larger product with many features, some on no strand. Its `rop` and `lacI` start with GTG, so their translations start with V. |
+| `ap1-block-vector-1.json` | mbio's `docs/examples/ap1-library/block-vector-1.dna` | AP-1's vector before any part goes in, with its `internal stuffer` where the first part goes. |
+| `ap1-round-1.json` | mbio's `docs/examples/ap1-library/round-1.dna` | AP-1 after round 1, with `N_JUN` and its barcode in place of the stuffer. |
+| `ap1-round-2.json` | mbio's `docs/examples/ap1-library/round-2.dna` | AP-1 after round 2, with `DBD_JUN` joined after `N_JUN`. Round 3 makes `ap1-product`. |
 | `colour-test.json` | mbio's `tests/data/colour-test-snapgene.gbk` | Joined, white and grey features. The `split` CDS joins three segments, each later segment with its own colour. The `across` feature runs over the origin. The `source` feature has an empty name. |
 | `primer-test.json` | mbio's `tests/data/primer-test.dna` | A linear record. The primer `rev-mismatch` has one mismatch. |
 | `both-strands-and-insertions.json` | by hand | A feature on both strands, and two insertions, one of them at the origin. |
@@ -28,10 +31,11 @@ over the span `(2600, 2750)`. That span runs across the origin, as its `across` 
 
 ## Making the records again
 
-`scripts/write_test_records.py` writes the six records from mbio, the test gels in
-`tests/gels/`, and the test plates in `tests/plates/`. It runs in mbio's own pixi environment
-and changes nothing there. It reads each mbio file at the commit named by `REVISION` in the
-script. It stops if the mbio code it runs differs from that commit in `src/`.
+`scripts/write_test_records.py` writes the records from mbio, the test figures in
+`tests/figures/`, the test gels in `tests/gels/`, and the test plates in `tests/plates/`. It
+runs in mbio's own pixi environment and changes nothing there. It reads each mbio file at the
+commit named by `REVISION` in the script. It stops if the mbio code it runs differs from that
+commit in `src/`.
 
 From the root of this repo, with mbio checked out at `../liulab-mbio`:
 

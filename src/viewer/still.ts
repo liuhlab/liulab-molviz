@@ -8,6 +8,7 @@ import {
 	prepareViews,
 	stackedViews,
 } from "./drawing";
+import { prepareFigure } from "./figure";
 import { toStill } from "./svg";
 
 /**
@@ -23,6 +24,14 @@ export type Still = Omit<Drawing, "pages">;
  */
 export function stillSvg(record: unknown, options: unknown = {}): Still {
 	return drawn(stackedViews(prepareViews(record, options)), toStill);
+}
+
+/**
+ * Draw `records` stacked, each with `options`, as a still SVG. Throws one FormatError naming
+ * every problem in the records, or else in the options.
+ */
+export function figureStillSvg(records: unknown, options: unknown = {}): Still {
+	return drawn(prepareFigure(records, options), toStill);
 }
 
 /** Draw `gel` as a still SVG. Throws one FormatError naming every problem in the gel. */

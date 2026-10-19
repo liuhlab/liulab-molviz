@@ -5,11 +5,11 @@ import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
 import { layoutLine } from "./line";
-import { checkOptions } from "./options";
+import { checkOptions, type Options } from "./options";
 import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
 import { layoutPlate } from "./plate-layout";
-import { check } from "./record";
+import { check, type Record } from "./record";
 import type { Scene } from "./scene";
 import { layoutSequence, type SequenceScene } from "./sequence";
 import { toSvg } from "./svg";
@@ -47,13 +47,17 @@ export function prepareViews(
 	where: { page?: boolean } = {},
 ): Views {
 	const checked = check(record);
-	const drawn = checkOptions(options, checked, where);
+	return layoutViews(checked, checkOptions(options, checked, where));
+}
+
+/** Lay `record`'s map out as `options` say, and its sequence view if they draw one. */
+export function layoutViews(record: Record, options: Options): Views {
 	return {
 		map:
-			drawn.map === "circle"
-				? layoutCircle(checked, drawn)
-				: layoutLine(checked, drawn),
-		sequence: drawn.sequence_view ? layoutSequence(checked, drawn) : null,
+			options.map === "circle"
+				? layoutCircle(record, options)
+				: layoutLine(record, options),
+		sequence: options.sequence_view ? layoutSequence(record, options) : null,
 	};
 }
 
@@ -90,12 +94,10 @@ export function drawn(
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
 	const views = prepareViews(record, options);
-	const drawing = whole(stackedViews(views));
-	if (views.sequence === null) return drawing;
-	return {
-		...drawing,
-		pages: [views.map, ...rowPages(views.sequence)].map(toSvg),
-	};
+	return toDrawing(
+		stackedViews(views),
+		views.sequence === null ? null : [views.map, ...rowPages(views.sequence)],
+	);
 }
 
 /**
@@ -104,7 +106,7 @@ export function svg(record: unknown, options: unknown = {}): Drawing {
  * gel.
  */
 export function gelSvg(gel: unknown): Drawing {
-	return whole(prepareGel(gel));
+	return toDrawing(prepareGel(gel));
 }
 
 /**
@@ -112,11 +114,17 @@ export function gelSvg(gel: unknown): Drawing {
  * problem in the plate.
  */
 export function plateSvg(plate: unknown): Drawing {
-	return whole(preparePlate(plate));
+	return toDrawing(preparePlate(plate));
 }
 
-/** `scene` as SVG text, a drawing of one page. */
-function whole(scene: Scene | MapScene): Drawing {
+/** `scene` as SVG text, every letter an outline, with its PDF `pages`, or else as one page. */
+export function toDrawing(
+	scene: Scene | MapScene,
+	pages: readonly Scene[] | null = null,
+): Drawing {
 	const drawing = drawn(scene, toSvg);
-	return { ...drawing, pages: [drawing.svg] };
+	return {
+		...drawing,
+		pages: pages === null ? [drawing.svg] : pages.map(toSvg),
+	};
 }
