@@ -17,6 +17,20 @@ export function bounds(shape: Shape): Box | null {
 			return around(shape.points);
 		case "path":
 			return around(pathPoints(shape.commands));
+		case "letters": {
+			const { face, size, places } = shape;
+			const points = [...shape.text].flatMap((letter, i) => {
+				const [x, y, rotate] = places[i];
+				const box = {
+					x,
+					y: y - metrics(face).ascent * size,
+					width: measure(letter, face, size),
+					height: height(face, size),
+				};
+				return corners(box).map((c) => turn(c, [x, y], rotate));
+			});
+			return points.length ? around(points) : null;
+		}
 		case "circle":
 			return {
 				x: shape.cx - shape.r,

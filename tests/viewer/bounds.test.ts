@@ -60,4 +60,25 @@ describe("bounds", () => {
 			height: width,
 		});
 	});
+
+	test("holds each letter of a name along a curve, turned at its place", () => {
+		const { ascent } = metrics("sans");
+		const box = bounds({
+			shape: "letters",
+			text: "ab",
+			face: "sans",
+			size: 10,
+			fill: "#000000",
+			places: [
+				[0, 0, 0],
+				[20, 0, 90],
+			],
+		});
+		near(box, {
+			x: 0,
+			y: -10 * ascent,
+			width: 20 + 10 * ascent,
+			height: 10 * ascent + measure("b", "sans", 10),
+		});
+	});
 });

@@ -53,6 +53,20 @@ export type Shape = (
 			readonly strokeWidth: number;
 	  }
 	| {
+			/** A name set along a curve, a letter at a time. */
+			readonly shape: "letters";
+			readonly text: string;
+			readonly face: Face;
+			readonly size: number;
+			readonly fill: string;
+			/** Where each letter starts on its baseline, and the degrees it turns clockwise there. */
+			readonly places: readonly (readonly [
+				x: number,
+				y: number,
+				rotate: number,
+			])[];
+	  }
+	| {
 			readonly shape: "rect";
 			readonly x: number;
 			readonly y: number;

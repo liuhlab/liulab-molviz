@@ -118,6 +118,42 @@ describe("a curve or a turn", () => {
 		);
 		expect(page.querySelector("text")?.outerHTML).toContain(turn);
 	});
+
+	const name: Shape = {
+		shape: "letters",
+		text: "a b",
+		face: "sans",
+		size: 11.5,
+		fill: "#000000",
+		places: [
+			[0, -180, -10],
+			[7.08, -181.05, 0],
+			[14.5, -180, 10.5],
+		],
+	};
+
+	test("sets a name along a curve on a page as one text, each letter at its place", () => {
+		const texts = both(name).page.querySelectorAll("text");
+		expect(texts).toHaveLength(1);
+		const [text] = texts;
+		expect(text.textContent).toBe("a b");
+		expect(text.getAttribute("x")).toBe("0.00 7.08 14.50");
+		expect(text.getAttribute("y")).toBe("-180.00 -181.05 -180.00");
+		expect(text.getAttribute("rotate")).toBe("-10.00 0.00 10.50");
+		expect(text.getAttribute("font-family")).toBe("molviz Sans");
+		expect(text.getAttribute("font-size")).toBe("11.50");
+		expect(text.getAttribute("font-weight")).toBe("400");
+		expect(text.getAttribute("fill")).toBe("#000000");
+	});
+
+	test("draws a name along a curve in a file as each inked letter turned at its place", () => {
+		const letter = (text: string, at: string) =>
+			`<path d="${outline(text, "sans", 11.5, 0, 0)}" transform="${at}"/>`;
+		expect(both(name).file).toContain(
+			`<g fill="#000000">${letter("a", "translate(0.00 -180.00) rotate(-10.00)")}` +
+				`${letter("b", "translate(14.50 -180.00) rotate(10.50)")}</g>`,
+		);
+	});
 });
 
 describe("toSvg", () => {

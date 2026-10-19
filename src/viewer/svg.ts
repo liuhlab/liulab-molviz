@@ -10,7 +10,7 @@ import {
 	type Shape,
 	twoDecimals,
 } from "./scene";
-import { family, inFace, measure, outline, weights } from "./text";
+import { type Face, family, inFace, measure, outline, weights } from "./text";
 
 const GROUND = "#ffffff";
 const NAMESPACE = "http://www.w3.org/2000/svg";
@@ -21,13 +21,14 @@ type Letters = "outlines" | "text";
 type Attributes = readonly (readonly [name: string, value: string])[];
 
 /**
- * One SVG element: its tag, its attributes in the order they are written, its text, and the
- * shape's hover text.
+ * One SVG element: its tag, its attributes in the order they are written, its text or the
+ * elements inside it, and the shape's hover text.
  */
 interface Tag {
 	readonly name: string;
 	readonly attributes: Attributes;
 	readonly text?: string;
+	readonly children?: readonly Tag[];
 	readonly hover?: string;
 }
 
@@ -37,10 +38,7 @@ interface Tag {
  */
 export function toSvg(scene: Scene): string {
 	const { root, children } = tags(scene, "outlines");
-	const inside = children
-		.map((tag) => `<${tag.name}${written(tag.attributes)}/>`)
-		.join("");
-	return `<svg xmlns="${NAMESPACE}"${written(root)}>${inside}</svg>`;
+	return `<svg xmlns="${NAMESPACE}"${written(root)}>${children.map(markup).join("")}</svg>`;
 }
 
 /**
@@ -52,18 +50,7 @@ export function toElement(scene: Scene, document: Document): SVGSVGElement {
 	const { root, children } = tags(scene, "text");
 	const svg = document.createElementNS(NAMESPACE, "svg");
 	for (const [name, value] of root) svg.setAttribute(name, value);
-	for (const tag of children) {
-		const element = document.createElementNS(NAMESPACE, tag.name);
-		for (const [name, value] of tag.attributes)
-			element.setAttribute(name, value);
-		if (tag.text !== undefined) element.textContent = tag.text;
-		if (tag.hover !== undefined) {
-			const title = document.createElementNS(NAMESPACE, "title");
-			title.textContent = tag.hover;
-			element.append(title);
-		}
-		svg.append(element);
-	}
+	svg.append(...children.map((tag) => element(tag, document)));
 	return svg;
 }
 
@@ -137,6 +124,33 @@ function tag(shape: Shape, letters: Letters): Tag {
 					...stroke(shape),
 				],
 			};
+		case "letters": {
+			const { text, face, size, fill, places } = shape;
+			if (letters === "outlines") {
+				return {
+					name: "g",
+					attributes: [["fill", fill]],
+					children: [...text].flatMap(
+						(letter, i) => glyph(letter, face, size, places[i]) ?? [],
+					),
+				};
+			}
+			const list = (i: 0 | 1 | 2) =>
+				places.map((place) => twoDecimals(place[i])).join(" ");
+			return {
+				name: "text",
+				attributes: [
+					["x", list(0)],
+					["y", list(1)],
+					["rotate", list(2)],
+					["font-family", family],
+					["font-size", twoDecimals(size)],
+					["font-weight", String(weights[face])],
+					["fill", fill],
+				],
+				text: inFace(text, face),
+			};
+		}
 		case "rect":
 			return {
 				name: "rect",
@@ -220,11 +234,53 @@ function turned({
 	return [["transform", turn]];
 }
 
+/**
+ * One letter's outline, starting at `x` and `y` on its baseline and turned `rotate` degrees
+ * clockwise there, or `null` for a letter with no ink.
+ */
+function glyph(
+	letter: string,
+	face: Face,
+	size: number,
+	[x, y, rotate]: readonly [number, number, number],
+): Tag | null {
+	const d = outline(letter, face, size, 0, 0);
+	if (!d) return null;
+	const at = `translate(${twoDecimals(x)} ${twoDecimals(y)}) rotate(${twoDecimals(rotate)})`;
+	return {
+		name: "path",
+		attributes: [
+			["d", d],
+			["transform", at],
+		],
+	};
+}
+
 function stroke(shape: { stroke: string; strokeWidth: number }): Attributes {
 	return [
 		["stroke", shape.stroke],
 		["stroke-width", twoDecimals(shape.strokeWidth)],
 	];
+}
+
+function markup(tag: Tag): string {
+	const open = `<${tag.name}${written(tag.attributes)}`;
+	return tag.children?.length
+		? `${open}>${tag.children.map(markup).join("")}</${tag.name}>`
+		: `${open}/>`;
+}
+
+function element(tag: Tag, document: Document): Element {
+	const out = document.createElementNS(NAMESPACE, tag.name);
+	for (const [name, value] of tag.attributes) out.setAttribute(name, value);
+	if (tag.text !== undefined) out.textContent = tag.text;
+	for (const child of tag.children ?? []) out.append(element(child, document));
+	if (tag.hover !== undefined) {
+		const title = document.createElementNS(NAMESPACE, "title");
+		title.textContent = tag.hover;
+		out.append(title);
+	}
+	return out;
 }
 
 function written(attributes: Attributes): string {
