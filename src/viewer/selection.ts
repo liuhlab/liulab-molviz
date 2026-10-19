@@ -1,0 +1,171 @@
+/** What a page has selected, as data: from a click on an item or a drag, and what it says. */
+
+import { folded } from "./format";
+import type { Hidden } from "./labels";
+import { pointText, spanText, turns } from "./pieces";
+import {
+	type Bounds,
+	type Record,
+	recordBounds,
+	runsOnFromStart,
+	type Span,
+} from "./record";
+
+/**
+ * Bases selected, as spans in reading order, each in the record's counting; or an item's point
+ * between two bases. `item` is the key of the item clicked, or null for a drag.
+ */
+export type Selection =
+	| { readonly spans: readonly Span[]; readonly item: string | null }
+	| { readonly at: number; readonly item: string };
+
+/** The key an item is known by in every view: what its label lists once it hides. */
+export function itemKey(item: Hidden): string {
+	const { kind, name } = item;
+	return JSON.stringify(
+		"at" in item
+			? { kind, name, at: item.at }
+			: {
+					kind,
+					name,
+					spans: item.spans.map(({ start, end }) => ({ start, end })),
+				},
+	);
+}
+
+/** What a click on the item `key` names selects in `record`, with `enzymes` on. */
+export function itemSelection(
+	key: string,
+	record: Record,
+	enzymes: readonly string[],
+): Selection {
+	const item = JSON.parse(key) as Hidden;
+	const bounds = recordBounds(record);
+	if ("spans" in item) return { spans: hulls(item.spans, bounds), item: key };
+	if (item.kind !== "cuts") return { at: item.at, item: key };
+	const on = new Set(enzymes.map(folded));
+	const made = record.cuts.filter(
+		(cut) => cut.at === item.at && on.has(folded(cut.enzyme)),
+	);
+	return { spans: [recognised(made, bounds)], item: key };
+}
+
+/**
+ * From the first of `spans` to the last, as a feature's segments: across a linear end, the part
+ * before the end and the part after, without the stretches out to the end and in from the start.
+ */
+function hulls(spans: readonly Span[], bounds: Bounds): Span[] {
+	const parts: Span[][] = [];
+	for (const [i, span] of spans.entries()) {
+		if (i === 0 || runsOnFromStart(spans[i - 1], span, bounds)) parts.push([]);
+		parts[parts.length - 1].push(span);
+	}
+	return parts.map((part) => ({
+		start: part[0].start,
+		end: Math.max(...part.map(({ end }) => end)),
+	}));
+}
+
+/**
+ * From the first of a cut site's recognition spans to the last, each taken a turn either way
+ * where that brings it nearest the first.
+ */
+function recognised(spans: readonly Span[], bounds: Bounds): Span {
+	const first = spans[0].start;
+	const near = spans.map(({ start, end }) => {
+		const [shift] = turns(bounds).sort(
+			(a, b) => Math.abs(start + a - first) - Math.abs(start + b - first),
+		);
+		return { start: start + shift, end: end + shift };
+	});
+	return within(
+		{
+			start: Math.min(...near.map(({ start }) => start)),
+			end: Math.max(...near.map(({ end }) => end)),
+		},
+		bounds,
+	);
+}
+
+/** `span` moved a turn, if it must be, to start inside the record. */
+function within({ start, end }: Span, { length, circular }: Bounds): Span {
+	const shift = circular ? Math.floor(start / length) * length : 0;
+	return { start: start - shift, end: end - shift };
+}
+
+/**
+ * What a click leaves selected: `picked`, the clicked item's selection, or nothing when it is
+ * the item already selected or the click was on no item.
+ */
+export function clicked(
+	selection: Selection | null,
+	picked: Selection | null,
+): Selection | null {
+	return picked && picked.item !== selection?.item ? picked : null;
+}
+
+/**
+ * A drag across bases: the base pressed, the base the pointer is over, and how far it has gone
+ * from the first to the second, back being negative. Bases are counted as the view counts them.
+ */
+export interface Drag {
+	readonly anchor: number;
+	readonly over: number;
+	readonly travel: number;
+}
+
+/** A drag pressed on `base`. */
+export function dragFrom(base: number): Drag {
+	return { anchor: base, over: base, travel: 0 };
+}
+
+/** `drag` along a line or the rows, the pointer now over `base`. */
+export function dragTo(drag: Drag, base: number): Drag {
+	return { ...drag, over: base, travel: base - drag.anchor };
+}
+
+/**
+ * `drag` around a circle of `length` bases, the pointer now over `base`. It went the shorter way
+ * round from the base before, so it may run past the origin, and past a full turn.
+ */
+export function turnTo(drag: Drag, base: number, length: number): Drag {
+	const ahead = (((base - drag.over) % length) + length) % length;
+	const step = ahead > length / 2 ? ahead - length : ahead;
+	return { ...drag, over: base, travel: drag.travel + step };
+}
+
+/**
+ * The bases `drag` selects, from the base pressed to the base under the pointer: the whole
+ * record once it has gone a full turn.
+ */
+export function dragged({ anchor, travel }: Drag, bounds: Bounds): Selection {
+	const span =
+		Math.abs(travel) + 1 >= bounds.length
+			? { start: 0, end: bounds.length }
+			: travel < 0
+				? { start: anchor + travel, end: anchor + 1 }
+				: { start: anchor, end: anchor + travel + 1 };
+	return { spans: [within(span, bounds)], item: null };
+}
+
+/** The top strand's bases `selection` holds, in reading order; none at a point. */
+export function copied(selection: Selection, bases: string): string {
+	if (!("spans" in selection)) return "";
+	const { length } = bases;
+	return selection.spans
+		.map(({ start, end }) =>
+			end > length
+				? bases.slice(start) + bases.slice(0, end - length)
+				: bases.slice(start, end),
+		)
+		.join("");
+}
+
+/** `selection` as its caption says it: `151 .. 276 (126 bp)`. */
+export function caption(selection: Selection, bounds: Bounds): string {
+	if (!("spans" in selection)) return pointText(selection.at, bounds);
+	const { spans } = selection;
+	const { length } = bounds;
+	const count = spans.reduce((sum, { start, end }) => sum + end - start, 0);
+	return `${spans.map((span) => spanText(span, length)).join(", ")} (${count} bp)`;
+}
