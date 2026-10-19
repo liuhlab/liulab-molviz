@@ -13,6 +13,7 @@ import { folded } from "./format";
 import { type Label, labelOf } from "./labels";
 import {
 	CUT_BOX,
+	CUT_BOX_WIDTH,
 	INK,
 	INSERTION,
 	INSERTION_WIDTH,
@@ -299,7 +300,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 					corner: 0,
 					fill: "none",
 					stroke: painted(CUT_BOX, dim),
-					strokeWidth: OUTLINE_WIDTH,
+					strokeWidth: CUT_BOX_WIDTH,
 				});
 			}
 		}

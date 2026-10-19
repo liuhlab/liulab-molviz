@@ -68,8 +68,9 @@ export const LEADER = "#7f7f7f";
 /** The sequence view's rail and its ticks. */
 export const RAIL = LEADER;
 
-/** The box over a cut's recognition span in the sequence view. */
-export const CUT_BOX = LEADER;
+/** The box over a cut's recognition span in the sequence view, SeqViz's, and its thickness. */
+export const CUT_BOX = "#73777d";
+export const CUT_BOX_WIDTH = 1;
 
 /** The mark on a base a primer does not pair with. */
 export const MISMATCH = INSERTION;

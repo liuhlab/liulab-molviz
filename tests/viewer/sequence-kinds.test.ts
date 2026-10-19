@@ -341,8 +341,8 @@ describe("a cut site", () => {
 		expect(box).toMatchObject({
 			x: 110,
 			width: 66,
-			stroke: "#7f7f7f",
-			strokeWidth: 0.8,
+			stroke: "#73777d",
+			strokeWidth: 1,
 		});
 		expect(box.y).toBeCloseTo(top[0], 9);
 		expect(box.y + box.height).toBeCloseTo(bottom?.[1] ?? 0, 9);
