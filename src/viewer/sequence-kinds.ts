@@ -346,7 +346,7 @@ function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
 				y2,
 				stroke: label.color,
 				strokeWidth: INSERTION_WIDTH,
-				hover,
+				title: hover,
 			});
 			covers.push({
 				x: x - INSERTION_WIDTH / 2,

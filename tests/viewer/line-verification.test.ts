@@ -154,7 +154,7 @@ describe("a disagreement", () => {
 		expect(mark).toMatchObject({ x1: 360, x2: 360, strokeWidth: 2 });
 		expect(mark.y1).toBeCloseTo(-2.8);
 		expect(mark.y2).toBeCloseTo(6.6);
-		expect(mark.hover).toBe("insertion after 500 · 500^501");
+		expect(mark.title).toBe("insertion after 500 · 500^501");
 		const label = text(scene, "insertion after 500");
 		expect(label.fill).toBe("#ee7733");
 		expect(scene.shapes.filter((s) => s.shape === "rect")).toEqual([]);

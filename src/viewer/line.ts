@@ -30,6 +30,7 @@ import {
 	noticeShapes,
 	PAD_Y,
 	SMALL_SIZE,
+	tipped,
 } from "./labels";
 import type { Options } from "./options";
 import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
@@ -41,7 +42,7 @@ import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, type Face, height, measure } from "./text";
 
 /** The line's length, unless a layout is given another. */
-const WIDTH = 720;
+export const WIDTH = 720;
 
 /** How far an insertion's bar reaches past the backbone either side. */
 export const INSERTION_REACH = 1.5;
@@ -146,6 +147,7 @@ export function layoutLine(
 		top,
 		{
 			inPlace: drawn.flatMap((one) => one.inPlace ?? []),
+			tips: true,
 		},
 	);
 	shapes.push(...above.shapes);
@@ -199,7 +201,7 @@ function bars({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
 	const shapes = laid.flatMap((bar, i) =>
-		barShapes(bar, middles[tiers[i]], placed[i], false),
+		tipped(barShapes(bar, middles[tiers[i]], placed[i], false), bar.label),
 	);
 	const labels = laid.flatMap((bar, i) =>
 		placed[i] === "boxed"
@@ -254,13 +256,20 @@ function sites({ record, options, bounds, at }: Along): LineMarks {
 		(row) => first - row * step,
 	);
 	const tops = middles.map((middle) => middle - PRIMER_SHAFT / 2 - reach);
-	const shapes: Shape[] = drawn.map(({ arrow }, i) => ({
-		shape: "polygon",
-		points: outline(arrow, middles[i], PRIMER_SHAFT),
-		fill: arrow.color,
-		stroke: shaded(arrow.color),
-		strokeWidth: OUTLINE_WIDTH,
-	}));
+	const shapes = drawn.flatMap(({ arrow, label }, i) =>
+		tipped(
+			[
+				{
+					shape: "polygon",
+					points: outline(arrow, middles[i], PRIMER_SHAFT),
+					fill: arrow.color,
+					stroke: shaded(arrow.color),
+					strokeWidth: OUTLINE_WIDTH,
+				},
+			],
+			label,
+		),
+	);
 	const labels = drawn.map(({ arrow, label }, i) => ({
 		label,
 		x: (arrow.start + arrow.end) / 2,
@@ -285,16 +294,23 @@ function marks({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 	for (const { at: point, label, hover } of shownMarks(record, options)) {
 		const { color } = label;
 		for (const x of points(point, options.span, bounds).map(at)) {
-			shapes.push({
-				shape: "line",
-				x1: x,
-				y1,
-				x2: x,
-				y2,
-				stroke: color,
-				strokeWidth: INSERTION_WIDTH,
-				hover,
-			});
+			shapes.push(
+				...tipped(
+					[
+						{
+							shape: "line",
+							x1: x,
+							y1,
+							x2: x,
+							y2,
+							stroke: color,
+							strokeWidth: INSERTION_WIDTH,
+							title: hover,
+						},
+					],
+					label,
+				),
+			);
 			covers.push({
 				x: x - INSERTION_WIDTH / 2,
 				y: y1,

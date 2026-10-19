@@ -134,13 +134,13 @@ export function layoutPlate(plate: Plate): Scene {
 			const y = top + (row + ROW_DROP) * pitch;
 			shapes.push(axisLabel(label, size, x, y, "start"));
 		}
-		const [fill, hover] =
+		const [fill, title] =
 			contents === undefined
 				? [EMPTY, name]
 				: [fills.get(contents) ?? PALETTE[0], `${name}: ${contents}`];
 		const x = left + column * pitch + (pitch - well) / 2;
 		const y = top + row * pitch + (pitch - well) / 2;
-		shapes.push(disc(x, y, well, fill, hover));
+		shapes.push(disc(x, y, well, fill, title));
 	}
 	const grid = top + rows * pitch;
 	const bottom = entries.length
@@ -265,7 +265,7 @@ function disc(
 	y: number,
 	diameter: number,
 	fill: string,
-	hover?: string,
+	title?: string,
 ): Shape {
 	return {
 		shape: "rect",
@@ -277,6 +277,6 @@ function disc(
 		fill,
 		stroke: RULE,
 		strokeWidth: RULE_WIDTH,
-		hover,
+		title,
 	};
 }

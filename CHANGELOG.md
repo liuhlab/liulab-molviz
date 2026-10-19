@@ -75,6 +75,14 @@ sets one.
 - On a linear record, a feature may run off the end and on from the start, once: one of its
   segments may start lower than the one before it. The map and the sequence view draw each
   piece where it lies, with a grey join to the end it meets.
+- A record's page, and `molviz.draw`, put a bar of controls above the map. Its switches turn
+  each kind, each feature type and each enzyme on or off, and the map is laid out again. The
+  enzymes fold into a list, each with how many times it cuts. Circle and Line flip a whole
+  circular record, and Sequence shows the sequence view. The slider, or Ctrl or ⌘ with the
+  wheel, zooms the map from 1× to 8× about the pointer, and a zoomed map scrolls in its box.
+  The wheel turns the circle. Reset goes back to 1×, with the origin at the top. Resting the
+  pointer on an item shows its name, type, span and length at once. A print leaves out the
+  bar and prints the map at 1×, with the switches and the turn as they are.
 
 - The package carries a second script, the outline script, beside the viewer. It holds the
   shape of each letter, which a file draws.

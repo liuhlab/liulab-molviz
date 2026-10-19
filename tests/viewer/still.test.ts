@@ -50,10 +50,14 @@ function drawnOf(file: string): { root: string; children: string[] } {
 	};
 }
 
-/** `element` without its hover, written as a file writes it. */
-function withoutHover(element: string): string {
-	return element
-		.replace(/<title>.*?<\/title>/s, "")
+/**
+ * `markup` without its hovers, as a file writes it: no `<title>`, which a still drawing holds, and
+ * no hover a live map holds for the page's box. An element left empty closes itself.
+ */
+function withoutHovers(markup: string): string {
+	return markup
+		.replace(/<title>.*?<\/title>/gs, "")
+		.replace(/ data-molviz-hover="[^"]*"/g, "")
 		.replace(/^(<\w+[^>]*)><\/\w+>$/, "$1/>");
 }
 
@@ -125,7 +129,14 @@ test.each(
 		expect(held.children).toHaveLength(1);
 		// The parser keeps the namespace as an attribute too, which draws nothing.
 		held.children[0].removeAttribute("xmlns");
-		expect(held.children[0].isEqualNode(drawn.children[0])).toBe(true);
+		const [ours, theirs] = [held.children[0], drawn.querySelectorAll("svg")[0]];
+		if (theirs.querySelector("[data-molviz-hover]")) {
+			expect(withoutHovers(ours.outerHTML)).toBe(
+				withoutHovers(theirs.outerHTML),
+			);
+		} else {
+			expect(ours.isEqualNode(theirs)).toBe(true);
+		}
 	},
 );
 
@@ -145,7 +156,7 @@ describe.each(drawings)("the still SVG of $input", ({ still, file, scene }) => {
 				expect(theirs.children[i]).toMatch(
 					/^<g (?:transform="[^"]*" )?fill="[^"]*"(?:\/>|>(?:<use [^>]*\/>)*<\/g>)$/,
 				);
-			else expect(withoutHover(element)).toBe(theirs.children[i]);
+			else expect(withoutHovers(element)).toBe(theirs.children[i]);
 		});
 	});
 
@@ -203,7 +214,7 @@ describe("the still SVG of a record with its sequence view", () => {
 	const { document } = new Window();
 	const live = document.createElement("div");
 	draw(live as unknown as Element, primers, view);
-	const [map, sequence] = [...live.children];
+	const [map, sequence] = [...live.querySelectorAll("svg")];
 	const held = document.createElement("div");
 	held.innerHTML = stillSvg(primers, view).svg;
 	const [ground, ...still] = [...held.children[0].children];
@@ -214,7 +225,9 @@ describe("the still SVG of a record with its sequence view", () => {
 		expect(ground.tagName.toLowerCase()).toBe("rect");
 		expect(still).toHaveLength(mapShapes.length + viewShapes.length);
 		mapShapes.forEach((shape, i) => {
-			expect(still[i].isEqualNode(shape)).toBe(true);
+			expect(withoutHovers(still[i].outerHTML)).toBe(
+				withoutHovers(shape.outerHTML),
+			);
 		});
 		viewShapes.forEach((shape, i) => {
 			const ours = still[mapShapes.length + i];

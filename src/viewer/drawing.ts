@@ -4,7 +4,7 @@ import { layoutCircle } from "./circle";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
-import { layoutLine } from "./line";
+import { layoutLine, WIDTH } from "./line";
 import { checkOptions, type Options } from "./options";
 import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
@@ -53,12 +53,26 @@ export function prepareViews(
 /** Lay `record`'s map out as `options` say, and its sequence view if they draw one. */
 export function layoutViews(record: Record, options: Options): Views {
 	return {
-		map:
-			options.map === "circle"
-				? layoutCircle(record, options)
-				: layoutLine(record, options),
+		map: layoutMap(record, options),
 		sequence: options.sequence_view ? layoutSequence(record, options) : null,
 	};
+}
+
+/**
+ * Lay `record` out on the map `options` name, `zoom` times its opening size, the circle's origin
+ * turned `turn` degrees clockwise from the top.
+ */
+export function layoutMap(
+	record: Record,
+	options: Options,
+	{
+		zoom = 1,
+		turn = 0,
+	}: { readonly zoom?: number; readonly turn?: number } = {},
+): MapScene {
+	return options.map === "circle"
+		? layoutCircle(record, options, turn, zoom)
+		: layoutLine(record, options, WIDTH * zoom);
 }
 
 /** Check `gel` and lay it out. Throws one FormatError naming every problem in the gel. */

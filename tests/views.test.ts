@@ -42,7 +42,7 @@ function parsed(svg: string): string | undefined {
 	return holder.firstElementChild?.outerHTML;
 }
 
-test("the docs site draws each slot by its name, and says which name it does not know", () => {
+test("the docs site draws each slot by its name, a record under its bar, and says which name it does not know", () => {
 	const slots = open([
 		slot(null, "record", record),
 		slot("gel", "gel", gel),
@@ -50,6 +50,9 @@ test("the docs site draws each slot by its name, and says which name it does not
 	]);
 	expect(slots.map((s) => s.querySelectorAll("svg").length)).toEqual([1, 1, 0]);
 	expect(slots[2].querySelector("p")?.textContent).toContain('"tube"');
+	const bars = slots.map((s) => s.querySelectorAll(".molviz > .bar").length);
+	expect(bars).toEqual([1, 0, 0]);
+	expect(slots[0].querySelector(".molviz > .map > svg")).not.toBeNull();
 });
 
 test("a still slot holds its input's still drawing, and the page holds the font rules once", () => {

@@ -69,7 +69,8 @@ out takes its default.
 A page can show a drawing in two ways.
 
 - **Live.** Put `viewer_script()` in a `<script>` element once. Then call
-  `molviz.draw(element, record, options)` for each place on the page that shows a record.
+  `molviz.draw(element, record, options)` for each place on the page that shows a record. Each
+  gets a bar of controls above its map, which a print leaves out.
 - **Still.** Put `font_rules()` in a `<style>` element once. Then write each drawing's
   `still_svg()` into the page as it is. The page needs no script. A still drawing looks the
   same as a live one, and its hovers show, but a reader cannot change it.
