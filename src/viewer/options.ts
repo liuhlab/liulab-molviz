@@ -5,14 +5,25 @@
 
 import * as v from "valibot";
 import { uniqueCutters } from "./cuts";
-import { exact, folded, list, oneOf, parse, Text } from "./format";
+import {
+	exact,
+	folded,
+	list,
+	oneOf,
+	PositiveInteger,
+	parse,
+	Text,
+} from "./format";
 import { KINDS } from "./labels";
 import { type Record, span } from "./record";
+import { LIMIT } from "./sequence";
+
+const OnOff = v.boolean("must be true or false");
 
 function optionsSchema(record: Record) {
 	const bounds = { length: record.bases.length, circular: record.circular };
 	const names = answersTo(record);
-	return exact({
+	const options = exact({
 		/** Draw only this stretch, as a line numbered as the record. The whole record by default. */
 		span: v.optional(span(bounds), () => ({ start: 0, end: bounds.length })),
 		/** The map a page opens on, or the one a file draws. */
@@ -39,7 +50,30 @@ function optionsSchema(record: Record) {
 			),
 			() => [],
 		),
+		/** Whether the sequence view is drawn, for a span of at most `LIMIT` bases. */
+		sequence_view: v.optional(OnOff, false),
+		/** How many bases a row of the sequence view holds, the last row perhaps fewer. */
+		bases_per_row: v.optional(PositiveInteger, 60),
+		/** Whether the sequence view draws the bottom strand under the top. */
+		bottom_strand: v.optional(OnOff, true),
 	});
+	return v.pipe(
+		options,
+		v.forward(
+			v.check(
+				({ span, sequence_view }) =>
+					!sequence_view || span.end - span.start <= LIMIT,
+				({ input: { span } }) =>
+					`must be false past ${grouped(LIMIT)} bases, and the span holds ${grouped(span.end - span.start)}`,
+			),
+			["sequence_view"],
+		),
+	);
+}
+
+/** `n` with its thousands grouped by commas, as `100,000`. */
+function grouped(n: number): string {
+	return String(n).replace(/\B(?=(\d{3})+$)/g, ",");
 }
 
 /** A drawing's options, with each one left out at its default. */
