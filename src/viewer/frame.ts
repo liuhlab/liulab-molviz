@@ -387,7 +387,10 @@ function declareStyle(document: Document): void {
 	document.head.append(style);
 }
 
-/** The frames' rules, each under `.molviz` so a site's own styles leave the bar alone. */
+/**
+ * The frames' rules, each under `.molviz` so a site's own styles leave the bar alone. The enzyme
+ * list outranks a docs theme's rules for `<details>`, and takes the browser's own look back.
+ */
 function css(): string {
 	return `
 .molviz .bar {
@@ -406,7 +409,13 @@ function css(): string {
 }
 .molviz .bar input { margin: 0; }
 .molviz .bar fieldset:disabled { color: ${LEADER}; }
-.molviz .bar summary { cursor: pointer; }
+.molviz .bar .enzymes { all: revert; }
+.molviz .bar .enzymes > summary { all: revert; cursor: pointer; }
+.molviz .bar .enzymes > summary::before, .molviz .bar .enzymes > summary::after {
+	content: none;
+}
+.molviz .bar .enzymes > summary::-webkit-details-marker { display: revert; }
+.molviz .bar .enzymes > fieldset { margin: 0; }
 .molviz .bar .views { gap: 0; margin-left: auto; }
 .molviz .bar .views label {
 	position: relative; padding: 2px 10px; border: 1px solid ${LEADER}; cursor: pointer;

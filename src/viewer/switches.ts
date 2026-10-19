@@ -77,6 +77,7 @@ export function switches(frame: Frame): void {
 	);
 	const summary = document.createElement("summary");
 	const folding = document.createElement("details");
+	folding.className = "enzymes";
 	folding.append(summary, list);
 
 	const refresh = () => {
