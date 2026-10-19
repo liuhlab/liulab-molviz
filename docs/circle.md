@@ -66,6 +66,39 @@ each grows too thin to hold its name, so every name goes to a column.
 </script>
 </div>
 
+## ap1-block-vector-1
+
+The vector the AP-1 library is built in, before any part goes in. A short stuffer sits where
+the first part will go.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-block-vector-1.json"
+</script>
+</div>
+
+## ap1-round-1
+
+The vector after the first round. The part `N_JUN` and its barcode have replaced the stuffer,
+and a new stuffer sits where the next part will go.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-round-1.json"
+</script>
+</div>
+
+## ap1-round-2
+
+The vector after the second round, with `DBD_JUN` joined after `N_JUN`. The third round makes
+`ap1-product`.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-round-2.json"
+</script>
+</div>
+
 ## colour-test
 
 Joined, white and grey features. The `split` CDS joins three segments, and the `across`

@@ -190,6 +190,8 @@ GEL = {
 
 PLATE = {"title": "picked 1", "rows": 8, "columns": 12, "wells": {"A1": "quarter 1"}}
 
+FIGURE = [DRAWN, {**DRAWN, "name": "pTest 2"}]
+
 # Each draw call with an input it draws, and its page's title.
 DRAWS = [
     pytest.param(molviz.draw, DRAWN, "pTest", id="record"),
@@ -199,6 +201,7 @@ DRAWS = [
         "pTest",
         id="record with its sequence view",
     ),
+    pytest.param(molviz.draw_figure, FIGURE, "pTest, pTest 2", id="figure"),
     pytest.param(molviz.draw_gel, GEL, "PCR products", id="gel"),
     pytest.param(molviz.draw_plate, PLATE, "picked 1", id="plate"),
 ]

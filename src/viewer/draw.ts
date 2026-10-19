@@ -1,6 +1,7 @@
 /** An input drawn live into an element of a page. */
 
 import { prepareGel, preparePlate, prepareViews } from "./drawing";
+import { prepareFigure } from "./figure";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { fontFaceCss } from "./text";
@@ -37,6 +38,20 @@ export function draw(
 			for (const one of drawn) one.destroy();
 		},
 	};
+}
+
+/**
+ * Draw `records` stacked, each with `options`, into `element`, after what it holds, its letters
+ * as real text. A still drawing, with no switches. A span past the sequence view's limit leaves
+ * the view out. Throws one FormatError naming every problem in the records, or else in the
+ * options.
+ */
+export function drawFigure(
+	element: Element,
+	records: unknown,
+	options: unknown = {},
+): LiveDrawing {
+	return drawScene(element, prepareFigure(records, options, { page: true }));
 }
 
 /**

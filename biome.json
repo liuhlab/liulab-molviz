@@ -4,6 +4,7 @@
 		{
 			"includes": [
 				"tests/records/*.json",
+				"tests/figures/*.json",
 				"tests/gels/*.json",
 				"tests/plates/*.json"
 			],

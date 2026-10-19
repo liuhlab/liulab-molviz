@@ -38,17 +38,29 @@ sets one.
   `molviz.drawPlate(element, plate)` draws it into an element of a page.
   `molviz.plateSvg(plate)` returns the drawing as `{svg, pages, hidden, notice}`, as
   `molviz.svg` does. On a page, resting the pointer on a well shows its name and its contents.
-- In the viewer, `molviz.calls` names the calls for each input, `record`, `gel` or `plate`: the
-  one that checks it, the one that draws it into an element, and the one that returns SVG.
+- `draw_figure(records, **options)` checks records and the options they share, and returns a
+  `Drawing` of them stacked top to bottom, which writes the same four endings as a record's.
+  Each is drawn on the map `draw` gives it, and a circle is centred on the lines.
+  When two or more stack, each has its name above it. A name to highlight lights what answers
+  to it in every record, and a record with nothing lit is dimmed whole. With the sequence view,
+  each record's rows sit under its map, and a PDF has the maps on its first page, then each
+  record's rows on the pages after.
+- In the viewer, `molviz.checkFigure(records)` checks a figure's records,
+  `molviz.drawFigure(element, records, options)` draws them into an element of a page, and
+  `molviz.figureSvg(records, options)` returns the drawing as `{svg, pages, hidden, notice}`.
+- In the viewer, `molviz.calls` names the calls for each input, `record`, `gel`, `plate` or
+  `figure`: the one that checks it, the one that draws it into an element, and the one that
+  returns SVG.
 - `Drawing.still_svg()` returns the drawing as SVG with real text, for a page with no
   viewer. It is laid out as the `.svg` file is and hides the same labels; each hover is a
   tooltip. `font_rules()` returns the CSS such a page writes once, in a `<style>` element,
   to load the viewer's fonts.
-- In the viewer, `molviz.stillSvg(record, options)`, `molviz.gelStillSvg(gel)` and
-  `molviz.plateStillSvg(plate)` return a still drawing as `{svg, hidden, notice}`, and
-  `molviz.fontRules()` returns the font rules. `molviz.calls` names each input's still call.
-- A gel's or a plate's `.html` page holds its still drawing and the font rules, and no
-  viewer. A record's page still draws it with the viewer.
+- In the viewer, `molviz.stillSvg(record, options)`, `molviz.gelStillSvg(gel)`,
+  `molviz.plateStillSvg(plate)` and `molviz.figureStillSvg(records, options)` return a still
+  drawing as `{svg, hidden, notice}`, and `molviz.fontRules()` returns the font rules.
+  `molviz.calls` names each input's still call.
+- A gel's, a plate's or a figure's `.html` page holds its still drawing and the font rules,
+  and no viewer. A record's page still draws it with the viewer.
 - A new runtime dependency: vl-convert-python, which writes PNG and PDF.
 - `draw(record, sequence_view=True)` draws the sequence view under the map: the bases in rows
   on both strands, with what is drawn on them. `bases_per_row` sets a row's length, and
@@ -58,17 +70,17 @@ sets one.
 - `Drawing.write` refuses a PNG past 2**22 pixels on a side or 2**28 in all, and says to write
   a PDF instead.
 - In the viewer, `molviz.SEQUENCE_VIEW_LIMIT`, and the sequence view drawn under the map by
-  `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` leaves the view out, and
-  `molviz.svg` raises an error.
+  `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` and `molviz.drawFigure` leave
+  the view out, and `molviz.svg`, `molviz.figureSvg` and the still calls raise an error.
 - On a linear record, a feature may run off the end and on from the start, once: one of its
   segments may start lower than the one before it. The map and the sequence view draw each
   piece where it lies, with a grey join to the end it meets.
 
 - The package carries a second script, the outline script, beside the viewer. It holds the
   shape of each letter, which a file draws.
-- In the viewer, `molviz.svg`, `molviz.gelSvg` and `molviz.plateSvg` need the outline script
-  run beside the viewer, and throw an error without it. Drawing on a page and the still calls
-  need only the viewer.
+- In the viewer, `molviz.svg`, `molviz.gelSvg`, `molviz.plateSvg` and `molviz.figureSvg` need
+  the outline script run beside the viewer, and throw an error without it. Drawing on a page
+  and the still calls need only the viewer.
 - The viewer measures text from tables made from its fonts when it is built, and a page loads
   the fonts as WOFF2. Its script is about a third of the size it was, and every drawing is
   the same.

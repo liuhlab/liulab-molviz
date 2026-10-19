@@ -1,6 +1,6 @@
 import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
-import { draw, drawGel, drawPlate } from "../../src/viewer/draw";
+import { draw, drawFigure, drawGel, drawPlate } from "../../src/viewer/draw";
 import {
 	gelSvg,
 	plateSvg,
@@ -11,8 +11,10 @@ import {
 	stackedViews,
 	svg,
 } from "../../src/viewer/drawing";
+import { figureSvg, prepareFigure } from "../../src/viewer/figure";
 import { FormatError } from "../../src/viewer/format";
 import {
+	figureStillSvg,
 	fontRules,
 	gelStillSvg,
 	plateStillSvg,
@@ -28,6 +30,7 @@ import puc19 from "../records/puc19-gfp-product.json";
 const every = { enzymes: [...new Set(ap1.cuts.map((cut) => cut.enzyme))] };
 const line = { ...every, map: "line" };
 const view = { sequence_view: true };
+const figure = [ap1, primers];
 
 /** The root's opening tag, and each element inside it as written. */
 function elements(written: string): { root: string; children: string[] } {
@@ -83,6 +86,13 @@ const drawings = [
 		file: svg(primers, view),
 		scene: stackedViews(prepareViews(primers, view)),
 		live: undefined,
+	},
+	{
+		input: "a figure of two records",
+		still: figureStillSvg(figure, line),
+		file: figureSvg(figure, line),
+		scene: prepareFigure(figure, line),
+		live: (element: Element) => drawFigure(element, figure, line),
 	},
 	{
 		input: "a gel",
@@ -274,6 +284,12 @@ test.each([
 	},
 	{
 		call: () => stillSvg({ ...record, bases: "ACGT".repeat(25_001) }, view),
+		problem:
+			"options.sequence_view: must be false past 100,000 bases, and the span holds 100,004",
+	},
+	{
+		call: () =>
+			figureStillSvg([{ ...record, bases: "ACGT".repeat(25_001) }], view),
 		problem:
 			"options.sequence_view: must be false past 100,000 bases, and the span holds 100,004",
 	},

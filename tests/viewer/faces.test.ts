@@ -4,7 +4,12 @@ import { expect, test, vi } from "vitest";
 import { readFace } from "../../scripts/font-tables";
 import { FACES, type Face, type Place, places } from "../../src/viewer/faces";
 import { twoDecimals } from "../../src/viewer/scene";
-import { gelStillSvg, plateStillSvg, stillSvg } from "../../src/viewer/still";
+import {
+	figureStillSvg,
+	gelStillSvg,
+	plateStillSvg,
+	stillSvg,
+} from "../../src/viewer/still";
 import { outlineOf } from "../../src/viewer/text";
 
 const recorded = vi.hoisted(() => ({
@@ -34,7 +39,9 @@ vi.mock("../../src/viewer/faces", async (importOriginal) => {
 	};
 });
 
-function inputs(folder: string): { cuts?: { enzyme: string }[] }[] {
+function inputs<Input = { cuts?: { enzyme: string }[] }>(
+	folder: string,
+): Input[] {
 	return readdirSync(`tests/${folder}`)
 		.filter((name) => name.endsWith(".json"))
 		.map((name) => JSON.parse(readFileSync(`tests/${folder}/${name}`, "utf8")));
@@ -49,6 +56,17 @@ for (const record of inputs("records")) {
 }
 for (const gel of inputs("gels")) gelStillSvg(gel);
 for (const plate of inputs("plates")) plateStillSvg(plate);
+for (const { records, options } of inputs<{
+	records: string[];
+	options: unknown;
+}>("figures")) {
+	figureStillSvg(
+		records.map((name) =>
+			JSON.parse(readFileSync(`tests/records/${name}.json`, "utf8")),
+		),
+		options,
+	);
+}
 
 const fonts = Object.fromEntries(
 	FACES.map((face) => [face, readFace(face)]),
