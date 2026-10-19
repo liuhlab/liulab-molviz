@@ -8,6 +8,7 @@ import {
 	barsOf,
 	type ColoredFeature,
 	coloredFeatures,
+	disagreementBars,
 	isUnder,
 	OVERHANG,
 	pack,
@@ -117,9 +118,11 @@ export function layoutSequence(
 		perRow * CELL +
 		LAST_GAP +
 		Math.max(...lasts.map((text) => measure(text, "sans", SMALL_SIZE)));
-	const drawables = options.kinds_off.includes("features")
-		? []
-		: coloredFeatures(record, options);
+	const off = new Set(options.kinds_off);
+	const drawables = [
+		...(off.has("features") ? [] : coloredFeatures(record, options)),
+		...(off.has("disagreements") ? [] : disagreementBars(record, options)),
+	];
 	const sampled = sampledRows(record, options);
 	const shapes: Shape[] = [];
 	const rows: Box[] = [];
