@@ -5,7 +5,7 @@
 
 import * as v from "valibot";
 import { uniqueCutters } from "./cuts";
-import { exact, list, parse, Text } from "./format";
+import { exact, folded, list, parse, Text } from "./format";
 import { KINDS } from "./labels";
 import { type Record, span } from "./record";
 
@@ -59,11 +59,6 @@ export type Options = v.InferOutput<ReturnType<typeof optionsSchema>>;
  */
 export function checkOptions(input: unknown, record: Record): Options {
 	return parse(optionsSchema(record), input, { prefix: "options" });
-}
-
-/** `name` as options match it, whatever its case. */
-export function folded(name: string): string {
-	return name.toLowerCase();
 }
 
 /**

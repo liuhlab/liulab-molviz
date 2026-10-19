@@ -3,6 +3,7 @@
  * the right and y down, the line running right from (0, 0).
  */
 
+import { cutSites } from "./cuts";
 import {
 	GAP,
 	hiddenOf,
@@ -111,7 +112,7 @@ const DRAWS: { readonly [K in Kind]: (along: Along) => Drawn } = {
 	primers,
 	insertions,
 	features,
-	cuts: () => NOTHING,
+	cuts,
 };
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
@@ -292,6 +293,18 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 			: [],
 	);
 	return { shapes, labels, top: Number.POSITIVE_INFINITY, bottom: y };
+}
+
+/** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
+function cuts({ record, options, bounds, at, backboneTop }: Along): Drawn {
+	const labels = cutSites(record, options.enzymes).flatMap((site) =>
+		points(site.at, options.span, bounds).map((point) => ({
+			label: site.label,
+			x: at(point),
+			foot: backboneTop,
+		})),
+	);
+	return { ...NOTHING, labels };
 }
 
 /**

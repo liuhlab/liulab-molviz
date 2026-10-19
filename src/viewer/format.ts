@@ -65,6 +65,11 @@ export const PositiveInteger = v.pipe(
 
 export const Text = v.string("must be text");
 
+/** `name` as a name given in an input matches, whatever its case. */
+export function folded(name: string): string {
+	return name.toLowerCase();
+}
+
 export function list<T extends v.GenericSchema>(item: T) {
 	return v.array(item, "must be a list");
 }
