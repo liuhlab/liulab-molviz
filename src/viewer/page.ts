@@ -3,6 +3,7 @@
  * that. A control changes the page's state, then calls `redraw`.
  */
 
+import { aroundBoxes } from "./bounds";
 import { layoutMap } from "./drawing";
 import type { MapScene } from "./labels";
 import { LIMIT, type Options } from "./options";
@@ -11,6 +12,7 @@ import type { Scene } from "./scene";
 import { layoutSequence } from "./sequence";
 import { toElement } from "./svg";
 import { families } from "./text";
+import { addTurn } from "./turn";
 import { addZoom } from "./zoom";
 
 /** The style element holding the pages' rules, shared by every page on a document. */
@@ -49,9 +51,10 @@ export interface Page {
 	drawn(): { readonly extent: Scene["extent"]; readonly scale: number };
 	/**
 	 * Lay out again what the state changed and swap it in, returning the map. The map flipped
-	 * from keeps its scroll, and the one flipped to gets its own back.
+	 * from keeps its scroll, and the one flipped to gets its own back. With `hold`, the map's box
+	 * takes in the one shown, so a circle turning stays in place.
 	 */
-	redraw(): MapScene;
+	redraw(hold?: boolean): MapScene;
 	/** Remove the page, leaving the styles for any other. Calling it again does nothing. */
 	destroy(): void;
 }
@@ -119,7 +122,7 @@ export function openPage(
 		box.style.height = zoomed ? `${size.height * scale}px` : "";
 	};
 
-	const redraw = () => {
+	const redraw = (hold = false) => {
 		const name = state.options.map;
 		const map = state.maps[name];
 		const flipped = shown?.name !== name;
@@ -127,7 +130,11 @@ export function openPage(
 			state.maps[shown.name].left = box.scrollLeft;
 			state.maps[shown.name].top = box.scrollTop;
 		}
-		const scene = layoutMap(record, state.options, map);
+		const laid = layoutMap(record, state.options, map);
+		const scene =
+			hold && shown !== null && !flipped
+				? { ...laid, extent: aroundBoxes([shown.extent, laid.extent]) }
+				: laid;
 		if (map.zoom === 1) sizes.set(name, scene.extent);
 		const svg = toElement(scene, document);
 		if (shown === null) box.append(svg);
@@ -175,6 +182,7 @@ export function openPage(
 		},
 	};
 	addZoom(page);
+	addTurn(page);
 	return page;
 }
 

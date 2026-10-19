@@ -102,9 +102,14 @@ export function eachFrame(view: Window | null, run: () => void): () => void {
 
 /**
  * Change `page`'s state with `change`, lay its map out again, and scroll its box so the spot `at`
- * stays over the same place of the map.
+ * stays over the same place of the map. With `hold`, the map's box takes in the one before.
  */
-export function redrawKeeping(page: Page, at: Spot, change: () => void): void {
+export function redrawKeeping(
+	page: Page,
+	at: Spot,
+	change: () => void,
+	hold = false,
+): void {
 	const { extent: before, scale } = page.drawn();
 	const from = page.shown().zoom;
 	change();
@@ -112,7 +117,7 @@ export function redrawKeeping(page: Page, at: Spot, change: () => void): void {
 	const scroll = anchored(
 		page.state.options.map,
 		before,
-		page.redraw().extent,
+		page.redraw(hold).extent,
 		{
 			scale,
 			at,
