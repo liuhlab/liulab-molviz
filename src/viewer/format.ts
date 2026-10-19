@@ -74,6 +74,14 @@ export function list<T extends v.GenericSchema>(item: T) {
 	return v.array(item, "must be a list");
 }
 
+/** One of `values`, with a message that lists them, text in quotes. */
+export function oneOf<const T extends readonly (number | string)[]>(values: T) {
+	const shown = values.map((value) => JSON.stringify(value));
+	const last = shown.pop();
+	const listed = shown.length ? `${shown.join(", ")} or ${last}` : last;
+	return v.picklist(values, `must be ${listed}`);
+}
+
 /** How `parse` writes a problem's path. */
 export interface Naming {
 	/** What starts every path, such as `options`. */

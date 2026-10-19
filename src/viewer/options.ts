@@ -5,7 +5,7 @@
 
 import * as v from "valibot";
 import { uniqueCutters } from "./cuts";
-import { exact, folded, list, parse, Text } from "./format";
+import { exact, folded, list, oneOf, parse, Text } from "./format";
 import { KINDS } from "./labels";
 import { type Record, span } from "./record";
 
@@ -16,19 +16,11 @@ function optionsSchema(record: Record) {
 		/** Draw only this stretch, as a line numbered as the record. The whole record by default. */
 		span: v.optional(span(bounds), () => ({ start: 0, end: bounds.length })),
 		/** The map a page opens on, or the one a file draws. */
-		map: v.optional(v.picklist(["line"], 'must be "line"'), "line"),
+		map: v.optional(oneOf(["line"]), "line"),
 		/** The feature types off at the start. A type the record lacks is ignored. */
 		types_off: v.optional(list(Text), () => ["source"]),
 		/** The kinds off at the start. */
-		kinds_off: v.optional(
-			list(
-				v.picklist(
-					KINDS,
-					'must be "features", "primers", "cuts" or "insertions"',
-				),
-			),
-			() => [],
-		),
+		kinds_off: v.optional(list(oneOf(KINDS)), () => []),
 		/**
 		 * The enzymes whose cut sites are on at the start, the unique cutters by default. A name
 		 * matches whatever its case; one with no cut in the record is ignored.

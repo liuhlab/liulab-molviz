@@ -7,6 +7,7 @@ import { cutSites } from "./cuts";
 import {
 	GAP,
 	hiddenOf,
+	KINDS,
 	type Kind,
 	LABEL_SIZE,
 	type Label,
@@ -118,8 +119,13 @@ const DRAWS: { readonly [K in Kind]: (along: Along) => Drawn } = {
 	cuts,
 };
 
-/** The order kinds draw in and their labels gather in, where the first sits lowest at one x. */
-const ORDER: readonly Kind[] = ["features", "primers", "insertions", "cuts"];
+/** Each kind's place in the order kinds draw and their labels gather, the first lowest at one x. */
+const ORDER: { readonly [K in Kind]: number } = {
+	features: 0,
+	primers: 1,
+	insertions: 2,
+	cuts: 3,
+};
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
 interface Piece {
@@ -177,9 +183,10 @@ export function layout(
 	const backboneTop = -BACKBONE / 2;
 	const along: Along = { record, options, bounds, at, backboneTop };
 	const off = new Set(options.kinds_off);
-	const drawn = ORDER.filter((kind) => !off.has(kind)).map((kind) =>
-		DRAWS[kind](along),
-	);
+	const drawn = [...KINDS]
+		.sort((a, b) => ORDER[a] - ORDER[b])
+		.filter((kind) => !off.has(kind))
+		.map((kind) => DRAWS[kind](along));
 	const shapes: Shape[] = [
 		...backbone(width),
 		...ends(

@@ -106,13 +106,21 @@ export function labelShapes(label: Label, box: Box): Shape[] {
 	return shapes;
 }
 
-/** Each kind in the order its labels hide, first to hide first, and what the notice calls it. */
-const HIDING: readonly (readonly [Kind, string])[] = [
-	["cuts", "enzyme site"],
-	["primers", "primer"],
-	["features", "feature"],
-	["insertions", "insertion"],
-];
+/** Each kind's place in the order labels hide, first to hide first. */
+const HIDING: { readonly [K in Kind]: number } = {
+	cuts: 0,
+	primers: 1,
+	features: 2,
+	insertions: 3,
+};
+
+/** What the notice calls one label of each kind. */
+const WORDS: { readonly [K in Kind]: string } = {
+	cuts: "enzyme site",
+	primers: "primer",
+	features: "feature",
+	insertions: "insertion",
+};
 
 /**
  * Sort labels by this, first to hide first: dimmed before lit, then by kind as `HIDING` orders
@@ -121,7 +129,7 @@ const HIDING: readonly (readonly [Kind, string])[] = [
 export function hidingOrder(a: Label, b: Label): number {
 	const key = (label: Label) => [
 		label.dim ? 0 : 1,
-		HIDING.findIndex(([kind]) => kind === label.kind),
+		HIDING[label.kind],
 		-label.cuts,
 		-textOf(label).length,
 	];
@@ -147,7 +155,9 @@ function textOf(label: Label): string {
  * are hidden", or nothing when none did.
  */
 export function notice(hidden: readonly { readonly kind: Kind }[]): string {
-	const parts = HIDING.flatMap(([kind, word]) => {
+	const kinds = [...KINDS].sort((a, b) => HIDING[a] - HIDING[b]);
+	const parts = kinds.flatMap((kind) => {
+		const word = WORDS[kind];
 		const n = hidden.filter((one) => one.kind === kind).length;
 		return n ? [`${n} ${n === 1 ? word : `${word}s`}`] : [];
 	});
