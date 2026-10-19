@@ -11,9 +11,9 @@ a span across the origin lets `end` pass the record's length: on 2,686 bp, a 6 b
 origin is `(2683, 2689)`. On a circular record a joined feature's segments ascend, each one after
 the origin counted past the length, and no feature runs more than one turn. On a linear record
 they ascend too, except that a feature may run off the record's end and on from its start, once,
-as on an amplicon that starts inside it. A segment after the end starts lower than the one
-before it and ends at or before where the first segment starts, and nothing is counted past the
-length.
+as on an amplicon that starts inside it. The first segment after the end starts lower than
+the one before it, every segment after the end ends at or before where the first segment
+starts, and nothing is counted past the length.
 
 A point between two bases, such as a cut or an insertion, is the number of bases before it. That
 is also the 1-based number of the base it follows, so a cut after base 406 is `406`. A single
