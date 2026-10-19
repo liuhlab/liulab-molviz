@@ -10,6 +10,7 @@ import {
 	overhang,
 	PRIMER_BAND,
 	PRIMER_GAP,
+	roomiest,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
 import { type Anchored, columns, type Point, REACH } from "./columns";
@@ -365,12 +366,11 @@ function features(
 				head: heads ? Math.min(HEAD / radius, (end - start) / heads) : 0,
 			};
 		});
-		const roomiest = arrows.reduce((a, b) => (room(b) > room(a) ? b : a));
 		return {
 			label,
 			arrows,
 			hull: hulls[i],
-			name: nameOn(label.name, roomiest),
+			name: nameOn(label.name, roomiest(arrows, room)),
 		};
 	});
 }

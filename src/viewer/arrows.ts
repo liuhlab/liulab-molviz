@@ -219,6 +219,14 @@ function room(arrow: Arrow, zigzag: boolean): number {
 	return last - first;
 }
 
+/** The first of `arrows` with the most room for a name, as `room` measures it. */
+export function roomiest<T>(
+	arrows: readonly T[],
+	room: (arrow: T) => number,
+): T {
+	return arrows.reduce((a, b) => (room(b) > room(a) ? b : a));
+}
+
 /**
  * Where each bar's name goes. Inside the arrow with most room, when it fits there clear of any
  * zigzag edge `zigzag` gives it. Otherwise under the bar, centred, and kept from 0 to `width` if
@@ -250,11 +258,9 @@ export function places(
 				continue;
 			}
 			const wide = measure(name, "sans", LABEL_SIZE);
-			const roomiest = bar.arrows.reduce((a, b) =>
-				room(b, zigzag) > room(a, zigzag) ? b : a,
-			);
-			if (wide + 2 * PAD_X <= room(roomiest, zigzag) && lineHeight <= BAND) {
-				placed[i] = { inside: roomiest };
+			const most = roomiest(bar.arrows, (arrow) => room(arrow, zigzag));
+			if (wide + 2 * PAD_X <= room(most, zigzag) && lineHeight <= BAND) {
+				placed[i] = { inside: most };
 				continue;
 			}
 			const centred = (bar.start + bar.end - wide) / 2;
