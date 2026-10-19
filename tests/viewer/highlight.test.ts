@@ -226,12 +226,7 @@ describe("a highlight", () => {
 		expect(fill(lit, "Lit")).toBe("#000000");
 	});
 
-	// The line draws no read or disagreement, so nothing on a trace record dims.
-	const dimmable = Object.entries(records).filter(
-		([path]) => !path.includes("/trace-"),
-	);
-
-	test.each(dimmable)("moves nothing in %s", (_, record) => {
+	test.each(Object.entries(records))("moves nothing in %s", (_, record) => {
 		const [name, ...others] = answersTo(check(record));
 		const plain = lay(record);
 		const lit = lay(record, { highlight: [name] });
