@@ -35,6 +35,29 @@ everything else turns pale grey. Nothing moves.
 </script>
 </div>
 
+## puc19-backbone-amplicon
+
+A linear PCR product that starts inside lacZα. The lacZα CDS runs past the record's right end
+and on from its left end, so the map draws it in two pieces. A thin line joins each piece to
+the end it meets.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-backbone-amplicon.json"
+</script>
+</div>
+
+## gfp-amplicon
+
+A linear PCR product of GFP. Its GFP CDS ends at a Golden Gate overhang, and both of its
+primers have 5' tails.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/gfp-amplicon.json"
+</script>
+</div>
+
 ## ap1-product
 
 A larger product with many features, some on no strand.

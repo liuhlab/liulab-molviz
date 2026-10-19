@@ -59,6 +59,9 @@ sets one.
 - In the viewer, `molviz.SEQUENCE_VIEW_LIMIT`, and the sequence view drawn under the map by
   `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` leaves the view out, and
   `molviz.svg` raises an error.
+- On a linear record, a feature may run off the end and on from the start, once: one of its
+  segments may start lower than the one before it. The map and the sequence view draw each
+  piece where it lies, with a thin line to the end it meets.
 
 ### Removed
 
