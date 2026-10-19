@@ -49,6 +49,16 @@ sets one.
   viewer. A record's page still draws it with the viewer.
 - Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
   opentype.js, built into the viewer, which reads its fonts.
+- `draw(record, sequence_view=True)` draws the sequence view under the map: the bases in rows
+  on both strands, with what is drawn on them. `bases_per_row` sets a row's length, and
+  `bottom_strand=False` leaves the bottom strand out. It draws at most
+  `SEQUENCE_VIEW_LIMIT` bases, 100,000. A PDF of it has the map on its first page and the rows
+  on the pages after, joined by pypdf, a new runtime dependency.
+- `Drawing.write` refuses a PNG past 2**22 pixels on a side or 2**28 in all, and says to write
+  a PDF instead.
+- In the viewer, `molviz.SEQUENCE_VIEW_LIMIT`, and the sequence view drawn under the map by
+  `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` leaves the view out, and
+  `molviz.svg` raises an error.
 
 ### Removed
 

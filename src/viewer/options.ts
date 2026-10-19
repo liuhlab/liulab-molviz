@@ -5,14 +5,27 @@
 
 import * as v from "valibot";
 import { uniqueCutters } from "./cuts";
-import { exact, folded, list, oneOf, parse, Text } from "./format";
+import {
+	exact,
+	folded,
+	list,
+	oneOf,
+	PositiveInteger,
+	parse,
+	Text,
+} from "./format";
 import { KINDS } from "./labels";
-import { type Record, span } from "./record";
+import { type Record, type Span, span } from "./record";
 
-function optionsSchema(record: Record) {
+const OnOff = v.boolean("must be true or false");
+
+/** The most bases of a span the sequence view draws. */
+export const LIMIT = 100_000;
+
+function optionsSchema(record: Record, page: boolean) {
 	const bounds = { length: record.bases.length, circular: record.circular };
 	const names = answersTo(record);
-	return exact({
+	const options = exact({
 		/** Draw only this stretch, as a line numbered as the record. The whole record by default. */
 		span: v.optional(span(bounds), () => ({ start: 0, end: bounds.length })),
 		/** The map a page opens on, or the one a file draws. */
@@ -39,18 +52,51 @@ function optionsSchema(record: Record) {
 			),
 			() => [],
 		),
+		/**
+		 * Whether the sequence view is drawn, for a span of at most `LIMIT` bases. Past that a
+		 * page leaves it out, and for a file it is an error.
+		 */
+		sequence_view: v.optional(OnOff, false),
+		/** How many bases a row of the sequence view holds, the last row perhaps fewer. */
+		bases_per_row: v.optional(PositiveInteger, 60),
+		/** Whether the sequence view draws the bottom strand under the top. */
+		bottom_strand: v.optional(OnOff, true),
 	});
+	const fits = ({ start, end }: Span) => end - start <= LIMIT;
+	return v.pipe(
+		options,
+		v.transform((given) =>
+			page && !fits(given.span) ? { ...given, sequence_view: false } : given,
+		),
+		v.forward(
+			v.check(
+				({ span, sequence_view }) => !sequence_view || fits(span),
+				({ input: { span } }) =>
+					`must be false past ${grouped(LIMIT)} bases, and the span holds ${grouped(span.end - span.start)}`,
+			),
+			["sequence_view"],
+		),
+	);
+}
+
+/** `n` with its thousands grouped by commas, as `100,000`. */
+function grouped(n: number): string {
+	return String(n).replace(/\B(?=(\d{3})+$)/g, ",");
 }
 
 /** A drawing's options, with each one left out at its default. */
 export type Options = v.InferOutput<ReturnType<typeof optionsSchema>>;
 
 /**
- * Return `input` as options for drawing `record`, or throw one FormatError naming every
- * problem by its path from `options`. An unknown option is a problem.
+ * Return `input` as options for drawing `record`, on a `page` or else in a file, or throw one
+ * FormatError naming every problem by its path from `options`. An unknown option is a problem.
  */
-export function checkOptions(input: unknown, record: Record): Options {
-	return parse(optionsSchema(record), input, { prefix: "options" });
+export function checkOptions(
+	input: unknown,
+	record: Record,
+	{ page = false }: { page?: boolean } = {},
+): Options {
+	return parse(optionsSchema(record, page), input, { prefix: "options" });
 }
 
 /**

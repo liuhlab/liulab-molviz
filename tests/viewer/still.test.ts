@@ -7,6 +7,8 @@ import {
 	prepare,
 	prepareGel,
 	preparePlate,
+	prepareViews,
+	stackedViews,
 	svg,
 } from "../../src/viewer/drawing";
 import { FormatError } from "../../src/viewer/format";
@@ -20,8 +22,10 @@ import { measure, weights } from "../../src/viewer/text";
 import gel from "../gels/golden-gate-pcr-products.json";
 import plate from "../plates/ap1-pcr2-plate.json";
 import crowded from "../records/crowded-sites.json";
+import primers from "../records/primer-test.json";
 
 const every = { enzymes: [...new Set(crowded.cuts.map((cut) => cut.enzyme))] };
+const view = { sequence_view: true };
 
 /** The root's opening tag, and each element inside it as written. */
 function elements(written: string): { root: string; children: string[] } {
@@ -32,6 +36,15 @@ function elements(written: string): { root: string; children: string[] } {
 	return { root, children };
 }
 
+/** The file's root without the namespace its glyph uses name, and its elements but its glyphs. */
+function drawnOf(file: string): { root: string; children: string[] } {
+	const { root, children } = elements(file);
+	return {
+		root: root.replace(/ xmlns:xlink="[^"]*"/, ""),
+		children: children.filter((element) => !element.startsWith("<defs>")),
+	};
+}
+
 /** `element` without its hover, written as a file writes it. */
 function withoutHover(element: string): string {
 	return element
@@ -39,13 +52,21 @@ function withoutHover(element: string): string {
 		.replace(/^(<\w+[^>]*)><\/\w+>$/, "$1/>");
 }
 
-describe.each([
+// A record with its sequence view draws live as two SVGs, compared in the block for it below.
+const drawings = [
 	{
 		input: "a record that hides labels",
 		still: stillSvg(crowded, every),
 		file: svg(crowded, every),
 		scene: prepare(crowded, every),
 		live: (element: Element) => draw(element, crowded, every),
+	},
+	{
+		input: "a record with its sequence view",
+		still: stillSvg(primers, view),
+		file: svg(primers, view),
+		scene: stackedViews(prepareViews(primers, view)),
+		live: undefined,
 	},
 	{
 		input: "a gel",
@@ -61,8 +82,15 @@ describe.each([
 		scene: preparePlate(plate),
 		live: (element: Element) => drawPlate(element, plate),
 	},
-])("the still SVG of $input", ({ still, file, scene, live }) => {
-	test("is what the live call draws, once a page parses it", () => {
+];
+
+test.each(
+	drawings.flatMap(({ input, still, live }) =>
+		live ? [{ input, still, live }] : [],
+	),
+)(
+	"the still SVG of $input is what the live call draws, once a page parses it",
+	({ still, live }) => {
 		const { document } = new Window();
 		const drawn = document.createElement("div");
 		live(drawn as unknown as Element);
@@ -72,8 +100,10 @@ describe.each([
 		// The parser keeps the namespace as an attribute too, which draws nothing.
 		held.children[0].removeAttribute("xmlns");
 		expect(held.children[0].isEqualNode(drawn.children[0])).toBe(true);
-	});
+	},
+);
 
+describe.each(drawings)("the still SVG of $input", ({ still, file, scene }) => {
 	test("hides what its file hides, with the same notice", () => {
 		expect(still.hidden).toEqual(file.hidden);
 		expect(still.notice).toBe(file.notice);
@@ -81,17 +111,19 @@ describe.each([
 
 	test("is its file but for the letters and the hovers", () => {
 		const ours = elements(still.svg);
-		const theirs = elements(file.svg);
+		const theirs = drawnOf(file.svg);
 		expect(ours.root).toBe(theirs.root);
 		expect(ours.children).toHaveLength(theirs.children.length);
 		ours.children.forEach((element, i) => {
 			if (element.startsWith("<text "))
-				expect(theirs.children[i]).toMatch(/^<path d="[^"]*" fill="[^"]*"\/>$/);
+				expect(theirs.children[i]).toMatch(
+					/^<g transform="[^"]*" fill="[^"]*"(?:\/>|>(?:<use [^>]*\/>)*<\/g>)$/,
+				);
 			else expect(withoutHover(element)).toBe(theirs.children[i]);
 		});
 	});
 
-	test("holds each text to its measured width, in the viewer's faces", () => {
+	test("holds each text to its measured width or its cells, in the viewer's faces", () => {
 		const texts = scene.shapes.flatMap((s) => (s.shape === "text" ? [s] : []));
 		const written = [...still.svg.matchAll(/<text ([^>]*)>/g)].map(
 			([, attributes]) =>
@@ -103,13 +135,91 @@ describe.each([
 				),
 		);
 		expect(written).toHaveLength(texts.length);
-		texts.forEach(({ text, face, size }, i) => {
+		texts.forEach(({ text, face, size, cell }, i) => {
 			expect(written[i]).toMatchObject({
-				"font-family": "molviz Sans",
+				"font-family": face === "mono" ? "molviz Mono" : "molviz Sans",
 				"font-weight": face === "sans-bold" ? "700" : "400",
-				textLength: measure(text, face, size).toFixed(2),
 			});
+			if (cell === undefined) {
+				expect(written[i].textLength).toBe(
+					measure(text, face, size).toFixed(2),
+				);
+			} else {
+				expect(written[i]).not.toHaveProperty("textLength");
+				expect(written[i].x.split(" ")).toHaveLength([...text].length);
+			}
 		});
+	});
+});
+
+/** Where an element of a drawing lies; the attributes a move under the map changes. */
+const PLACES = ["x", "y", "x1", "y1", "x2", "y2", "cx", "cy", "d", "transform"];
+
+/** What these tests read of a parsed element. */
+interface Parsed {
+	readonly attributes: ArrayLike<{ name: string; value: string | null }>;
+	getAttribute(name: string): string | null;
+}
+
+/** Each number of `element`'s attribute `name`, which lists numbers. */
+function numbers(element: Parsed, name: string): number[] {
+	return (element.getAttribute(name) ?? "").split(" ").map(Number);
+}
+
+describe("the still SVG of a record with its sequence view", () => {
+	const { document } = new Window();
+	const live = document.createElement("div");
+	draw(live as unknown as Element, primers, view);
+	const [map, sequence] = [...live.children];
+	const held = document.createElement("div");
+	held.innerHTML = stillSvg(primers, view).svg;
+	const [ground, ...still] = [...held.children[0].children];
+	const [, ...mapShapes] = [...map.children];
+	const [, ...viewShapes] = [...sequence.children];
+
+	test("is the live map, then the live sequence view moved under it", () => {
+		expect(ground.tagName.toLowerCase()).toBe("rect");
+		expect(still).toHaveLength(mapShapes.length + viewShapes.length);
+		mapShapes.forEach((shape, i) => {
+			expect(still[i].isEqualNode(shape)).toBe(true);
+		});
+		viewShapes.forEach((shape, i) => {
+			const ours = still[mapShapes.length + i];
+			expect(ours.tagName).toBe(shape.tagName);
+			expect(ours.textContent).toBe(shape.textContent);
+			const unplaced = (element: Parsed) =>
+				Array.from(element.attributes)
+					.filter(({ name }) => !PLACES.includes(name))
+					.map(({ name, value }) => [name, value]);
+			expect(unplaced(ours)).toEqual(unplaced(shape));
+		});
+	});
+
+	test("sets its letters as the live view does, every text moved by one step", () => {
+		const texts = viewShapes.flatMap((shape, i) =>
+			shape.tagName.toLowerCase() === "text"
+				? [[still[mapShapes.length + i], shape] as const]
+				: [],
+		);
+		expect(
+			texts.some(
+				([, text]) => text.getAttribute("font-family") === "molviz Mono",
+			),
+		).toBe(true);
+		const [[firstOurs, firstTheirs]] = texts;
+		const dx = numbers(firstOurs, "x")[0] - numbers(firstTheirs, "x")[0];
+		const dy = numbers(firstOurs, "y")[0] - numbers(firstTheirs, "y")[0];
+		for (const [ours, theirs] of texts) {
+			const xs = numbers(theirs, "x");
+			expect(numbers(ours, "x")).toHaveLength(xs.length);
+			numbers(ours, "x").forEach((x, i) => {
+				expect(x - xs[i]).toBeCloseTo(dx, 1);
+			});
+			expect(numbers(ours, "y")[0] - numbers(theirs, "y")[0]).toBeCloseTo(
+				dy,
+				1,
+			);
+		}
 	});
 });
 
@@ -132,6 +242,11 @@ test.each([
 	{
 		call: () => stillSvg(record, { span: { start: 0, end: 101 } }),
 		problem: "options.span.end: must be at most the record's length, 100",
+	},
+	{
+		call: () => stillSvg({ ...record, bases: "ACGT".repeat(25_001) }, view),
+		problem:
+			"options.sequence_view: must be false past 100,000 bases, and the span holds 100,004",
 	},
 	{
 		call: () => gelStillSvg({ ...gel, lanes: [{ name: "GFP" }] }),

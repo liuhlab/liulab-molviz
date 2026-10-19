@@ -1,13 +1,28 @@
 """A drawing, and checking a record and drawing it, with the viewer's own code."""
 
 import html
+import io
 import json
+import math
+import re
+from collections.abc import Sequence
 from os import PathLike
 from pathlib import Path
 from typing import Any
 
 from molviz._runtime import call, call_json, calls, font_rules
 from molviz.viewer import viewer_script
+
+SEQUENCE_VIEW_LIMIT = 100_000
+"""The most bases of a span the sequence view draws. Past it, ``draw`` with
+``sequence_view=True`` raises ``ValueError``."""
+
+# The largest PNG drawn: past this many pixels a side, vl-convert places shapes off where they
+# were laid out, and past this many in all it may run out of memory.
+_PNG_SIDE = 2**22
+_PNG_PIXELS = 2**28
+
+_POINTS_PER_INCH = 72
 
 # The inputs whose page draws live, with the viewer; any other's page holds its still drawing.
 _LIVE = frozenset({"record"})
@@ -74,15 +89,16 @@ class Drawing:
 
         The endings are ``.html``, a page that opens offline; ``.svg``; ``.png``, at ``dpi``
         pixels per inch; and ``.pdf``. One unit of the drawing is one point, so a PDF page is
-        the drawing's own size and a PNG is that size in print, cut to whole pixels. A record's
-        page draws it with the viewer; any other page holds its still SVG and no viewer.
+        the drawing's own size and a PNG is that size in print, cut to whole pixels. A PDF of a
+        record with its sequence view has the map on the first page and the rows on the pages
+        after. A record's page draws it with the viewer; any other page holds its still SVG and
+        no viewer.
 
         Raises
         ------
         ValueError
-            If the ending is none of those.
-        NotImplementedError
-            For a PDF of more than one page.
+            If the ending is none of those, or if a PNG at ``dpi`` would pass 2**22 pixels on a
+            side or 2**28 in all.
         """
         path = Path(path)
         match path.suffix.lower():
@@ -95,20 +111,19 @@ class Drawing:
             case ".svg":
                 path.write_bytes(self._svg.encode())
             case ".png":
+                most = _most_dpi(self._svg)
+                if dpi > most:
+                    raise ValueError(
+                        f"cannot write {path!s}: a PNG of this drawing is drawn at up to "
+                        f"{math.floor(most):,} dpi, not {dpi:g}; write a PDF, which draws at any size"
+                    )
                 import vl_convert
 
                 # vl-convert ships no type stub, so pyright cannot see its functions.
                 png = vl_convert.svg_to_png(self._svg, ppi=dpi)  # pyright: ignore[reportAttributeAccessIssue]
                 path.write_bytes(png)
             case ".pdf":
-                if len(self._pages) > 1:
-                    raise NotImplementedError(
-                        f"cannot write {path!s}: a PDF of more than one page is not written yet"
-                    )
-                import vl_convert
-
-                pdf = vl_convert.svg_to_pdf(self._pages[0])  # pyright: ignore[reportAttributeAccessIssue]
-                path.write_bytes(pdf)
+                path.write_bytes(_pdf(self._pages))
             case _:
                 raise ValueError(
                     f"cannot write {path!s}: its ending must be .html, .svg, .png or .pdf"
@@ -123,6 +138,31 @@ class Drawing:
         """
         arguments = f"[{','.join(self._arguments.values())}]"
         return call_json(self._name, "still", arguments)["svg"]
+
+
+def _most_dpi(svg: str) -> float:
+    """Return the highest dpi a PNG of ``svg`` is drawn at, from the size its root gives."""
+    root = re.match(r'<svg [^>]*?width="([^"]+)" height="([^"]+)"', svg)
+    assert root, "the viewer writes an SVG's width and height on its root"
+    width, height = (float(n) / _POINTS_PER_INCH for n in root.groups())
+    return min(_PNG_SIDE / max(width, height), math.sqrt(_PNG_PIXELS / (width * height)))
+
+
+def _pdf(pages: Sequence[str]) -> bytes:
+    """Return a PDF with each SVG of ``pages`` on a page of its own."""
+    import vl_convert
+
+    if len(pages) == 1:
+        return vl_convert.svg_to_pdf(pages[0])  # pyright: ignore[reportAttributeAccessIssue]
+    import pypdf
+
+    joined = pypdf.PdfWriter()
+    for page in pages:
+        pdf = vl_convert.svg_to_pdf(page)  # pyright: ignore[reportAttributeAccessIssue]
+        joined.append(pypdf.PdfReader(io.BytesIO(pdf)))
+    out = io.BytesIO()
+    joined.write(out)
+    return out.getvalue()
 
 
 # Characters unsafe in a script element or in JavaScript source, each written as its JSON escape.

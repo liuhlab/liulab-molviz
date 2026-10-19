@@ -3,9 +3,10 @@
 import {
 	type Drawing,
 	drawn,
-	prepare,
 	prepareGel,
 	preparePlate,
+	prepareViews,
+	stackedViews,
 } from "./drawing";
 import { toStill } from "./svg";
 
@@ -17,11 +18,11 @@ import { toStill } from "./svg";
 export type Still = Omit<Drawing, "pages">;
 
 /**
- * Draw `record` with `options` as a still SVG. Throws one FormatError naming every problem in
- * the record, or else in the options.
+ * Draw `record` with `options` as a still SVG, the sequence view under the map. Throws one
+ * FormatError naming every problem in the record, or else in the options.
  */
 export function stillSvg(record: unknown, options: unknown = {}): Still {
-	return drawn(prepare(record, options), toStill);
+	return drawn(stackedViews(prepareViews(record, options)), toStill);
 }
 
 /** Draw `gel` as a still SVG. Throws one FormatError naming every problem in the gel. */

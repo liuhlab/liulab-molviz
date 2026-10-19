@@ -3,9 +3,13 @@
 import { draw, drawGel, drawPlate } from "./draw";
 import { gelSvg, plateSvg, svg } from "./drawing";
 import { checkGel } from "./gel";
+import { LIMIT } from "./options";
 import { checkPlate } from "./plate";
 import { check } from "./record";
 import { fontRules, gelStillSvg, plateStillSvg, stillSvg } from "./still";
+
+/** The most bases of a span the sequence view draws. */
+export const SEQUENCE_VIEW_LIMIT = LIMIT;
 
 const exported = {
 	check,

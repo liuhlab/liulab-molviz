@@ -13,6 +13,19 @@ export interface Box {
 	readonly height: number;
 }
 
+/** One step of a path, in points. */
+export type PathCommand =
+	| readonly ["M" | "L", x: number, y: number]
+	| readonly [
+			"A",
+			radius: number,
+			large: 0 | 1,
+			sweep: 0 | 1,
+			x: number,
+			y: number,
+	  ]
+	| readonly ["Z"];
+
 /** One thing a scene draws. Lengths are in points; colours are written `#rrggbb`. */
 export type Shape = (
 	| {
@@ -27,6 +40,13 @@ export type Shape = (
 	| {
 			readonly shape: "polygon";
 			readonly points: readonly (readonly [x: number, y: number])[];
+			readonly fill: string;
+			readonly stroke: string;
+			readonly strokeWidth: number;
+	  }
+	| {
+			readonly shape: "path";
+			readonly commands: readonly PathCommand[];
 			readonly fill: string;
 			readonly stroke: string;
 			readonly strokeWidth: number;
@@ -61,6 +81,8 @@ export type Shape = (
 			readonly y: number;
 			readonly anchor: "start" | "middle";
 			readonly fill: string;
+			/** If given, each letter sits centred in a cell this wide, the cells side by side. */
+			readonly cell?: number;
 	  }
 ) & {
 	/** What a page shows while the pointer rests on the shape. A file leaves it out. */
@@ -86,4 +108,46 @@ export function leftEdge(
 export function twoDecimals(value: number): string {
 	const text = value.toFixed(2);
 	return text === "-0.00" ? "0.00" : text;
+}
+
+/** `shape` moved `dx` right and `dy` down. */
+export function moved(shape: Shape, dx: number, dy: number): Shape {
+	switch (shape.shape) {
+		case "line":
+			return {
+				...shape,
+				x1: shape.x1 + dx,
+				y1: shape.y1 + dy,
+				x2: shape.x2 + dx,
+				y2: shape.y2 + dy,
+			};
+		case "polygon":
+			return {
+				...shape,
+				points: shape.points.map(([x, y]) => [x + dx, y + dy] as const),
+			};
+		case "path":
+			return {
+				...shape,
+				commands: shape.commands.map((command) => {
+					switch (command[0]) {
+						case "Z":
+							return command;
+						case "A": {
+							const [letter, r, large, sweep, x, y] = command;
+							return [letter, r, large, sweep, x + dx, y + dy] as const;
+						}
+						default: {
+							const [letter, x, y] = command;
+							return [letter, x + dx, y + dy] as const;
+						}
+					}
+				}),
+			};
+		case "circle":
+			return { ...shape, cx: shape.cx + dx, cy: shape.cy + dy };
+		case "rect":
+		case "text":
+			return { ...shape, x: shape.x + dx, y: shape.y + dy };
+	}
 }

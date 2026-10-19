@@ -176,12 +176,20 @@ PLATE = {"title": "picked 1", "rows": 8, "columns": 12, "wells": {"A1": "quarter
 # Each draw call with an input it draws, and its page's title.
 DRAWS = [
     pytest.param(molviz.draw, DRAWN, "pTest", id="record"),
+    pytest.param(
+        lambda record: molviz.draw(record, sequence_view=True),
+        DRAWN,
+        "pTest",
+        id="record with its sequence view",
+    ),
     pytest.param(molviz.draw_gel, GEL, "PCR products", id="gel"),
     pytest.param(molviz.draw_plate, PLATE, "picked 1", id="plate"),
 ]
 
-# The draws whose page holds the still drawing and no viewer.
-STILL = [draw for draw in DRAWS if draw.id != "record"]
+# The draws whose page draws live, with the viewer, and those whose page holds the still
+# drawing and no viewer.
+LIVE = [draw for draw in DRAWS if draw.id in ("record", "record with its sequence view")]
+STILL = [draw for draw in DRAWS if draw not in LIVE]
 
 
 @pytest.mark.parametrize(("draw", "data", "page_title"), DRAWS)
@@ -226,17 +234,18 @@ def title(page: str) -> str:
     return html.unescape(found[1])
 
 
+@pytest.mark.parametrize(("draw", "data", "page_title"), LIVE)
 def test_a_records_page_inlines_the_viewer_and_draws_the_record_held_once(
-    drawing, tmp_path
+    tmp_path, draw, data, page_title
 ) -> None:
-    written = page(drawing, tmp_path)
+    written = page(draw(data), tmp_path)
     assert viewer_script() in written
-    assert [json.loads(block) for block in embedded(written)].count(DRAWN) == 1
+    assert [json.loads(block) for block in embedded(written)].count(data) == 1
     assert (
         'molviz.draw(document.getElementById("drawing"), data("record"), data("options"));'
         in written
     )
-    assert title(written) == "pTest"
+    assert title(written) == page_title
 
 
 @pytest.mark.parametrize(("draw", "data", "page_title"), STILL)
@@ -311,3 +320,39 @@ def test_a_page_escapes_a_name_that_would_end_its_script(tmp_path) -> None:
 def test_a_pdf_embeds_no_font(drawing, tmp_path) -> None:
     drawing.write(tmp_path / "map.pdf")
     assert b"/Font" not in (tmp_path / "map.pdf").read_bytes()
+
+
+ROWS = {**DRAWN, "bases": "ACGT" * 1000}
+
+
+def test_a_pdf_has_the_map_then_the_rows_on_pages_as_wide_as_the_view(tmp_path) -> None:
+    import pypdf
+
+    molviz.draw(ROWS, sequence_view=True).write(tmp_path / "rows.pdf")
+    pages = pypdf.PdfReader(tmp_path / "rows.pdf").pages
+    sizes = [(float(page.mediabox.width), float(page.mediabox.height)) for page in pages]
+    first, *rows = sizes
+    assert first == pytest.approx(extent(molviz.draw(ROWS), tmp_path), abs=0.01)
+    assert len(rows) > 1
+    assert {width for width, _ in rows} == {rows[0][0]}
+    assert max(height for _, height in rows) <= rows[0][0] * 2**0.5
+
+
+def test_a_png_too_large_to_draw_is_refused_pointing_at_the_pdf(drawing, tmp_path) -> None:
+    with pytest.raises(ValueError, match=r"write a PDF"):
+        drawing.write(tmp_path / "map.png", dpi=10_000)
+    assert not (tmp_path / "map.png").exists()
+
+
+def test_a_sequence_view_past_the_limit_is_an_error() -> None:
+    long = {**DRAWN, "bases": "ACGT" * 25_001}
+    with pytest.raises(ValueError, match=r"^options\.sequence_view: must be false past 100,000"):
+        molviz.draw(long, sequence_view=True)
+
+
+def test_the_sequence_view_limit_is_the_viewers() -> None:
+    from py_mini_racer import MiniRacer
+
+    with MiniRacer() as ctx:
+        ctx.eval(viewer_script())
+        assert ctx.eval("molviz.SEQUENCE_VIEW_LIMIT") == molviz.SEQUENCE_VIEW_LIMIT

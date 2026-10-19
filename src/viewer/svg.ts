@@ -3,38 +3,54 @@
  * with no font, or with its letters as real text, as elements of a page or as text for one.
  */
 
-import { leftEdge, type Scene, type Shape, twoDecimals } from "./scene";
-import { family, inFace, measure, outline, weights } from "./text";
+import {
+	leftEdge,
+	type PathCommand,
+	type Scene,
+	type Shape,
+	twoDecimals,
+} from "./scene";
+import {
+	families,
+	glyphs,
+	inFace,
+	textWidth,
+	unitsPerEm,
+	weights,
+} from "./text";
 
 const GROUND = "#ffffff";
 const NAMESPACE = "http://www.w3.org/2000/svg";
+// A use names its glyph by `xlink:href`, not SVG 2's `href`, which SVG 1.1 readers such as
+// Illustrator skip.
+const XLINK = "http://www.w3.org/1999/xlink";
 
-/** How a scene draws its letters. */
-type Letters = "outlines" | "text";
+/** The outline of each glyph a scene draws, by its id, when its letters are outlines. */
+type Defined = Map<string, string>;
 
 type Attributes = readonly (readonly [name: string, value: string])[];
 
 /**
- * One SVG element: its tag, its attributes in the order they are written, its text, and the
- * shape's hover text.
+ * One SVG element: its tag, its attributes in the order they are written, its text or the
+ * elements inside it, and the shape's hover text.
  */
 interface Tag {
 	readonly name: string;
 	readonly attributes: Attributes;
 	readonly text?: string;
+	readonly children?: readonly Tag[];
 	readonly hover?: string;
 }
 
 /**
  * `scene` as one SVG document, with no hover text. Its width and height have no unit, so one
- * unit is one point. Every number has two decimals, so the same scene gives the same text.
+ * unit is one point. Each glyph is defined once and used for every letter it draws. Every
+ * number has two decimals but a glyph's scale, so the same scene gives the same text.
  */
 export function toSvg(scene: Scene): string {
-	const { root, children } = tags(scene, "outlines");
-	const inside = children
-		.map((tag) => `<${tag.name}${written(tag.attributes)}/>`)
-		.join("");
-	return `<svg xmlns="${NAMESPACE}"${written(root)}>${inside}</svg>`;
+	const { root, children } = tags(scene, new Map());
+	const inside = children.map(({ hover, ...tag }) => markup(tag)).join("");
+	return `<svg xmlns="${NAMESPACE}" xmlns:xlink="${XLINK}"${written(root)}>${inside}</svg>`;
 }
 
 /**
@@ -43,21 +59,10 @@ export function toSvg(scene: Scene): string {
  * page must declare the faces.
  */
 export function toElement(scene: Scene, document: Document): SVGSVGElement {
-	const { root, children } = tags(scene, "text");
+	const { root, children } = tags(scene);
 	const svg = document.createElementNS(NAMESPACE, "svg");
 	for (const [name, value] of root) svg.setAttribute(name, value);
-	for (const tag of children) {
-		const element = document.createElementNS(NAMESPACE, tag.name);
-		for (const [name, value] of tag.attributes)
-			element.setAttribute(name, value);
-		if (tag.text !== undefined) element.textContent = tag.text;
-		if (tag.hover !== undefined) {
-			const title = document.createElementNS(NAMESPACE, "title");
-			title.textContent = tag.hover;
-			element.append(title);
-		}
-		svg.append(element);
-	}
+	svg.append(...children.map((tag) => element(tag, document)));
 	return svg;
 }
 
@@ -67,14 +72,17 @@ export function toElement(scene: Scene, document: Document): SVGSVGElement {
  * must declare the faces.
  */
 export function toStill(scene: Scene): string {
-	const { root, children } = tags(scene, "text");
+	const { root, children } = tags(scene);
 	return `<svg xmlns="${NAMESPACE}"${written(root)}>${children.map(markup).join("")}</svg>`;
 }
 
-/** The root's attributes, and the elements inside it: the ground, then each shape in order. */
+/**
+ * The root's attributes, and the elements inside it: the glyphs `defined`, if letters are
+ * outlines, then the ground, then each shape in order.
+ */
 function tags(
 	scene: Scene,
-	letters: Letters,
+	defined?: Defined,
 ): { root: Attributes; children: Tag[] } {
 	const { x, y, width, height } = scene.extent;
 	const size = [
@@ -90,6 +98,25 @@ function tags(
 			["fill", GROUND],
 		],
 	};
+	const shapes = scene.shapes.map((shape) => ({
+		...tag(shape, defined),
+		hover: shape.hover,
+	}));
+	const defs: Tag[] = defined?.size
+		? [
+				{
+					name: "defs",
+					attributes: [],
+					children: [...defined].map(([id, d]) => ({
+						name: "path",
+						attributes: [
+							["id", id],
+							["d", d],
+						],
+					})),
+				},
+			]
+		: [];
 	return {
 		root: [
 			...size,
@@ -98,17 +125,12 @@ function tags(
 				`${twoDecimals(x)} ${twoDecimals(y)} ${twoDecimals(width)} ${twoDecimals(height)}`,
 			],
 		],
-		children: [
-			ground,
-			...scene.shapes.map((shape) => ({
-				...tag(shape, letters),
-				hover: shape.hover,
-			})),
-		],
+		children: [...defs, ground, ...shapes],
 	};
 }
 
-function tag(shape: Shape, letters: Letters): Tag {
+/** `shape` as SVG, its letters as uses of the glyphs it adds to `defined`, or else as text. */
+function tag(shape: Shape, defined?: Defined): Tag {
 	switch (shape.shape) {
 		case "line":
 			return {
@@ -132,6 +154,15 @@ function tag(shape: Shape, letters: Letters): Tag {
 				attributes: [["d", `${d}Z`], ["fill", shape.fill], ...stroke(shape)],
 			};
 		}
+		case "path":
+			return {
+				name: "path",
+				attributes: [
+					["d", shape.commands.map(step).join("")],
+					["fill", shape.fill],
+					...stroke(shape),
+				],
+			};
 		case "rect":
 			return {
 				name: "rect",
@@ -156,32 +187,74 @@ function tag(shape: Shape, letters: Letters): Tag {
 				],
 			};
 		case "text": {
-			const { text, face, size, y, fill } = shape;
-			const width = measure(text, face, size);
+			const { text, face, size, y, fill, cell } = shape;
+			const width = textWidth(text, face, size, cell);
 			const x = leftEdge(shape, width);
-			if (letters === "outlines") {
+			if (defined) {
+				// A glyph's outline is in its face's units; the group scales it to the text's size.
+				const scale = size / unitsPerEm(face);
+				const uses: Tag[] = [];
+				for (const glyph of glyphs(text, face, size, cell)) {
+					if (!glyph.outline) continue;
+					defined.set(glyph.id, glyph.outline);
+					uses.push({
+						name: "use",
+						attributes: [
+							["xlink:href", `#${glyph.id}`],
+							["x", twoDecimals(glyph.x / scale)],
+						],
+					});
+				}
 				return {
-					name: "path",
+					name: "g",
 					attributes: [
-						["d", outline(text, face, size, x, y)],
+						[
+							"transform",
+							`translate(${twoDecimals(x)} ${twoDecimals(y)}) scale(${scale})`,
+						],
 						["fill", fill],
 					],
+					children: uses,
 				};
 			}
+			const places =
+				cell === undefined
+					? twoDecimals(x)
+					: glyphs(text, face, size, cell)
+							.map((glyph) => twoDecimals(x + glyph.x))
+							.join(" ");
 			return {
 				name: "text",
 				attributes: [
-					["x", twoDecimals(x)],
+					["x", places],
 					["y", twoDecimals(y)],
-					["font-family", family],
+					["font-family", families[face]],
 					["font-size", twoDecimals(size)],
 					["font-weight", String(weights[face])],
 					// Holds the text to the width the layout measured, in whatever font the browser uses.
-					["textLength", twoDecimals(width)],
+					...(cell === undefined
+						? ([["textLength", twoDecimals(width)]] as const)
+						: []),
 					["fill", fill],
 				],
 				text: inFace(text, face),
 			};
+		}
+	}
+}
+
+/** One step of a path as path data, every number with two decimals. */
+function step(command: PathCommand): string {
+	switch (command[0]) {
+		case "Z":
+			return "Z";
+		case "A": {
+			const [, r, large, sweep, x, y] = command;
+			return `A${twoDecimals(r)} ${twoDecimals(r)} 0 ${large} ${sweep} ${twoDecimals(x)} ${twoDecimals(y)}`;
+		}
+		default: {
+			const [letter, x, y] = command;
+			return `${letter}${twoDecimals(x)} ${twoDecimals(y)}`;
 		}
 	}
 }
@@ -193,13 +266,27 @@ function stroke(shape: { stroke: string; strokeWidth: number }): Attributes {
 	];
 }
 
-/** `tag` as SVG text: its text, then its hover as a `<title>`. */
+/** `tag` as SVG text: its text, then the elements inside it, then its hover as a `<title>`. */
 function markup(tag: Tag): string {
 	const open = `<${tag.name}${written(tag.attributes)}`;
 	const inside =
 		(tag.text === undefined ? "" : escaped(tag.text)) +
+		(tag.children ?? []).map(markup).join("") +
 		(tag.hover === undefined ? "" : `<title>${escaped(tag.hover)}</title>`);
 	return inside ? `${open}>${inside}</${tag.name}>` : `${open}/>`;
+}
+
+function element(tag: Tag, document: Document): Element {
+	const out = document.createElementNS(NAMESPACE, tag.name);
+	for (const [name, value] of tag.attributes) out.setAttribute(name, value);
+	if (tag.text !== undefined) out.textContent = tag.text;
+	for (const child of tag.children ?? []) out.append(element(child, document));
+	if (tag.hover !== undefined) {
+		const title = document.createElementNS(NAMESPACE, "title");
+		title.textContent = tag.hover;
+		out.append(title);
+	}
+	return out;
 }
 
 /** `text` as SVG text that reads back as `text`, in an element or a quoted attribute. */
