@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import type { MapScene } from "../../src/viewer/labels";
 import { layout } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
@@ -27,7 +28,7 @@ function lay(
 	options: object = {},
 	record: object = {},
 	width?: number,
-): Scene {
+): MapScene {
 	const checked = check({
 		name: "test",
 		circular: false,
@@ -561,5 +562,53 @@ describe("kinds_off", () => {
 		expect(off.shapes.filter((s) => s.shape === "polygon")).toEqual([]);
 		expect(rects(off)).toEqual([]);
 		expect(texts(off, 11.5)).toEqual([]);
+	});
+});
+
+describe("hidden labels", () => {
+	// Two runs of tiny features 70 pt apart along 720 pt: their boxed names stack as one
+	// staircase, past the ceiling, and along 1440 pt as two. mbio's line hides the same names.
+	const crowd: Made[] = [
+		{ name: "lacZ", segments: [[100, 500]], color: "#000002" },
+		{ name: "ori", segments: [[300, 301]], color: "#000003" },
+		...Array.from({ length: 50 }, (_, i) => {
+			const start = i < 25 ? 100 + 6 * i : 341 + 6 * (i - 25);
+			return {
+				name: `feature number ${i}`,
+				segments: [[start, start + 1]] as [number, number][],
+				color: "#000001",
+			};
+		}),
+	];
+
+	test("hide the fewest boxed names, longest first, and the rest keep apart under the ceiling", () => {
+		const scene = lay(crowd);
+		expect(scene.hidden.map((one) => one.name)).toEqual(
+			[10, 11, 12, 13, 14, 15, 16, 17].map((i) => `feature number ${i}`),
+		);
+		const boxes = rects(scene);
+		expect(boxes).toHaveLength(42);
+		for (const [i, a] of boxes.entries()) {
+			expect(a.y).toBeGreaterThanOrEqual(-1.3 - 730);
+			for (const b of boxes.slice(i + 1)) {
+				expect(overlap(edges(a), edges(b))).toBe(false);
+			}
+		}
+	});
+
+	test("never hide a name inside or under an arrow", () => {
+		const scene = lay(crowd);
+		expect(label(scene, "lacZ").fill).toBe("#ffffff");
+		expect(label(scene, "ori").fill).toBe("#252525");
+	});
+
+	test("hide fewer along a longer line, where a name hidden at 720 pt shows", () => {
+		const hiddenAt = (width: number) =>
+			lay(crowd, {}, {}, width).hidden.map((one) => one.name);
+		expect(hiddenAt(720)).toContain("feature number 10");
+		expect(hiddenAt(1440)).toEqual([]);
+		const wide = lay(crowd, {}, {}, 1440);
+		expect(rects(wide)).toHaveLength(50);
+		expect(label(wide, "feature number 10")).toBeDefined();
 	});
 });

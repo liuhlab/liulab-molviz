@@ -1,0 +1,132 @@
+import { describe, expect, test } from "vitest";
+import type { Kind, Label } from "../../src/viewer/labels";
+import type { Box, Shape } from "../../src/viewer/scene";
+import { type Anchored, labelsAbove } from "../../src/viewer/staircase";
+
+/** A label that says `name`, boxed as a feature's name is unless `kind` says otherwise. */
+function label(
+	name: string,
+	{
+		kind = "features",
+		cuts = 0,
+		dim = false,
+	}: { kind?: Kind; cuts?: number; dim?: boolean } = {},
+): Label {
+	return {
+		kind,
+		name,
+		spans: [],
+		runs: [{ text: name, face: "sans" }],
+		color: "#dddddd",
+		dim,
+		cuts,
+	};
+}
+
+/** `labels` anchored at `x`, their leaders rising from the line's top, 0. */
+function at(x: number, labels: readonly Label[]): Anchored[] {
+	return labels.map((one) => ({ label: one, x, foot: 0 }));
+}
+
+/** `count` boxed labels, named `prefix` and a number from 0. */
+function many(count: number, prefix = "n"): Label[] {
+	return Array.from({ length: count }, (_, i) => label(`${prefix}${i}`));
+}
+
+function boxes(shapes: readonly Shape[]): Box[] {
+	return shapes.flatMap((s) => (s.shape === "rect" ? [s] : []));
+}
+
+function names(hidden: readonly Label[]): string[] {
+	return hidden.map((one) => one.name);
+}
+
+/** The highest a box may reach: 730 pt above the line's top. */
+const CEILING = -730;
+
+describe("labelsAbove", () => {
+	// Rows of boxes 2 pt apart, the lowest ending 10 pt above the line: 41 fit under the ceiling.
+	test.each([
+		[41, 0],
+		[42, 1],
+		[60, 19],
+	])(
+		"hides the fewest of %i labels at one point, %i, to keep the rest under the ceiling",
+		(count, hides) => {
+			const { shapes, hidden } = labelsAbove(at(100, many(count)), 0);
+			expect(hidden).toHaveLength(hides);
+			const shown = boxes(shapes);
+			expect(shown).toHaveLength(count - hides);
+			for (const box of shown) expect(box.y).toBeGreaterThanOrEqual(CEILING);
+		},
+	);
+
+	test("hides in the hiding order, and lists them in the order they hid", () => {
+		const site = (name: string, cuts: number) =>
+			label(name, { kind: "cuts", cuts });
+		const fillers = Array.from({ length: 41 }, (_, i) =>
+			site(`E${10 + i} (1)`, 1),
+		);
+		const crowd = [
+			site("BsaI (2)", 2),
+			...fillers.slice(0, 20),
+			site("a much longer name (9)", 1),
+			...fillers.slice(20),
+			site("BsmBI (30)", 2),
+			site("EcoRI (1)", 3),
+		];
+		const { hidden } = labelsAbove(at(100, crowd), 0);
+		expect(names(hidden)).toEqual([
+			"EcoRI (1)",
+			"BsmBI (30)",
+			"BsaI (2)",
+			"a much longer name (9)",
+		]);
+	});
+
+	test("hides a lit label last", () => {
+		const dimmed = Array.from({ length: 41 }, (_, i) =>
+			label(`n${i}`, { kind: "cuts", cuts: 1, dim: true }),
+		);
+		const lit = label("cut most", { kind: "cuts", cuts: 5 });
+		const { hidden } = labelsAbove(at(100, [lit, ...dimmed]), 0);
+		expect(names(hidden)).toEqual(["n10"]);
+	});
+
+	test("hides only in a crowd past the ceiling, never a label clear of it", () => {
+		const far = many(5, "first to hide, being longest ");
+		const { shapes, hidden } = labelsAbove(
+			[...at(100, many(60)), ...at(600, far)],
+			0,
+		);
+		expect(hidden).toHaveLength(19);
+		expect(hidden.filter((one) => far.includes(one))).toEqual([]);
+		for (const box of boxes(shapes))
+			expect(box.y).toBeGreaterThanOrEqual(CEILING);
+	});
+
+	test("lists a label anchored at two points once", () => {
+		const twice = label("the longest name, first to hide");
+		const { hidden } = labelsAbove(at(100, [twice, ...many(41), twice]), 0);
+		expect(hidden).toEqual([twice]);
+	});
+
+	test("hides what breaks a crowd apart, then the fewest of each part", () => {
+		// A wide label first to hide links a crowd at 100, which must hide 4, to one at 400 that
+		// fits. Hiding labels in order until both fit would hide 15.
+		const site = (name: string, cuts: number) =>
+			label(name, { kind: "cuts", cuts });
+		const left = Array.from({ length: 45 }, (_, i) =>
+			site(`A${String(i + 1).padStart(2, "0")}`, 2),
+		);
+		const right = Array.from({ length: 30 }, (_, i) =>
+			site(`B${String(i + 1).padStart(2, "0")}`, i < 10 ? 3 : 1),
+		);
+		const bridge = site("a label wide enough to reach both crowds", 9);
+		const { hidden } = labelsAbove(
+			[...at(100, left), ...at(250, [bridge]), ...at(400, right)],
+			0,
+		);
+		expect(names(hidden)).toEqual([bridge.name, "A01", "A02", "A03", "A04"]);
+	});
+});
