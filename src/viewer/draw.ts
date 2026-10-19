@@ -1,6 +1,7 @@
 /** An input drawn live into an element of a page. */
 
 import { prepareGel, preparePlate, prepareViews } from "./drawing";
+import { hoverBox } from "./hover";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { fontFaceCss } from "./text";
@@ -26,6 +27,7 @@ export function draw(
 ): LiveDrawing {
 	const { map, sequence } = prepareViews(record, options, { page: true });
 	const drawn = [drawScene(element, map)];
+	hoverBox(drawn[0].svg);
 	if (sequence !== null) {
 		const view = drawScene(element, sequence);
 		// A block, so it starts under the map rather than beside it.

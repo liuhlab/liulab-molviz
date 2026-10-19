@@ -101,3 +101,14 @@ export function pointText(at: number, { length, circular }: Bounds): string {
 export function spanText({ start, end }: Span, length: number): string {
 	return `${(start % length) + 1} .. ${((end - 1) % length) + 1}`;
 }
+
+/** `spans` as `spanText` reads each, joined by ", ", a span read on with the one it starts at. */
+export function spansText(spans: readonly Span[], length: number): string {
+	const runs: Span[] = [];
+	for (const { start, end } of spans) {
+		const last = runs.at(-1);
+		if (last?.end === start) runs[runs.length - 1] = { start: last.start, end };
+		else runs.push({ start, end });
+	}
+	return runs.map((run) => spanText(run, length)).join(", ");
+}

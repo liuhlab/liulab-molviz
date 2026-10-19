@@ -1,7 +1,7 @@
 /** A record's cuts: counted per enzyme over the whole record, and merged into cut sites. */
 
 import { folded } from "./format";
-import { type Label, labelOf, type Run } from "./labels";
+import { type Label, labelOf, type Run, tipOf } from "./labels";
 import { ENZYME } from "./paint";
 import type { Record } from "./record";
 import type { Face } from "./text";
@@ -79,10 +79,13 @@ function siteLabel(
 		add(enzyme, counts.get(enzyme) === 1 ? "sans-bold" : "sans");
 	}
 	// On a circle, a cut at the origin follows the last base.
-	add(` (${record.circular && at === 0 ? record.bases.length : at})`, "sans");
+	const after = String(record.circular && at === 0 ? record.bases.length : at);
+	add(` (${after})`, "sans");
+	const name = enzymes.join(SEPARATOR);
 	return labelOf(
-		{ kind: "cuts", name: enzymes.join(SEPARATOR), at },
+		{ kind: "cuts", name, at },
 		runs,
+		tipOf(name, "cut site", after),
 		ENZYME,
 		highlight,
 		{

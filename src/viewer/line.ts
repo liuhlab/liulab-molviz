@@ -36,6 +36,7 @@ import {
 	PAD_Y,
 	primerLabel,
 	SMALL_SIZE,
+	tipped,
 } from "./labels";
 import type { Options } from "./options";
 import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
@@ -163,6 +164,7 @@ export function layoutLine(
 		top,
 		{
 			inPlace: drawn.flatMap((one) => one.inPlace ?? []),
+			tips: true,
 		},
 	);
 	shapes.push(...above.shapes);
@@ -222,7 +224,7 @@ function features({
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
 	const shapes = bars.flatMap((bar, i) =>
-		barShapes(bar, middles[tiers[i]], placed[i], false),
+		tipped(barShapes(bar, middles[tiers[i]], placed[i], false), bar.label),
 	);
 	const labels = bars.flatMap((bar, i) =>
 		placed[i] === "boxed"
@@ -282,12 +284,13 @@ function primers({ record, options, bounds, at }: Along): LineMarks {
 		(row) => first - row * step,
 	);
 	const tops = middles.map((middle) => middle - PRIMER_SHAFT / 2 - reach);
-	const shapes: Shape[] = drawn.map(({ arrow }, i) => ({
+	const shapes: Shape[] = drawn.map(({ arrow, label }, i) => ({
 		shape: "polygon",
 		points: outline(arrow, middles[i], PRIMER_SHAFT),
 		fill: arrow.color,
 		stroke: shaded(arrow.color),
 		strokeWidth: OUTLINE_WIDTH,
+		tip: label.tip,
 	}));
 	const labels = drawn.map(({ arrow, label }, i) => ({
 		label,
@@ -333,6 +336,7 @@ function insertions({
 				stroke: color,
 				strokeWidth: INSERTION_WIDTH,
 				hover,
+				tip: label.tip,
 			});
 			covers.push({
 				x: x - INSERTION_WIDTH / 2,

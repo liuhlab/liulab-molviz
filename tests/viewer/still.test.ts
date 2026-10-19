@@ -54,6 +54,18 @@ function withoutHover(element: string): string {
 		.replace(/^(<\w+[^>]*)><\/\w+>$/, "$1/>");
 }
 
+/**
+ * A copy of `element` but for its hovers, which a live map shows in the page's box and a still
+ * page as `<title>`s.
+ */
+function unhovered<T>(element: T): T {
+	const copy = (element as unknown as Element).cloneNode(true) as Element;
+	for (const title of [...copy.querySelectorAll("title")]) title.remove();
+	const shapes = [copy, ...copy.querySelectorAll("[data-molviz-hover]")];
+	for (const shape of shapes) shape.removeAttribute("data-molviz-hover");
+	return copy as unknown as T;
+}
+
 // A record with its sequence view draws live as two SVGs, compared in the block for it below.
 const drawings = [
 	{
@@ -115,7 +127,12 @@ test.each(
 		expect(held.children).toHaveLength(1);
 		// The parser keeps the namespace as an attribute too, which draws nothing.
 		held.children[0].removeAttribute("xmlns");
-		expect(held.children[0].isEqualNode(drawn.children[0])).toBe(true);
+		const [ours, theirs] = [held.children[0], drawn.children[0]];
+		if (theirs.querySelector("[data-molviz-hover]")) {
+			expect(unhovered(ours).isEqualNode(unhovered(theirs))).toBe(true);
+		} else {
+			expect(ours.isEqualNode(theirs)).toBe(true);
+		}
 	},
 );
 
@@ -204,7 +221,7 @@ describe("the still SVG of a record with its sequence view", () => {
 		expect(ground.tagName.toLowerCase()).toBe("rect");
 		expect(still).toHaveLength(mapShapes.length + viewShapes.length);
 		mapShapes.forEach((shape, i) => {
-			expect(still[i].isEqualNode(shape)).toBe(true);
+			expect(unhovered(still[i]).isEqualNode(unhovered(shape))).toBe(true);
 		});
 		viewShapes.forEach((shape, i) => {
 			const ours = still[mapShapes.length + i];
