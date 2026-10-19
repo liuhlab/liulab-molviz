@@ -1,7 +1,17 @@
 /** A map's labels, the order they hide in, and the notice that counts them. */
 
-import { INK, OUTLINE_WIDTH, painted, shaded, textColor, unlit } from "./paint";
-import type { Span } from "./record";
+import {
+	INK,
+	INSERTION,
+	OUTLINE_WIDTH,
+	PRIMER,
+	painted,
+	shaded,
+	textColor,
+	unlit,
+} from "./paint";
+import { pointText, spanText } from "./pieces";
+import type { Bounds, Insertion, Span } from "./record";
 import type { Box, Scene, Shape } from "./scene";
 import { baseline, type Face, height, measure } from "./text";
 
@@ -81,6 +91,40 @@ export function labelOf(
 ): Label {
 	const dim = unlit(highlight, names);
 	return { ...item, runs, color: painted(color, dim), dim, fewestCuts };
+}
+
+/** The label of a primer named `name` at the site `span`: its name and the bases it spans. */
+export function primerLabel(
+	name: string,
+	{ start, end }: Span,
+	length: number,
+	highlight: readonly string[],
+): Label {
+	return labelOf(
+		{ kind: "primers", name, spans: [{ start, end }] },
+		[{ text: `${name} (${spanText({ start, end }, length)})`, face: "sans" }],
+		PRIMER,
+		highlight,
+	);
+}
+
+/** The label of `insertion`, what it adds, and its hover: its name and point. */
+export function insertionLabel(
+	insertion: Insertion,
+	bounds: Bounds,
+	highlight: readonly string[],
+): { label: Label; hover: string } {
+	const { name, at } = insertion;
+	const label = labelOf(
+		{ kind: "insertions", name, at },
+		[{ text: `+${insertion.length} bp`, face: "sans" }],
+		insertion.color?.toLowerCase() ?? INSERTION,
+		highlight,
+	);
+	const hover = [name.trim(), pointText(at, bounds)]
+		.filter(Boolean)
+		.join(" · ");
+	return { label, hover };
 }
 
 /** The radius of a box's corners. */

@@ -5,7 +5,9 @@
 
 import {
 	BAND,
+	coloredFeatures,
 	HEAD,
+	headsOn,
 	OVERHANG,
 	overhang,
 	PRIMER_BAND,
@@ -18,15 +20,16 @@ import { cutSites } from "./cuts";
 import {
 	hiddenOf,
 	hidingOrder,
+	insertionLabel,
 	LABEL_SIZE,
 	type Label,
-	labelOf,
 	labelShapes,
 	labelSize,
 	type MapScene,
 	noticeShapes,
 	PAD_X,
 	PAD_Y,
+	primerLabel,
 	SMALL_SIZE,
 } from "./labels";
 import {
@@ -46,19 +49,15 @@ import type { Options } from "./options";
 import {
 	CONNECTOR,
 	CONNECTOR_WIDTH,
-	colorOf,
 	INK,
-	INSERTION,
 	INSERTION_WIDTH,
 	LEADER,
 	LEADER_WIDTH,
 	OUTLINE_WIDTH,
-	PRIMER,
 	painted,
 	shaded,
 	textColor,
 } from "./paint";
-import { pointText, spanText } from "./pieces";
 import type { Feature, Record, Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
 import { baseline, type Face, height, measure, wrap } from "./text";
@@ -242,22 +241,17 @@ function insertions(
 ): { bar: Shape; label: Label; angle: number }[] {
 	const bounds = { length: ring.length, circular: true };
 	return record.insertions.map((insertion) => {
-		const { at } = insertion;
-		const label = labelOf(
-			{ kind: "insertions", name: insertion.name, at },
-			[{ text: `+${insertion.length} bp`, face: "sans" }],
-			insertion.color?.toLowerCase() ?? INSERTION,
+		const { label, hover } = insertionLabel(
+			insertion,
+			bounds,
 			options.highlight,
 		);
-		const angle = angleOf(at, ring);
+		const angle = angleOf(insertion.at, ring);
 		const [x1, y1] = pointAt(inside(ring) - INSERTION_REACH, angle);
 		const [x2, y2] = pointAt(
 			ring.radius + BACKBONE / 2 + INSERTION_REACH,
 			angle,
 		);
-		const hover = [insertion.name.trim(), pointText(at, bounds)]
-			.filter(Boolean)
-			.join(" · ");
 		const bar: Shape = {
 			shape: "line",
 			x1,
@@ -311,9 +305,8 @@ function features(
 	ring: Ring,
 	clear: number,
 ): Drawn[] {
-	const off = new Set(options.types_off);
-	const shown = record.features.filter((f) => !off.has(f.type));
-	const hulls = shown.map((f) => hullOf(f, ring.length));
+	const shown = coloredFeatures(record, options);
+	const hulls = shown.map(({ feature }) => hullOf(feature, ring.length));
 	const onRing = rings(hulls, ring);
 	const count = Math.max(0, ...onRing) + 1;
 	const outer =
@@ -335,23 +328,13 @@ function features(
 		),
 	);
 	const width = (BAND * step) / RING_STEP;
-	return shown.map((feature, i) => {
-		const label = labelOf(
-			{
-				kind: "features",
-				name: feature.name,
-				spans: feature.segments.map(({ start, end }) => ({ start, end })),
-			},
-			[{ text: feature.name, face: "sans" }],
-			colorOf(feature, feature.segments[0]),
-			options.highlight,
-		);
+	return shown.map(({ feature, label, segments }, i) => {
 		const radius = outer - onRing[i] * step;
-		const last = feature.segments.length - 1;
-		const { strand } = feature;
-		const arrows = feature.segments.map((segment, k): Arrow => {
-			const headStart = k === 0 && (strand === -1 || strand === 2);
-			const headEnd = k === last && (strand === 1 || strand === 2);
+		const last = segments.length - 1;
+		const [startHead, endHead] = headsOn(feature.strand);
+		const arrows = segments.map((segment, k): Arrow => {
+			const headStart = k === 0 && startHead;
+			const headEnd = k === last && endHead;
 			const heads = Number(headStart) + Number(headEnd);
 			const start = angleOf(segment.start, ring);
 			const end = angleOf(segment.end, ring);
@@ -360,7 +343,7 @@ function features(
 				end,
 				radius,
 				width,
-				color: painted(colorOf(feature, segment), label.dim),
+				color: segment.color,
 				headStart,
 				headEnd,
 				head: heads ? Math.min(HEAD / radius, (end - start) / heads) : 0,
@@ -526,23 +509,19 @@ function primers(
 		ring.radius + BACKBONE / 2 + PRIMER_GAP + beyond + PRIMER_BAND / 2;
 	return sites.map(({ name, site }, i) => {
 		const hull = hulls[i];
-		const label = labelOf(
-			{ kind: "primers", name, spans: [hull] },
-			[{ text: `${name} (${spanText(hull, ring.length)})`, face: "sans" }],
-			PRIMER,
-			options.highlight,
-		);
+		const label = primerLabel(name, hull, ring.length, options.highlight);
 		const radius = first + onRing[i] * step;
 		const start = angleOf(site.start, ring);
 		const end = angleOf(site.end, ring);
+		const [headStart, headEnd] = headsOn(site.strand);
 		const arrow: Arrow = {
 			start,
 			end,
 			radius,
 			width: PRIMER_BAND,
 			color: label.color,
-			headStart: site.strand === -1,
-			headEnd: site.strand === 1,
+			headStart,
+			headEnd,
 			head: Math.min(HEAD / radius, end - start),
 		};
 		return { arrow, label, hull };

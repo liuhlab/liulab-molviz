@@ -100,6 +100,11 @@ export function coloredFeatures(
 		});
 }
 
+/** Whether an arrow on `strand` has a head where it starts, and where it ends. */
+export function headsOn(strand: number): [start: boolean, end: boolean] {
+	return [strand === -1 || strand === 2, strand === 1 || strand === 2];
+}
+
 /**
  * The bars `found` draws, each run of pieces that follow on from one another, named by `label`.
  * A run of a gap alone is a bar with no arrows.
@@ -119,6 +124,7 @@ export function barsOf(
 			groups.push([piece]);
 		}
 	}
+	const [headStart, headEnd] = headsOn(feature.strand);
 	const bars: Bar[] = [];
 	for (const group of groups) {
 		const arrows: Arrow[] = [];
@@ -132,9 +138,8 @@ export function barsOf(
 				start: at(piece.start),
 				end: at(piece.end),
 				color: piece.color,
-				headStart:
-					piece.starts && (feature.strand === -1 || feature.strand === 2),
-				headEnd: piece.ends && (feature.strand === 1 || feature.strand === 2),
+				headStart: piece.starts && headStart,
+				headEnd: piece.ends && headEnd,
 				cutStart: piece.cutStart,
 				cutEnd: piece.cutEnd,
 			});

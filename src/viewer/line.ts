@@ -10,6 +10,7 @@ import {
 	barShapes,
 	barsOf,
 	coloredFeatures,
+	headsOn,
 	isUnder,
 	OVERHANG,
 	outline,
@@ -25,26 +26,20 @@ import { cutSites } from "./cuts";
 import {
 	GAP,
 	hiddenOf,
+	insertionLabel,
 	KINDS,
 	type Kind,
 	LABEL_SIZE,
 	type Label,
-	labelOf,
 	type MapScene,
 	noticeShapes,
 	PAD_Y,
+	primerLabel,
 	SMALL_SIZE,
 } from "./labels";
 import type { Options } from "./options";
-import {
-	INK,
-	INSERTION,
-	INSERTION_WIDTH,
-	OUTLINE_WIDTH,
-	PRIMER,
-	shaded,
-} from "./paint";
-import { pieces, points, pointText, spanText } from "./pieces";
+import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
+import { pieces, points, spanText } from "./pieces";
 import type { Bounds, Record, Span } from "./record";
 import type { Box, Shape } from "./scene";
 import { type Anchored, labelsAbove } from "./staircase";
@@ -257,21 +252,17 @@ function primers({ record, options, bounds, at }: Along): LineMarks {
 	for (const { name, sites } of record.primers) {
 		for (const site of sites) {
 			const { start, end } = site;
-			const label = labelOf(
-				{ kind: "primers", name, spans: [{ start, end }] },
-				[{ text: `${name} (${spanText(site, bounds.length)})`, face: "sans" }],
-				PRIMER,
-				options.highlight,
-			);
+			const label = primerLabel(name, site, bounds.length, options.highlight);
 			const { color } = label;
 			const colored = [{ start, end, color }];
+			const [headStart, headEnd] = headsOn(site.strand);
 			for (const piece of pieces(colored, options.span, bounds)) {
 				const arrow: Arrow = {
 					start: at(piece.start),
 					end: at(piece.end),
 					color,
-					headStart: piece.starts && site.strand === -1,
-					headEnd: piece.ends && site.strand === 1,
+					headStart: piece.starts && headStart,
+					headEnd: piece.ends && headEnd,
 					cutStart: piece.cutStart,
 					cutEnd: piece.cutEnd,
 				};
@@ -318,13 +309,9 @@ function insertions({
 	];
 	for (const insertion of record.insertions) {
 		const point = insertion.at;
-		const hover = [insertion.name.trim(), pointText(point, bounds)]
-			.filter(Boolean)
-			.join(" · ");
-		const label = labelOf(
-			{ kind: "insertions", name: insertion.name, at: point },
-			[{ text: `+${insertion.length} bp`, face: "sans" }],
-			insertion.color?.toLowerCase() ?? INSERTION,
+		const { label, hover } = insertionLabel(
+			insertion,
+			bounds,
 			options.highlight,
 		);
 		const { color } = label;

@@ -10,20 +10,18 @@ import {
 } from "./arrows";
 import { cutSites } from "./cuts";
 import { folded } from "./format";
-import { type Label, labelOf } from "./labels";
+import { insertionLabel, type Label, primerLabel } from "./labels";
 import {
 	CUT_BOX,
 	CUT_BOX_WIDTH,
 	INK,
-	INSERTION,
 	INSERTION_WIDTH,
 	MISMATCH,
 	OUTLINE_WIDTH,
-	PRIMER,
 	painted,
 	shaded,
 } from "./paint";
-import { isWhole, pieces, pointText, spanText, turns } from "./pieces";
+import { isWhole, pieces, turns } from "./pieces";
 import type { Box, Shape } from "./scene";
 import type { Row, RowMarks, RunOn, Shelf, Strands } from "./sequence";
 import type { Anchored } from "./staircase";
@@ -154,12 +152,7 @@ function primed(row: Row, strand: 1 | -1): Primed[] {
 		for (const site of sites) {
 			if (site.strand !== strand) continue;
 			const { start, end } = site;
-			const label = labelOf(
-				{ kind: "primers", name, spans: [{ start, end }] },
-				[{ text: `${name} (${spanText(site, bounds.length)})`, face: "sans" }],
-				PRIMER,
-				options.highlight,
-			);
+			const label = primerLabel(name, site, bounds.length, options.highlight);
 			const { color } = label;
 			const tail = bases.length - (end - start);
 			const whole =
@@ -344,13 +337,9 @@ function insertions(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
 	for (const insertion of record.insertions) {
-		const hover = [insertion.name.trim(), pointText(insertion.at, bounds)]
-			.filter(Boolean)
-			.join(" · ");
-		const label = labelOf(
-			{ kind: "insertions", name: insertion.name, at: insertion.at },
-			[{ text: `+${insertion.length} bp`, face: "sans" }],
-			insertion.color?.toLowerCase() ?? INSERTION,
+		const { label, hover } = insertionLabel(
+			insertion,
+			bounds,
 			options.highlight,
 		);
 		for (const shift of turns(bounds)) {

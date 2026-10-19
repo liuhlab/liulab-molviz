@@ -330,6 +330,9 @@ export type Record = v.InferOutput<ReturnType<typeof recordSchema>>;
 /** One of a record's features. */
 export type Feature = Record["features"][number];
 
+/** One of a record's insertions. */
+export type Insertion = Record["insertions"][number];
+
 /**
  * What a record's coordinates are checked against. Where `bases` or `circular` is malformed
  * the length is unbounded, so only the rules that need no length apply, and a malformed
