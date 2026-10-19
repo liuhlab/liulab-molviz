@@ -83,7 +83,7 @@ describe("noticeShapes", () => {
 		const [text] = shapes;
 		expect(text).toMatchObject({
 			shape: "text",
-			text: "1 enzyme site and 1 primer are hidden",
+			text: "1 cut site and 1 primer are hidden",
 			face: "sans",
 			size: 10.5,
 			hover: "EcoRI (396)\nM13 fwd (1 .. 17)",
@@ -96,19 +96,19 @@ describe("noticeShapes", () => {
 });
 
 describe("notice", () => {
-	// The wording is mbio's `layers.notice`.
+	// The wording is mbio's `layers.notice`, with the glossary's "cut site".
 	test.each<[string, Kind[], string]>([
 		["nothing when none hid", [], ""],
-		["one label with is", ["cuts"], "1 enzyme site is hidden"],
+		["one label with is", ["cuts"], "1 cut site is hidden"],
 		[
 			"two kinds joined by and",
 			["primers", "cuts", "cuts", "cuts"],
-			"3 enzyme sites and 1 primer are hidden",
+			"3 cut sites and 1 primer are hidden",
 		],
 		[
 			"every kind in the order labels hide",
 			["insertions", "features", "features", "primers", "cuts"],
-			"1 enzyme site, 1 primer, 2 features and 1 insertion are hidden",
+			"1 cut site, 1 primer, 2 features and 1 insertion are hidden",
 		],
 	])("says %s", (_, kinds, said) => {
 		expect(notice(kinds.map((kind) => hid(kind)))).toBe(said);

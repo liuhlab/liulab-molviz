@@ -98,7 +98,7 @@ def test_draw_returns_the_labels_the_viewer_hid_a_lit_one_last() -> None:
     assert site in plain.hidden
     assert lit.hidden
     assert [one for one in lit.hidden if one["name"] == "EcoRI"] == []
-    assert lit.notice == f"{len(lit.hidden)} enzyme sites are hidden"
+    assert lit.notice == f"{len(lit.hidden)} cut sites are hidden"
 
 
 def test_draw_rejects_a_highlight_that_names_nothing() -> None:

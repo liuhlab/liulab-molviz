@@ -134,7 +134,7 @@ const HIDING: { readonly [K in Kind]: number } = {
 
 /** What the notice calls one label of each kind. */
 const WORDS: { readonly [K in Kind]: string } = {
-	cuts: "enzyme site",
+	cuts: "cut site",
 	primers: "primer",
 	features: "feature",
 	insertions: "insertion",
@@ -169,8 +169,8 @@ function textOf(label: Label): string {
 }
 
 /**
- * The hidden-label notice: how many labels of each kind hid, as "3 enzyme sites and 1 primer
- * are hidden", or nothing when none did.
+ * The hidden-label notice: how many labels of each kind hid, as "3 cut sites and 1 primer are
+ * hidden", or nothing when none did.
  */
 export function notice(hidden: readonly { readonly kind: Kind }[]): string {
 	const kinds = [...KINDS].sort((a, b) => HIDING[a] - HIDING[b]);
