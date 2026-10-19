@@ -3,10 +3,15 @@ import {
 	type Anchored,
 	type Columns,
 	columns,
-	type Point,
 	REACH,
 } from "../../src/viewer/columns";
-import type { Box } from "../../src/viewer/scene";
+import {
+	closestToCentre,
+	crosses,
+	nearestToCentre,
+	overlap,
+	TOUCH,
+} from "./round";
 
 /** The drawing's radius in the examples built by hand. */
 const RADIUS = 200;
@@ -45,9 +50,6 @@ describe("a lone label", () => {
 		expect(left?.leader[1].x).toBeCloseTo(-214);
 	});
 });
-
-/** How far two shapes may reach into each other and still count as touching. */
-const TOUCH = 1e-6;
 
 /** The drawing's radius in the generated cases: the outer edge of the circle's backbone. */
 const DRAWING = 221.3;
@@ -164,51 +166,6 @@ function lay({ degrees, widths, heights }: Case, rotation: number) {
 /** Each label placed, with its index. */
 function shown(laid: Columns) {
 	return laid.placed.flatMap((one, i) => (one ? [{ ...one, i }] : []));
-}
-
-function overlap(one: Box, other: Box): boolean {
-	return (
-		one.x < other.x + other.width - TOUCH &&
-		other.x < one.x + one.width - TOUCH &&
-		one.y < other.y + other.height - TOUCH &&
-		other.y < one.y + one.height - TOUCH
-	);
-}
-
-/** How near the centre any point of `box` comes. */
-function nearestToCentre(box: Box): number {
-	const dx = Math.max(box.x, 0, -(box.x + box.width));
-	const dy = Math.max(box.y, 0, -(box.y + box.height));
-	return Math.hypot(dx, dy);
-}
-
-/** How near the centre any point of the segment comes. */
-function closestToCentre([from, to]: readonly [Point, Point]): number {
-	const dx = to.x - from.x;
-	const dy = to.y - from.y;
-	const t = Math.min(
-		1,
-		Math.max(0, -(from.x * dx + from.y * dy) / (dx * dx + dy * dy || 1)),
-	);
-	return Math.hypot(from.x + t * dx, from.y + t * dy);
-}
-
-/** Whether the segment passes through the box's inside, by clipping it to the box. */
-function crosses([from, to]: readonly [Point, Point], box: Box): boolean {
-	let low = 0;
-	let high = 1;
-	for (const [p, q] of [
-		[from.x - to.x, from.x - (box.x + TOUCH)],
-		[to.x - from.x, box.x + box.width - TOUCH - from.x],
-		[from.y - to.y, from.y - (box.y + TOUCH)],
-		[to.y - from.y, box.y + box.height - TOUCH - from.y],
-	]) {
-		if (p === 0) {
-			if (q < 0) return false;
-		} else if (p < 0) low = Math.max(low, q / p);
-		else high = Math.min(high, q / p);
-	}
-	return low < high;
 }
 
 describe.each(CASES)("%s", (_, given) => {

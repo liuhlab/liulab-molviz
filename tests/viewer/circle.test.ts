@@ -11,6 +11,14 @@ import ap1File from "../records/ap1-product.json";
 import colourTestFile from "../records/colour-test.json";
 import crowdedSitesFile from "../records/crowded-sites.json";
 import puc19File from "../records/puc19-gfp-product.json";
+import {
+	closestToCentre,
+	crosses,
+	nearestToCentre,
+	overlap,
+	type Segment,
+	TOUCH,
+} from "./round";
 
 /** A circular record of 1000 bases: each base turns 0.36 degrees. */
 const BASES = "ACGT".repeat(250);
@@ -952,51 +960,12 @@ function labelBox(parts: readonly (Rect | Text)[]): Box {
 	};
 }
 
-/** How far two shapes may reach into each other and still count as touching. */
-const TOUCH = 1e-6;
-
-function overlap(one: Box, other: Box): boolean {
-	return (
-		one.x < other.x + other.width - TOUCH &&
-		other.x < one.x + one.width - TOUCH &&
-		one.y < other.y + other.height - TOUCH &&
-		other.y < one.y + one.height - TOUCH
-	);
-}
-
-/** How near the centre any point of `box` comes. */
-function nearestToCentre(box: Box): number {
-	const dx = Math.max(box.x, 0, -(box.x + box.width));
-	const dy = Math.max(box.y, 0, -(box.y + box.height));
-	return Math.hypot(dx, dy);
-}
-
-/** How near the centre any point of the line comes. */
-function closestToCentre({ x1, y1, x2, y2 }: Line): number {
-	const [dx, dy] = [x2 - x1, y2 - y1];
-	const t = Math.min(
-		1,
-		Math.max(0, -(x1 * dx + y1 * dy) / (dx * dx + dy * dy || 1)),
-	);
-	return Math.hypot(x1 + t * dx, y1 + t * dy);
-}
-
-/** Whether the line passes through the inside of `box`, by clipping it to the box. */
-function crosses({ x1, y1, x2, y2 }: Line, box: Box): boolean {
-	let low = 0;
-	let high = 1;
-	for (const [p, q] of [
-		[x1 - x2, x1 - (box.x + TOUCH)],
-		[x2 - x1, box.x + box.width - TOUCH - x1],
-		[y1 - y2, y1 - (box.y + TOUCH)],
-		[y2 - y1, box.y + box.height - TOUCH - y1],
-	]) {
-		if (p === 0) {
-			if (q < 0) return false;
-		} else if (p < 0) low = Math.max(low, q / p);
-		else high = Math.min(high, q / p);
-	}
-	return low < high;
+/** `line` as a segment from one end to the other. */
+function segment({ x1, y1, x2, y2 }: Line): Segment {
+	return [
+		{ x: x1, y: y1 },
+		{ x: x2, y: y2 },
+	];
 }
 
 const RECORDS = import.meta.glob("../records/*.json", {
@@ -1090,15 +1059,17 @@ describe.each(CIRCULAR)("%s drawn whole", (_, file) => {
 
 			test("no leader enters the drawing or crosses another label", () => {
 				for (const { leader, inward, box } of placed) {
-					expect(closestToCentre(leader)).toBeGreaterThanOrEqual(
+					expect(closestToCentre(segment(leader))).toBeGreaterThanOrEqual(
 						drawing - TOUCH,
 					);
 					if (inward) {
-						expect(closestToCentre(inward)).toBeCloseTo(backbone, 9);
+						expect(closestToCentre(segment(inward))).toBeCloseTo(backbone, 9);
 						expect([inward.x2, inward.y2]).toEqual([leader.x1, leader.y1]);
 					}
 					const others = boxes.filter((other) => other !== box);
-					expect(others.filter((other) => crosses(leader, other))).toEqual([]);
+					expect(
+						others.filter((other) => crosses(segment(leader), other)),
+					).toEqual([]);
 				}
 			});
 
