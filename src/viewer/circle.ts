@@ -4,15 +4,15 @@
  */
 
 import {
-	BAND,
 	coloredFeatures,
 	HEAD,
 	headsOn,
 	OVERHANG,
 	overhang,
-	PRIMER_BAND,
 	PRIMER_GAP,
+	PRIMER_SHAFT,
 	roomiest,
+	SHAFT,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
 import { columns, type Point, REACH, type Unplaced } from "./columns";
@@ -77,18 +77,18 @@ const CENTRE = 0.4;
 /** How far beyond the drawing a label's leader starts. */
 const ANCHOR = 4;
 
-/** One segment of a feature, drawn as a band round the centre with a head at either end. */
+/** One segment of a feature, drawn as a curved shaft round the centre with a head at either end. */
 interface Arrow {
 	/** Where it starts and ends, in radians; `end` passes a turn when it runs across the origin. */
 	readonly start: number;
 	readonly end: number;
-	/** The middle of its band, and the band's thickness. */
+	/** The middle of its shaft, and the shaft's thickness. */
 	readonly radius: number;
 	readonly width: number;
 	readonly color: string;
 	readonly headStart: boolean;
 	readonly headEnd: boolean;
-	/** The angle each head takes along the band. */
+	/** The angle each head takes along the shaft. */
 	readonly head: number;
 }
 
@@ -319,9 +319,9 @@ function features(
 		2 * PAD_Y -
 		height("sans", SMALL_SIZE) -
 		OVERHANG -
-		BAND / 2;
-	// The innermost band and its heads reach in this many steps past its middle.
-	const half = (BAND / 2 + OVERHANG) / RING_STEP;
+		SHAFT / 2;
+	// The innermost shaft and its heads reach in this many steps past its middle.
+	const half = (SHAFT / 2 + OVERHANG) / RING_STEP;
 	// A name wider than the circle's room would leave a step below 0.
 	const step = Math.max(
 		0,
@@ -331,7 +331,7 @@ function features(
 			(outer - clear) / (count - 1 + half),
 		),
 	);
-	const width = (BAND * step) / RING_STEP;
+	const width = (SHAFT * step) / RING_STEP;
 	return shown.map(({ feature, label, segments }, i) => {
 		const radius = outer - onRing[i] * step;
 		const last = segments.length - 1;
@@ -362,19 +362,19 @@ function features(
 	});
 }
 
-/** The angle an arrow's band runs, less its heads. */
+/** The angle an arrow's shaft runs, less its heads. */
 function room(arrow: Arrow): number {
 	const heads = Number(arrow.headStart) + Number(arrow.headEnd);
 	return arrow.end - arrow.start - arrow.head * heads;
 }
 
 /**
- * `name` set along the middle of `arrow`'s band, upright on the lower half, or `null` when it
+ * `name` set along the middle of `arrow`'s shaft, upright on the lower half, or `null` when it
  * does not fit.
  *
- * Each letter's box is as wide as its advance and as tall as the face, centred on the band's
+ * Each letter's box is as wide as its advance and as tall as the face, centred on the shaft's
  * middle and turned square to it. The name fits when it spans, with `PAD_X` at each end, no more
- * of the band's middle than the heads leave, and no letter's corner passes the band's outer edge.
+ * of the shaft's middle than the heads leave, and no letter's corner passes the shaft's outer edge.
  */
 function nameOn(name: string, arrow: Arrow): Shape | null {
 	if (!name.trim()) return null;
@@ -507,10 +507,10 @@ function primers(
 	);
 	const hulls = sites.map(({ site }) => ({ start: site.start, end: site.end }));
 	const onRing = rings(hulls, circle);
-	const beyond = overhang(PRIMER_BAND);
-	const step = PRIMER_BAND + 2 * beyond + PRIMER_GAP;
+	const beyond = overhang(PRIMER_SHAFT);
+	const step = PRIMER_SHAFT + 2 * beyond + PRIMER_GAP;
 	const first =
-		circle.radius + BACKBONE / 2 + PRIMER_GAP + beyond + PRIMER_BAND / 2;
+		circle.radius + BACKBONE / 2 + PRIMER_GAP + beyond + PRIMER_SHAFT / 2;
 	return sites.map(({ name, site }, i) => {
 		const hull = hulls[i];
 		const label = primerLabel(name, hull, circle.length, options.highlight);
@@ -522,7 +522,7 @@ function primers(
 			start,
 			end,
 			radius,
-			width: PRIMER_BAND,
+			width: PRIMER_SHAFT,
 			color: label.color,
 			headStart,
 			headEnd,
@@ -532,7 +532,7 @@ function primers(
 	});
 }
 
-/** An arrow's outline: its band, with a head at each end it points to. */
+/** An arrow's outline: its shaft, with a head at each end it points to. */
 function outline(arrow: Arrow): PathCommand[] {
 	const { radius, width, start, end, head } = arrow;
 	const beyond = overhang(arrow.width);

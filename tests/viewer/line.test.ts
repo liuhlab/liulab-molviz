@@ -425,7 +425,7 @@ function edges(r: Rect) {
 }
 
 describe("a feature's name", () => {
-	test("goes inside its arrow, centred on its band, when it fits", () => {
+	test("goes inside its arrow, centred on its shaft, when it fits", () => {
 		const scene = lay([
 			{ name: "lacZ", segments: [[100, 500]], color: "#000080" },
 			{ name: "bla", segments: [[600, 900]], color: "#ffffcc" },

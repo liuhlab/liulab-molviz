@@ -5,7 +5,6 @@
 
 import {
 	type Arrow,
-	BAND,
 	type Bar,
 	barShapes,
 	barsOf,
@@ -15,10 +14,11 @@ import {
 	OVERHANG,
 	outline,
 	overhang,
-	PRIMER_BAND,
 	PRIMER_GAP,
+	PRIMER_SHAFT,
 	pack,
 	places,
+	SHAFT,
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
@@ -212,8 +212,8 @@ function features({
 	const middles: number[] = [];
 	for (let tier = 0; tier <= Math.max(-1, ...tiers); tier++) {
 		y += TIER_GAP;
-		middles.push(y + OVERHANG + BAND / 2);
-		y += 2 * OVERHANG + BAND;
+		middles.push(y + OVERHANG + SHAFT / 2);
+		y += 2 * OVERHANG + SHAFT;
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
 	const shapes = bars.flatMap((bar, i) =>
@@ -245,9 +245,9 @@ function cuts({ record, options, bounds, at, backboneTop }: Along): LineMarks {
  * by start, labelled by the primer's name and the bases the site spans.
  */
 function primers({ record, options, bounds, at }: Along): LineMarks {
-	const reach = overhang(PRIMER_BAND);
-	const step = PRIMER_BAND + 2 * reach + PRIMER_GAP;
-	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_BAND / 2;
+	const reach = overhang(PRIMER_SHAFT);
+	const step = PRIMER_SHAFT + 2 * reach + PRIMER_GAP;
+	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_SHAFT / 2;
 	const drawn: { arrow: Arrow; label: Label }[] = [];
 	for (const { name, sites } of record.primers) {
 		for (const site of sites) {
@@ -273,10 +273,10 @@ function primers({ record, options, bounds, at }: Along): LineMarks {
 	const middles = pack(drawn.map(({ arrow }) => arrow)).map(
 		(row) => first - row * step,
 	);
-	const tops = middles.map((middle) => middle - PRIMER_BAND / 2 - reach);
+	const tops = middles.map((middle) => middle - PRIMER_SHAFT / 2 - reach);
 	const shapes: Shape[] = drawn.map(({ arrow }, i) => ({
 		shape: "polygon",
-		points: outline(arrow, middles[i], PRIMER_BAND),
+		points: outline(arrow, middles[i], PRIMER_SHAFT),
 		fill: arrow.color,
 		stroke: shaded(arrow.color),
 		strokeWidth: OUTLINE_WIDTH,

@@ -17,9 +17,9 @@ import type { Feature, Record, Span } from "./record";
 import type { Shape } from "./scene";
 import { baseline, height, measure } from "./text";
 
-// A feature's arrow: the band's thickness, how far a head reaches beyond the band, the least room
+// A feature's arrow: the shaft's thickness, how far a head reaches beyond the shaft, the least room
 // between two bars in a tier, and between tiers.
-export const BAND = 15;
+export const SHAFT = 15;
 export const OVERHANG = 4;
 export const HEAD = 12;
 const BAR_GAP = 3;
@@ -28,11 +28,11 @@ export const TIER_GAP = 4;
 /** How deep the teeth of a zigzag edge are. */
 const ZIGZAG = 4;
 
-// A primer's arrow: its band's thickness, and the room either side of it.
-export const PRIMER_BAND = 4;
+// A primer's arrow: its shaft's thickness, and the room either side of it.
+export const PRIMER_SHAFT = 4;
 export const PRIMER_GAP = 2;
 
-/** An arrow's head: how far along the band it runs, and how far beyond the band it reaches. */
+/** An arrow's head: how far along the shaft it runs, and how far beyond the shaft it reaches. */
 export interface Head {
 	readonly length: number;
 	readonly reach: number;
@@ -180,7 +180,7 @@ export function isUnder(place: Place): place is { under: number } {
 	return typeof place === "object" && place !== null && "under" in place;
 }
 
-/** An arrow's band less its heads, each `length` long, as where it starts and ends. */
+/** An arrow's shaft less its heads, each `length` long, as where it starts and ends. */
 function body(arrow: Arrow, length = HEAD): [number, number] {
 	const heads = Number(arrow.headStart) + Number(arrow.headEnd);
 	const head = heads ? Math.min(length, (arrow.end - arrow.start) / heads) : 0;
@@ -196,7 +196,7 @@ function middleOf([first, last]: [number, number]): number {
 
 /**
  * Whether `outline`, given `zigzag`, cuts a zigzag edge into the start of `arrow`, and into its
- * end, the band left by its heads running from `first` to `last`.
+ * end, the shaft left by its heads running from `first` to `last`.
  */
 function teeth(
 	arrow: Arrow,
@@ -204,7 +204,7 @@ function teeth(
 	last: number,
 	zigzag: boolean,
 ): [start: boolean, end: boolean] {
-	// Teeth need room on the band, which a head may fill.
+	// Teeth need room on the shaft, which a head may fill.
 	const fit = zigzag && last - first >= 2 * ZIGZAG;
 	return [
 		fit && arrow.cutStart && !arrow.headStart,
@@ -212,7 +212,7 @@ function teeth(
 	];
 }
 
-/** An arrow's band less its heads and less the teeth of any zigzag edge `zigzag` gives it. */
+/** An arrow's shaft less its heads and less the teeth of any zigzag edge `zigzag` gives it. */
 function clear(arrow: Arrow, zigzag: boolean): [number, number] {
 	const [first, last] = body(arrow);
 	const [start, end] = teeth(arrow, first, last, zigzag);
@@ -264,7 +264,7 @@ export function places(
 			}
 			const wide = measure(name, "sans", LABEL_SIZE);
 			const most = roomiest(bar.arrows, (arrow) => room(arrow, zigzag));
-			if (wide + 2 * PAD_X <= room(most, zigzag) && lineHeight <= BAND) {
+			if (wide + 2 * PAD_X <= room(most, zigzag) && lineHeight <= SHAFT) {
 				placed[i] = { inside: most };
 				continue;
 			}
@@ -288,22 +288,22 @@ export function places(
 }
 
 /**
- * The outline of `arrow` about the height `middle`: its band `band` thick, a head at each end it
+ * The outline of `arrow` about the height `middle`: its shaft `shaft` thick, a head at each end it
  * has, a feature's in proportion unless `head` is given, and with `zigzag` a zigzag edge at each
- * end where it is cut, if its band has room.
+ * end where it is cut, if its shaft has room.
  */
 export function outline(
 	arrow: Arrow,
 	middle: number,
-	band = BAND,
+	shaft = SHAFT,
 	zigzag = false,
-	head: Head = { length: HEAD, reach: overhang(band) },
+	head: Head = { length: HEAD, reach: overhang(shaft) },
 ): [number, number][] {
 	const [first, last] = body(arrow, head.length);
 	const { reach } = head;
-	const top = middle - band / 2;
-	const bottom = middle + band / 2;
-	const quarter = band / 4;
+	const top = middle - shaft / 2;
+	const bottom = middle + shaft / 2;
+	const quarter = shaft / 4;
 	const [startTeeth, endTeeth] = teeth(arrow, first, last, zigzag);
 	const points: [number, number][] = [];
 	if (arrow.headStart) {
@@ -361,7 +361,7 @@ export function barShapes(
 	for (const arrow of bar.arrows) {
 		shapes.push({
 			shape: "polygon",
-			points: outline(arrow, middle, BAND, zigzag),
+			points: outline(arrow, middle, SHAFT, zigzag),
 			fill: arrow.color,
 			stroke: shaded(arrow.color),
 			strokeWidth: OUTLINE_WIDTH,
@@ -379,7 +379,7 @@ export function barShapes(
 			: [
 					place.under + measure(name, "sans", LABEL_SIZE) / 2,
 					painted(INK, dim),
-					middle + BAND / 2 + OVERHANG + PAD_Y + lineHeight / 2,
+					middle + SHAFT / 2 + OVERHANG + PAD_Y + lineHeight / 2,
 				];
 	shapes.push({
 		shape: "text",
@@ -394,7 +394,7 @@ export function barShapes(
 	return shapes;
 }
 
-/** How far the heads of an arrow `band` thick reach beyond it, as a feature's do in proportion. */
-export function overhang(band: number): number {
-	return (band * OVERHANG) / BAND;
+/** How far the heads of an arrow `shaft` thick reach beyond it, as a feature's do in proportion. */
+export function overhang(shaft: number): number {
+	return (shaft * OVERHANG) / SHAFT;
 }

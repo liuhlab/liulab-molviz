@@ -4,7 +4,6 @@
  */
 
 import {
-	BAND,
 	barShapes,
 	barsOf,
 	type ColoredFeature,
@@ -13,6 +12,7 @@ import {
 	OVERHANG,
 	pack,
 	places,
+	SHAFT,
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
@@ -262,8 +262,8 @@ function featureBars(
 			chipped = Math.max(chipped, over.bottom);
 		}
 		y = chipped;
-		middles.push(y + OVERHANG + BAND / 2);
-		y += 2 * OVERHANG + BAND;
+		middles.push(y + OVERHANG + SHAFT / 2);
+		y += 2 * OVERHANG + SHAFT;
 		if (tiers.some((t, i) => t === tier && isUnder(placed[i]))) {
 			y += PAD_Y + lineHeight;
 		}

@@ -183,7 +183,7 @@ describe("the centre", () => {
 	});
 });
 
-/** The middle of the outermost ring's band: the ruler's numbers, a head's reach and half a band in. */
+/** The middle of the outermost ring's shaft: the ruler's numbers, a head's reach and half a shaft in. */
 const OUTER = 220 - 3.8 - 1.3 - 6 - 2 - height("sans", 10.5) - 4 - 7.5;
 
 /** The arrows filled `color`. */
@@ -191,7 +191,7 @@ function arrows(scene: Scene, color: string): Path[] {
 	return paths(scene).filter((p) => p.fill === color);
 }
 
-/** The angles, in degrees, of the points of `path` on the middle of its band, where a head's tip is. */
+/** The angles, in degrees, of the points of `path` on the middle of its shaft, where a head's tip is. */
 function tips(path: Path, middle = OUTER): number[] {
 	return ends(path.commands)
 		.filter(([x, y]) => Math.abs(Math.hypot(x, y) - middle) < 1e-9)
@@ -211,14 +211,14 @@ describe("arrows", () => {
 			const scene = lay([{ strand, segments: [[0, 250]], color: "#000001" }]);
 			const [arrow] = arrows(scene, "#000001");
 			expect(tips(arrow)).toEqual(expected);
-			const band = [OUTER - 7.5, OUTER + 7.5].map((r) => Number(r.toFixed(3)));
+			const shaft = [OUTER - 7.5, OUTER + 7.5].map((r) => Number(r.toFixed(3)));
 			const heads = [OUTER - 11.5, OUTER + 11.5].map((r) =>
 				Number(r.toFixed(3)),
 			);
 			expect(radii(arrow)).toEqual(
 				strand === 0
-					? band
-					: [heads[0], band[0], OUTER, band[1], heads[1]].map((r) =>
+					? shaft
+					: [heads[0], shaft[0], OUTER, shaft[1], heads[1]].map((r) =>
 							Number(r.toFixed(3)),
 						),
 			);
@@ -258,7 +258,7 @@ describe("arrows", () => {
 	});
 });
 
-/** The middle of the band of an arrow with no heads. */
+/** The middle of the shaft of an arrow with no heads. */
 function middleOf(path: Path): number {
 	const [inner, outer] = radii(path);
 	return (inner + outer) / 2;
@@ -300,7 +300,7 @@ describe("rings", () => {
 		);
 	});
 
-	test("come closer together, their bands thinner, once they would pass 0.4 of the radius", () => {
+	test("come closer together, their shafts thinner, once they would pass 0.4 of the radius", () => {
 		const made = Array.from({ length: 8 }, (_, i) => ({
 			strand: 0,
 			segments: [[0, 100 + 10 * i]] as [number, number][],
@@ -443,7 +443,7 @@ describe("a feature's name", () => {
 		}
 	});
 
-	test("fits when it and 3 points either side span no more than the band", () => {
+	test("fits when it and 3 points either side span no more than the shaft", () => {
 		const text = "ABC";
 		const room = measure(text, "sans", 11.5) + 6;
 		const bases = (room / OUTER) * (1000 / (2 * Math.PI));
@@ -474,7 +474,7 @@ describe("a feature's name", () => {
 		expect(Math.hypot(leader.x2, leader.y2)).toBeGreaterThan(221.3 + 14 - 1e-6);
 	});
 
-	test("goes in a column when the bands are too thin for its letters", () => {
+	test("goes in a column when the shafts are too thin for its letters", () => {
 		const made = Array.from({ length: 8 }, (_, i) => ({
 			name: "f",
 			strand: 0,
@@ -487,13 +487,13 @@ describe("a feature's name", () => {
 	});
 });
 
-/** How far a primer's heads reach beyond its band 4 points thick, as a feature's do in proportion. */
+/** How far a primer's heads reach beyond its shaft 4 points thick, as a feature's do in proportion. */
 const PRIMER_REACH = (4 * 4) / 15;
 
 /** The middle of the first ring of primers: 2 points and a head's reach beyond the backbone. */
 const PRIMER_MIDDLE = 221.3 + 2 + PRIMER_REACH + 2;
 
-/** The radii of a primer's arrow with a head, its band's middle at `middle`. */
+/** The radii of a primer's arrow with a head, its shaft's middle at `middle`. */
 function primerRadii(middle: number): number[] {
 	return [-2 - PRIMER_REACH, -2, 0, 2, 2 + PRIMER_REACH].map((d) =>
 		Number((middle + d).toFixed(3)),
@@ -808,15 +808,15 @@ const CROWD: Made[] = Array.from({ length: 60 }, (_, i) => ({
 }));
 
 describe("a zoomed circle", () => {
-	test("is larger, its bands as thick, and gives its labels more room above and below", () => {
+	test("is larger, its shafts as thick, and gives its labels more room above and below", () => {
 		const scene = lay(CROWD.slice(0, 1), { zoom: 2 });
 		const strands = paths(scene).filter(
 			(p) => p.fill === "none" && p.strokeWidth === 2.6,
 		);
 		expect(strands.map(radii)).toEqual([[440], [436.2]]);
 		const [arrow] = paths(scene).filter((p) => p.fill !== "none");
-		const band = radii(arrow);
-		expect(band[band.length - 1] - band[0]).toBeCloseTo(15 + 2 * 4, 2);
+		const shaft = radii(arrow);
+		expect(shaft[shaft.length - 1] - shaft[0]).toBeCloseTo(15 + 2 * 4, 2);
 		expect(lay(CROWD).hidden.length).toBeGreaterThan(0);
 		expect(lay(CROWD, { zoom: 2 }).hidden).toEqual([]);
 	});

@@ -4,8 +4,8 @@ import {
 	type Arrow,
 	type Head,
 	outline,
-	PRIMER_BAND,
 	PRIMER_GAP,
+	PRIMER_SHAFT,
 	pack,
 } from "./arrows";
 import { cutSites } from "./cuts";
@@ -32,13 +32,13 @@ const ROW_TOP = 0;
 /** A primer's head, shorter than the line's so that it fits a cell. */
 const HEAD: Head = { length: 6, reach: 2 };
 
-// How far a primer's tail bends away from its band's middle, and how thick it is.
+// How far a primer's tail bends away from its shaft's middle, and how thick it is.
 const BEND = 6;
 const TAIL_WIDTH = 1.5;
 
 // How far a primer's tier reaches towards the bases, its head's half, and away from them; then
 // how far one tier lies from the next.
-const NEAR = PRIMER_BAND / 2 + HEAD.reach;
+const NEAR = PRIMER_SHAFT / 2 + HEAD.reach;
 const AWAY = Math.max(BEND + TAIL_WIDTH / 2, NEAR);
 const TIER = AWAY + NEAR + PRIMER_GAP;
 
@@ -117,7 +117,7 @@ export function primers(
 		if (arrow) {
 			shapes.push({
 				shape: "polygon",
-				points: outline(arrow, middle, PRIMER_BAND, false, HEAD),
+				points: outline(arrow, middle, PRIMER_SHAFT, false, HEAD),
 				fill: arrow.color,
 				stroke: shaded(arrow.color),
 				strokeWidth: OUTLINE_WIDTH,
