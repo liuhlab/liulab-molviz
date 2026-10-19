@@ -48,9 +48,7 @@ export function preparePlate(plate: unknown): Scene {
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
 	const scene = prepare(record, options);
-	const svg = toSvg(scene);
-	const { hidden } = scene;
-	return { svg, pages: [svg], hidden, notice: notice(hidden) };
+	return whole(toSvg(scene), scene.hidden);
 }
 
 /**
@@ -70,7 +68,7 @@ export function plateSvg(plate: unknown): Drawing {
 	return whole(toSvg(preparePlate(plate)));
 }
 
-/** `svg` as a drawing of one page that counts no hidden label. */
-function whole(svg: string): Drawing {
-	return { svg, pages: [svg], hidden: [], notice: "" };
+/** `svg` as a drawing of one page that left out `hidden`. */
+function whole(svg: string, hidden: readonly Hidden[] = []): Drawing {
+	return { svg, pages: [svg], hidden, notice: notice(hidden) };
 }

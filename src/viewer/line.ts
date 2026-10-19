@@ -104,6 +104,7 @@ export interface Drawn {
 	readonly covers?: readonly Box[];
 }
 
+/** A kind that draws nothing, which reaches no height either way: what each kind starts from. */
 const NOTHING: Drawn = {
 	shapes: [],
 	labels: [],
@@ -317,7 +318,7 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: backboneTop }]
 			: [],
 	);
-	return { shapes, labels, top: Number.POSITIVE_INFINITY, bottom: y };
+	return { ...NOTHING, shapes, labels, bottom: y };
 }
 
 /** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
@@ -381,12 +382,7 @@ function primers({ record, options, bounds, at }: Along): Drawn {
 		x: (arrow.start + arrow.end) / 2,
 		foot: tops[i],
 	}));
-	return {
-		shapes,
-		labels,
-		top: Math.min(...tops),
-		bottom: Number.NEGATIVE_INFINITY,
-	};
+	return { ...NOTHING, shapes, labels, top: Math.min(...tops) };
 }
 
 /**
@@ -443,13 +439,7 @@ function insertions({
 			labels.push({ label, x, foot: backboneTop });
 		}
 	}
-	return {
-		shapes,
-		labels,
-		top: Number.POSITIVE_INFINITY,
-		bottom: Number.NEGATIVE_INFINITY,
-		covers,
-	};
+	return { ...NOTHING, shapes, labels, covers };
 }
 
 /**
