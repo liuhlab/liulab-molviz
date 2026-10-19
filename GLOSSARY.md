@@ -132,6 +132,11 @@ _Avoid_: kind, for what a well holds, which is a record's word
 
 One HTML file that opens offline and draws one or more inputs: records, gels or plates.
 
+### Outline script
+
+The second script a release ships beside the viewer: each letter's outline, which only writing
+a file needs.
+
 ### Reader promise
 
 One of the nine things a drawing guarantees its reader, listed in section 5 of
