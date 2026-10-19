@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { draw, drawGel, drawPlate } from "../../src/viewer/draw";
 import { FormatError } from "../../src/viewer/format";
-import { family, fontFaceCss } from "../../src/viewer/text";
+import { families, fontFaceCss } from "../../src/viewer/text";
 
 const record = {
 	name: "pTest 中",
@@ -54,7 +54,7 @@ describe("draw", () => {
 			expect.arrayContaining(["lacZ", "pTest �"]),
 		);
 		for (const text of texts) {
-			expect(text.getAttribute("font-family")).toBe(family);
+			expect(text.getAttribute("font-family")).toBe(families.sans);
 		}
 	});
 
@@ -102,7 +102,7 @@ describe("drawGel", () => {
 			expect.arrayContaining(["PCR products", "GFP: 741 bp"]),
 		);
 		for (const text of texts) {
-			expect(text.getAttribute("font-family")).toBe(family);
+			expect(text.getAttribute("font-family")).toBe(families.sans);
 		}
 		expect(document.querySelectorAll("style")).toHaveLength(1);
 	});
@@ -149,7 +149,7 @@ describe("drawPlate", () => {
 			expect.arrayContaining(["picked 1", "A", "B", "1", "3", "quarter 1"]),
 		);
 		for (const text of texts) {
-			expect(text.getAttribute("font-family")).toBe(family);
+			expect(text.getAttribute("font-family")).toBe(families.sans);
 		}
 		expect(document.querySelectorAll("style")).toHaveLength(1);
 	});

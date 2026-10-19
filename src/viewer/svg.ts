@@ -4,7 +4,7 @@
  */
 
 import { leftEdge, type Scene, type Shape, twoDecimals } from "./scene";
-import { family, inFace, measure, outline, weights } from "./text";
+import { families, inFace, measure, outline, weights } from "./text";
 
 const GROUND = "#ffffff";
 const NAMESPACE = "http://www.w3.org/2000/svg";
@@ -163,7 +163,7 @@ function tag(shape: Shape, letters: Letters): Tag {
 				attributes: [
 					["x", twoDecimals(x)],
 					["y", twoDecimals(y)],
-					["font-family", family],
+					["font-family", families[face]],
 					["font-size", twoDecimals(size)],
 					["font-weight", String(weights[face])],
 					// Holds the text to the width the layout measured, in whatever font the browser uses.

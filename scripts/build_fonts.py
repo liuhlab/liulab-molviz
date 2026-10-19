@@ -13,7 +13,11 @@ from pathlib import Path
 # Only the `fonts` environment has fontTools; pyright runs in `default`.
 from fontTools import subset  # pyright: ignore[reportMissingImports]
 
-FACES = {"DejaVuSans.ttf": "sans.ttf", "DejaVuSans-Bold.ttf": "sans-bold.ttf"}
+FACES = {
+    "DejaVuSans.ttf": "sans.ttf",
+    "DejaVuSans-Bold.ttf": "sans-bold.ttf",
+    "DejaVuSansMono.ttf": "mono.ttf",
+}
 
 # Latin, Greek letters, general punctuation, arrows, the trade mark and the minus sign, and
 # U+FFFD, which the viewer draws for any character a face lacks.

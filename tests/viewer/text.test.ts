@@ -1,7 +1,13 @@
 import vm from "node:vm";
 import { build, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
-import { measure, metrics, outline, wrap } from "../../src/viewer/text";
+import {
+	fontFaceCss,
+	measure,
+	metrics,
+	outline,
+	wrap,
+} from "../../src/viewer/text";
 
 describe("measure", () => {
 	test("sums the face's advance widths, scaled to the size", () => {
@@ -21,6 +27,11 @@ describe("measure", () => {
 		expect(measure("中", "sans", 12)).toBe(12.3046875);
 		expect(measure("😀", "sans", 12)).toBe(12.3046875);
 	});
+
+	test("gives every letter of the mono face the same advance", () => {
+		expect(measure("ACGT", "mono", 11)).toBe((4 * 1233 * 11) / 2048);
+		expect(measure("W.i中", "mono", 11)).toBe((4 * 1233 * 11) / 2048);
+	});
 });
 
 describe("metrics", () => {
@@ -28,6 +39,20 @@ describe("metrics", () => {
 		const expected = { ascent: 1901 / 2048, descent: 483 / 2048 };
 		expect(metrics("sans")).toEqual(expected);
 		expect(metrics("sans-bold")).toEqual(expected);
+		expect(metrics("mono")).toEqual(expected);
+	});
+});
+
+describe("fontFaceCss", () => {
+	test("declares Sans at two weights, and Mono in a family of its own", () => {
+		const declared = [
+			...fontFaceCss().matchAll(/font-family:"([^"]+)";font-weight:(\d+);/g),
+		].map((m) => `${m[1]} ${m[2]}`);
+		expect(declared.sort()).toEqual([
+			"molviz Mono 400",
+			"molviz Sans 400",
+			"molviz Sans 700",
+		]);
 	});
 });
 

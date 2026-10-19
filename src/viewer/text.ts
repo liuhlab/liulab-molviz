@@ -2,19 +2,32 @@
 /** Text in the faces the viewer carries: measured, and outlined as SVG paths. */
 
 import { type Font, parse } from "opentype.js";
+import monoUrl from "./fonts/mono.ttf?inline";
 import sansUrl from "./fonts/sans.ttf?inline";
 import sansBoldUrl from "./fonts/sans-bold.ttf?inline";
 import { twoDecimals } from "./scene";
 
-/** A face the viewer carries: DejaVu Sans, or its bold. */
-export type Face = "sans" | "sans-bold";
+/** A face the viewer carries: DejaVu Sans, its bold, or DejaVu Sans Mono. */
+export type Face = "sans" | "sans-bold" | "mono";
 
-/** The family a page declares both faces under. No installed font has it, so none stands in. */
-export const family = "molviz Sans";
+/** The family a page declares each face under. No installed font has one, so none stands in. */
+export const families: Record<Face, string> = {
+	sans: "molviz Sans",
+	"sans-bold": "molviz Sans",
+	mono: "molviz Mono",
+};
 
-const urls: Record<Face, string> = { sans: sansUrl, "sans-bold": sansBoldUrl };
-/** The weight each face is declared at under `family`. */
-export const weights: Record<Face, number> = { sans: 400, "sans-bold": 700 };
+const urls: Record<Face, string> = {
+	sans: sansUrl,
+	"sans-bold": sansBoldUrl,
+	mono: monoUrl,
+};
+/** The weight each face is declared at in its family. */
+export const weights: Record<Face, number> = {
+	sans: 400,
+	"sans-bold": 700,
+	mono: 400,
+};
 const fonts: Partial<Record<Face, Font>> = {};
 
 function font(face: Face): Font {
@@ -141,12 +154,12 @@ export function outline(
 	return d;
 }
 
-/** CSS `@font-face` rules declaring each face under `family`, by weight, as a data URL. */
+/** CSS `@font-face` rules declaring each face in its family, by weight, as a data URL. */
 export function fontFaceCss(): string {
 	return (Object.keys(urls) as Face[])
 		.map(
 			(face) =>
-				`@font-face{font-family:"${family}";font-weight:${weights[face]};` +
+				`@font-face{font-family:"${families[face]}";font-weight:${weights[face]};` +
 				`src:url(${urls[face]}) format("truetype")}`,
 		)
 		.join("\n");
