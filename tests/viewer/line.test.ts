@@ -7,8 +7,10 @@ import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
 import crowdedSitesFile from "../records/crowded-sites.json";
+import backboneFile from "../records/puc19-backbone-amplicon.json";
 
 const colourTest = check(colourTestFile);
+const backbone = check(backboneFile);
 
 /** The span the test records' README names for drawing `colour-test` across its origin. */
 const ACROSS = { span: { start: 2600, end: 2750 } };
@@ -208,6 +210,22 @@ describe("a joined feature", () => {
 			expect.objectContaining({ x1: 0, x2: 14.4, y1: y, y2: y }),
 			expect.objectContaining({ x1: 691.2, x2: 720, y1: y, y2: y }),
 		]);
+	});
+
+	test("across the backbone amplicon's end lies where mbio draws it", () => {
+		const scene = layout(backbone, checkOptions({}, backbone));
+		const [after, before] = arrows(scene, "#993366");
+		// mbio's lacZα at 720 points, to two places: 2394..2644 with its head at 2394, joined to
+		// the end. mbio leaves out the piece after the start; its join ends where molviz draws it.
+		expect(left(before)).toBeCloseTo(647.51, 2);
+		expect(right(before)).toBeCloseTo(715.13, 2);
+		expect(tips(before)).toEqual([left(before)]);
+		const [fromStart, toEnd] = lines(scene, "#666666");
+		expect(fromStart.x1).toBe(0);
+		expect(fromStart.x2).toBeCloseTo(3.79, 2);
+		expect(left(after)).toBe(fromStart.x2);
+		expect(toEnd.x1).toBeCloseTo(715.13, 2);
+		expect(toEnd.x2).toBe(720);
 	});
 
 	test("across a linear record's end draws no join to an end it meets", () => {
