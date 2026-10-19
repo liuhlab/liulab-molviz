@@ -7,16 +7,28 @@ import * as v from "valibot";
 import { uniqueCutters } from "./cuts";
 import { exact, folded, list, oneOf, parse, Text } from "./format";
 import { KINDS } from "./labels";
-import { type Record, span } from "./record";
+import { type Record, rule, type Span, span } from "./record";
 
 function optionsSchema(record: Record) {
 	const bounds = { length: record.bases.length, circular: record.circular };
 	const names = answersTo(record);
-	return exact({
+	const whole = ({ start, end }: Span) => start === 0 && end === bounds.length;
+	const given = exact({
 		/** Draw only this stretch, as a line numbered as the record. The whole record by default. */
 		span: v.optional(span(bounds), () => ({ start: 0, end: bounds.length })),
-		/** The map a page opens on, or the one a file draws. */
-		map: v.optional(oneOf(["line"]), "line"),
+		/**
+		 * The map a page opens on, or the one a file draws: the circle for a circular record
+		 * drawn whole, else the line.
+		 */
+		map: v.optional(
+			v.pipe(
+				oneOf(["circle", "line"]),
+				v.check(
+					(map) => map === "line" || record.circular,
+					'must be "line" on a linear record',
+				),
+			),
+		),
 		/** The feature types off at the start. A type the record lacks is ignored. */
 		types_off: v.optional(list(Text), () => ["source"]),
 		/** The kinds off at the start. */
@@ -40,6 +52,20 @@ function optionsSchema(record: Record) {
 			() => [],
 		),
 	});
+	return v.pipe(
+		given,
+		rule<v.InferOutput<typeof given>>(function* ({ span, map }) {
+			if (map === "circle" && !whole(span)) {
+				yield [["map"], 'must be "line" when span is not the whole record'];
+			}
+		}),
+		v.transform((options) => ({
+			...options,
+			map:
+				options.map ??
+				(record.circular && whole(options.span) ? "circle" : "line"),
+		})),
+	);
 }
 
 /** A drawing's options, with each one left out at its default. */
