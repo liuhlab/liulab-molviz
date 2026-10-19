@@ -24,15 +24,20 @@ def draw_figure(figure: dict[str, Any]) -> molviz.Drawing:
     return molviz.draw_figure(records, **figure["options"])
 
 
+# Each set of drawings the script digests: the folder it draws, and how it draws one.
 DRAW = {
-    "records": molviz.draw,
-    "gels": molviz.draw_gel,
-    "plates": molviz.draw_plate,
-    "figures": draw_figure,
+    "records": ("records", molviz.draw),
+    "sequence-views": ("records", lambda record: molviz.draw(record, sequence_view=True)),
+    "gels": ("gels", molviz.draw_gel),
+    "plates": ("plates", molviz.draw_plate),
+    "figures": ("figures", draw_figure),
 }
 
 
-def sha256_of_written(drawing: molviz.Drawing, path: Path) -> str:
+def digest(drawing: molviz.Drawing, path: Path) -> str:
+    """The SHA-256 of the file ``drawing`` writes to ``path``, or of its still SVG."""
+    if path.name.endswith(".still.svg"):
+        return hashlib.sha256(drawing.still_svg().encode()).hexdigest()
     drawing.write(path)
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -47,15 +52,18 @@ def test_each_input_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None:
     subprocess.run([sys.executable, SCRIPT, "--tests", tmp_path, output], check=True)
 
     expected = [
-        f"{sha256_of_written(DRAW[folder](INPUTS[folder][stem]), tmp_path / f'w{ending}')}"
-        f"  {folder}/{stem}{ending}"
-        for folder, stem in [
+        f"{digest(draw(INPUTS[folder][stem]), tmp_path / f'w{ending}')}  {name}/{stem}{ending}"
+        for name, stem in [
             ("figures", "a-first"),
             ("gels", "a-first"),
             ("plates", "a-first"),
             ("records", "a-first"),
             ("records", "b-second"),
+            ("sequence-views", "a-first"),
+            ("sequence-views", "b-second"),
         ]
-        for ending in (".html", ".pdf", ".png", ".svg")
+        for folder, draw in [DRAW[name]]
+        for ending in (".html", ".pdf", ".png", ".still.svg", ".svg")
+        if not (name == "figures" and ending == ".still.svg")
     ]
     assert output.read_text(encoding="utf-8").splitlines() == expected

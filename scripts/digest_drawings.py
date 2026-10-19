@@ -2,11 +2,12 @@
 
     pixi run digest-drawings [-- OUTPUT]
 
-Each input in a folder of `DRAWS` under ``--tests`` is drawn by that folder's call with its
-defaults, a figure with its own options, and written as ``.html``, ``.svg``, ``.png`` at the
-default dpi, and ``.pdf``. Each line is ``<sha256>  <folder>/<input>.<ending>``, sorted by
-file, the form ``sha256sum`` writes. CI writes this on each platform and compares the two, so
-the same input writing the same bytes is checked without a stored digest to keep up to date.
+Each input in a folder of `DRAWS` under ``--tests`` is drawn by each call of `DRAWS` for that
+folder, a figure with its own options, and written as ``.html``, ``.svg``, ``.png`` at the
+default dpi, and ``.pdf``; its still SVG is digested as ``.still.svg``. Each line is
+``<sha256>  <name>/<input>.<ending>``, sorted by file, the form ``sha256sum`` writes.
+CI writes this on each platform and compares the two, so the same input writing the same bytes
+is checked without a stored digest to keep up to date.
 """
 
 import argparse
@@ -33,37 +34,44 @@ def _figure(path: Path) -> molviz.Drawing:
     return molviz.draw_figure(records, **figure["options"])
 
 
-#: Each folder of test inputs, one per ``.json`` file, with the call that draws one from its path.
-DRAWS: dict[str, Callable[[Path], molviz.Drawing]] = {
-    "records": lambda path: molviz.draw(_read(path)),
-    "gels": lambda path: molviz.draw_gel(_read(path)),
-    "plates": lambda path: molviz.draw_plate(_read(path)),
-    "figures": _figure,
+#: Each set of drawings by its name: the folder of test inputs it draws, one per ``.json``
+#: file, and the call that draws one from its path.
+DRAWS: dict[str, tuple[str, Callable[[Path], molviz.Drawing]]] = {
+    "records": ("records", lambda path: molviz.draw(_read(path))),
+    "sequence-views": ("records", lambda path: molviz.draw(_read(path), sequence_view=True)),
+    "gels": ("gels", lambda path: molviz.draw_gel(_read(path))),
+    "plates": ("plates", lambda path: molviz.draw_plate(_read(path))),
+    "figures": ("figures", _figure),
 }
 
 
 def digests(tests: Path) -> list[str]:
-    """Return one ``<sha256>  <folder>/<file>`` line per input and ending, sorted by file.
+    """Return one ``<sha256>  <name>/<file>`` line per drawing and ending, sorted by file.
 
     ``tests`` holds each folder of `DRAWS`.
     """
     lines: dict[str, str] = {}
     with tempfile.TemporaryDirectory() as scratch:
-        for folder, draw in DRAWS.items():
+        for set_name, (folder, draw) in DRAWS.items():
             for path in (tests / folder).glob("*.json"):
                 drawing = draw(path)
                 for ending in ENDINGS:
                     written = Path(scratch) / f"drawing{ending}"
                     drawing.write(written)
-                    name = f"{folder}/{path.stem}{ending}"
+                    name = f"{set_name}/{path.stem}{ending}"
                     lines[name] = f"{hashlib.sha256(written.read_bytes()).hexdigest()}  {name}"
+                if set_name == "figures":
+                    continue
+                name = f"{set_name}/{path.stem}.still.svg"
+                still = drawing.still_svg().encode()
+                lines[name] = f"{hashlib.sha256(still).hexdigest()}  {name}"
     return [lines[name] for name in sorted(lines)]
 
 
 def main() -> None:
     """Write the lines to OUTPUT, or print them."""
     parser = argparse.ArgumentParser(description="Digest every test input's drawings.")
-    folders = ", ".join(DRAWS)
+    folders = ", ".join(dict.fromkeys(folder for folder, _ in DRAWS.values()))
     parser.add_argument(
         "--tests", type=Path, default=Path("tests"), help=f"the folder holding {folders}"
     )

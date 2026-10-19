@@ -46,8 +46,27 @@ sets one.
 - In the viewer, `molviz.calls` names the calls for each input, `record`, `gel`, `plate` or
   `figure`: the one that checks it, the one that draws it into an element, and the one that
   returns SVG.
+- `Drawing.still_svg()` returns the drawing as SVG with real text, for a page with no
+  viewer. It is laid out as the `.svg` file is and hides the same labels; each hover is a
+  tooltip. `font_rules()` returns the CSS such a page writes once, in a `<style>` element,
+  to load the viewer's fonts.
+- In the viewer, `molviz.stillSvg(record, options)`, `molviz.gelStillSvg(gel)` and
+  `molviz.plateStillSvg(plate)` return a still drawing as `{svg, hidden, notice}`, and
+  `molviz.fontRules()` returns the font rules. `molviz.calls` names each input's still call.
+- A gel's or a plate's `.html` page holds its still drawing and the font rules, and no
+  viewer. A record's page still draws it with the viewer.
 - Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
   opentype.js, built into the viewer, which reads its fonts.
+- `draw(record, sequence_view=True)` draws the sequence view under the map: the bases in rows
+  on both strands, with what is drawn on them. `bases_per_row` sets a row's length, and
+  `bottom_strand=False` leaves the bottom strand out. It draws at most
+  `SEQUENCE_VIEW_LIMIT` bases, 100,000. A PDF of it has the map on its first page and the rows
+  on the pages after, joined by pypdf, a new runtime dependency.
+- `Drawing.write` refuses a PNG past 2**22 pixels on a side or 2**28 in all, and says to write
+  a PDF instead.
+- In the viewer, `molviz.SEQUENCE_VIEW_LIMIT`, and the sequence view drawn under the map by
+  `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` leaves the view out, and
+  `molviz.svg` raises an error.
 
 ### Removed
 

@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { draw, drawGel, drawPlate } from "../../src/viewer/draw";
 import { FormatError } from "../../src/viewer/format";
-import { family, fontFaceCss } from "../../src/viewer/text";
+import { families, fontFaceCss } from "../../src/viewer/text";
 
 const record = {
 	name: "pTest 中",
@@ -31,6 +31,13 @@ const plate = {
 	wells: { A1: "quarter 1", B3: "water" },
 };
 
+/** The map `draw` puts in an element for `record`, with no sequence view. */
+function drawnMap(): Element {
+	const element = document.createElement("div");
+	draw(element, record, {});
+	return element.children[0];
+}
+
 function spot(): HTMLElement {
 	const element = document.createElement("div");
 	document.body.append(element);
@@ -54,7 +61,7 @@ describe("draw", () => {
 			expect.arrayContaining(["lacZ", "pTest �"]),
 		);
 		for (const text of texts) {
-			expect(text.getAttribute("font-family")).toBe(family);
+			expect(text.getAttribute("font-family")).toBe(families.sans);
 		}
 	});
 
@@ -80,6 +87,30 @@ describe("draw", () => {
 		expect(document.querySelectorAll("style")).toHaveLength(1);
 	});
 
+	test("adds the sequence view under the map, its bases as text, and destroy removes both", () => {
+		const element = spot();
+		const drawing = draw(element, record, { sequence_view: true });
+		const [map, view] = element.children;
+		expect(element.children).toHaveLength(2);
+		expect(map.outerHTML).toBe(drawnMap().outerHTML);
+		expect((view as SVGSVGElement).style.display).toBe("block");
+		const bases = [...view.querySelectorAll("text")].filter(
+			(t) => t.getAttribute("font-family") === families.mono,
+		);
+		expect(bases[0].textContent).toBe("ACGT".repeat(15));
+		drawing.destroy();
+		expect(element.children).toHaveLength(0);
+	});
+
+	test("leaves the sequence view out past 100,000 bases, with no error", () => {
+		const long = { ...record, bases: "ACGT".repeat(25_001) };
+		const element = spot();
+		draw(element, long, { sequence_view: true });
+		const alone = spot();
+		draw(alone, long, {});
+		expect(element.innerHTML).toBe(alone.innerHTML);
+	});
+
 	test("throws a FormatError on a bad record, adding nothing to the page", () => {
 		const element = spot();
 		expect(() => draw(element, { ...record, bases: "" }, {})).toThrow(
@@ -102,7 +133,7 @@ describe("drawGel", () => {
 			expect.arrayContaining(["PCR products", "GFP: 741 bp"]),
 		);
 		for (const text of texts) {
-			expect(text.getAttribute("font-family")).toBe(family);
+			expect(text.getAttribute("font-family")).toBe(families.sans);
 		}
 		expect(document.querySelectorAll("style")).toHaveLength(1);
 	});
@@ -149,7 +180,7 @@ describe("drawPlate", () => {
 			expect.arrayContaining(["picked 1", "A", "B", "1", "3", "quarter 1"]),
 		);
 		for (const text of texts) {
-			expect(text.getAttribute("font-family")).toBe(family);
+			expect(text.getAttribute("font-family")).toBe(families.sans);
 		}
 		expect(document.querySelectorAll("style")).toHaveLength(1);
 	});

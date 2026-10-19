@@ -26,6 +26,8 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.viewer.viewer_script
 
+::: molviz.font_rules
+
 ::: molviz.check
 
 ::: molviz.check_gel
@@ -42,6 +44,8 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.Drawing
 
+::: molviz.SEQUENCE_VIEW_LIMIT
+
 ## Options
 
 `draw` takes these options by name, and so does `draw_figure`, for every record it stacks.
@@ -56,6 +60,42 @@ out takes its default.
 | `kinds_off` | The kinds of thing to leave out: any of `"features"`, `"primers"`, `"cuts"` and `"insertions"`. | `[]` |
 | `enzymes` | The enzymes whose cut sites are drawn. A name matches in any case. A name that does not cut the record is ignored. | each enzyme that cuts the record once |
 | `highlight` | The names to light up: a feature, a primer, an insertion, or an enzyme, which lights every site it cuts. All else turns one pale grey, and nothing moves. Where labels crowd, a lit label is the last to hide. A name in any case matches. A name that matches nothing in the record is an error. | `[]` |
+| `sequence_view` | Draws the sequence view under the map: the bases in rows, on both strands, with each thing drawn on them at its bases. A PDF has the map on its first page and the rows on the pages after. It draws at most `SEQUENCE_VIEW_LIMIT` bases, 100,000, so past that `true` is an error. | `false` |
+| `bases_per_row` | How many bases a row of the sequence view holds. The last row may hold fewer. | `60` |
+| `bottom_strand` | Whether the sequence view draws the bottom strand under the top one. | `true` |
+
+## A page of your own
+
+A page can show a drawing in two ways.
+
+- **Live.** Put `viewer_script()` in a `<script>` element once. Then call
+  `molviz.draw(element, record, options)` for each place on the page that shows a record.
+- **Still.** Put `font_rules()` in a `<style>` element once. Then write each drawing's
+  `still_svg()` into the page as it is. The page needs no script. A still drawing looks the
+  same as a live one, and its hovers show, but a reader cannot change it.
+
+A page that does both needs no font rules, since `draw` adds them. Written anyway, they cost
+their size twice.
+
+molviz's own pages work the same way. A record's page draws it live. A gel's or a plate's
+page holds its still drawing.
+
+```python
+import molviz
+
+drawings = [molviz.draw_gel(gel), molviz.draw_plate(plate)]
+page = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>{molviz.font_rules()}</style>
+</head>
+<body>
+{"".join(drawing.still_svg() for drawing in drawings)}
+</body>
+</html>
+"""
+```
 
 ## The command line
 

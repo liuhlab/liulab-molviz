@@ -6,7 +6,12 @@ import { checkFigure, prepareFigure } from "../../src/viewer/figure";
 import { FormatError } from "../../src/viewer/format";
 import { DIM, INK } from "../../src/viewer/paint";
 import { check } from "../../src/viewer/record";
-import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
+import {
+	leftEdge,
+	moved,
+	type Scene,
+	type Shape,
+} from "../../src/viewer/scene";
 import { height, measure, metrics } from "../../src/viewer/text";
 import crowded from "../records/crowded-sites.json";
 
@@ -77,7 +82,10 @@ function down(shape: Shape, dy: number): unknown {
 			return { ...shape, points: shape.points.map(([x, y]) => [x, near(y)]) };
 		case "circle":
 			return { ...shape, cy: near(shape.cy) };
-		default:
+		case "path":
+			return moved(shape, 0, dy);
+		case "rect":
+		case "text":
 			return { ...shape, y: near(shape.y) };
 	}
 }

@@ -1,6 +1,6 @@
 /** An input drawn live into an element of a page. */
 
-import { prepare, prepareGel, preparePlate } from "./drawing";
+import { prepareGel, preparePlate, prepareViews } from "./drawing";
 import { prepareFigure } from "./figure";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
@@ -10,21 +10,34 @@ import { fontFaceCss } from "./text";
 const FONTS = "molviz-fonts";
 
 /** A drawing in an element of a page. */
-export interface Drawn {
+export interface LiveDrawing {
 	/** Remove the drawing, leaving the faces for any other. Calling it again does nothing. */
 	destroy(): void;
 }
 
 /**
  * Draw `record` with `options` into `element`, after what it holds, its letters as real text.
- * Throws one FormatError naming every problem in the record, or else in the options.
+ * A span past the sequence view's limit leaves the view out. Throws one FormatError naming every
+ * problem in the record, or else in the options.
  */
 export function draw(
 	element: Element,
 	record: unknown,
 	options: unknown = {},
-): Drawn {
-	return drawScene(element, prepare(record, options));
+): LiveDrawing {
+	const { map, sequence } = prepareViews(record, options, { page: true });
+	const drawn = [drawScene(element, map)];
+	if (sequence !== null) {
+		const view = drawScene(element, sequence);
+		// A block, so it starts under the map rather than beside it.
+		view.svg.style.display = "block";
+		drawn.push(view);
+	}
+	return {
+		destroy: () => {
+			for (const one of drawn) one.destroy();
+		},
+	};
 }
 
 /**
@@ -36,7 +49,7 @@ export function drawFigure(
 	element: Element,
 	records: unknown,
 	options: unknown = {},
-): Drawn {
+): LiveDrawing {
 	return drawScene(element, prepareFigure(records, options));
 }
 
@@ -44,7 +57,7 @@ export function drawFigure(
  * Draw `gel` into `element`, after what it holds, its letters as real text. Throws one
  * FormatError naming every problem in the gel.
  */
-export function drawGel(element: Element, gel: unknown): Drawn {
+export function drawGel(element: Element, gel: unknown): LiveDrawing {
 	return drawScene(element, prepareGel(gel));
 }
 
@@ -52,17 +65,20 @@ export function drawGel(element: Element, gel: unknown): Drawn {
  * Draw `plate` into `element`, after what it holds, its letters as real text. Throws one
  * FormatError naming every problem in the plate.
  */
-export function drawPlate(element: Element, plate: unknown): Drawn {
+export function drawPlate(element: Element, plate: unknown): LiveDrawing {
 	return drawScene(element, preparePlate(plate));
 }
 
 /** Draw `scene` into `element`, after what it holds, declaring the faces if no drawing has. */
-function drawScene(element: Element, scene: Scene): Drawn {
+function drawScene(
+	element: Element,
+	scene: Scene,
+): LiveDrawing & { svg: SVGSVGElement } {
 	const document = element.ownerDocument;
 	declareFaces(document);
 	const svg = toElement(scene, document);
 	element.append(svg);
-	return { destroy: () => svg.remove() };
+	return { svg, destroy: () => svg.remove() };
 }
 
 /** Add the faces' `@font-face` rules to `document`, unless a drawing already has. */

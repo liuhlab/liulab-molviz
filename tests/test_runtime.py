@@ -8,9 +8,14 @@ GOOD = {"name": "pUC19", "circular": True, "bases": "GATCcatgRYN"}
 
 def test_calls_name_each_inputs_calls_on_the_global() -> None:
     assert calls() == {
-        "record": {"check": "check", "draw": "draw", "svg": "svg"},
-        "gel": {"check": "checkGel", "draw": "drawGel", "svg": "gelSvg"},
-        "plate": {"check": "checkPlate", "draw": "drawPlate", "svg": "plateSvg"},
+        "record": {"check": "check", "draw": "draw", "svg": "svg", "still": "stillSvg"},
+        "gel": {"check": "checkGel", "draw": "drawGel", "svg": "gelSvg", "still": "gelStillSvg"},
+        "plate": {
+            "check": "checkPlate",
+            "draw": "drawPlate",
+            "svg": "plateSvg",
+            "still": "plateStillSvg",
+        },
         "figure": {"check": "checkFigure", "draw": "drawFigure", "svg": "figureSvg"},
     }
 
@@ -24,6 +29,12 @@ def test_a_call_returns_the_viewers_answer() -> None:
 def test_a_format_error_raises_value_error_with_the_viewers_message() -> None:
     with pytest.raises(ValueError, match=r"^options: must be an object$"):
         call("record", "svg", GOOD, None)
+
+
+def test_a_still_call_returns_the_drawing_with_no_pages() -> None:
+    drawn = call("record", "still", GOOD, {})
+    assert set(drawn) == {"svg", "hidden", "notice"}
+    assert "<text " in drawn["svg"]
 
 
 def test_any_other_javascript_error_raises_as_it_is() -> None:

@@ -6,7 +6,7 @@ import type { MapScene } from "./labels";
 import { layout } from "./line";
 import { checkOptions, type Options } from "./options";
 import { type Record, recordSchemaOf } from "./record";
-import { movedDown, type Shape } from "./scene";
+import { moved, type Shape } from "./scene";
 import { baseline, type Face, height } from "./text";
 
 /** How a stacked record's name is set above it, as mbio sets it. */
@@ -57,7 +57,7 @@ function checkEach(input: unknown, records: readonly Record[]): Options[] {
 	const problems = new Map<string, number[]>();
 	for (const [i, record] of records.entries()) {
 		try {
-			checked.push(checkOptions(input, record, records));
+			checked.push(checkOptions(input, record, { drawn: records }));
 		} catch (error) {
 			if (!(error instanceof FormatError)) throw error;
 			for (const line of error.message.split("\n")) {
@@ -108,7 +108,7 @@ function stacked(
 			fill: NAME_FILL,
 		});
 		const dy = recordTop - extent.y;
-		shapes.push(...own.map((shape) => movedDown(shape, dy)));
+		shapes.push(...own.map((shape) => moved(shape, 0, dy)));
 		bottom = recordTop + extent.height;
 		recordTop = bottom + BETWEEN + named;
 	}
