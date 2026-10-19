@@ -9,6 +9,8 @@ it holds. The map draws a record's features, its primers at each place they bind
 insertions, and the cut sites of each enzyme that cuts it once. Where labels would crowd, some
 are hidden, and a note at the bottom right counts them.
 
+A circular record drawn whole opens on [the circle](circle.md), so this page asks for the line.
+
 If a record cannot be drawn, its place on the page says why.
 
 ## puc19-gfp-product
@@ -18,6 +20,9 @@ A Golden Gate product. Its lacZα CDS is joined across the GFP insert.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/puc19-gfp-product.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -31,7 +36,7 @@ everything else turns pale grey. Nothing moves.
 --8<-- "tests/records/puc19-gfp-product.json"
 </script>
 <script type="application/json" data-options>
-{"highlight": ["GFP", "GFP forward", "GFP reverse"]}
+{"map": "line", "highlight": ["GFP", "GFP forward", "GFP reverse"]}
 </script>
 </div>
 
@@ -42,6 +47,9 @@ A larger product with many features, some on no strand.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/ap1-product.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -54,6 +62,9 @@ the first part will go.
 <script type="application/json" data-record>
 --8<-- "tests/records/ap1-block-vector-1.json"
 </script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
 </div>
 
 ## ap1-round-1
@@ -64,6 +75,9 @@ and a new stuffer sits where the next part will go.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/ap1-round-1.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -76,6 +90,9 @@ The vector after the second round, with `DBD_JUN` joined after `N_JUN`. The thir
 <script type="application/json" data-record>
 --8<-- "tests/records/ap1-round-2.json"
 </script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
 </div>
 
 ## colour-test
@@ -86,6 +103,9 @@ feature runs over the origin.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/colour-test.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -121,6 +141,9 @@ A feature on both strands, and two insertions, one of them at the origin.
 <script type="application/json" data-record>
 --8<-- "tests/records/both-strands-and-insertions.json"
 </script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
 </div>
 
 ## mismatch-across-origin
@@ -130,6 +153,9 @@ A primer with two sites. One runs across the origin, with a mismatch on each sid
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/mismatch-across-origin.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -151,31 +177,7 @@ An N inside a CDS, so one codon translates as X, and an EcoRI cut at the origin.
 <script type="application/json" data-record>
 --8<-- "tests/records/n-and-cut-at-origin.json"
 </script>
-</div>
-
-## crowded-sites
-
-A circle where 40 enzymes cut within 143 bases, with primers, tiny features and an insertion in
-that stretch and just past it. Its labels crowd, so some are hidden, and the note at the bottom
-right counts them.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
-</div>
-
-## crowded-sites, with every enzyme and EcoRI lit
-
-The same circle with the cut sites of all 40 enzymes. EcoRI cuts it three times, so with
-nothing lit, its site in the crowd is the first label to hide. Here EcoRI is lit, so that site
-is the last to hide, and other sites hide in its place.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
 <script type="application/json" data-options>
-{"enzymes": ["AatII", "Acc65I", "AflII", "AgeI", "AscI", "AvrII", "BamHI", "BanII", "BglII", "BsaI", "BsiWI", "BsmBI", "ClaI", "EcoRI", "EcoRV", "Esp3I", "HindIII", "HpaI", "KpnI", "MfeI", "MluI", "NcoI", "NdeI", "NheI", "NotI", "NruI", "NsiI", "PacI", "PmeI", "PstI", "SacI", "SalI", "SmaI", "SnaBI", "SpeI", "SphI", "StuI", "XbaI", "XhoI", "XmaI"], "highlight": ["EcoRI"]}
+{"map": "line"}
 </script>
 </div>

@@ -25,7 +25,7 @@ import {
 	type Shape,
 } from "../../src/viewer/scene";
 import { height, measure, metrics } from "../../src/viewer/text";
-import crowded from "../records/crowded-sites.json";
+import ap1 from "../records/ap1-product.json";
 
 /** A linear record `length` bases long, with one CDS called `feature` near its start. */
 function record(name: string, length: number, feature: string) {
@@ -239,14 +239,16 @@ describe("figureSvg", () => {
 	);
 
 	test("joins what each record hid, in order, in one notice, and keeps each record's own", () => {
-		const drawn = figureSvg([crowded, first, crowded], {});
-		const alone = ["BsmBI - Esp3I - NruI", "BanII - SacI - XbaI"];
+		const every = { enzymes: [...new Set(ap1.cuts.map((cut) => cut.enzyme))] };
+		const records = [ap1, first, ap1];
+		const drawn = figureSvg(records, every);
+		const alone = [...Array(4).fill("BtgZI"), ...Array(2).fill("BspQI - SapI")];
 		expect(drawn.hidden.map(({ kind, name }) => [kind, name])).toEqual(
 			[...alone, ...alone].map((name) => ["cuts", name]),
 		);
-		expect(drawn.notice).toBe("4 cut sites are hidden");
-		const notices = prepareFigure([crowded, first, crowded], {}).shapes.filter(
-			(s) => s.shape === "text" && s.text === "2 cut sites are hidden",
+		expect(drawn.notice).toBe("12 cut sites are hidden");
+		const notices = prepareFigure(records, every).shapes.filter(
+			(s) => s.shape === "text" && s.text === "6 cut sites are hidden",
 		);
 		expect(notices).toHaveLength(2);
 	});

@@ -148,7 +148,7 @@ function strands(scene: SequenceScene): {
 }
 
 describe("a primer", () => {
-	test("lies as an arrow along its site, a forward one above the numbers and a reverse one under the strands, its head at the 3' end, 6 long and 2 beyond its band", () => {
+	test("lies as an arrow along its site, a forward one above the numbers and a reverse one under the strands, its head at the 3' end, 6 long and 2 beyond its shaft", () => {
 		const scene = lay({
 			primers: [
 				primer("fwd", [{ start: 2, end: 12, strand: 1 }]),

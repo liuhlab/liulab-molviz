@@ -1,9 +1,10 @@
 /** An input drawn as SVG text, with no DOM. */
 
+import { layoutCircle } from "./circle";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
-import { layout } from "./line";
+import { layoutLine } from "./line";
 import { checkOptions, type Options } from "./options";
 import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
@@ -32,8 +33,8 @@ export interface Views {
 }
 
 /**
- * Check `record`, then `options` against it, and lay the record's map out as they say. Throws
- * one FormatError naming every problem in the record, or else in the options.
+ * Check `record`, then `options` against it, and lay the record out on the map they name.
+ * Throws one FormatError naming every problem in the record, or else in the options.
  */
 export function prepare(record: unknown, options: unknown): MapScene {
 	return prepareViews(record, options).map;
@@ -52,7 +53,10 @@ export function prepareViews(
 /** Lay `record`'s map out as `options` say, and its sequence view if they draw one. */
 export function layoutViews(record: Record, options: Options): Views {
 	return {
-		map: layout(record, options),
+		map:
+			options.map === "circle"
+				? layoutCircle(record, options)
+				: layoutLine(record, options),
 		sequence: options.sequence_view ? layoutSequence(record, options) : null,
 	};
 }

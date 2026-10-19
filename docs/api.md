@@ -55,7 +55,7 @@ out takes its default.
 | Option | What it does | Default |
 | --- | --- | --- |
 | `span` | Draws only the bases from `start` to `end`, as in `{"start": 10, "end": 500}`. `start` counts from 0, and the base at `end` is not drawn. The line is numbered as the record is. On a circular record, `end` may pass the record's length to run across the origin. | the whole record |
-| `map` | The map to draw. For now it can only be `"line"`. | `"line"` |
+| `map` | The map to draw: `"circle"` or `"line"`. The circle draws a circular record whole, so a linear record, or a `span` short of the whole record, must be drawn as `"line"`. | `"circle"` for a circular record drawn whole, else `"line"` |
 | `types_off` | The feature types to leave out. A type the record does not have is ignored. | `["source"]` |
 | `kinds_off` | The kinds of thing to leave out: any of `"features"`, `"primers"`, `"cuts"` and `"insertions"`. | `[]` |
 | `enzymes` | The enzymes whose cut sites are drawn. A name matches in any case. A name that does not cut the record is ignored. | each enzyme that cuts the record once |

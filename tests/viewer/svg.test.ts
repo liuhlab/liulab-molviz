@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
-import type { Scene } from "../../src/viewer/scene";
+import type { Scene, Shape } from "../../src/viewer/scene";
 import { toElement, toStill, toSvg } from "../../src/viewer/svg";
-import { type Face, glyphs, measure } from "../../src/viewer/text";
+import { type Face, glyphs, measure, unitsPerEm } from "../../src/viewer/text";
 
 const scene: Scene = {
 	extent: { x: -16, y: -30.5, width: 752, height: 120.25 },
@@ -75,6 +75,105 @@ const scene: Scene = {
 };
 
 const written = toSvg(scene);
+
+/** `shape` alone in a scene, written as a file and as a page. */
+function both(shape: Shape): { file: string; page: SVGSVGElement } {
+	const alone: Scene = {
+		extent: { x: -230, y: -230, width: 460, height: 460 },
+		shapes: [shape],
+	};
+	return { file: toSvg(alone), page: toElement(alone, document) };
+}
+
+describe("a curve or a turn", () => {
+	test("writes a path as one path element, an arc with its radius twice", () => {
+		const { file, page } = both({
+			shape: "path",
+			commands: [
+				["M", 0, -220],
+				["A", 220, 0, 1, 0, 220],
+				["L", -0.001, 216.2],
+				["A", 216.2, 1, 0, 0, -216.2],
+				["Z"],
+			],
+			fill: "none",
+			stroke: "#252525",
+			strokeWidth: 2.6,
+		});
+		const d =
+			"M0.00 -220.00A220.00 220.00 0 0 1 0.00 220.00L0.00 216.20" +
+			"A216.20 216.20 0 1 0 0.00 -216.20Z";
+		expect(file).toContain(
+			`<path d="${d}" fill="none" stroke="#252525" stroke-width="2.60"/>`,
+		);
+		expect(page.innerHTML).toContain(
+			`<path d="${d}" fill="none" stroke="#252525" stroke-width="2.60"></path>`,
+		);
+	});
+
+	test("turns text clockwise about its x and y, in one transform in a file", () => {
+		const { file, page } = both({
+			shape: "text",
+			text: "100",
+			face: "sans",
+			size: 10.5,
+			x: 0,
+			y: -190,
+			anchor: "middle",
+			fill: "#252525",
+			rotate: 90,
+		});
+		const left = (-measure("100", "sans", 10.5) / 2).toFixed(2);
+		const turn = "rotate(90.00 0.00 -190.00)";
+		expect(file).toContain(
+			`<g transform="${turn} translate(${left} -190.00) scale(${10.5 / unitsPerEm("sans")})" fill="#252525"><use `,
+		);
+		expect(page.querySelector("text")?.outerHTML).toContain(
+			`transform="${turn}"`,
+		);
+	});
+
+	const name: Shape = {
+		shape: "letters",
+		text: "a b",
+		face: "sans",
+		size: 11.5,
+		fill: "#000000",
+		places: [
+			[0, -180, -10],
+			[7.08, -181.05, 0],
+			[14.5, -180, 10.5],
+		],
+	};
+
+	test("sets a name along a curve on a page as one text, each letter at its place", () => {
+		const texts = both(name).page.querySelectorAll("text");
+		expect(texts).toHaveLength(1);
+		const [text] = texts;
+		expect(text.textContent).toBe("a b");
+		expect(text.getAttribute("x")).toBe("0.00 7.08 14.50");
+		expect(text.getAttribute("y")).toBe("-180.00 -181.05 -180.00");
+		expect(text.getAttribute("rotate")).toBe("-10.00 0.00 10.50");
+		expect(text.getAttribute("font-family")).toBe("molviz Sans");
+		expect(text.getAttribute("font-size")).toBe("11.50");
+		expect(text.getAttribute("font-weight")).toBe("400");
+		expect(text.getAttribute("fill")).toBe("#000000");
+	});
+
+	test("draws a name along a curve in a file as a use of each inked letter, turned at its place", () => {
+		const [a] = glyphs("a", "sans", 11.5);
+		const [b] = glyphs("b", "sans", 11.5);
+		const letter = (id: string, at: string) =>
+			`<use xlink:href="#${id}" transform="${at} scale(${11.5 / unitsPerEm("sans")})"/>`;
+		const { file } = both(name);
+		expect(file).toContain(
+			`<g fill="#000000">${letter(a.id, "translate(0.00 -180.00) rotate(-10.00)")}` +
+				`${letter(b.id, "translate(14.50 -180.00) rotate(10.50)")}</g>`,
+		);
+		expect(file).toContain(`<path id="${a.id}" d="${a.outline}"/>`);
+		expect(file).toContain(`<path id="${b.id}" d="${b.outline}"/>`);
+	});
+});
 
 describe("toSvg", () => {
 	test("sizes the drawing to its extent with no unit, so one unit is one point", () => {

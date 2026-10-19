@@ -23,12 +23,14 @@ import {
 import { measure, weights } from "../../src/viewer/text";
 import gel from "../gels/golden-gate-pcr-products.json";
 import plate from "../plates/ap1-pcr2-plate.json";
-import crowded from "../records/crowded-sites.json";
+import ap1 from "../records/ap1-product.json";
 import primers from "../records/primer-test.json";
+import puc19 from "../records/puc19-gfp-product.json";
 
-const every = { enzymes: [...new Set(crowded.cuts.map((cut) => cut.enzyme))] };
+const every = { enzymes: [...new Set(ap1.cuts.map((cut) => cut.enzyme))] };
+const line = { ...every, map: "line" };
 const view = { sequence_view: true };
-const figure = [crowded, primers];
+const figure = [ap1, primers];
 
 /** The root's opening tag, and each element inside it as written. */
 function elements(written: string): { root: string; children: string[] } {
@@ -58,11 +60,25 @@ function withoutHover(element: string): string {
 // A record with its sequence view draws live as two SVGs, compared in the block for it below.
 const drawings = [
 	{
-		input: "a record that hides labels",
-		still: stillSvg(crowded, every),
-		file: svg(crowded, every),
-		scene: prepare(crowded, every),
-		live: (element: Element) => draw(element, crowded, every),
+		input: "a record on the line",
+		still: stillSvg(ap1, line),
+		file: svg(ap1, line),
+		scene: prepare(ap1, line),
+		live: (element: Element) => draw(element, ap1, line),
+	},
+	{
+		input: "a record on the circle that hides labels",
+		still: stillSvg(ap1, every),
+		file: svg(ap1, every),
+		scene: prepare(ap1, every),
+		live: (element: Element) => draw(element, ap1, every),
+	},
+	{
+		input: "a record on the circle, names set along its arcs",
+		still: stillSvg(puc19),
+		file: svg(puc19),
+		scene: prepare(puc19, {}),
+		live: (element: Element) => draw(element, puc19),
 	},
 	{
 		input: "a record with its sequence view",
@@ -73,10 +89,10 @@ const drawings = [
 	},
 	{
 		input: "a figure of two records",
-		still: figureStillSvg(figure, every),
-		file: figureSvg(figure, every),
-		scene: prepareFigure(figure, every),
-		live: (element: Element) => drawFigure(element, figure, every),
+		still: figureStillSvg(figure, line),
+		file: figureSvg(figure, line),
+		scene: prepareFigure(figure, line),
+		live: (element: Element) => drawFigure(element, figure, line),
 	},
 	{
 		input: "a gel",
@@ -127,14 +143,16 @@ describe.each(drawings)("the still SVG of $input", ({ still, file, scene }) => {
 		ours.children.forEach((element, i) => {
 			if (element.startsWith("<text "))
 				expect(theirs.children[i]).toMatch(
-					/^<g transform="[^"]*" fill="[^"]*"(?:\/>|>(?:<use [^>]*\/>)*<\/g>)$/,
+					/^<g (?:transform="[^"]*" )?fill="[^"]*"(?:\/>|>(?:<use [^>]*\/>)*<\/g>)$/,
 				);
 			else expect(withoutHover(element)).toBe(theirs.children[i]);
 		});
 	});
 
 	test("holds each text to its measured width or its cells, in the viewer's faces", () => {
-		const texts = scene.shapes.flatMap((s) => (s.shape === "text" ? [s] : []));
+		const texts = scene.shapes.flatMap((s) =>
+			s.shape === "text" || s.shape === "letters" ? [s] : [],
+		);
 		const written = [...still.svg.matchAll(/<text ([^>]*)>/g)].map(
 			([, attributes]) =>
 				Object.fromEntries(
@@ -145,12 +163,17 @@ describe.each(drawings)("the still SVG of $input", ({ still, file, scene }) => {
 				),
 		);
 		expect(written).toHaveLength(texts.length);
-		texts.forEach(({ text, face, size, cell }, i) => {
+		texts.forEach((shape, i) => {
+			const { text, face, size } = shape;
 			expect(written[i]).toMatchObject({
 				"font-family": face === "mono" ? "molviz Mono" : "molviz Sans",
 				"font-weight": face === "sans-bold" ? "700" : "400",
 			});
-			if (cell === undefined) {
+			const cell = shape.shape === "text" ? shape.cell : undefined;
+			if (shape.shape === "letters") {
+				expect(written[i]).not.toHaveProperty("textLength");
+				expect(written[i].rotate.split(" ")).toHaveLength([...text].length);
+			} else if (cell === undefined) {
 				expect(written[i].textLength).toBe(
 					measure(text, face, size).toFixed(2),
 				);
@@ -234,7 +257,13 @@ describe("the still SVG of a record with its sequence view", () => {
 });
 
 test("the record hides labels, so the notice is drawn", () => {
-	expect(stillSvg(crowded, every).notice).not.toBe("");
+	expect(stillSvg(ap1, every).notice).not.toBe("");
+});
+
+test("the circle sets a name along an arc as real text, a letter at a place", () => {
+	const { svg: written } = stillSvg(puc19);
+	expect(written).toMatch(/<text [^>]*rotate="[^"]*"[^>]*>[^<]+<\/text>/);
+	expect(written).not.toContain("<use ");
 });
 
 test("draws with no page to draw in", () => {
@@ -308,7 +337,7 @@ describe("fontRules", () => {
 		const { document } = new Window();
 		const element = document.createElement("div");
 		document.body.append(element);
-		draw(element as unknown as Element, crowded);
+		draw(element as unknown as Element, puc19);
 		expect(document.getElementById("molviz-fonts")?.textContent).toBe(rules);
 	});
 });
