@@ -612,3 +612,17 @@ describe("hidden labels", () => {
 		expect(label(wide, "feature number 10")).toBeDefined();
 	});
 });
+
+describe("the extent", () => {
+	test("takes in a label's padded box, not only its text", () => {
+		const scene = lay(
+			[],
+			{},
+			{ insertions: [{ name: "a", at: 1000, length: 8 }] },
+		);
+		const text = box(label(scene, "+8 bp"));
+		const { extent } = scene;
+		expect(extent.x + extent.width).toBeCloseTo(text.right + 3 + 16, 9);
+		expect(extent.y).toBeCloseTo(text.top - 1 - 16, 9);
+	});
+});

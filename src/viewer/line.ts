@@ -191,7 +191,7 @@ export function layout(
 	shapes.push(...above.shapes);
 	const bottom = Math.max(ruled(), ...drawn.map((one) => one.bottom));
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
-	const covered = extent(shapes, width);
+	const covered = extent(shapes, width, above.boxes);
 	shapes.push(
 		...noticeShapes(
 			above.hidden,
@@ -200,7 +200,7 @@ export function layout(
 		),
 	);
 	return {
-		extent: extent(shapes, width),
+		extent: extent(shapes, width, above.boxes),
 		shapes,
 		hidden: above.hidden.map(hiddenOf),
 	};
@@ -535,11 +535,16 @@ function bounds(shape: Shape): Box | null {
 	}
 }
 
-/** What `shapes` and a backbone `width` long cover, and `MARGIN` beyond. */
-function extent(shapes: readonly Shape[], width: number): Box {
+/** What `shapes`, a backbone `width` long and the labels' `boxes` cover, and `MARGIN` beyond. */
+function extent(
+	shapes: readonly Shape[],
+	width: number,
+	labels: readonly Box[],
+): Box {
 	const boxes = [
 		{ x: 0, y: -BACKBONE / 2, width, height: STRANDS_APART + BACKBONE },
 		...shapes.flatMap((shape) => bounds(shape) ?? []),
+		...labels,
 	];
 	const left = Math.min(...boxes.map((b) => b.x)) - MARGIN;
 	const top = Math.min(...boxes.map((b) => b.y)) - MARGIN;

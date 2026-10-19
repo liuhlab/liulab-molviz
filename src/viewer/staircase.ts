@@ -27,12 +27,13 @@ export interface Anchored {
 
 /**
  * The shapes that set `anchored` above `top` with their leaders, no box reaching more than
- * `RISE` above it, and the labels left out to keep them there: each once, in the order they hid.
+ * `RISE` above it; the box each label shown takes; and the labels left out to keep them there,
+ * each once, in the order they hid.
  */
 export function labelsAbove(
 	anchored: readonly Anchored[],
 	top: number,
-): { shapes: Shape[]; hidden: Label[] } {
+): { shapes: Shape[]; boxes: Box[]; hidden: Label[] } {
 	const sized = anchored.map(({ label, x }) => ({ ...labelSize(label), x }));
 	const base = top - GAP;
 	const order = [...anchored.keys()].sort((i, j) =>
@@ -61,7 +62,8 @@ export function labelsAbove(
 			...labelShapes(label, box),
 		);
 	}
-	return { shapes, hidden: [...new Set(gone.map((i) => anchored[i].label))] };
+	const hidden = [...new Set(gone.map((i) => anchored[i].label))];
+	return { shapes, boxes: placed, hidden };
 }
 
 /**
