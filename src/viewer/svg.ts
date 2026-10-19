@@ -3,6 +3,7 @@
  * with no font, or with its letters as real text, as elements of a page or as text for one.
  */
 
+import { units } from "./faces";
 import {
 	leftEdge,
 	type PathCommand,
@@ -16,7 +17,6 @@ import {
 	inFace,
 	outlineOf,
 	textWidth,
-	unitsPerEm,
 	weights,
 } from "./text";
 
@@ -193,7 +193,7 @@ function tag(shape: Shape, defined?: Defined): Tag {
 			const x = leftEdge(shape, width);
 			if (defined) {
 				// A glyph's outline is in its face's units; the group scales it to the text's size.
-				const scale = size / unitsPerEm(face);
+				const scale = size / units(face).unitsPerEm;
 				const uses: Tag[] = [];
 				for (const glyph of glyphs(text, face, size, cell)) {
 					const outline = outlineOf(face, glyph.index);

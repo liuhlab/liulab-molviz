@@ -52,7 +52,6 @@ declare module "opentype.js/dist/opentype.mjs" {
 			getCoverageIndex(coverage: unknown, glyph: number): number;
 			getGlyphClass(classDef: unknown, glyph: number): number;
 		};
-		hasChar(character: string): boolean;
 		getAdvanceWidth(
 			text: string,
 			fontSize: number,

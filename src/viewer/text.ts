@@ -130,7 +130,7 @@ export function glyphs(
 	size: number,
 	cell?: number,
 ): Glyph[] {
-	const scale = size / unitsPerEm(face);
+	const scale = size / units(face).unitsPerEm;
 	const placed = places(inFace(text, face), face);
 	const glyph = (index: number, x: number) => ({
 		id: `${face}-${index}`,
@@ -140,19 +140,15 @@ export function glyphs(
 	if (cell === undefined)
 		return placed.map(({ index, x }) => glyph(index, x * scale));
 	let start = 0;
-	return placed.map(({ index, advance }) => {
-		const centred = glyph(index, start + (cell - advance * scale) / 2);
+	return placed.map(({ index, advance: width }) => {
+		const centred = glyph(index, start + (cell - width * scale) / 2);
 		start += cell;
 		return centred;
 	});
 }
 
-/** The units a face's outlines are drawn in, to the em. */
-export function unitsPerEm(face: Face): number {
-	return units(face).unitsPerEm;
-}
-
-const outlines: Partial<Record<Face, Map<number, string>>> = {};
+// Each outline read so far, with two decimals, by face and then glyph index.
+const roundedOutlines: Partial<Record<Face, Map<number, string>>> = {};
 
 /**
  * The outline of glyph `index` of `face` as SVG path data in its face's units, y down, from its
@@ -160,17 +156,18 @@ const outlines: Partial<Record<Face, Map<number, string>>> = {};
  * as a space. Throws unless the outline script has run.
  */
 export function outlineOf(face: Face, index: number): string {
-	const outlineTable = (globalThis as Record<string, unknown>)[
+	const scriptOutlines = (globalThis as Record<string, unknown>)[
 		OUTLINES_GLOBAL
 	] as Outlines | undefined;
-	if (outlineTable === undefined)
+	if (scriptOutlines === undefined)
 		throw new Error("molviz: a file's outlines need the outline script");
-	outlines[face] ??= new Map();
-	const known = outlines[face];
+	roundedOutlines[face] ??= new Map();
+	const known = roundedOutlines[face];
 	let outline = known.get(index);
 	if (outline === undefined) {
-		outline = (outlineTable[face][index] ?? "").replace(/-?\d+(\.\d+)?/g, (n) =>
-			twoDecimals(Number(n)),
+		outline = (scriptOutlines[face][index] ?? "").replace(
+			/-?\d+(\.\d+)?/g,
+			(n) => twoDecimals(Number(n)),
 		);
 		known.set(index, outline);
 	}
