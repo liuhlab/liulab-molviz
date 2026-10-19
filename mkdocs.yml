@@ -21,6 +21,7 @@ nav:
   - The line map: line-map.md
   - Gels: gels.md
   - Plates: plates.md
+  - Figures: figures.md
   - API reference: api.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not
