@@ -183,6 +183,13 @@ DRAWS = [
         id="record",
     ),
     pytest.param(
+        lambda record: molviz.draw(record, sequence_view=True),
+        DRAWN,
+        "pTest",
+        'molviz.draw(document.getElementById("drawing"), data("record"), data("options"));',
+        id="record with its sequence view",
+    ),
+    pytest.param(
         molviz.draw_gel,
         GEL,
         "PCR products",
@@ -289,3 +296,33 @@ def test_a_page_escapes_a_name_that_would_end_its_script(tmp_path) -> None:
 def test_a_pdf_embeds_no_font(drawing, tmp_path) -> None:
     drawing.write(tmp_path / "map.pdf")
     assert b"/Font" not in (tmp_path / "map.pdf").read_bytes()
+
+
+ROWS = {**DRAWN, "bases": "ACGT" * 1000}
+
+
+def test_a_pdf_has_the_map_then_the_rows_on_pages_as_wide_as_the_view(tmp_path) -> None:
+    import pypdf
+
+    molviz.draw(ROWS, sequence_view=True).write(tmp_path / "rows.pdf")
+    pages = pypdf.PdfReader(tmp_path / "rows.pdf").pages
+    sizes = [(float(page.mediabox.width), float(page.mediabox.height)) for page in pages]
+    first, *rows = sizes
+    assert first == pytest.approx(extent(molviz.draw(ROWS), tmp_path), abs=0.01)
+    assert len(rows) > 1
+    assert {width for width, _ in rows} == {rows[0][0]}
+    assert max(height for _, height in rows) <= rows[0][0] * 2**0.5
+
+
+def test_a_png_too_large_to_draw_is_refused_pointing_at_the_pdf(drawing, tmp_path) -> None:
+    with pytest.raises(ValueError, match=r"write a PDF"):
+        drawing.write(tmp_path / "map.png", dpi=10_000)
+    assert not (tmp_path / "map.png").exists()
+
+
+def test_the_sequence_view_limit_is_the_viewers() -> None:
+    from py_mini_racer import MiniRacer
+
+    with MiniRacer() as ctx:
+        ctx.eval(viewer_script())
+        assert ctx.eval("molviz.SEQUENCE_VIEW_LIMIT") == molviz.SEQUENCE_VIEW_LIMIT
