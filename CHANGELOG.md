@@ -100,6 +100,14 @@ sets one.
   - The line and the circle draw a read as they draw a primer, among the primers. A
     disagreement over a span is a bar in its colour among the features. One at a point is a
     mark in its colour, as an insertion's is, labelled with its name.
+  - The sequence view draws a read on its strand as it draws a primer. The read marks in red
+    each base of a disagreement that names it. A disagreement over a span is a bar among the
+    features, and one at a point is a mark through the strands.
+  - The sequence view draws each track as a strip under each row its peaks reach: its name,
+    the key of its four colours, and its curves. A highlight that names something else dims
+    the strip.
+- In the viewer, `molviz.declareFaces(document)` adds the font rules to a page once. `draw`
+  calls it, and so may a script that writes still drawings into a page.
 
 ### Removed
 

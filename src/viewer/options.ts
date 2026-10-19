@@ -17,7 +17,7 @@ import {
 	Text,
 } from "./format";
 import { KINDS } from "./labels";
-import { type Record, rule, type Span, span } from "./record";
+import { type Record, recordBounds, rule, type Span, span } from "./record";
 
 const OnOff = v.boolean("must be true or false");
 
@@ -31,7 +31,7 @@ interface Where {
 }
 
 function optionsSchema(record: Record, { page, together }: Where) {
-	const bounds = { length: record.bases.length, circular: record.circular };
+	const bounds = recordBounds(record);
 	const names = new Set(together.flatMap((one) => [...answersTo(one)]));
 	const searched = together.length > 1 ? "any record" : "the record";
 	const whole = ({ start, end }: Span) => start === 0 && end === bounds.length;

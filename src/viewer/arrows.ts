@@ -20,7 +20,7 @@ import {
 	textColor,
 } from "./paint";
 import type { Piece } from "./pieces";
-import type { Feature, Record, Span } from "./record";
+import { type Feature, type Record, recordBounds, type Span } from "./record";
 import type { Shape } from "./scene";
 import { baseline, height, measure } from "./text";
 
@@ -115,7 +115,7 @@ export function disagreementBars(
 	record: Record,
 	options: Options,
 ): ColoredFeature[] {
-	const bounds = { length: record.bases.length, circular: record.circular };
+	const bounds = recordBounds(record);
 	return record.disagreements.flatMap((disagreement) => {
 		if (disagreement.at !== undefined) return [];
 		const { name, start, end } = disagreement;

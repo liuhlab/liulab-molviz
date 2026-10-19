@@ -15,7 +15,6 @@ page draws of them, so this reads some of that page's private names.
 import dataclasses
 import inspect
 import json
-import math
 import posixpath
 import re
 import subprocess
@@ -100,7 +99,11 @@ TRACES = {
 PLANTED = 300
 FLANK = 60
 
-_OTHER = {"A": "C", "C": "G", "G": "T", "T": "A"}
+#: The base planted in place of each base.
+_REPLACEMENT = {"A": "C", "C": "G", "G": "T", "T": "A"}
+
+#: The bases of a trace's curves, in the order mbio's verification page gives the curves.
+_CURVE_BASES = ("A", "C", "G", "T")
 
 #: Each protocol or project in mbio whose steps hold gels, by the short name that starts each
 #: gel's file name in ``tests/gels/``. The gel's title ends it.
@@ -237,7 +240,7 @@ def convert_verification(record: Any, made: Any) -> dict[str, Any]:
 
 def convert_track(track: Any) -> dict[str, Any]:
     """Return an mbio ``Track`` of a trace's four channels in the viewer's format."""
-    curves = zip(page._BASE_COLORS, track.curves, strict=True)
+    curves = zip(_CURVE_BASES, track.curves, strict=True)
     return {
         "name": track.name,
         "curves": {base: list(curve.values) for base, curve in curves},
@@ -246,15 +249,15 @@ def convert_track(track: Any) -> dict[str, Any]:
 
 
 def _trace(name: str, path: Path, reverse: bool) -> dict[str, Any]:
-    """Return a record of a trace's trusted bases, `PLANTED` changed, cut to `FLANK` either side.
+    """Return a record of a trace's trusted bases, `PLANTED` changed, cropped to `FLANK` each side.
 
-    The record is verified whole against the trace, as mbio's page tests do, then cut. Read
-    along the bottom strand, it is the reverse complement, cut to the same bases.
+    The record is verified whole against the trace, as mbio's page tests do, then cropped. Read
+    along the bottom strand, it is the reverse complement, cropped to the same bases.
     """
     result, channels = read_trace(path), read_channels(path)
     first, last = result.trusted_span
     bases = list(result.bases[first:last])
-    bases[PLANTED] = _OTHER[bases[PLANTED]]
+    bases[PLANTED] = _REPLACEMENT[bases[PLANTED]]
     own = "".join(bases)
     start, end = PLANTED - FLANK, PLANTED + FLANK
     if reverse:
@@ -265,15 +268,14 @@ def _trace(name: str, path: Path, reverse: bool) -> dict[str, Any]:
     made = verify(record, (result,), (whole,))
     [track] = page._tracks(record, (result,), made, (channels,))
     window = SequenceRecord(own[start:end], name=name)
-    cut = _cut(made, start, end)
     return (
         convert(window)
-        | convert_verification(window, cut)
-        | {"tracks": [convert_track(_cut_track(track, start, end))]}
+        | convert_verification(window, _cropped(made, start, end))
+        | {"tracks": [convert_track(_cropped_track(track, start, end))]}
     )
 
 
-def _cut(made: Any, start: int, end: int) -> Any:
+def _cropped(made: Any, start: int, end: int) -> Any:
     """Return a verification within the bases from `start` to `end`, counted from `start`.
 
     Each placement is clipped to them, and a disagreement not wholly within them is dropped.
@@ -295,17 +297,17 @@ def _cut(made: Any, start: int, end: int) -> Any:
     return dataclasses.replace(made, placements=placements, disagreements=disagreements)
 
 
-def _cut_track(track: Any, start: int, end: int) -> Any:
+def _cropped_track(track: Any, start: int, end: int) -> Any:
     """Return a track's peaks over the bases from `start` to `end`, counted from `start`.
 
-    The curves keep the samples a run of those peaks draws: half a step past its first and last
-    peak, as mbio draws a run.
+    The curves keep the samples from a step before the first of those peaks to a step after the
+    last, more than a run of them draws.
     """
     peaks = [(sample, base - start) for sample, base in track.peaks if start <= base < end]
     (first, _), (second, _) = peaks[:2]
     (before, _), (final, _) = peaks[-2:]
-    low = math.ceil(first - (second - first) / 2)
-    high = math.ceil(final + (final - before) / 2)
+    low = max(0, 2 * first - second)
+    high = 2 * final - before + 1
     curves = tuple(dataclasses.replace(c, values=c.values[low:high]) for c in track.curves)
     moved = tuple((sample - low, base) for sample, base in peaks)
     return dataclasses.replace(track, curves=curves, peaks=moved)
@@ -464,7 +466,7 @@ def _show(repo: Path, path: str, scratch: Path) -> Path:
     return copy
 
 
-def _counted(name: str, record: dict[str, Any]) -> None:
+def _print_counts(name: str, record: dict[str, Any]) -> None:
     counts = ", ".join(f"{len(v)} {k}" for k, v in record.items() if isinstance(v, list))
     print(f"{name}: {len(record['bases'])} bp, {counts}")
 
@@ -484,7 +486,7 @@ def main() -> None:
         for name, path in RECORDS.items():
             data = convert(read_record(_show(repo, path, scratch)))
             if _write(tests / "records" / f"{name}.json", data, written):
-                _counted(name, data)
+                _print_counts(name, data)
         for name, (path, results) in VERIFICATIONS.items():
             record = read_record(_show(repo, path, scratch))
             made = verify(
@@ -494,12 +496,12 @@ def main() -> None:
             )
             data = convert(record) | convert_verification(record, made)
             if _write(tests / "records" / f"{name}.json", data, written):
-                _counted(name, data)
+                _print_counts(name, data)
         for name, (path, reverse) in TRACES.items():
             data = _trace(name, _show(repo, path, scratch), reverse)
             # Its curves' numbers would take a line each.
             if _write(tests / "records" / f"{name}.json", data, written, compact=True):
-                _counted(name, data)
+                _print_counts(name, data)
         for name, (path, key) in FIGURES.items():
             protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
             figure = convert_figure(_figure(protocol, key), posixpath.dirname(path))

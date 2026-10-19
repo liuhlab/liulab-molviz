@@ -5,8 +5,6 @@
 
 import {
 	type ColoredFeature,
-	coloredFeatures,
-	disagreementBars,
 	HEAD,
 	headsOn,
 	OVERHANG,
@@ -18,13 +16,9 @@ import {
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
 import { columns, type Point, REACH, type Unplaced } from "./columns";
-import { cutSites } from "./cuts";
 import {
-	disagreementLabel,
 	hiddenOf,
 	hidingOrder,
-	insertionLabel,
-	type Kind,
 	LABEL_SIZE,
 	type Label,
 	labelShapes,
@@ -33,8 +27,6 @@ import {
 	noticeShapes,
 	PAD_X,
 	PAD_Y,
-	primerLabel,
-	readLabel,
 	SMALL_SIZE,
 } from "./labels";
 import {
@@ -67,6 +59,14 @@ import {
 } from "./paint";
 import type { Feature, Record, Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
+import {
+	type Aligned,
+	type Mark,
+	shownBars,
+	shownCuts,
+	shownMarks,
+	shownSites,
+} from "./shown";
 import { baseline, height, measure, wrap } from "./text";
 
 /** The backbone's radius at a zoom of 1. */
@@ -97,8 +97,8 @@ interface Arrow {
 	readonly head: number;
 }
 
-/** A feature as the circle draws it: its arrows in order, its name, and where it lies. */
-interface CircleFeature {
+/** A feature or a disagreement as the circle draws it: its arrows, its name, and where it lies. */
+interface CircleBar {
 	readonly label: Label;
 	readonly arrows: readonly Arrow[];
 	readonly hull: Span;
@@ -138,46 +138,35 @@ export function layoutCircle(
 		radius: RADIUS * zoom,
 		turn: (rotation * Math.PI) / 180,
 	};
-	const off = new Set(options.kinds_off);
 	const middle = centre(record.name, circle);
-	const drawn = features(
-		[
-			...(off.has("features") ? [] : coloredFeatures(record, options)),
-			...(off.has("disagreements") ? [] : disagreementBars(record, options)),
-		],
-		circle,
-		middle.reach,
-	);
-	const sites = primers(record, options, circle, off);
-	const marks = insertions(record, options, circle, off);
+	const drawnBars = bars(shownBars(record, options), circle, middle.reach);
+	const drawnSites = sites(shownSites(record, options), circle);
+	const drawnMarks = marks(shownMarks(record, options), circle);
 	const backboneEdge = circle.radius + BACKBONE / 2;
 	const drawing = Math.max(
 		backboneEdge,
-		...sites.map(
+		...drawnSites.map(
 			({ arrow }) => arrow.radius + arrow.width / 2 + overhang(arrow.width),
 		),
 	);
 	const midway = ({ start, end }: Span) => angleOf((start + end) / 2, circle);
 	const outside: Outside[] = [
-		...drawn.flatMap(({ label, hull, name }) =>
+		...drawnBars.flatMap(({ label, hull, name }) =>
 			name === null && label.name.trim()
 				? [{ label, angle: midway(hull), inward: false }]
 				: [],
 		),
-		...sites.map(({ label, hull }) => ({
+		...drawnSites.map(({ label, hull }) => ({
 			label,
 			angle: midway(hull),
 			inward: false,
 		})),
-		...(off.has("cuts")
-			? []
-			: cutSites(record, options.enzymes, options.highlight)
-		).map(({ label, at }) => ({
+		...shownCuts(record, options).map(({ label, at }) => ({
 			label,
 			angle: angleOf(at, circle),
 			inward: true,
 		})),
-		...marks.map(({ label, angle }) => ({ label, angle, inward: true })),
+		...drawnMarks.map(({ label, angle }) => ({ label, angle, inward: true })),
 	];
 	const unplaced: Unplaced[] = outside.map(({ label, angle }) => ({
 		...labelSize(label),
@@ -191,9 +180,9 @@ export function layoutCircle(
 	const shapes: Shape[] = [
 		...backbone(circle),
 		...ruler(circle),
-		...drawn.flatMap(featureShapes),
-		...sites.map(({ arrow }) => arrowShape(arrow)),
-		...marks.map(({ bar }) => bar),
+		...drawnBars.flatMap(barShapes),
+		...drawnSites.map(({ arrow }) => arrowShape(arrow)),
+		...drawnMarks.map(({ bar }) => bar),
 	];
 	const boxes: Box[] = [];
 	for (const [i, one] of placed.entries()) {
@@ -243,30 +232,14 @@ function leader(from: Point, to: Point): Shape {
 }
 
 /**
- * Each insertion, then each disagreement at a point, as a bar across the backbone at its point in
- * its colour, labelled with what the insertion adds or the disagreement's name, its name and
- * point on hover.
+ * Each of `shown`, an insertion or a disagreement at a point, as a bar across the backbone at its
+ * point in its colour, with its label, and its name and point on hover.
  */
-function insertions(
-	record: Record,
-	options: Options,
+function marks(
+	shown: readonly Mark[],
 	circle: Circle,
-	off: ReadonlySet<Kind>,
 ): { bar: Shape; label: Label; angle: number }[] {
-	const bounds = { length: circle.length, circular: true };
-	const { highlight } = options;
-	const found = [
-		...(off.has("insertions") ? [] : record.insertions).map((insertion) => ({
-			at: insertion.at,
-			...insertionLabel(insertion, bounds, highlight),
-		})),
-		...(off.has("disagreements") ? [] : record.disagreements).flatMap((one) =>
-			one.at === undefined
-				? []
-				: [{ at: one.at, ...disagreementLabel(one, bounds, highlight) }],
-		),
-	];
-	return found.map(({ at, label, hover }) => {
+	return shown.map(({ at, label, hover }) => {
 		const angle = angleOf(at, circle);
 		const [x1, y1] = pointAt(inside(circle) - INSERTION_REACH, angle);
 		const [x2, y2] = pointAt(
@@ -320,11 +293,11 @@ function arc(radius: number, start: number, end: number): PathCommand[] {
  * The arrows of each of `shown`, a feature or a disagreement over a span, on rings inside the
  * ruler, each ring as far in as the room allows and no nearer the centre than `clear`.
  */
-function features(
+function bars(
 	shown: readonly ColoredFeature[],
 	circle: Circle,
 	clear: number,
-): CircleFeature[] {
+): CircleBar[] {
 	const hulls = shown.map(({ feature }) => hullOf(feature, circle.length));
 	const onRing = rings(hulls, circle);
 	const count = Math.max(0, ...onRing) + 1;
@@ -476,8 +449,8 @@ function rings(hulls: readonly Span[], { length, radius }: Circle): number[] {
 	return found;
 }
 
-/** A feature's arrows, each joined to the next by a thin arc across any gap between them. */
-function featureShapes({ label, arrows, name }: CircleFeature): Shape[] {
+/** A bar's arrows, each joined to the next by a thin arc across any gap between them. */
+function barShapes({ label, arrows, name }: CircleBar): Shape[] {
 	const shapes: Shape[] = [];
 	for (const [k, after] of arrows.entries()) {
 		const before = arrows[k - 1];
@@ -509,41 +482,25 @@ function arrowShape(arrow: Arrow): Shape {
 }
 
 /**
- * Each primer site, then each read, as a thin arrow outside the backbone, its head at the 3' end,
- * overlapping ones on rings further out, and its label: its name and the bases it spans.
+ * Each of `shown`, a primer site or a read, as a thin arrow outside the backbone, its head at the
+ * 3' end, overlapping ones on rings further out, and its label: its name and the bases it spans.
  */
-function primers(
-	record: Record,
-	options: Options,
+function sites(
+	shown: readonly Aligned[],
 	circle: Circle,
-	off: ReadonlySet<Kind>,
 ): { arrow: Arrow; label: Label; hull: Span }[] {
-	const { length } = circle;
-	const { highlight } = options;
-	const sites = [
-		...(off.has("primers") ? [] : record.primers).flatMap(({ name, sites }) =>
-			sites.map((site) => ({
-				site,
-				label: primerLabel(name, site, length, highlight),
-			})),
-		),
-		...(off.has("reads") ? [] : record.reads).map((read) => ({
-			site: read,
-			label: readLabel(read, length, highlight),
-		})),
-	];
-	const hulls = sites.map(({ site }) => ({ start: site.start, end: site.end }));
+	const hulls = shown.map(({ start, end }) => ({ start, end }));
 	const onRing = rings(hulls, circle);
 	const beyond = overhang(PRIMER_SHAFT);
 	const step = PRIMER_SHAFT + 2 * beyond + PRIMER_GAP;
 	const first =
 		circle.radius + BACKBONE / 2 + PRIMER_GAP + beyond + PRIMER_SHAFT / 2;
-	return sites.map(({ site, label }, i) => {
+	return shown.map(({ start: from, end: to, strand, label }, i) => {
 		const hull = hulls[i];
 		const radius = first + onRing[i] * step;
-		const start = angleOf(site.start, circle);
-		const end = angleOf(site.end, circle);
-		const [headStart, headEnd] = headsOn(site.strand);
+		const start = angleOf(from, circle);
+		const end = angleOf(to, circle);
+		const [headStart, headEnd] = headsOn(strand);
 		const arrow: Arrow = {
 			start,
 			end,

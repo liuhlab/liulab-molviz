@@ -149,16 +149,13 @@ export function insertionLabel(
 	highlight: readonly string[],
 ): { label: Label; hover: string } {
 	const { name, at } = insertion;
-	const label = labelOf(
+	return hovered(
 		{ kind: "insertions", name, at },
-		[{ text: `+${insertion.length} bp`, face: "sans" }],
-		insertion.color?.toLowerCase() ?? INSERTION,
+		`+${insertion.length} bp`,
+		insertion.color ?? INSERTION,
+		pointText(at, bounds),
 		highlight,
 	);
-	const hover = [name.trim(), pointText(at, bounds)]
-		.filter(Boolean)
-		.join(" · ");
-	return { label, hover };
 }
 
 /** The label of `disagreement`, its name, and its hover: its name and where it lies. */
@@ -182,13 +179,30 @@ export function disagreementLabel(
 					{ kind: "disagreements", name, at: disagreement.at },
 					pointText(disagreement.at, bounds),
 				];
-	const label = labelOf(
+	return hovered(
 		item,
-		[{ text: name, face: "sans" }],
-		disagreement.color?.toLowerCase() ?? DISAGREEMENT,
+		name,
+		disagreement.color ?? DISAGREEMENT,
+		where,
 		highlight,
 	);
-	const hover = [name.trim(), where].filter(Boolean).join(" · ");
+}
+
+/** The label of `item` saying `text` in `color`, and its hover: its name and `where` it lies. */
+function hovered(
+	item: Hidden,
+	text: string,
+	color: string,
+	where: string,
+	highlight: readonly string[],
+): { label: Label; hover: string } {
+	const label = labelOf(
+		item,
+		[{ text, face: "sans" }],
+		color.toLowerCase(),
+		highlight,
+	);
+	const hover = [item.name.trim(), where].filter(Boolean).join(" · ");
 	return { label, hover };
 }
 

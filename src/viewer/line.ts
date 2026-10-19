@@ -8,8 +8,6 @@ import {
 	type Bar,
 	barShapes,
 	barsOf,
-	coloredFeatures,
-	disagreementBars,
 	headsOn,
 	isUnder,
 	OVERHANG,
@@ -23,27 +21,22 @@ import {
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
-import { cutSites } from "./cuts";
 import {
-	disagreementLabel,
 	GAP,
 	hiddenOf,
-	insertionLabel,
-	type Kind,
 	LABEL_SIZE,
 	type Label,
 	type MapScene,
 	noticeShapes,
 	PAD_Y,
-	primerLabel,
-	readLabel,
 	SMALL_SIZE,
 } from "./labels";
 import type { Options } from "./options";
 import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
 import { pieces, points, spanText } from "./pieces";
-import type { Bounds, Record, Span } from "./record";
+import { type Bounds, type Record, recordBounds, type Span } from "./record";
 import type { Box, Shape } from "./scene";
+import { shownBars, shownCuts, shownMarks, shownSites } from "./shown";
 import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, type Face, height, measure } from "./text";
 
@@ -87,8 +80,6 @@ export interface Along {
 	readonly at: (position: number) => number;
 	/** The backbone's top edge, where a leader from the backbone starts. */
 	readonly backboneTop: number;
-	/** The kinds switched off, which no shelf draws. */
-	readonly off: ReadonlySet<Kind>;
 }
 
 /** What one shelf draws on the line. */
@@ -133,15 +124,11 @@ export function layoutLine(
 ): MapScene {
 	const { span } = options;
 	const { start, end } = span;
-	const bounds: Bounds = {
-		length: record.bases.length,
-		circular: record.circular,
-	};
+	const bounds = recordBounds(record);
 	const { length } = bounds;
 	const at = (position: number) => ((position - start) * width) / (end - start);
 	const backboneTop = -BACKBONE / 2;
-	const off = new Set(options.kinds_off);
-	const along: Along = { record, options, bounds, at, backboneTop, off };
+	const along: Along = { record, options, bounds, at, backboneTop };
 	const drawn = SHELVES.map((shelf) => shelf(along));
 	const shapes: Shape[] = [
 		...backbone(width),
@@ -191,20 +178,9 @@ function rulerBottom(): number {
  * Each feature, then each disagreement over a span, as arrows packed in tiers under the ruler,
  * its name inside them, under them, or boxed above the line.
  */
-function bars({
-	record,
-	options,
-	bounds,
-	at,
-	backboneTop,
-	off,
-}: Along): LineMarks {
-	const shown = [
-		...(off.has("features") ? [] : coloredFeatures(record, options)),
-		...(off.has("disagreements") ? [] : disagreementBars(record, options)),
-	];
+function bars({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 	const laid: Bar[] = [];
-	for (const { feature, label, segments } of shown) {
+	for (const { feature, label, segments } of shownBars(record, options)) {
 		const found = pieces(segments, options.span, bounds);
 		laid.push(
 			...barsOf(feature, label, found, at).filter((bar) => bar.arrows.length),
@@ -237,17 +213,8 @@ function bars({
 }
 
 /** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
-function cuts({
-	record,
-	options,
-	bounds,
-	at,
-	backboneTop,
-	off,
-}: Along): LineMarks {
-	if (off.has("cuts")) return NOTHING;
-	const sites = cutSites(record, options.enzymes, options.highlight);
-	const labels = sites.flatMap((site) =>
+function cuts({ record, options, bounds, at, backboneTop }: Along): LineMarks {
+	const labels = shownCuts(record, options).flatMap((site) =>
 		points(site.at, options.span, bounds).map((point) => ({
 			label: site.label,
 			x: at(point),
@@ -261,30 +228,15 @@ function cuts({
  * Each primer site, then each read, as a thin arrow above the backbone, its head at the 3' end,
  * in rows packed by start, labelled by its name and the bases it spans.
  */
-function sites({ record, options, bounds, at, off }: Along): LineMarks {
-	const { length } = bounds;
-	const { highlight } = options;
+function sites({ record, options, bounds, at }: Along): LineMarks {
 	const reach = overhang(PRIMER_SHAFT);
 	const step = PRIMER_SHAFT + 2 * reach + PRIMER_GAP;
 	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_SHAFT / 2;
-	const found = [
-		...(off.has("primers") ? [] : record.primers).flatMap(({ name, sites }) =>
-			sites.map((site) => ({
-				site,
-				label: primerLabel(name, site, length, highlight),
-			})),
-		),
-		...(off.has("reads") ? [] : record.reads).map((read) => ({
-			site: read,
-			label: readLabel(read, length, highlight),
-		})),
-	];
 	const drawn: { arrow: Arrow; label: Label }[] = [];
-	for (const { site, label } of found) {
-		const { start, end } = site;
+	for (const { start, end, strand, label } of shownSites(record, options)) {
 		const { color } = label;
 		const colored = [{ start, end, color }];
-		const [headStart, headEnd] = headsOn(site.strand);
+		const [headStart, headEnd] = headsOn(strand);
 		for (const piece of pieces(colored, options.span, bounds)) {
 			const arrow: Arrow = {
 				start: at(piece.start),
@@ -322,26 +274,7 @@ function sites({ record, options, bounds, at, off }: Along): LineMarks {
  * in its colour, labelled with what the insertion adds or the disagreement's name, its name and
  * point on hover.
  */
-function marks({
-	record,
-	options,
-	bounds,
-	at,
-	backboneTop,
-	off,
-}: Along): LineMarks {
-	const { highlight } = options;
-	const found = [
-		...(off.has("insertions") ? [] : record.insertions).map((insertion) => ({
-			point: insertion.at,
-			...insertionLabel(insertion, bounds, highlight),
-		})),
-		...(off.has("disagreements") ? [] : record.disagreements).flatMap((one) =>
-			one.at === undefined
-				? []
-				: [{ point: one.at, ...disagreementLabel(one, bounds, highlight) }],
-		),
-	];
+function marks({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
@@ -349,7 +282,7 @@ function marks({
 		backboneTop - INSERTION_REACH,
 		STRANDS_APART + BACKBONE / 2 + INSERTION_REACH,
 	];
-	for (const { point, label, hover } of found) {
+	for (const { at: point, label, hover } of shownMarks(record, options)) {
 		const { color } = label;
 		for (const x of points(point, options.span, bounds).map(at)) {
 			shapes.push({

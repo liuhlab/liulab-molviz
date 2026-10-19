@@ -59,8 +59,8 @@ export const DISAGREEMENT = "#bbbbbb";
 export const CURVES = {
 	A: "#228833",
 	C: "#4477aa",
-	G: ENZYME,
-	T: INSERTION,
+	G: "#000000",
+	T: "#cc3311",
 } as const;
 
 /** The thickness of an insertion's mark. */
@@ -94,7 +94,7 @@ export const CUT_BOX_WIDTH = 1;
  * The mark on a base a primer does not pair with, or that a read disagrees at, whatever the
  * disagreement's colour.
  */
-export const MISMATCH = INSERTION;
+export const BASE_MARK = INSERTION;
 
 /** A stop's amino-acid chip. */
 export const STOP = INSERTION;

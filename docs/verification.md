@@ -5,8 +5,8 @@ it: the map, then a close-up of each place where a read disagrees with the recor
 the lab's tools for cloning.
 
 Every drawing here is a still drawing. The viewer draws it once when the page opens, and then it
-holds still: it has no zoom and no switches, and resting the pointer on a label shows a plain
-tooltip. The page holds the viewer's font rules once, for all its drawings.
+holds still: it has no zoom and no switches. The page holds the viewer's font rules once, for
+all its drawings.
 
 The records are the files in `tests/records/` that hold reads. Each also holds its
 disagreements, and a Sanger read's trace. Which reads pass, the captions, and where each

@@ -90,7 +90,7 @@ describe("pUC19-GFP's close-up of 696 A>G", () => {
 	});
 });
 
-/** A linear record of 1000 bases: drawn 720 points long, each base is 0.72 points. */
+/** A linear record's bases. */
 const BASES = "ACGT".repeat(250);
 
 function record(more: object) {

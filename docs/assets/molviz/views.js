@@ -22,13 +22,7 @@ for (const element of document.querySelectorAll("[data-molviz]")) {
 			continue;
 		}
 		const { svg } = molviz[calls.still](data(name), data("options"));
-		// The id of the viewer's own font rules, so live and still drawings share one copy.
-		if (!document.getElementById("molviz-fonts")) {
-			const style = document.createElement("style");
-			style.id = "molviz-fonts";
-			style.textContent = molviz.fontRules();
-			document.head.append(style);
-		}
+		molviz.declareFaces(document);
 		element.insertAdjacentHTML("beforeend", svg);
 	} catch (error) {
 		const message = document.createElement("p");

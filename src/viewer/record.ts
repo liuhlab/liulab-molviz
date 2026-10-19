@@ -512,6 +512,11 @@ export type Disagreement = Record["disagreements"][number];
 /** One of a record's tracks. */
 export type Track = Record["tracks"][number];
 
+/** What `record`'s coordinates count against: its length, and whether it is circular. */
+export function recordBounds({ bases, circular }: Record): Bounds {
+	return { length: bases.length, circular };
+}
+
 /**
  * What a record's coordinates are checked against. Where `bases` or `circular` is malformed
  * the length is unbounded, so only the rules that need no length apply, and a malformed

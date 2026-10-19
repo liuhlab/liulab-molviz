@@ -3,9 +3,17 @@
 import { SMALL_SIZE } from "./labels";
 import type { Options } from "./options";
 import { CURVES, INK, painted, RAIL, unlit } from "./paint";
-import type { Record, Span, Track } from "./record";
+import { turns } from "./pieces";
+import {
+	type Bounds,
+	type Record,
+	recordBounds,
+	type Span,
+	type Track,
+} from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
 import type { Row, Shelf } from "./sequence";
+import { shownTracks } from "./shown";
 import { baseline, height, measure } from "./text";
 
 // The room above a strip's name and under it, and the curves' height.
@@ -17,7 +25,8 @@ const STRIP = 40;
 const CURVE_WIDTH = 0.8;
 const FOOT_WIDTH = 0.5;
 
-const LETTERS = Object.keys(CURVES) as (keyof typeof CURVES)[];
+/** Each base a track has a curve of, in the order its key lists them. */
+const LETTERS = ["A", "C", "G", "T"] as const;
 
 /** A sample's index, and where it lies in bases, counted as the span counts them. */
 type Sample = readonly [sample: number, at: number];
@@ -33,23 +42,22 @@ export interface Sampled {
  * reaches, in the record's order.
  */
 export function sampledRows(record: Record, options: Options): Sampled[][] {
-	const { span, bases_per_row: perRow, kinds_off } = options;
+	const { span, bases_per_row: perRow } = options;
 	const rows: Sampled[][] = Array.from(
 		{ length: Math.ceil((span.end - span.start) / perRow) },
 		() => [],
 	);
-	if (kinds_off.includes("tracks")) return rows;
-	for (const track of record.tracks) {
+	for (const track of shownTracks(record, options)) {
 		const byRow = new Map<number, Sample[][]>();
-		for (const run of sampled(track, span, record.bases.length)) {
-			const cut = new Map<number, Sample[]>();
+		for (const run of sampled(track, span, recordBounds(record))) {
+			const split = new Map<number, Sample[]>();
 			for (const sample of run) {
 				const row = Math.floor((sample[1] - span.start) / perRow);
-				const samples = cut.get(row) ?? [];
+				const samples = split.get(row) ?? [];
 				samples.push(sample);
-				cut.set(row, samples);
+				split.set(row, samples);
 			}
-			for (const [row, samples] of cut) {
+			for (const [row, samples] of split) {
 				byRow.set(row, [...(byRow.get(row) ?? []), samples]);
 			}
 		}
@@ -61,16 +69,18 @@ export function sampledRows(record: Record, options: Options): Sampled[][] {
 }
 
 /**
- * A track's runs of samples in `span` of a record `length` long. A peak lies over the middle of
+ * A track's runs of samples in `span` of a record within `bounds`. A peak lies over the middle of
  * its base; peaks over neighbouring bases join, each sample between them placed evenly, and a
  * run reaches half a step past each end. A peak that joins neither neighbour draws nothing.
  */
-function sampled(track: Track, span: Span, length: number): Sample[][] {
+function sampled(track: Track, span: Span, bounds: Bounds): Sample[][] {
 	const runs: Sample[][] = [];
 	let last: Sample | null = null;
 	for (const [sample, base] of track.peaks) {
-		const at = within(base, span, length);
-		if (at === null) {
+		const at = turns(bounds)
+			.map((shift) => base + shift)
+			.find((p) => span.start <= p && p < span.end);
+		if (at === undefined) {
 			last = null;
 			continue;
 		}
@@ -112,14 +122,6 @@ function placed(run: readonly Sample[], span: Span, count: number): Sample[] {
 /** The knot half a step past `end`, away from its neighbour `inner`. */
 function beyond(end: Sample, inner: Sample): Sample {
 	return [end[0] + (end[0] - inner[0]) / 2, end[1] + (end[1] - inner[1]) / 2];
-}
-
-/** Where `base` lies in `span`, counted as the span counts, or null where it lies outside. */
-function within(base: number, span: Span, length: number): number | null {
-	for (const at of [base, base + length]) {
-		if (span.start <= at && at < span.end) return at;
-	}
-	return null;
 }
 
 /**
@@ -204,8 +206,8 @@ function key(name: string, top: number, dim: boolean): Shape[] {
 		shapes.push(text(name, x, INK));
 		x += measure(name, "sans", SMALL_SIZE) + 2 * space;
 	}
-	for (const [letter, color] of Object.entries(CURVES)) {
-		shapes.push(text(letter, x, color));
+	for (const letter of LETTERS) {
+		shapes.push(text(letter, x, CURVES[letter]));
 		x += measure(letter, "sans", SMALL_SIZE) + space;
 	}
 	return shapes;
