@@ -11,6 +11,7 @@ import type { Scene } from "./scene";
 import { layoutSequence } from "./sequence";
 import { toElement } from "./svg";
 import { families } from "./text";
+import { addZoom } from "./zoom";
 
 /** The style element holding the pages' rules, shared by every page on a document. */
 const STYLE = "molviz-page";
@@ -44,6 +45,8 @@ export interface Page {
 	readonly box: HTMLElement;
 	/** The state of the map the options name. */
 	shown(): MapState;
+	/** The box the map shown is laid out over, and how many CSS pixels a point shows as. */
+	drawn(): { readonly extent: Scene["extent"]; readonly scale: number };
 	/**
 	 * Lay out again what the state changed and swap it in, returning the map. The map flipped
 	 * from keeps its scroll, and the one flipped to gets its own back.
@@ -99,11 +102,15 @@ export function openPage(
 	} | null = null;
 	let sequenceDrawn: string | null = null;
 
+	/** The scale a map shows at: its size at 1× fitted to the room. */
+	const scaleOf = ({ name, extent }: NonNullable<typeof shown>) =>
+		displayScale((sizes.get(name) ?? extent).width, frame.clientWidth);
+
 	const fit = () => {
 		if (shown === null) return;
 		const { extent } = shown;
 		const size = sizes.get(shown.name) ?? extent;
-		const scale = displayScale(size.width, frame.clientWidth);
+		const scale = scaleOf(shown);
 		const px = (points: number) => (scale === 1 ? "" : `${points * scale}px`);
 		shown.svg.style.width = px(extent.width);
 		shown.svg.style.height = px(extent.height);
@@ -151,18 +158,24 @@ export function openPage(
 	defaultView?.addEventListener("resize", fit);
 	redraw();
 
-	return {
+	const page: Page = {
 		record,
 		state,
 		bar,
 		box,
 		shown: () => state.maps[state.options.map],
+		drawn: () => {
+			if (shown === null) throw new Error("the page has drawn no map");
+			return { extent: shown.extent, scale: scaleOf(shown) };
+		},
 		redraw,
 		destroy: () => {
 			defaultView?.removeEventListener("resize", fit);
 			frame.remove();
 		},
 	};
+	addZoom(page);
+	return page;
 }
 
 /** The state a map opens on: at its size, its origin at the top, unscrolled. */
@@ -273,6 +286,13 @@ function css(): string {
 .molviz .bar .views label:has(:checked) { background: #252525; color: #ffffff; }
 .molviz .bar .views label:has(:focus-visible) { outline: 2px solid #0077bb; }
 .molviz .bar .views input { position: absolute; opacity: 0; pointer-events: none; }
+.molviz .bar .zoom { align-items: center; gap: 10px; margin-left: auto; }
+.molviz .bar .views ~ .zoom { margin-left: 0; }
+.molviz .bar .zoom input { width: 96px; }
+.molviz .bar .zoom button {
+	padding: 2px 10px; border: 1px solid #7f7f7f; background: #ffffff;
+	color: inherit; font: inherit; cursor: pointer;
+}
 .molviz .map { max-width: 100%; overflow: auto; }
 .molviz .sequence { overflow-x: auto; }
 .molviz svg { display: block; max-width: none; }
