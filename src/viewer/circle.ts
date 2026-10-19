@@ -3,7 +3,14 @@
  * right and y down. A position's angle runs clockwise from the top.
  */
 
-import { BAND, HEAD, OVERHANG, PRIMER_BAND, PRIMER_GAP } from "./arrows";
+import {
+	BAND,
+	HEAD,
+	OVERHANG,
+	overhang,
+	PRIMER_BAND,
+	PRIMER_GAP,
+} from "./arrows";
 import { boxOf } from "./bounds";
 import { type Anchored, columns, type Point, REACH } from "./columns";
 import { cutSites } from "./cuts";
@@ -134,7 +141,9 @@ export function layoutCircle(
 	const backboneEdge = ring.radius + BACKBONE / 2;
 	const drawing = Math.max(
 		backboneEdge,
-		...sites.map(({ arrow }) => arrow.radius + arrow.width / 2 + reach(arrow)),
+		...sites.map(
+			({ arrow }) => arrow.radius + arrow.width / 2 + overhang(arrow.width),
+		),
 	);
 	const midway = ({ start, end }: Span) => angleOf((start + end) / 2, ring);
 	const outside: Outside[] = [
@@ -504,11 +513,6 @@ function arrowShape(arrow: Arrow): Shape {
 	};
 }
 
-/** How far an arrow's heads reach beyond its band, as a feature's do in proportion. */
-function reach({ width }: Arrow): number {
-	return (width * OVERHANG) / BAND;
-}
-
 /**
  * Each primer site as a thin arrow outside the backbone, its head at the 3' end, overlapping
  * sites on rings further out, and its label: the primer's name and the bases the site spans.
@@ -523,10 +527,10 @@ function primers(
 	);
 	const hulls = sites.map(({ site }) => ({ start: site.start, end: site.end }));
 	const onRing = rings(hulls, ring);
-	const overhang = (PRIMER_BAND * OVERHANG) / BAND;
-	const step = PRIMER_BAND + 2 * overhang + PRIMER_GAP;
+	const beyond = overhang(PRIMER_BAND);
+	const step = PRIMER_BAND + 2 * beyond + PRIMER_GAP;
 	const first =
-		ring.radius + BACKBONE / 2 + PRIMER_GAP + overhang + PRIMER_BAND / 2;
+		ring.radius + BACKBONE / 2 + PRIMER_GAP + beyond + PRIMER_BAND / 2;
 	return sites.map(({ name, site }, i) => {
 		const hull = hulls[i];
 		const label = labelOf(
@@ -555,7 +559,7 @@ function primers(
 /** An arrow's outline: its band, with a head at each end it points to. */
 function outline(arrow: Arrow): PathCommand[] {
 	const { radius, width, start, end, head } = arrow;
-	const beyond = reach(arrow);
+	const beyond = overhang(arrow.width);
 	const first = arrow.headStart ? start + head : start;
 	const last = arrow.headEnd ? end - head : end;
 	const outer = radius + width / 2;
