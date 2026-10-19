@@ -19,7 +19,8 @@ is also the 1-based number of the base it follows, so a cut after base 406 is `4
 base, such as a primer's mismatch, is its index, below the length.
 
 Every position a reader sees is 1-based and inclusive, and the viewer writes it: that site reads
-`2684 .. 3`.
+`2684 .. 3`. A name is the caller's own text, even one that holds a position, such as a
+disagreement's `696 A>G`.
 
 ## Considered options
 
