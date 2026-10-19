@@ -170,3 +170,8 @@ function channels(color: string): [number, number, number] {
 		number,
 	];
 }
+
+/** A selection's shading, behind the drawing in every view, and the lines at its two ends. */
+export const SHADING = "#bbddf5";
+export const SHADING_EDGE = "#0077bb";
+export const SHADING_EDGE_WIDTH = 1;

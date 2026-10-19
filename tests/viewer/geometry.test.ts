@@ -3,16 +3,19 @@ import { layoutCircle } from "../../src/viewer/circle";
 import {
 	angleOf,
 	circleBase,
+	circleShading,
 	lineBase,
+	lineShading,
 	lineX,
 	pointAt,
 	rowBase,
 	rowHolding,
+	rowShading,
 	rowX,
 } from "../../src/viewer/geometry";
 import { layoutLine } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
+import { check, recordBounds } from "../../src/viewer/record";
 import type { Shape } from "../../src/viewer/scene";
 import { layoutSequence } from "../../src/viewer/sequence";
 import insertionsFile from "../records/both-strands-and-insertions.json";
@@ -30,6 +33,40 @@ type Line = Extract<Shape, { shape: "line" }>;
 type Polygon = Extract<Shape, { shape: "polygon" }>;
 type Text = Extract<Shape, { shape: "text" }>;
 type Path = Extract<Shape, { shape: "path" }>;
+
+/** The shading's colour and its edges'. */
+const SHADE = "#bbddf5";
+const EDGE = "#0077bb";
+
+/** A shaded box from `left` to `right` and `top` to `bottom`. */
+function shade(left: number, right: number, top: number, bottom: number) {
+	return expect.objectContaining({
+		shape: "rect",
+		x: left,
+		y: top,
+		width: right - left,
+		height: bottom - top,
+		fill: SHADE,
+	});
+}
+
+/** A point to nine decimals, so that two computed alike compare equal. */
+function round(x: number, y: number): number[] {
+	return [x, y].map((v) => Math.round(v * 1e9) / 1e9 + 0);
+}
+
+/** An edge at `x` from `top` to `bottom`. */
+function edge(x: number, top: number, bottom: number) {
+	return {
+		shape: "line",
+		x1: x,
+		y1: top,
+		x2: x,
+		y2: bottom,
+		stroke: EDGE,
+		strokeWidth: 1,
+	};
+}
 
 describe("the line", () => {
 	const options = checkOptions(ACROSS, colourTest);
@@ -242,5 +279,101 @@ describe("the sequence view's rows", () => {
 		expect(one.strands.bottom).toBeNull();
 		expect(rowBase([one], x, one.strands.rail)).toBe(2610);
 		expect(rowBase([one], x, one.strands.rail + 1)).toBeNull();
+	});
+});
+
+describe("a selection", () => {
+	const bounds = recordBounds(colourTest);
+
+	test("shades the line from its start to its end, edged at each end the span shows", () => {
+		// 150 bases over 1500 points: 10 points a base from 2600.
+		const { geometry } = layoutLine(
+			colourTest,
+			checkOptions(ACROSS, colourTest),
+			1500,
+		);
+		const { top, bottom } = geometry;
+		expect(lineShading(geometry, bounds, { start: 2680, end: 2696 })).toEqual([
+			shade(800, 960, top, bottom),
+			edge(800, top, bottom),
+			edge(960, top, bottom),
+		]);
+		expect(lineShading(geometry, bounds, { start: 2550, end: 2610 })).toEqual([
+			shade(0, 100, top, bottom),
+			edge(100, top, bottom),
+		]);
+	});
+
+	test("shades a whole circle's line either side of the origin", () => {
+		const { geometry } = layoutLine(
+			colourTest,
+			checkOptions({ map: "line" }, colourTest),
+			2686,
+		);
+		const { top, bottom } = geometry;
+		expect(lineShading(geometry, bounds, { start: 2680, end: 2696 })).toEqual([
+			shade(0, 10, top, bottom),
+			edge(10, top, bottom),
+			shade(2680, 2686, top, bottom),
+			edge(2680, top, bottom),
+		]);
+	});
+
+	test("shades the circle from its inner to its outer radius, edged at each end", () => {
+		const { geometry } = layoutCircle(colourTest, checkOptions({}, colourTest));
+		const { inner, outer } = geometry;
+		// A quarter turn from the top.
+		const [shading, ...edges] = circleShading(geometry, {
+			start: 0,
+			end: 2686 / 4,
+		}) as [Path, Line, Line];
+		expect(shading.fill).toBe(SHADE);
+		const ends = shading.commands.flatMap((c) =>
+			c[0] === "Z" ? [] : [round(c.at(-2) as number, c.at(-1) as number)],
+		);
+		expect(ends[0]).toEqual(round(0, -outer));
+		expect(ends).toContainEqual(round(outer, 0));
+		expect(ends).toContainEqual(round(inner, 0));
+		expect(ends.at(-1)).toEqual(round(0, -inner));
+		expect(
+			edges.map((e) => [
+				e.stroke,
+				e.strokeWidth,
+				...round(e.x1, e.y1),
+				...round(e.x2, e.y2),
+			]),
+		).toEqual([
+			[EDGE, 1, ...round(0, -inner), ...round(0, -outer)],
+			[EDGE, 1, ...round(inner, 0), ...round(outer, 0)],
+		]);
+	});
+
+	test("shades each row's strands it holds, edged at its start and end", () => {
+		const { rows } = layoutSequence(
+			colourTest,
+			checkOptions({ ...ACROSS, sequence_view: true }, colourTest),
+		);
+		const [first, second] = rows;
+		const [top1, foot1] = [
+			first.strands.top[0],
+			first.strands.bottom?.[1] ?? NaN,
+		];
+		const [top2, foot2] = [
+			second.strands.top[0],
+			second.strands.bottom?.[1] ?? NaN,
+		];
+		expect(rowShading(rows, bounds, { start: 2650, end: 2675 })).toEqual([
+			shade(550, 660, top1, foot1),
+			edge(550, top1, foot1),
+			shade(0, 165, top2, foot2),
+			edge(165, top2, foot2),
+		]);
+		expect(
+			rowShading(rows, bounds, { start: 2680, end: 2696 }, { bottom: false }),
+		).toEqual([
+			shade(220, 396, top2, second.strands.rail),
+			edge(220, top2, second.strands.rail),
+			edge(396, top2, second.strands.rail),
+		]);
 	});
 });

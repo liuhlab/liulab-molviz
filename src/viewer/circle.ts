@@ -16,7 +16,7 @@ import {
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
 import { columns, type Point, REACH, type Unplaced } from "./columns";
-import { angleOf, type CircleGeometry, pointAt } from "./geometry";
+import { angleOf, arc, type CircleGeometry, pointAt } from "./geometry";
 import {
 	hiddenOf,
 	hidingOrder,
@@ -275,20 +275,6 @@ function marks(
 function xy(radius: number, angle: number): Point {
 	const [x, y] = pointAt(radius, angle);
 	return { x, y };
-}
-
-/**
- * An arc on `radius` from `start` to `end`, in pieces of less than a half turn, from the point
- * at `start`, which the path is already at.
- */
-function arc(radius: number, start: number, end: number): PathCommand[] {
-	if (end === start) return [];
-	const pieces = Math.ceil(Math.abs(end - start) / Math.PI + 1e-9);
-	const sweep = end > start ? 1 : 0;
-	return Array.from({ length: pieces }, (_, i) => {
-		const [x, y] = pointAt(radius, start + ((end - start) * (i + 1)) / pieces);
-		return ["A", radius, 0, sweep, x, y] as const;
-	});
 }
 
 /**

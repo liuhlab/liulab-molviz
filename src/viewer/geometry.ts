@@ -3,7 +3,10 @@
  * point back to the base under it.
  */
 
-import type { Span } from "./record";
+import { SHADING, SHADING_EDGE, SHADING_EDGE_WIDTH } from "./paint";
+import { type Piece, pieces } from "./pieces";
+import type { Bounds, Span } from "./record";
+import type { PathCommand, Shape } from "./scene";
 import { CELL, type RowBox } from "./sequence";
 
 /** Where the line sets the bases, and the highest and lowest its marks reach. */
@@ -57,6 +60,20 @@ export function pointAt(radius: number, angle: number): [number, number] {
 	return [radius * Math.sin(angle), -radius * Math.cos(angle)];
 }
 
+/**
+ * An arc on `radius` from `start` to `end`, in pieces of less than a half turn, from the point
+ * at `start`, which the path is already at.
+ */
+export function arc(radius: number, start: number, end: number): PathCommand[] {
+	if (end === start) return [];
+	const pieces = Math.ceil(Math.abs(end - start) / Math.PI + 1e-9);
+	const sweep = end > start ? 1 : 0;
+	return Array.from({ length: pieces }, (_, i) => {
+		const [x, y] = pointAt(radius, start + ((end - start) * (i + 1)) / pieces);
+		return ["A", radius, 0, sweep, x, y] as const;
+	});
+}
+
 /** The base at the point (`x`, `y`), counted from the origin, at any distance from the centre. */
 export function circleBase(
 	{ length, turn }: CircleGeometry,
@@ -105,4 +122,121 @@ export function rowBase(
 		return null;
 	}
 	return start + Math.min(Math.max(index, 0), count - 1);
+}
+
+/** `span` shaded on the line from its top to its bottom, edged at each end the line shows. */
+export function lineShading(
+	line: LineGeometry,
+	bounds: Bounds,
+	span: Span,
+): Shape[] {
+	return within(span, line.span, bounds).flatMap((piece) =>
+		shaded(
+			lineX(line, piece.start),
+			lineX(line, piece.end),
+			[line.top, line.bottom],
+			piece,
+		),
+	);
+}
+
+/** `span` shaded on the circle from its inner radius to its outer, edged at each end. */
+export function circleShading(circle: CircleGeometry, span: Span): Shape[] {
+	const { inner, outer } = circle;
+	const start = angleOf(span.start, circle);
+	const end = angleOf(span.end, circle);
+	return [
+		{
+			shape: "path",
+			commands: [
+				["M", ...pointAt(outer, start)],
+				...arc(outer, start, end),
+				["L", ...pointAt(inner, end)],
+				...arc(inner, end, start),
+				["Z"],
+			],
+			fill: SHADING,
+			stroke: "none",
+			strokeWidth: 0,
+		},
+		...[start, end].map((angle) =>
+			edge(pointAt(inner, angle), pointAt(outer, angle)),
+		),
+	];
+}
+
+/**
+ * `span` shaded on each row of `rows` holding part of it, over the strands, edged at each end the
+ * rows show. Without `bottom` the shading ends at the rail.
+ */
+export function rowShading(
+	rows: readonly RowBox[],
+	bounds: Bounds,
+	span: Span,
+	{ bottom = true } = {},
+): Shape[] {
+	const drawn = { start: rows[0].start, end: (rows.at(-1) as RowBox).end };
+	return within(span, drawn, bounds).flatMap((piece) =>
+		rows
+			.filter((row) => row.start < piece.end && piece.start < row.end)
+			.flatMap((row) => {
+				const { strands } = row;
+				const foot =
+					bottom && strands.bottom ? strands.bottom[1] : strands.rail;
+				return shaded(
+					rowX(row, Math.max(piece.start, row.start)),
+					rowX(row, Math.min(piece.end, row.end)),
+					[strands.top[0], foot],
+					{
+						starts: piece.starts && piece.start >= row.start,
+						ends: piece.ends && piece.end <= row.end,
+					},
+				);
+			}),
+	);
+}
+
+/** What of `span` lies in `drawn`, counted as `drawn` counts. */
+function within(span: Span, drawn: Span, bounds: Bounds): Piece[] {
+	return pieces([{ ...span, color: SHADING }], drawn, bounds);
+}
+
+/** A box shaded from `left` to `right`, with an edge where the selection `starts` and `ends`. */
+function shaded(
+	left: number,
+	right: number,
+	[top, bottom]: readonly [number, number],
+	{ starts, ends }: Pick<Piece, "starts" | "ends">,
+): Shape[] {
+	const shapes: Shape[] = [
+		{
+			shape: "rect",
+			x: left,
+			y: top,
+			width: right - left,
+			height: bottom - top,
+			corner: 0,
+			fill: SHADING,
+			stroke: "none",
+			strokeWidth: 0,
+		},
+	];
+	if (starts) shapes.push(edge([left, top], [left, bottom]));
+	if (ends) shapes.push(edge([right, top], [right, bottom]));
+	return shapes;
+}
+
+function edge(
+	[x1, y1]: readonly [number, number],
+	[x2, y2]: readonly [number, number],
+): Shape {
+	return {
+		shape: "line",
+		x1,
+		y1,
+		x2,
+		y2,
+		stroke: SHADING_EDGE,
+		strokeWidth: SHADING_EDGE_WIDTH,
+	};
 }
