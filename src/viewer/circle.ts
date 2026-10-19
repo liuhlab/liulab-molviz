@@ -635,43 +635,14 @@ function centre(name: string, ring: Ring): { shapes: Shape[]; reach: number } {
 		const tall =
 			count * height("sans-bold", NAME_SIZE) + height("sans", SMALL_SIZE);
 		if (tall >= 2 * room) break;
-		const named = wrapName(name, 2 * Math.sqrt(room ** 2 - (tall / 2) ** 2));
+		const width = 2 * Math.sqrt(room ** 2 - (tall / 2) ** 2);
+		const named = wrap(name, "sans-bold", NAME_SIZE, width, "-_");
 		if (named.length <= count) found = block(named);
 	}
 	return {
 		shapes: titleShapes(found.lines, 0, -found.tall / 2),
 		reach: found.reach,
 	};
-}
-
-/**
- * `name` broken into lines no wider than `width` in the centre's bold: at spaces; a word too wide
- * for a line after a `-` or `_`; and a piece still too wide anywhere.
- */
-function wrapName(name: string, width: number): string[] {
-	const fits = (text: string) => measure(text, "sans-bold", NAME_SIZE) <= width;
-	const lines: string[] = [];
-	let line = "";
-	for (const word of name.split(" ").filter(Boolean)) {
-		const joined = line ? `${line} ${word}` : word;
-		if (fits(joined)) {
-			line = joined;
-			continue;
-		}
-		if (line) lines.push(line);
-		line = "";
-		for (const piece of word.match(/[^-_]*[-_]+|[^-_]+/g) ?? []) {
-			if (fits(line + piece)) {
-				line += piece;
-				continue;
-			}
-			if (line) lines.push(line);
-			const broken = wrap(piece, "sans-bold", NAME_SIZE, width);
-			lines.push(...broken.slice(0, -1));
-			line = broken[broken.length - 1];
-		}
-	}
-	return line ? [...lines, line] : lines;
 }
 
 /** The two strands, from the origin round, and the origin's tick inside them. */
