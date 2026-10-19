@@ -9,6 +9,7 @@ import type { Box, PathCommand, Scene, Shape } from "../../src/viewer/scene";
 import { baseline, height, measure, metrics } from "../../src/viewer/text";
 import ap1File from "../records/ap1-product.json";
 import colourTestFile from "../records/colour-test.json";
+import crowdedSitesFile from "../records/crowded-sites.json";
 import puc19File from "../records/puc19-gfp-product.json";
 
 /** A circular record of 1000 bases: each base turns 0.36 degrees. */
@@ -857,6 +858,50 @@ describe("mbio's records", () => {
 			expect(scene.hidden).toHaveLength(hidden);
 		},
 	);
+});
+
+describe("crowded-sites drawn whole", () => {
+	/** Each label the circle hides, as its name and its point. */
+	function hiddenWith(options: object): string[] {
+		const record = check(crowdedSitesFile);
+		return layoutCircle(record, checkOptions(options, record)).hidden.map(
+			(one) => `${one.name} ${"at" in one ? one.at : one.spans[0].start}`,
+		);
+	}
+
+	// Each crowd of cut sites sits low in its column, so it hides more than the line does.
+	const unique = [
+		"BsmBI - Esp3I - NruI 1273",
+		"BanII - SacI - XbaI 1217",
+		"NheI - SphI 1289",
+		"Acc65I 1201",
+		"BglII 1220",
+		"AvrII 1231",
+		"BamHI 1245",
+		"AatII 1269",
+		"BsiWI 1314",
+		"SnaBI 1318",
+		"EcoRV 1326",
+		"AflII 1329",
+		"AgeI 1204",
+		"KpnI 1205",
+		"XhoI 1210",
+		"BsaI 1213",
+		"PstI 1228",
+		"StuI 1230",
+	];
+
+	test("hides 18 cut sites with the unique cutters, in the order labels hide", () => {
+		expect(hiddenWith({})).toEqual(unique);
+	});
+
+	test("hides 20 with every enzyme, those that cut more than once first", () => {
+		expect(hiddenWith({ enzymes: enzymesOf(crowdedSitesFile) })).toEqual([
+			"EcoRI 1275",
+			"HindIII 1332",
+			...unique,
+		]);
+	});
 });
 
 /** A label set in a column: its box, its leader, and the leader's part carried on to the backbone. */
