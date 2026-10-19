@@ -100,8 +100,11 @@ export function openPage(
 		options,
 		maps: { circle: opening(), line: opening() },
 	};
-	/** Each map's size when last laid out at 1×, which its box keeps while zoomed. */
-	const sizes = new Map<MapName, Scene["extent"]>();
+	/**
+	 * Each map's size laid out at 1×, which its box keeps while zoomed, and the options and turn
+	 * it was laid out for; none for a turning circle's box.
+	 */
+	const sizes = new Map<MapName, { extent: Scene["extent"]; for: string }>();
 	let shown: {
 		name: MapName;
 		zoom: number;
@@ -114,12 +117,12 @@ export function openPage(
 
 	/** The scale a map shows at: its size at 1× fitted to the room. */
 	const scaleOf = ({ name, extent }: NonNullable<typeof shown>) =>
-		displayScale((sizes.get(name) ?? extent).width, frame.clientWidth);
+		displayScale((sizes.get(name)?.extent ?? extent).width, frame.clientWidth);
 
 	const sizeToRoom = () => {
 		if (shown === null) return;
 		const { extent } = shown;
-		const size = sizes.get(shown.name) ?? extent;
+		const size = sizes.get(shown.name)?.extent ?? extent;
 		const scale = scaleOf(shown);
 		const px = (points: number) => (scale === 1 ? "" : `${points * scale}px`);
 		shown.svg.style.width = px(extent.width);
@@ -146,7 +149,13 @@ export function openPage(
 				...restOfTurn(record, state.options, map),
 			]);
 		const scene = held === null ? laid : { ...laid, extent: held };
-		if (map.zoom === 1) sizes.set(name, scene.extent);
+		const laidFor =
+			held === null ? JSON.stringify([state.options, map.turn]) : "";
+		if (map.zoom === 1) sizes.set(name, { extent: scene.extent, for: laidFor });
+		else if (held === null && sizes.get(name)?.for !== laidFor) {
+			const { extent } = layoutMap(record, state.options, { turn: map.turn });
+			sizes.set(name, { extent, for: laidFor });
+		}
 		const svg = toElement(scene, document);
 		if (shown === null) box.append(svg);
 		else shown.svg.replaceWith(svg);

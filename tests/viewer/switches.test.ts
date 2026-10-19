@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { draw } from "../../src/viewer/draw";
 import { svg } from "../../src/viewer/drawing";
 import { checkOptions } from "../../src/viewer/options";
-import { openPage, type Page } from "../../src/viewer/page";
+import { displayScale, openPage, type Page } from "../../src/viewer/page";
 import { check } from "../../src/viewer/record";
 import { switches } from "../../src/viewer/switches";
 import ap1File from "../records/ap1-product.json";
@@ -200,6 +200,23 @@ describe("a change", () => {
 		expect(page.box.nextElementSibling?.innerHTML).toBe(
 			fresh.querySelector(".sequence")?.innerHTML,
 		);
+	});
+
+	test("while zoomed sizes the map's box, and its scale, to the new layout at 1×", () => {
+		const room = 400;
+		const fresh = opened(ap1[0], { ...ap1[1], kinds_off: ["features"] });
+		const size = fresh.drawn().extent;
+		const page = opened(...ap1);
+		const frame = page.box.parentElement as HTMLElement;
+		Object.defineProperty(frame, "clientWidth", { value: room });
+		page.shown().zoom = 2;
+		page.redraw();
+		input(page, "features").click();
+		const scale = displayScale(size.width, room);
+		expect(page.drawn().scale).toBe(scale);
+		const { width, height } = page.box.style;
+		expect(parseFloat(width)).toBeCloseTo(size.width * scale, 6);
+		expect(parseFloat(height)).toBeCloseTo(size.height * scale, 6);
 	});
 
 	test("to Cut sites greys the enzymes while it is off, and to Features the types", () => {

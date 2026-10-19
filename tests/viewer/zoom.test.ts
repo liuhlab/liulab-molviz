@@ -117,6 +117,24 @@ describe("anchored", () => {
 		);
 		expect(scroll).toEqual({ left: 210, top: 110 });
 	});
+
+	test("keeps it in place when the scale the map shows at changes too", () => {
+		const scroll = anchored(
+			"circle",
+			{ x: -300, y: -300, width: 600, height: 600 },
+			{ x: -520, y: -520, width: 1040, height: 1040 },
+			{
+				scale: 0.5,
+				rescaled: 0.4,
+				at: { x: 150, y: 50 },
+				left: 50,
+				top: 50,
+				by: 2,
+			},
+		);
+		expect(scroll.left).toBeCloseTo(138, 9);
+		expect(scroll.top).toBeCloseTo(78, 9);
+	});
 });
 
 describe("a page's zoom", () => {

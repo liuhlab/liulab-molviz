@@ -36,8 +36,8 @@ export function zoomBy(wheel: Wheel, page: number): number {
 /**
  * Where to scroll a map's box so the spot `at` in it stays over the same place of the map, when
  * the map laid out over `before` is laid out `by` times as large over `after`. The circle grows
- * about its centre, the line only along its length. Both show `scale` CSS pixels to a point, and
- * the box was scrolled to `left` and `top`.
+ * about its centre, the line only along its length. The map showed `scale` CSS pixels to a point
+ * and shows `rescaled`, by default the same, and the box was scrolled to `left` and `top`.
  */
 export function anchored(
 	map: Options["map"],
@@ -45,12 +45,14 @@ export function anchored(
 	after: Box,
 	{
 		scale,
+		rescaled = scale,
 		at,
 		left,
 		top,
 		by,
 	}: {
 		readonly scale: number;
+		readonly rescaled?: number;
 		readonly at: Spot;
 		readonly left: number;
 		readonly top: number;
@@ -60,8 +62,8 @@ export function anchored(
 	const x = (before.x + (left + at.x) / scale) * by;
 	const y = (before.y + (top + at.y) / scale) * (map === "circle" ? by : 1);
 	return {
-		left: (x - after.x) * scale - at.x,
-		top: (y - after.y) * scale - at.y,
+		left: (x - after.x) * rescaled - at.x,
+		top: (y - after.y) * rescaled - at.y,
 	};
 }
 
@@ -120,6 +122,7 @@ export function redrawKeeping(
 		page.redraw(hold).extent,
 		{
 			scale,
+			rescaled: page.drawn().scale,
 			at,
 			left: box.scrollLeft,
 			top: box.scrollTop,
