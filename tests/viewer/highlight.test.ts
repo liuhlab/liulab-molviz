@@ -200,7 +200,8 @@ describe("a highlight", () => {
 	});
 });
 
-// Each hidden set is mbio's, from its line laid out on the same items.
+// Each hidden set is mbio's line's on the same items, less the sites with room around them that
+// mbio hides with their crowd.
 describe("on the crowded record with every enzyme, labels hide", () => {
 	test.each<[string, string[], [string, string, number][]]>([
 		[
@@ -208,10 +209,7 @@ describe("on the crowded record with every enzyme, labels hide", () => {
 			[],
 			[
 				["cuts", "EcoRI", 1275],
-				["cuts", "EcoRI", 2301],
-				["cuts", "EcoRI", 401],
 				["cuts", "HindIII", 1332],
-				["cuts", "HindIII", 2601],
 				["cuts", "BsmBI - Esp3I - NruI", 1273],
 				["cuts", "BanII - SacI - XbaI", 1217],
 			],
@@ -232,8 +230,6 @@ describe("on the crowded record with every enzyme, labels hide", () => {
 				["features", "tiny B", 1320],
 				["insertions", "barcode", 1290],
 				["cuts", "EcoRI", 1275],
-				["cuts", "EcoRI", 2301],
-				["cuts", "EcoRI", 401],
 				["cuts", "HindIII", 1332],
 			],
 		],

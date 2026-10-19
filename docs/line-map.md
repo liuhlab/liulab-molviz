@@ -135,8 +135,8 @@ right counts them.
 ## crowded-sites, with every enzyme and EcoRI lit
 
 The same circle with the cut sites of all 40 enzymes. EcoRI cuts it three times, so with
-nothing lit its sites are among the first labels to hide. Here EcoRI is lit, so its sites are
-the last to hide, and other sites hide in their place.
+nothing lit, its site in the crowd is the first label to hide. Here EcoRI is lit, so that site
+is the last to hide, and other sites hide in its place.
 
 <div data-molviz>
 <script type="application/json" data-record>
