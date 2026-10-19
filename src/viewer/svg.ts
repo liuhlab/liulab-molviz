@@ -170,6 +170,7 @@ function tag(shape: Shape, letters: Letters): Tag {
 					attributes: [
 						["d", outline(text, face, size, x, y)],
 						["fill", fill],
+						...turned(shape),
 					],
 				};
 			}
@@ -184,6 +185,7 @@ function tag(shape: Shape, letters: Letters): Tag {
 					// Holds the text to the width the layout measured, in whatever font the browser uses.
 					["textLength", twoDecimals(width)],
 					["fill", fill],
+					...turned(shape),
 				],
 				text: inFace(text, face),
 			};
@@ -205,6 +207,17 @@ function step(command: PathCommand): string {
 		case "Z":
 			return "Z";
 	}
+}
+
+/** A transform turning text about its `x` and `y`, if it turns. */
+function turned({
+	x,
+	y,
+	rotate,
+}: Extract<Shape, { shape: "text" }>): Attributes {
+	if (rotate === undefined) return [];
+	const turn = `rotate(${twoDecimals(rotate)} ${twoDecimals(x)} ${twoDecimals(y)})`;
+	return [["transform", turn]];
 }
 
 function stroke(shape: { stroke: string; strokeWidth: number }): Attributes {

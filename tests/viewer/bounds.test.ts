@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { bounds } from "../../src/viewer/bounds";
 import type { Box } from "../../src/viewer/scene";
+import { measure, metrics } from "../../src/viewer/text";
 
 function near(box: Box | null, expected: Box): void {
 	expect(box).not.toBeNull();
@@ -32,5 +33,31 @@ describe("bounds", () => {
 			...paint,
 		});
 		near(large, { x: 0, y: -440, width: 440, height: 440 });
+	});
+
+	test("turns a text's box with the text", () => {
+		const text = {
+			text: "100",
+			face: "sans",
+			size: 10,
+			fill: "#252525",
+		} as const;
+		const width = measure("100", "sans", 10);
+		const { ascent, descent } = metrics("sans");
+		// A quarter turn clockwise about (5, 0) runs the line down from there, its letters' tops right.
+		const turned = bounds({
+			shape: "text",
+			...text,
+			x: 5,
+			y: 0,
+			anchor: "start",
+			rotate: 90,
+		});
+		near(turned, {
+			x: 5 - 10 * descent,
+			y: 0,
+			width: 10 * (ascent + descent),
+			height: width,
+		});
 	});
 });

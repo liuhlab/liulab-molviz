@@ -80,6 +80,8 @@ export type Shape = (
 			readonly x: number;
 			/** The baseline. */
 			readonly y: number;
+			/** Degrees it turns clockwise about `x` and `y`. */
+			readonly rotate?: number;
 			readonly anchor: "start" | "middle";
 			readonly fill: string;
 	  }

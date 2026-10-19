@@ -26,14 +26,36 @@ export function bounds(shape: Shape): Box | null {
 			};
 		case "text": {
 			const width = measure(shape.text, shape.face, shape.size);
-			return {
+			const box = {
 				x: leftEdge(shape, width),
 				y: shape.y - metrics(shape.face).ascent * shape.size,
 				width,
 				height: height(shape.face, shape.size),
 			};
+			const { x, y, rotate } = shape;
+			return rotate === undefined
+				? box
+				: around(corners(box).map((c) => turn(c, [x, y], rotate)));
 		}
 	}
+}
+
+/** The four corners of `box`. */
+function corners({ x, y, width, height }: Box): Point[] {
+	return [
+		[x, y],
+		[x + width, y],
+		[x + width, y + height],
+		[x, y + height],
+	];
+}
+
+/** `point` turned `degrees` clockwise about `pivot`. */
+function turn([x, y]: Point, [px, py]: Point, degrees: number): Point {
+	const angle = (degrees * Math.PI) / 180;
+	const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+	const [dx, dy] = [x - px, y - py];
+	return [px + dx * cos - dy * sin, py + dx * sin + dy * cos];
 }
 
 /** The least box around `points`. */

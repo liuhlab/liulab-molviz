@@ -98,6 +98,26 @@ describe("a curve or a turn", () => {
 			`<path d="${d}" fill="none" stroke="#252525" stroke-width="2.60"></path>`,
 		);
 	});
+
+	test("turns text clockwise about its x and y", () => {
+		const { file, page } = both({
+			shape: "text",
+			text: "100",
+			face: "sans",
+			size: 10.5,
+			x: 0,
+			y: -190,
+			anchor: "middle",
+			fill: "#252525",
+			rotate: 90,
+		});
+		const left = -measure("100", "sans", 10.5) / 2;
+		const turn = 'transform="rotate(90.00 0.00 -190.00)"';
+		expect(file).toContain(
+			`<path d="${outline("100", "sans", 10.5, left, -190)}" fill="#252525" ${turn}/>`,
+		);
+		expect(page.querySelector("text")?.outerHTML).toContain(turn);
+	});
 });
 
 describe("toSvg", () => {
