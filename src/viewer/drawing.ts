@@ -1,5 +1,6 @@
 /** An input drawn as SVG text, with no DOM. */
 
+import { layoutCircle } from "./circle";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
@@ -24,12 +25,15 @@ export interface Drawing {
 }
 
 /**
- * Check `record`, then `options` against it, and lay the record out as they say. Throws one
- * FormatError naming every problem in the record, or else in the options.
+ * Check `record`, then `options` against it, and lay the record out on the map they name.
+ * Throws one FormatError naming every problem in the record, or else in the options.
  */
 export function prepare(record: unknown, options: unknown): MapScene {
 	const checked = check(record);
-	return layout(checked, checkOptions(options, checked));
+	const given = checkOptions(options, checked);
+	return given.map === "circle"
+		? layoutCircle(checked, given)
+		: layout(checked, given);
 }
 
 /** Check `gel` and lay it out. Throws one FormatError naming every problem in the gel. */

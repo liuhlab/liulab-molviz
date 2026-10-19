@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
+import { layoutCircle } from "../../src/viewer/circle";
 import { gelSvg, plateSvg, prepare, svg } from "../../src/viewer/drawing";
 import { FormatError } from "../../src/viewer/format";
+import { layout } from "../../src/viewer/line";
+import { checkOptions } from "../../src/viewer/options";
+import { check } from "../../src/viewer/record";
 import { leftEdge } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 
@@ -18,6 +22,16 @@ describe("svg", () => {
 			new FormatError(
 				"options.span.end: must be at most the record's length, 100",
 			),
+		);
+	});
+
+	test("lays a whole circular record out as the circle, or as the line when asked", () => {
+		const circular = check({ ...good, circular: true });
+		expect(prepare(circular, {})).toStrictEqual(
+			layoutCircle(circular, checkOptions({}, circular)),
+		);
+		expect(prepare(circular, { map: "line" })).toStrictEqual(
+			layout(circular, checkOptions({ map: "line" }, circular)),
 		);
 	});
 
@@ -110,10 +124,10 @@ describe("svg", () => {
 				length: 3,
 			})),
 		};
-		const drawn = svg(record);
+		const drawn = svg(record, { map: "line" });
 		expect(drawn.hidden).toEqual([]);
 		expect(drawn.notice).toBe("");
-		const said = prepare(record, {}).shapes.filter(
+		const said = prepare(record, { map: "line" }).shapes.filter(
 			(s) => s.shape === "text" && s.text === "across (996 .. 5)",
 		);
 		expect(said).toHaveLength(1);

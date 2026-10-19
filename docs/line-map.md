@@ -9,6 +9,8 @@ it holds. The map draws a record's features, its primers at each place they bind
 insertions, and the cut sites of each enzyme that cuts it once. Where labels would crowd, some
 are hidden, and a note at the bottom right counts them.
 
+A circular record drawn whole opens on [the circle](circle.md), so this page asks for the line.
+
 If a record cannot be drawn, its place on the page says why.
 
 ## puc19-gfp-product
@@ -18,6 +20,9 @@ A Golden Gate product. Its lacZα CDS is joined across the GFP insert.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/puc19-gfp-product.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -31,7 +36,7 @@ everything else turns pale grey. Nothing moves.
 --8<-- "tests/records/puc19-gfp-product.json"
 </script>
 <script type="application/json" data-options>
-{"highlight": ["GFP", "GFP forward", "GFP reverse"]}
+{"map": "line", "highlight": ["GFP", "GFP forward", "GFP reverse"]}
 </script>
 </div>
 
@@ -43,6 +48,9 @@ A larger product with many features, some on no strand.
 <script type="application/json" data-record>
 --8<-- "tests/records/ap1-product.json"
 </script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
 </div>
 
 ## colour-test
@@ -53,6 +61,9 @@ feature runs over the origin.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/colour-test.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -88,6 +99,9 @@ A feature on both strands, and two insertions, one of them at the origin.
 <script type="application/json" data-record>
 --8<-- "tests/records/both-strands-and-insertions.json"
 </script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
 </div>
 
 ## mismatch-across-origin
@@ -97,6 +111,9 @@ A primer with two sites. One runs across the origin, with a mismatch on each sid
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/mismatch-across-origin.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -118,6 +135,9 @@ An N inside a CDS, so one codon translates as X, and an EcoRI cut at the origin.
 <script type="application/json" data-record>
 --8<-- "tests/records/n-and-cut-at-origin.json"
 </script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
 </div>
 
 ## crowded-sites
@@ -129,6 +149,9 @@ right counts them.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/crowded-sites.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -143,6 +166,6 @@ is the last to hide, and other sites hide in its place.
 --8<-- "tests/records/crowded-sites.json"
 </script>
 <script type="application/json" data-options>
-{"enzymes": ["AatII", "Acc65I", "AflII", "AgeI", "AscI", "AvrII", "BamHI", "BanII", "BglII", "BsaI", "BsiWI", "BsmBI", "ClaI", "EcoRI", "EcoRV", "Esp3I", "HindIII", "HpaI", "KpnI", "MfeI", "MluI", "NcoI", "NdeI", "NheI", "NotI", "NruI", "NsiI", "PacI", "PmeI", "PstI", "SacI", "SalI", "SmaI", "SnaBI", "SpeI", "SphI", "StuI", "XbaI", "XhoI", "XmaI"], "highlight": ["EcoRI"]}
+{"map": "line", "enzymes": ["AatII", "Acc65I", "AflII", "AgeI", "AscI", "AvrII", "BamHI", "BanII", "BglII", "BsaI", "BsiWI", "BsmBI", "ClaI", "EcoRI", "EcoRV", "Esp3I", "HindIII", "HpaI", "KpnI", "MfeI", "MluI", "NcoI", "NdeI", "NheI", "NotI", "NruI", "NsiI", "PacI", "PmeI", "PstI", "SacI", "SalI", "SmaI", "SnaBI", "SpeI", "SphI", "StuI", "XbaI", "XhoI", "XmaI"], "highlight": ["EcoRI"]}
 </script>
 </div>

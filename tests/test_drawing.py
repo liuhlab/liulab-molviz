@@ -93,8 +93,8 @@ def test_draw_returns_the_labels_the_viewer_hid_a_lit_one_last() -> None:
     record = json.loads((ROOT / "tests" / "records" / "crowded-sites.json").read_text("utf-8"))
     every = sorted({cut["enzyme"] for cut in record["cuts"]})
     site = {"kind": "cuts", "name": "EcoRI", "at": 1275}
-    plain = molviz.draw(record, enzymes=every)
-    lit = molviz.draw(record, enzymes=every, highlight=["ecori"])
+    plain = molviz.draw(record, map="line", enzymes=every)
+    lit = molviz.draw(record, map="line", enzymes=every, highlight=["ecori"])
     assert site in plain.hidden
     assert lit.hidden
     assert [one for one in lit.hidden if one["name"] == "EcoRI"] == []
@@ -119,6 +119,22 @@ DRAWN = {
 @pytest.fixture(scope="module")
 def drawing() -> Drawing:
     return molviz.draw(DRAWN)
+
+
+def test_draw_opens_a_whole_circular_record_on_the_circle(tmp_path) -> None:
+    def svg(**options) -> bytes:
+        molviz.draw(GOOD, **options).write(tmp_path / "map.svg")
+        return (tmp_path / "map.svg").read_bytes()
+
+    assert svg() == svg(map="circle")
+    assert svg() != svg(map="line")
+    assert svg(span={"start": 0, "end": 5}) == svg(map="line", span={"start": 0, "end": 5})
+
+
+def test_draw_rejects_the_circle_of_a_linear_record() -> None:
+    message = 'options.map: must be "line" on a linear record'
+    with pytest.raises(ValueError, match=f"^{re.escape(message)}$"):
+        molviz.draw(DRAWN, map="circle")
 
 
 def svg_root(drawing: Drawing, tmp_path: Path) -> ElementTree.Element:
