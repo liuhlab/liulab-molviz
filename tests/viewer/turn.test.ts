@@ -2,6 +2,8 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { aroundBoxes } from "../../src/viewer/bounds";
 import { layoutMap } from "../../src/viewer/drawing";
+import { hoverBox } from "../../src/viewer/hover";
+import type { MapScene } from "../../src/viewer/labels";
 import { checkOptions } from "../../src/viewer/options";
 import { openPage, type Page } from "../../src/viewer/page";
 import { check } from "../../src/viewer/record";
@@ -43,6 +45,13 @@ function wheel(page: Page, init: WheelEventInit): boolean {
 	return event.defaultPrevented;
 }
 
+/** `scene` as a page shows it. */
+function shown(scene: MapScene): string {
+	const svg = toElement(scene, document);
+	hoverBox(svg);
+	return svg.outerHTML;
+}
+
 const frame = () =>
 	new Promise<void>((done) => requestAnimationFrame(() => done()));
 
@@ -81,7 +90,7 @@ describe("the wheel over the circle", () => {
 			extent: aroundBoxes([before, turned.extent]),
 		};
 		expect(held.extent).not.toEqual(turned.extent);
-		expect(page.box.innerHTML).toBe(toElement(held, document).outerHTML);
+		expect(page.box.innerHTML).toBe(shown(held));
 	});
 
 	test("keeps the ring in place on a zoomed circle", async () => {
@@ -123,5 +132,5 @@ test("the turn survives a flip to the line and back", async () => {
 	flip(page, "circle");
 	expect(page.state.maps.circle.turn).toBeCloseTo(36, 9);
 	const turned = layoutMap(page.record, page.state.options, { turn: 36 });
-	expect(page.box.innerHTML).toBe(toElement(turned, document).outerHTML);
+	expect(page.box.innerHTML).toBe(shown(turned));
 });
