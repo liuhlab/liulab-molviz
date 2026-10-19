@@ -44,6 +44,8 @@ import {
 	TICK,
 	TICK_WIDTH,
 	tickStep,
+	titleLines,
+	titleShapes,
 } from "./line";
 import type { Options } from "./options";
 import {
@@ -60,7 +62,7 @@ import {
 } from "./paint";
 import type { Feature, Record, Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
-import { baseline, type Face, height, measure, wrap } from "./text";
+import { baseline, height, measure, wrap } from "./text";
 
 /** The backbone's radius at a zoom of 1. */
 const RADIUS = 220;
@@ -623,14 +625,7 @@ function centre(name: string, ring: Ring): { shapes: Shape[]; reach: number } {
 	const room = CENTRE * ring.radius;
 	const length = `${ring.length} bp`;
 	const block = (named: readonly string[]) => {
-		const lines: [string, Face, number][] = [
-			...named.map((text): [string, Face, number] => [
-				text,
-				"sans-bold",
-				NAME_SIZE,
-			]),
-			[length, "sans", SMALL_SIZE],
-		];
+		const lines = titleLines(named, length);
 		const tall = lines.reduce((sum, [, f, size]) => sum + height(f, size), 0);
 		const wide = Math.max(...lines.map(([t, f, size]) => measure(t, f, size)));
 		return { lines, tall, reach: Math.hypot(wide / 2, tall / 2) };
@@ -643,23 +638,10 @@ function centre(name: string, ring: Ring): { shapes: Shape[]; reach: number } {
 		const named = wrapName(name, 2 * Math.sqrt(room ** 2 - (tall / 2) ** 2));
 		if (named.length <= count) found = block(named);
 	}
-	const shapes: Shape[] = [];
-	let y = -found.tall / 2;
-	for (const [text, face, size] of found.lines) {
-		const h = height(face, size);
-		shapes.push({
-			shape: "text",
-			text,
-			face,
-			size,
-			x: 0,
-			y: baseline(face, size, y + h / 2),
-			anchor: "middle",
-			fill: INK,
-		});
-		y += h;
-	}
-	return { shapes, reach: found.reach };
+	return {
+		shapes: titleShapes(found.lines, 0, -found.tall / 2),
+		reach: found.reach,
+	};
 }
 
 /**

@@ -433,16 +433,36 @@ function title(
 ): Shape[] {
 	const bases = span.end - span.start;
 	const whole = span.start === 0 && span.end === length;
-	const lines: [string, Face, number][] = [
-		...(name.trim()
-			? [[name, "sans-bold", NAME_SIZE] as [string, Face, number]]
-			: []),
-		[
-			whole ? `${length} bp` : `${spanText(span, length)} (${bases} bp)`,
-			"sans",
-			SMALL_SIZE,
-		],
+	const under = whole
+		? `${length} bp`
+		: `${spanText(span, length)} (${bases} bp)`;
+	return titleShapes(
+		titleLines(name.trim() ? [name] : [], under),
+		width / 2,
+		top,
+	);
+}
+
+/** One line of a title: its text, face and size. */
+export type TitleLine = readonly [text: string, face: Face, size: number];
+
+/** A title's lines: each of `names` in bold, then `under`. */
+export function titleLines(
+	names: readonly string[],
+	under: string,
+): TitleLine[] {
+	return [
+		...names.map((text): TitleLine => [text, "sans-bold", NAME_SIZE]),
+		[under, "sans", SMALL_SIZE],
 	];
+}
+
+/** `lines` set one under another from `top`, each centred on `x`. */
+export function titleShapes(
+	lines: readonly TitleLine[],
+	x: number,
+	top: number,
+): Shape[] {
 	const shapes: Shape[] = [];
 	let y = top;
 	for (const [text, face, size] of lines) {
@@ -452,7 +472,7 @@ function title(
 			text,
 			face,
 			size,
-			x: width / 2,
+			x,
 			y: baseline(face, size, y + h / 2),
 			anchor: "middle",
 			fill: INK,
