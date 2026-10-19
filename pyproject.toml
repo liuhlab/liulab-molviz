@@ -108,6 +108,8 @@ python = "3.13.*"
 fonttools = "*"
 # The committed subsets were cut from this release.
 font-ttf-dejavu = "2.37.*"
+# fontTools writes WOFF2 with it.
+brotli-python = "*"
 
 [tool.pixi.feature.fonts.tasks]
 build-fonts = "python scripts/build_fonts.py"

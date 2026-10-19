@@ -2,21 +2,23 @@
 
     pixi run build-fonts
 
-The subsets keep the ``kern`` feature and no other layout feature, because opentype.js cannot
-read the rest of DejaVu's layout tables. Each subset keeps the face's name table, licence
-included. The same inputs write the same bytes.
+Each face is written twice from one subset: as TTF, which the build reads to make the viewer's
+tables, and as WOFF2, which pages load. The subsets keep the ``kern`` feature and no other
+layout feature, because opentype.js cannot read the rest of DejaVu's layout tables. Each subset
+keeps the face's name table, licence included. The same inputs write the same bytes.
 """
 
 import sys
 from pathlib import Path
+from typing import Any
 
 # Only the `fonts` environment has fontTools; pyright runs in `default`.
 from fontTools import subset  # pyright: ignore[reportMissingImports]
 
 FACES = {
-    "DejaVuSans.ttf": "sans.ttf",
-    "DejaVuSans-Bold.ttf": "sans-bold.ttf",
-    "DejaVuSansMono.ttf": "mono.ttf",
+    "DejaVuSans.ttf": "sans",
+    "DejaVuSans-Bold.ttf": "sans-bold",
+    "DejaVuSansMono.ttf": "mono",
 }
 
 # Latin, Greek letters, general punctuation, arrows, the trade mark and the minus sign, and
@@ -34,19 +36,41 @@ UNICODES = [
     0xFFFD,
 ]
 
+# What Sans Mono draws: bases in either case, amino acids and the stop, and U+FFFD.
+BASES = "ACGTURYSWKMBDHVN"
+MONO = sorted({ord(c) for c in f"{BASES}{BASES.lower()}ABCDEFGHIJKLMNOPQRSTUVWXYZ*�"})
+
+
+def options(*, retain_gids: bool = False) -> Any:
+    """Return the subsetter's options, keeping each glyph's id if ``retain_gids``."""
+    out = subset.Options(layout_features=["kern"], hinting=False, name_IDs=["*"])
+    out.drop_tables += ["FFTM", "MATH"]
+    out.retain_gids = retain_gids
+    return out
+
+
+def cut(font: Any, unicodes: list[int], cutting: Any) -> None:
+    """Keep only ``unicodes`` in ``font``."""
+    subsetter = subset.Subsetter(cutting)
+    subsetter.populate(unicodes=unicodes)
+    subsetter.subset(font)
+
 
 def main() -> None:
-    """Write each subset into ``src/viewer/fonts/``, replacing what is there."""
+    """Write each subset into ``src/viewer/fonts/`` as TTF and WOFF2, replacing what is there."""
     source = Path(sys.prefix) / "fonts"
     target = Path(__file__).resolve().parents[1] / "src" / "viewer" / "fonts"
-    options = subset.Options(layout_features=["kern"], hinting=False, name_IDs=["*"])
-    options.drop_tables += ["FFTM", "MATH"]
-    for name, out in FACES.items():
-        font = subset.load_font(source / name, options)
-        subsetter = subset.Subsetter(options)
-        subsetter.populate(unicodes=UNICODES)
-        subsetter.subset(font)
-        subset.save_font(font, target / out, options)
+    for name, face in FACES.items():
+        cutting = options()
+        font = subset.load_font(source / name, cutting)
+        cut(font, UNICODES, cutting)
+        # Cut again to what it draws, each glyph keeping its id: a file names its glyphs by id.
+        if face == "mono":
+            cut(font, MONO, options(retain_gids=True))
+        for flavor, ending in [(None, "ttf"), ("woff2", "woff2")]:
+            # `save_font` takes the flavour from the options, not from the font.
+            cutting.flavor = flavor
+            subset.save_font(font, target / f"{face}.{ending}", cutting)
 
 
 if __name__ == "__main__":
