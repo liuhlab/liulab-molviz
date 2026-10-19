@@ -55,6 +55,7 @@ FIGURES = {
     "ap1-barcode": (_AP1, "barcode-wells"),
     "ap1-stuffer": (_AP1, "assemble-cargo"),
     "ap1-cargo": (_AP1, "assemble-into-working-vector"),
+    "puc19-gfp-assembly": ("docs/examples/pUC19-GFP/protocol.json", "run-assembly"),
 }
 
 #: Each protocol or project in mbio whose steps hold gels, by the short name that starts each

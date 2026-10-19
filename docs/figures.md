@@ -6,16 +6,17 @@ That page holds the figure already drawn, with no script, so it looks the same b
 viewer in it.
 
 A figure is a still drawing to set beside a step of a protocol. It draws one record, or a few
-stacked top to bottom, each as a line over the same stretch of bases. Each record keeps its
-own numbers, so a base sits at the same place across the page in every record. When two or
-more records stack, each one's name is set above it in grey.
+stacked top to bottom. A circular record drawn whole is a circle, set in the middle. A
+stretch of bases is a line. Each record keeps its own numbers, so a base sits at the same
+place across the page in every line. When two or more records stack, each one's name is set
+above it in grey.
 
 The figures are the files in `tests/figures/` in the repo. Each is one of the figures of mbio,
-the lab's tools for cloning, from its AP-1 project. That project builds a gene in three
-rounds, adding one part to the vector in each round. Most figures light one name: what it
-names keeps its colour, and all else turns pale grey, so a record that does not hold it turns
-pale all over. Each record's line, numbers and title stay dark. Nothing moves. The last two
-figures add the sequence view under the map.
+the lab's tools for cloning. All but the last come from its AP-1 project, which builds a gene
+in three rounds, adding one part to the vector in each round. Most figures light a name or
+two: what they name keeps its colour, and all else turns pale grey, so a record that does not
+hold it turns pale all over. Each record's line, numbers and title stay dark. Nothing moves.
+Two figures add the sequence view under the map, and the last one draws a circle.
 
 If a figure cannot be drawn, its place on the page says why.
 
@@ -121,5 +122,23 @@ to free it.
 </script>
 <script type="application/json" data-options>
 {"map": "line", "span": {"start": 346, "end": 398}, "sequence_view": true, "enzymes": ["BsaI"]}
+</script>
+</div>
+
+## puc19-gfp-assembly
+
+One circular record drawn whole, so it is a circle: the pUC19-GFP vector as the Golden Gate
+reaction closes it, from mbio's pUC19-GFP example. The two places the reaction joins, the ATGA
+and TGGC junctions, are lit. BbsI is named, but it does not cut this record, so no cut site
+is drawn.
+
+<div data-molviz="figure">
+<script type="application/json" data-figure>
+[
+--8<-- "tests/records/puc19-gfp-product.json"
+]
+</script>
+<script type="application/json" data-options>
+{"enzymes": ["BbsI"], "highlight": ["ATGA junction", "TGGC junction"]}
 </script>
 </div>

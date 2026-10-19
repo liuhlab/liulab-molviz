@@ -12,6 +12,7 @@ of them is drawn with. A record is named by its file name in `tests/records/`, w
 | `ap1-barcode.json` | the same, step `barcode-wells` | One record, `ap1-block-vector-1`, as a line from base 280 to 490, with its `internal stuffer` lit and its unique cutters drawn. |
 | `ap1-stuffer.json` | the same, step `assemble-cargo` | One record, `ap1-block-vector-1`, from base 346 to 424 with its sequence view, and the cut sites of BbsI and BsmBI. |
 | `ap1-cargo.json` | the same, step `assemble-into-working-vector` | One record, `ap1-product`, from base 346 to 398 with its sequence view, and the cut sites of BsaI. |
+| `puc19-gfp-assembly.json` | mbio's pUC19-GFP example, step `run-assembly` | One record, `puc19-gfp-product`, whole on the circle. `ATGA junction` and `TGGC junction` are lit. BbsI is named and does not cut it. |
 
 ## Making the figures again
 

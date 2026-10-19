@@ -9,8 +9,9 @@ from molviz.drawing import Drawing
 def draw_figure(records: list[dict[str, Any]], **options: Any) -> Drawing:
     """Draw ``records`` stacked top to bottom, each with ``options``, checking all with the viewer.
 
-    The options are `draw`'s, shared by every record. When two or more records stack, each
-    has its name set above it; a lone record draws as `draw` draws it. A name to highlight
+    The options are `draw`'s, shared by every record. Each record is drawn on the map `draw`
+    gives it, and a circle is centred on the lines. When two or more records stack, each has
+    its name set above it; a lone record draws as `draw` draws it. A name to highlight
     must name something in at least one record, and a record with nothing lit is dimmed whole.
     With the sequence view, a PDF has the maps on its first page, then each record's rows in
     order, the first page of each under the record's name when two or more stack.

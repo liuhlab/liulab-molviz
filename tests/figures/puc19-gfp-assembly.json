@@ -1,0 +1,14 @@
+{
+ "records": [
+  "puc19-gfp-product"
+ ],
+ "options": {
+  "enzymes": [
+   "BbsI"
+  ],
+  "highlight": [
+   "ATGA junction",
+   "TGGC junction"
+  ]
+ }
+}

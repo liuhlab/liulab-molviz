@@ -46,6 +46,11 @@ function record(name: string, length: number, feature: string) {
 
 const first = record("round 1", 100, "lacZ");
 const second = record("round 2", 200, "GFP");
+/** The two records made circular, so that drawn whole each opens on the circle. */
+const [firstRing, secondRing] = [first, second].map((one) => ({
+	...one,
+	circular: true,
+}));
 
 describe("checkFigure", () => {
 	test("returns each record checked, in order", () => {
@@ -84,22 +89,21 @@ function said(scene: Scene, text: string, fill: string): Text {
 	return found[0];
 }
 
-/** What `shape` is once moved `dy` down, to within rounding. */
-function down(shape: Shape, dy: number): unknown {
-	const near = (y: number) => expect.closeTo(y + dy, 9);
-	switch (shape.shape) {
-		case "line":
-			return { ...shape, y1: near(shape.y1), y2: near(shape.y2) };
-		case "polygon":
-			return { ...shape, points: shape.points.map(([x, y]) => [x, near(y)]) };
-		case "circle":
-			return { ...shape, cy: near(shape.cy) };
-		case "path":
-			return moved(shape, 0, dy);
-		case "rect":
-		case "text":
-			return { ...shape, y: near(shape.y) };
+/** `value` with each number in it matched to within rounding. */
+function near(value: unknown): unknown {
+	if (typeof value === "number") return expect.closeTo(value, 9);
+	if (Array.isArray(value)) return value.map(near);
+	if (typeof value === "object" && value !== null) {
+		return Object.fromEntries(
+			Object.entries(value).map(([key, one]) => [key, near(one)]),
+		);
 	}
+	return value;
+}
+
+/** What `shape` is once moved `dx` right and `dy` down, to within rounding. */
+function shifted(shape: Shape, dx: number, dy: number): unknown {
+	return near(moved(shape, dx, dy));
 }
 
 /** Rows of 20 bases, so each record's sequence view runs to more than one PDF page. */
@@ -113,13 +117,14 @@ describe("prepareFigure", () => {
 	const options = { span: { start: 0, end: 100 } };
 
 	test.each([
-		["its map", options],
-		["its map with its sequence view under it", viewed],
+		["lines", [first, second], options],
+		["lines with their sequence views", [first, second], viewed],
+		["circles, their centres one above the other", [firstRing, secondRing], {}],
 	])(
 		"stacks the records in order, each as it draws alone moved down only: %s",
-		(_, options) => {
-			const figure = prepareFigure([first, second], options);
-			const [top, bottom] = [first, second].map((r) =>
+		(_, records, options) => {
+			const figure = prepareFigure(records, options);
+			const [top, bottom] = records.map((r) =>
 				stackedViews(prepareViews(r, options)),
 			);
 			const drawn = figure.shapes.filter(
@@ -130,10 +135,26 @@ describe("prepareFigure", () => {
 				said(figure, "round 2", INK).y - said(bottom, "round 2", INK).y;
 			expect(dy).toBeGreaterThan(top.extent.height);
 			expect(drawn.slice(top.shapes.length)).toEqual(
-				bottom.shapes.map((s) => down(s, dy)),
+				bottom.shapes.map((s) => shifted(s, 0, dy)),
 			);
 		},
 	);
+
+	test("centres a circle on the lines it stacks with, which keep their x", () => {
+		const figure = prepareFigure([firstRing, second], {});
+		const [top, bottom] = [firstRing, second].map((r) => prepare(r, {}));
+		const drawn = figure.shapes.filter(
+			(s) => !("fill" in s && s.fill === MUTED),
+		);
+		const middle = bottom.extent.x + bottom.extent.width / 2;
+		expect(drawn.slice(0, top.shapes.length)).toEqual(
+			top.shapes.map((s) => shifted(s, middle, 0)),
+		);
+		const dy = said(figure, "round 2", INK).y - said(bottom, "round 2", INK).y;
+		expect(drawn.slice(top.shapes.length)).toEqual(
+			bottom.shapes.map((s) => shifted(s, 0, dy)),
+		);
+	});
 
 	test("sets each name above its record at the left edge, 12 points under the record before", () => {
 		const figure = prepareFigure([first, second], options);
@@ -229,12 +250,17 @@ describe("prepareFigureFile", () => {
 
 describe("figureSvg", () => {
 	test.each([
-		{ span: { start: 20, end: 90 }, highlight: ["lacZ"] },
-		{ ...viewed, highlight: ["lacZ"] },
+		["a line", first, { span: { start: 20, end: 90 }, highlight: ["lacZ"] }],
+		[
+			"a line with its sequence view",
+			first,
+			{ ...viewed, highlight: ["lacZ"] },
+		],
+		["a circle", firstRing, {}],
 	])(
-		"draws one record exactly as svg does, its PDF pages too: %o",
-		(options) => {
-			expect(figureSvg([first], options)).toEqual(svg(first, options));
+		"draws one record exactly as svg does, its PDF pages too: %s",
+		(_, record, options) => {
+			expect(figureSvg([record], options)).toEqual(svg(record, options));
 		},
 	);
 
@@ -275,6 +301,14 @@ describe("figureSvg", () => {
 			{ span: { start: 0, end: 150 } },
 			[
 				"options.span.end (records[0]): must be at most the record's length, 100",
+			],
+		],
+		[
+			"the circle over a span short of one record's whole, naming that record",
+			[firstRing, secondRing],
+			{ map: "circle", span: { start: 0, end: 100 } },
+			[
+				'options.map (records[1]): must be "line" when span is not the whole record',
 			],
 		],
 	])("rejects %s", (_, records, options, expected) => {

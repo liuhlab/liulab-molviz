@@ -47,6 +47,8 @@ export function checkFigure(input: unknown): Record[] {
 interface Laid {
 	readonly name: string;
 	readonly views: Views;
+	/** Whether its map is the circle. */
+	readonly circle: boolean;
 }
 
 /** Check `records`, then `options` against each, and lay each record's views out. */
@@ -56,6 +58,7 @@ function layOut(records: unknown, options: unknown): Laid[] {
 	return checked.map((record, i) => ({
 		name: record.name,
 		views: layoutViews(record, each[i]),
+		circle: each[i].map === "circle",
 	}));
 }
 
@@ -69,6 +72,7 @@ function whole(laid: readonly Laid[]): MapScene {
 	return stacked(
 		laid.map(({ views }) => stackedViews(views)),
 		namesOf(laid),
+		laid.map(({ circle }) => circle),
 	);
 }
 
@@ -106,6 +110,7 @@ export function prepareFigureFile(
 	const maps = stacked(
 		laid.map(({ views }) => views.map),
 		names,
+		laid.map(({ circle }) => circle),
 	);
 	const rows = laid.flatMap(({ name, views }) => {
 		if (views.sequence === null) return [];
@@ -157,20 +162,31 @@ function checkEach(input: unknown, records: readonly Record[]): Options[] {
 }
 
 /**
- * `scenes` one under another, each keeping its x and set under its name from `names`. With no
- * names there is one scene, left as it is.
+ * `scenes` one under another, each set under its name from `names`. A line keeps its x, and a
+ * scene `circles` marks, centred at x 0, is centred on the lines' middle. With no names there
+ * is one scene, left as it is.
  */
 function stacked(
 	scenes: readonly (Scene | MapScene)[],
 	names: readonly string[] | null,
+	circles: readonly boolean[] = [],
 ): MapScene {
 	const hidden = scenes.flatMap((scene) =>
 		"hidden" in scene ? scene.hidden : [],
 	);
 	if (names === null) return { ...scenes[0], hidden };
-	const left = Math.min(...scenes.map(({ extent }) => extent.x));
+	const lines = scenes
+		.filter((_, i) => !circles[i])
+		.map(({ extent }) => extent);
+	const middle = lines.length
+		? (Math.min(...lines.map(({ x }) => x)) +
+				Math.max(...lines.map(({ x, width }) => x + width))) /
+			2
+		: 0;
+	const dxs = scenes.map((_, i) => (circles[i] ? middle : 0));
+	const left = Math.min(...scenes.map(({ extent }, i) => extent.x + dxs[i]));
 	const right = Math.max(
-		...scenes.map(({ extent }) => extent.x + extent.width),
+		...scenes.map(({ extent }, i) => extent.x + extent.width + dxs[i]),
 	);
 	const nameHeight = height(NAME_FACE, NAME_SIZE);
 	const named = nameHeight + UNDER_NAME;
@@ -191,7 +207,7 @@ function stacked(
 			fill: NAME_FILL,
 		});
 		const dy = recordTop - extent.y;
-		shapes.push(...own.map((shape) => moved(shape, 0, dy)));
+		shapes.push(...own.map((shape) => moved(shape, dxs[i], dy)));
 		bottom = recordTop + extent.height;
 		recordTop = bottom + BETWEEN + named;
 	}
