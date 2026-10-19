@@ -48,6 +48,27 @@ describe("checkOptions", () => {
 		});
 	});
 
+	test("opens a circular record on the circle, and on the line with a span", () => {
+		const circular = record(true);
+		expect(checkOptions({}, circular).map).toBe("circle");
+		expect(checkOptions({ span: { start: 0, end: 100 } }, circular).map).toBe(
+			"circle",
+		);
+		expect(checkOptions({ span: { start: 0, end: 50 } }, circular).map).toBe(
+			"line",
+		);
+		expect(checkOptions({ span: { start: 10, end: 110 } }, circular).map).toBe(
+			"line",
+		);
+	});
+
+	test("checks its own answer again to itself", () => {
+		for (const options of [{}, { span: { start: 90, end: 110 } }]) {
+			const checked = checkOptions(options, record(true));
+			expect(checkOptions(checked, record(true))).toStrictEqual(checked);
+		}
+	});
+
 	test("turns on the enzymes that cut the record once, in the record's order", () => {
 		expect(checkOptions({}, named).enzymes).toEqual(["EcoRI", "PstI"]);
 	});
@@ -83,9 +104,14 @@ describe("checkOptions", () => {
 			["options.span.end: must be at most the record's length, 100"],
 		],
 		[
-			"a map other than the line",
-			{ map: "circle" },
-			['options.map: must be "line"'],
+			"a map it does not have",
+			{ map: "plasmid" },
+			['options.map: must be "circle" or "line"'],
+		],
+		[
+			"the circle of a linear record",
+			{ map: "circle", span: { start: 0, end: 100 } },
+			['options.map: must be "line" on a linear record'],
 		],
 		[
 			"types_off that is not a list",
@@ -129,6 +155,14 @@ describe("checkOptions", () => {
 		],
 	])("rejects %s", (_, input, expected) => {
 		expect(problems(input)).toEqual(expected);
+	});
+
+	test("rejects the circle of a span short of a whole circular record", () => {
+		expect(
+			problems({ map: "circle", span: { start: 10, end: 110 } }, record(true)),
+		).toEqual([
+			'options.map: must be "line" when span is not the whole record',
+		]);
 	});
 });
 
@@ -174,10 +208,10 @@ describe("answersTo", () => {
 	});
 });
 
-/** The lines of the error checking `input` against `named` throws, or none. */
-function problems(input: unknown): string[] {
+/** The lines of the error checking `input` against `against` throws, or none. */
+function problems(input: unknown, against = named): string[] {
 	try {
-		checkOptions(input, named);
+		checkOptions(input, against);
 		return [];
 	} catch (error) {
 		return (error as FormatError).message.split("\n");

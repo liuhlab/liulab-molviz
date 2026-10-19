@@ -5,66 +5,55 @@
 
 import {
 	type Arrow,
-	BAND,
 	type Bar,
 	barShapes,
 	barsOf,
 	coloredFeatures,
+	headsOn,
 	isUnder,
 	OVERHANG,
 	outline,
 	overhang,
-	PRIMER_BAND,
 	PRIMER_GAP,
+	PRIMER_SHAFT,
 	pack,
 	places,
+	SHAFT,
 	TIER_GAP,
 } from "./arrows";
+import { aroundBoxes, boxOf } from "./bounds";
 import { cutSites } from "./cuts";
 import {
 	GAP,
 	hiddenOf,
+	insertionLabel,
 	KINDS,
 	type Kind,
 	LABEL_SIZE,
 	type Label,
-	labelOf,
 	type MapScene,
 	noticeShapes,
 	PAD_Y,
+	primerLabel,
 	SMALL_SIZE,
 } from "./labels";
 import type { Options } from "./options";
-import {
-	INK,
-	INSERTION,
-	INSERTION_WIDTH,
-	OUTLINE_WIDTH,
-	PRIMER,
-	shaded,
-} from "./paint";
-import { pieces, points, pointText, spanText } from "./pieces";
+import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
+import { pieces, points, spanText } from "./pieces";
 import type { Bounds, Record, Span } from "./record";
-import { type Box, leftEdge, type Shape } from "./scene";
+import type { Box, Shape } from "./scene";
 import { type Anchored, labelsAbove } from "./staircase";
-import {
-	baseline,
-	type Face,
-	height,
-	measure,
-	metrics,
-	textWidth,
-} from "./text";
+import { baseline, type Face, height, measure } from "./text";
 
 /** The line's length, unless a layout is given another. */
 const WIDTH = 720;
 
 /** How far an insertion's bar reaches past the backbone either side. */
-const INSERTION_REACH = 1.5;
+export const INSERTION_REACH = 1.5;
 
 // The backbone: each strand's line, and how far apart they are.
-const BACKBONE = 2.6;
-const STRANDS_APART = 3.8;
+export const BACKBONE = 2.6;
+export const STRANDS_APART = 3.8;
 
 // The dots at an end: where the first sits beyond the line, how far apart they are, and their size.
 const DOT_START = 7;
@@ -73,15 +62,16 @@ const DOT = 1.8;
 
 // The ruler's ticks under the backbone, and how far a number keeps from another and from the
 // origin's tick.
-const TICK = 6;
-const TICK_WIDTH = 1.2;
-const ORIGIN_TICK = 12;
-const ORIGIN_TICK_WIDTH = 2.4;
-const CLEAR = 10;
+export const TICK = 6;
+export const TICK_WIDTH = 1.2;
+export const ORIGIN_TICK = 12;
+export const ORIGIN_TICK_WIDTH = 2.4;
+export const CLEAR = 10;
 /** The most numbers the ruler gives along each `WIDTH` points of the line. */
 const NUMBERS = 10;
 
-const NAME_SIZE = 13.5;
+/** The size of the record's name. */
+export const NAME_SIZE = 13.5;
 
 /** The room left around everything a record's drawing covers. */
 export const MARGIN = 16;
@@ -137,7 +127,7 @@ const ORDER: { readonly [K in Kind]: number } = {
 };
 
 /** Lay out `record` as a line `width` long, drawn as `options` say. */
-export function layout(
+export function layoutLine(
 	record: Record,
 	options: Options,
 	width = WIDTH,
@@ -227,8 +217,8 @@ function features({
 	const middles: number[] = [];
 	for (let tier = 0; tier <= Math.max(-1, ...tiers); tier++) {
 		y += TIER_GAP;
-		middles.push(y + OVERHANG + BAND / 2);
-		y += 2 * OVERHANG + BAND;
+		middles.push(y + OVERHANG + SHAFT / 2);
+		y += 2 * OVERHANG + SHAFT;
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
 	const shapes = bars.flatMap((bar, i) =>
@@ -263,28 +253,24 @@ function cuts({ record, options, bounds, at, backboneTop }: Along): LineMarks {
  * by start, labelled by the primer's name and the bases the site spans.
  */
 function primers({ record, options, bounds, at }: Along): LineMarks {
-	const reach = overhang(PRIMER_BAND);
-	const step = PRIMER_BAND + 2 * reach + PRIMER_GAP;
-	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_BAND / 2;
+	const reach = overhang(PRIMER_SHAFT);
+	const step = PRIMER_SHAFT + 2 * reach + PRIMER_GAP;
+	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_SHAFT / 2;
 	const drawn: { arrow: Arrow; label: Label }[] = [];
 	for (const { name, sites } of record.primers) {
 		for (const site of sites) {
 			const { start, end } = site;
-			const label = labelOf(
-				{ kind: "primers", name, spans: [{ start, end }] },
-				[{ text: `${name} (${spanText(site, bounds.length)})`, face: "sans" }],
-				PRIMER,
-				options.highlight,
-			);
+			const label = primerLabel(name, site, bounds.length, options.highlight);
 			const { color } = label;
 			const colored = [{ start, end, color }];
+			const [headStart, headEnd] = headsOn(site.strand);
 			for (const piece of pieces(colored, options.span, bounds)) {
 				const arrow: Arrow = {
 					start: at(piece.start),
 					end: at(piece.end),
 					color,
-					headStart: piece.starts && site.strand === -1,
-					headEnd: piece.ends && site.strand === 1,
+					headStart: piece.starts && headStart,
+					headEnd: piece.ends && headEnd,
 					cutStart: piece.cutStart,
 					cutEnd: piece.cutEnd,
 				};
@@ -295,10 +281,10 @@ function primers({ record, options, bounds, at }: Along): LineMarks {
 	const middles = pack(drawn.map(({ arrow }) => arrow)).map(
 		(row) => first - row * step,
 	);
-	const tops = middles.map((middle) => middle - PRIMER_BAND / 2 - reach);
+	const tops = middles.map((middle) => middle - PRIMER_SHAFT / 2 - reach);
 	const shapes: Shape[] = drawn.map(({ arrow }, i) => ({
 		shape: "polygon",
-		points: outline(arrow, middles[i], PRIMER_BAND),
+		points: outline(arrow, middles[i], PRIMER_SHAFT),
 		fill: arrow.color,
 		stroke: shaded(arrow.color),
 		strokeWidth: OUTLINE_WIDTH,
@@ -331,13 +317,9 @@ function insertions({
 	];
 	for (const insertion of record.insertions) {
 		const point = insertion.at;
-		const hover = [insertion.name.trim(), pointText(point, bounds)]
-			.filter(Boolean)
-			.join(" · ");
-		const label = labelOf(
-			{ kind: "insertions", name: insertion.name, at: point },
-			[{ text: `+${insertion.length} bp`, face: "sans" }],
-			insertion.color?.toLowerCase() ?? INSERTION,
+		const { label, hover } = insertionLabel(
+			insertion,
+			bounds,
 			options.highlight,
 		);
 		const { color } = label;
@@ -364,55 +346,6 @@ function insertions({
 	return { ...NOTHING, shapes, labels, covers };
 }
 
-/** The box each shape takes, but a line, which takes none. */
-export function boxOf(shape: Shape): Box | null {
-	switch (shape.shape) {
-		case "line":
-			return null;
-		case "rect":
-			return shape;
-		case "polygon":
-			return around(shape.points);
-		case "path":
-			return around(
-				shape.commands.flatMap((command) => {
-					if (command[0] === "Z") return [];
-					// An arc's box is its ends', its bulge left out.
-					if (command[0] === "A") return [[command[4], command[5]] as const];
-					return [[command[1], command[2]] as const];
-				}),
-			);
-		case "circle":
-			return {
-				x: shape.cx - shape.r,
-				y: shape.cy - shape.r,
-				width: 2 * shape.r,
-				height: 2 * shape.r,
-			};
-		case "text": {
-			const width = textWidth(shape.text, shape.face, shape.size, shape.cell);
-			return {
-				x: leftEdge(shape, width),
-				y: shape.y - metrics(shape.face).ascent * shape.size,
-				width,
-				height: height(shape.face, shape.size),
-			};
-		}
-	}
-}
-
-/** The box around `points`, or nothing for none. */
-export function around(
-	points: readonly (readonly [x: number, y: number])[],
-): Box | null {
-	if (!points.length) return null;
-	const xs = points.map(([x]) => x);
-	const ys = points.map(([, y]) => y);
-	const x = Math.min(...xs);
-	const y = Math.min(...ys);
-	return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
-}
-
 /** What `shapes`, a backbone `width` long and the boxes `more` cover, and `MARGIN` beyond. */
 function extent(
 	shapes: readonly Shape[],
@@ -424,11 +357,7 @@ function extent(
 		...shapes.flatMap((shape) => boxOf(shape) ?? []),
 		...more,
 	];
-	const left = Math.min(...boxes.map((b) => b.x)) - MARGIN;
-	const top = Math.min(...boxes.map((b) => b.y)) - MARGIN;
-	const right = Math.max(...boxes.map((b) => b.x + b.width)) + MARGIN;
-	const bottom = Math.max(...boxes.map((b) => b.y + b.height)) + MARGIN;
-	return { x: left, y: top, width: right - left, height: bottom - top };
+	return aroundBoxes(boxes, MARGIN);
 }
 
 /**
@@ -489,7 +418,7 @@ function ruler(
  * The least of 1, 2 or 5 times a power of ten that gives at most `NUMBERS` numbers along each
  * `WIDTH` points of a line `width` long drawing `bases`.
  */
-function tickStep(bases: number, width: number): number {
+export function tickStep(bases: number, width = WIDTH): number {
 	for (let power = 1; ; power *= 10) {
 		for (const factor of [1, 2, 5]) {
 			if (factor * power * NUMBERS * width >= bases * WIDTH) {
@@ -512,16 +441,36 @@ function title(
 ): Shape[] {
 	const bases = span.end - span.start;
 	const whole = span.start === 0 && span.end === length;
-	const lines: [string, Face, number][] = [
-		...(name.trim()
-			? [[name, "sans-bold", NAME_SIZE] as [string, Face, number]]
-			: []),
-		[
-			whole ? `${length} bp` : `${spanText(span, length)} (${bases} bp)`,
-			"sans",
-			SMALL_SIZE,
-		],
+	const under = whole
+		? `${length} bp`
+		: `${spanText(span, length)} (${bases} bp)`;
+	return titleShapes(
+		titleLines(name.trim() ? [name] : [], under),
+		width / 2,
+		top,
+	);
+}
+
+/** One line of a title: its text, face and size. */
+export type TitleLine = readonly [text: string, face: Face, size: number];
+
+/** A title's lines: each of `names` in bold, then `under`. */
+export function titleLines(
+	names: readonly string[],
+	under: string,
+): TitleLine[] {
+	return [
+		...names.map((text): TitleLine => [text, "sans-bold", NAME_SIZE]),
+		[under, "sans", SMALL_SIZE],
 	];
+}
+
+/** `lines` set one under another from `top`, each centred on `x`. */
+export function titleShapes(
+	lines: readonly TitleLine[],
+	x: number,
+	top: number,
+): Shape[] {
 	const shapes: Shape[] = [];
 	let y = top;
 	for (const [text, face, size] of lines) {
@@ -531,7 +480,7 @@ function title(
 			text,
 			face,
 			size,
-			x: width / 2,
+			x,
 			y: baseline(face, size, y + h / 2),
 			anchor: "middle",
 			fill: INK,

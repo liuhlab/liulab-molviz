@@ -51,7 +51,7 @@ type Problem = readonly [keys: readonly Key[], message: string];
  * A rule across the parts of a well-formed value, which reports each problem at the part it
  * concerns.
  */
-function rule<T>(find: (value: T) => Iterable<Problem>) {
+export function rule<T>(find: (value: T) => Iterable<Problem>) {
 	return v.rawCheck<T>(({ dataset, addIssue }) => {
 		if (!dataset.typed) return;
 		for (const [keys, message] of find(dataset.value)) {
@@ -360,6 +360,9 @@ export type Record = v.InferOutput<ReturnType<typeof recordSchema>>;
 
 /** One of a record's features. */
 export type Feature = Record["features"][number];
+
+/** One of a record's insertions. */
+export type Insertion = Record["insertions"][number];
 
 /**
  * What a record's coordinates are checked against. Where `bases` or `circular` is malformed

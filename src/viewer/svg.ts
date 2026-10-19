@@ -11,6 +11,7 @@ import {
 	twoDecimals,
 } from "./scene";
 import {
+	type Face,
 	families,
 	glyphs,
 	inFace,
@@ -163,6 +164,33 @@ function tag(shape: Shape, defined?: Defined): Tag {
 					...stroke(shape),
 				],
 			};
+		case "letters": {
+			const { text, face, size, fill, places } = shape;
+			if (defined) {
+				return {
+					name: "g",
+					attributes: [["fill", fill]],
+					children: [...text].flatMap(
+						(letter, i) => glyph(letter, face, size, places[i], defined) ?? [],
+					),
+				};
+			}
+			const list = (i: 0 | 1 | 2) =>
+				places.map((place) => twoDecimals(place[i])).join(" ");
+			return {
+				name: "text",
+				attributes: [
+					["x", list(0)],
+					["y", list(1)],
+					["rotate", list(2)],
+					["font-family", families[face]],
+					["font-size", twoDecimals(size)],
+					["font-weight", String(weights[face])],
+					["fill", fill],
+				],
+				text: inFace(text, face),
+			};
+		}
 		case "rect":
 			return {
 				name: "rect",
@@ -205,13 +233,11 @@ function tag(shape: Shape, defined?: Defined): Tag {
 						],
 					});
 				}
+				const at = `translate(${twoDecimals(x)} ${twoDecimals(y)}) scale(${scale})`;
 				return {
 					name: "g",
 					attributes: [
-						[
-							"transform",
-							`translate(${twoDecimals(x)} ${twoDecimals(y)}) scale(${scale})`,
-						],
+						["transform", [...turn(shape), at].join(" ")],
 						["fill", fill],
 					],
 					children: uses,
@@ -236,11 +262,42 @@ function tag(shape: Shape, defined?: Defined): Tag {
 						? ([["textLength", twoDecimals(width)]] as const)
 						: []),
 					["fill", fill],
+					...turn(shape).map((rotation) => ["transform", rotation] as const),
 				],
 				text: inFace(text, face),
 			};
 		}
 	}
+}
+
+/** The rotation turning text about its `x` and `y`, or none if it does not turn. */
+function turn({ x, y, rotate }: Extract<Shape, { shape: "text" }>): string[] {
+	if (rotate === undefined) return [];
+	return [`rotate(${twoDecimals(rotate)} ${twoDecimals(x)} ${twoDecimals(y)})`];
+}
+
+/**
+ * A use of one letter's glyph, which it adds to `defined`, starting at `x` and `y` on its
+ * baseline and turned `rotate` degrees clockwise there; `null` for a letter with no ink.
+ */
+function glyph(
+	letter: string,
+	face: Face,
+	size: number,
+	[x, y, rotate]: readonly [number, number, number],
+	defined: Defined,
+): Tag | null {
+	const [first] = glyphs(letter, face, size);
+	if (!first?.outline) return null;
+	defined.set(first.id, first.outline);
+	const at = `translate(${twoDecimals(x)} ${twoDecimals(y)}) rotate(${twoDecimals(rotate)})`;
+	return {
+		name: "use",
+		attributes: [
+			["xlink:href", `#${first.id}`],
+			["transform", `${at} scale(${size / unitsPerEm(face)})`],
+		],
+	};
 }
 
 /** One step of a path as path data, every number with two decimals. */

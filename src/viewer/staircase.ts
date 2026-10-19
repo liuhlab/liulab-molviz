@@ -1,12 +1,15 @@
 /** Labels set above the line in a staircase, each on a leader down to what it names. */
 
-import { GAP, hidingOrder, type Label, labelShapes, labelSize } from "./labels";
-import { LEADER } from "./paint";
+import {
+	GAP,
+	hidingOrder,
+	type Label,
+	labelShapes,
+	labelSize,
+	SPACING,
+} from "./labels";
+import { LEADER, LEADER_WIDTH } from "./paint";
 import type { Box, Shape } from "./scene";
-
-/** The room between two boxes. */
-const SPACING = 2;
-const LEADER_WIDTH = 0.8;
 
 /** How far above the line a box may reach, at any length of line, unless told otherwise. */
 const RISE = 730;
