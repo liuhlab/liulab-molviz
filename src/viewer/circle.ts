@@ -4,7 +4,9 @@
  */
 
 import {
+	type ColoredFeature,
 	coloredFeatures,
+	disagreementBars,
 	HEAD,
 	headsOn,
 	OVERHANG,
@@ -18,9 +20,11 @@ import { aroundBoxes, boxOf } from "./bounds";
 import { columns, type Point, REACH, type Unplaced } from "./columns";
 import { cutSites } from "./cuts";
 import {
+	disagreementLabel,
 	hiddenOf,
 	hidingOrder,
 	insertionLabel,
+	type Kind,
 	LABEL_SIZE,
 	type Label,
 	labelShapes,
@@ -30,6 +34,7 @@ import {
 	PAD_X,
 	PAD_Y,
 	primerLabel,
+	readLabel,
 	SMALL_SIZE,
 } from "./labels";
 import {
@@ -135,13 +140,16 @@ export function layoutCircle(
 	};
 	const off = new Set(options.kinds_off);
 	const middle = centre(record.name, circle);
-	const drawn = off.has("features")
-		? []
-		: features(record, options, circle, middle.reach);
-	const sites = off.has("primers") ? [] : primers(record, options, circle);
-	const marks = off.has("insertions")
-		? []
-		: insertions(record, options, circle);
+	const drawn = features(
+		[
+			...(off.has("features") ? [] : coloredFeatures(record, options)),
+			...(off.has("disagreements") ? [] : disagreementBars(record, options)),
+		],
+		circle,
+		middle.reach,
+	);
+	const sites = primers(record, options, circle, off);
+	const marks = insertions(record, options, circle, off);
 	const backboneEdge = circle.radius + BACKBONE / 2;
 	const drawing = Math.max(
 		backboneEdge,
@@ -235,22 +243,31 @@ function leader(from: Point, to: Point): Shape {
 }
 
 /**
- * Each insertion as a bar across the backbone at its point, labelled with what it adds, its name
- * and point on hover.
+ * Each insertion, then each disagreement at a point, as a bar across the backbone at its point in
+ * its colour, labelled with what the insertion adds or the disagreement's name, its name and
+ * point on hover.
  */
 function insertions(
 	record: Record,
 	options: Options,
 	circle: Circle,
+	off: ReadonlySet<Kind>,
 ): { bar: Shape; label: Label; angle: number }[] {
 	const bounds = { length: circle.length, circular: true };
-	return record.insertions.map((insertion) => {
-		const { label, hover } = insertionLabel(
-			insertion,
-			bounds,
-			options.highlight,
-		);
-		const angle = angleOf(insertion.at, circle);
+	const { highlight } = options;
+	const found = [
+		...(off.has("insertions") ? [] : record.insertions).map((insertion) => ({
+			at: insertion.at,
+			...insertionLabel(insertion, bounds, highlight),
+		})),
+		...(off.has("disagreements") ? [] : record.disagreements).flatMap((one) =>
+			one.at === undefined
+				? []
+				: [{ at: one.at, ...disagreementLabel(one, bounds, highlight) }],
+		),
+	];
+	return found.map(({ at, label, hover }) => {
+		const angle = angleOf(at, circle);
 		const [x1, y1] = pointAt(inside(circle) - INSERTION_REACH, angle);
 		const [x2, y2] = pointAt(
 			circle.radius + BACKBONE / 2 + INSERTION_REACH,
@@ -300,16 +317,14 @@ function arc(radius: number, start: number, end: number): PathCommand[] {
 }
 
 /**
- * Each feature's arrows on rings inside the ruler, each ring as far in as the room allows and no
- * nearer the centre than `clear`.
+ * The arrows of each of `shown`, a feature or a disagreement over a span, on rings inside the
+ * ruler, each ring as far in as the room allows and no nearer the centre than `clear`.
  */
 function features(
-	record: Record,
-	options: Options,
+	shown: readonly ColoredFeature[],
 	circle: Circle,
 	clear: number,
 ): CircleFeature[] {
-	const shown = coloredFeatures(record, options);
 	const hulls = shown.map(({ feature }) => hullOf(feature, circle.length));
 	const onRing = rings(hulls, circle);
 	const count = Math.max(0, ...onRing) + 1;
@@ -494,26 +509,37 @@ function arrowShape(arrow: Arrow): Shape {
 }
 
 /**
- * Each primer site as a thin arrow outside the backbone, its head at the 3' end, overlapping
- * sites on rings further out, and its label: the primer's name and the bases the site spans.
+ * Each primer site, then each read, as a thin arrow outside the backbone, its head at the 3' end,
+ * overlapping ones on rings further out, and its label: its name and the bases it spans.
  */
 function primers(
 	record: Record,
 	options: Options,
 	circle: Circle,
+	off: ReadonlySet<Kind>,
 ): { arrow: Arrow; label: Label; hull: Span }[] {
-	const sites = record.primers.flatMap(({ name, sites }) =>
-		sites.map((site) => ({ name, site })),
-	);
+	const { length } = circle;
+	const { highlight } = options;
+	const sites = [
+		...(off.has("primers") ? [] : record.primers).flatMap(({ name, sites }) =>
+			sites.map((site) => ({
+				site,
+				label: primerLabel(name, site, length, highlight),
+			})),
+		),
+		...(off.has("reads") ? [] : record.reads).map((read) => ({
+			site: read,
+			label: readLabel(read, length, highlight),
+		})),
+	];
 	const hulls = sites.map(({ site }) => ({ start: site.start, end: site.end }));
 	const onRing = rings(hulls, circle);
 	const beyond = overhang(PRIMER_SHAFT);
 	const step = PRIMER_SHAFT + 2 * beyond + PRIMER_GAP;
 	const first =
 		circle.radius + BACKBONE / 2 + PRIMER_GAP + beyond + PRIMER_SHAFT / 2;
-	return sites.map(({ name, site }, i) => {
+	return sites.map(({ site, label }, i) => {
 		const hull = hulls[i];
-		const label = primerLabel(name, hull, circle.length, options.highlight);
 		const radius = first + onRing[i] * step;
 		const start = angleOf(site.start, circle);
 		const end = angleOf(site.end, circle);

@@ -78,9 +78,9 @@ sets one.
     names.
   - Where labels crowd, a read's label hides after a primer's and before a feature's. A
     disagreement's label hides last. The notice counts them as reads and disagreements.
-  - The line draws a read as it draws a primer, in the primers' rows. A disagreement over a
-    span is a bar in its colour, in the features' tiers. One at a point is a mark in its colour,
-    as an insertion's is, labelled with its name.
+  - The line and the circle draw a read as they draw a primer, among the primers. A
+    disagreement over a span is a bar in its colour among the features. One at a point is a
+    mark in its colour, as an insertion's is, labelled with its name.
 
 ### Removed
 
