@@ -12,6 +12,9 @@ export interface Piece {
 	/** Whether the feature itself starts at `start`, and ends at `end`, not the span cutting it. */
 	readonly starts: boolean;
 	readonly ends: boolean;
+	/** Whether the span cuts its segment or gap at `start`, and at `end`. */
+	readonly cutStart: boolean;
+	readonly cutEnd: boolean;
 }
 
 /**
@@ -45,6 +48,8 @@ export function pieces(
 				color,
 				starts: from === first + shift,
 				ends: to === last + shift,
+				cutStart: from > low + shift,
+				cutEnd: to < high + shift,
 			});
 		}
 	}

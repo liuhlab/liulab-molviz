@@ -221,7 +221,9 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 			color: painted(colorOf(feature, segment), label.dim),
 		}));
 		const found = pieces(colored, options.span, bounds);
-		bars.push(...barsOf(feature, label, found, at));
+		bars.push(
+			...barsOf(feature, label, found, at).filter((bar) => bar.arrows.length),
+		);
 	}
 	const tiers = pack(bars);
 	const placed = places(bars, tiers);
@@ -329,6 +331,8 @@ function primers({ record, options, bounds, at }: Along): Drawn {
 					color,
 					headStart: piece.starts && site.strand === -1,
 					headEnd: piece.ends && site.strand === 1,
+					cutStart: piece.cutStart,
+					cutEnd: piece.cutEnd,
 				};
 				drawn.push({ arrow, label });
 			}
@@ -406,8 +410,8 @@ function insertions({
 	return { ...NOTHING, shapes, labels, covers };
 }
 
-/** The box each shape takes, a line's stroke left out. */
-function bounds(shape: Shape): Box | null {
+/** The box each shape takes, but a line, which takes none. */
+export function boxOf(shape: Shape): Box | null {
 	switch (shape.shape) {
 		case "line":
 			return null;
@@ -432,7 +436,10 @@ function bounds(shape: Shape): Box | null {
 				height: 2 * shape.r,
 			};
 		case "text": {
-			const width = measure(shape.text, shape.face, shape.size);
+			const width =
+				shape.cell === undefined
+					? measure(shape.text, shape.face, shape.size)
+					: [...shape.text].length * shape.cell;
 			return {
 				x: leftEdge(shape, width),
 				y: shape.y - metrics(shape.face).ascent * shape.size,
@@ -463,7 +470,7 @@ function extent(
 ): Box {
 	const boxes = [
 		{ x: 0, y: -BACKBONE / 2, width, height: STRANDS_APART + BACKBONE },
-		...shapes.flatMap((shape) => bounds(shape) ?? []),
+		...shapes.flatMap((shape) => boxOf(shape) ?? []),
 		...more,
 	];
 	const left = Math.min(...boxes.map((b) => b.x)) - MARGIN;

@@ -13,6 +13,9 @@ const HEAD = 12;
 const BAR_GAP = 3;
 export const TIER_GAP = 4;
 
+/** How deep the teeth of a zigzag edge are. */
+const ZIGZAG = 4;
+
 /** One segment's arrow along the line. */
 export interface Arrow {
 	readonly start: number;
@@ -20,6 +23,9 @@ export interface Arrow {
 	readonly color: string;
 	readonly headStart: boolean;
 	readonly headEnd: boolean;
+	/** Whether the span or a row cuts it at `start`, and at `end`. */
+	readonly cutStart: boolean;
+	readonly cutEnd: boolean;
 }
 
 /** Pieces of a feature that follow on from one another, drawn as one bar in one tier. */
@@ -40,7 +46,10 @@ export type Place = { inside: Arrow } | { under: number } | "boxed" | null;
 
 type Feature = Record["features"][number];
 
-/** The bars `found` draws, each run of pieces that follow on from one another, named by `label`. */
+/**
+ * The bars `found` draws, each run of pieces that follow on from one another, named by `label`.
+ * A run of a gap alone is a bar with no arrows.
+ */
 export function barsOf(
 	feature: Feature,
 	label: Label,
@@ -72,9 +81,10 @@ export function barsOf(
 				headStart:
 					piece.starts && (feature.strand === -1 || feature.strand === 2),
 				headEnd: piece.ends && (feature.strand === 1 || feature.strand === 2),
+				cutStart: piece.cutStart,
+				cutEnd: piece.cutEnd,
 			});
 		}
-		if (arrows.length === 0) continue;
 		bars.push({
 			start: at(group[0].start),
 			end: at(group[group.length - 1].end),
@@ -132,12 +142,14 @@ function room(arrow: Arrow): number {
 
 /**
  * Where each bar's name goes. Inside the arrow with most room, when it fits there. Otherwise
- * under the bar, centred, when it meets no other bar in its tier and no name already set under
- * one there. Otherwise in a box.
+ * under the bar, centred, and kept from 0 to `width` if given and it fits, when it meets no other
+ * bar in its tier and no name already set under one there. Otherwise in a box. A bar with no
+ * arrows takes no name.
  */
 export function places(
 	bars: readonly Bar[],
 	tiers: readonly number[],
+	width?: number,
 ): Place[] {
 	const placed: Place[] = bars.map(() => "boxed");
 	const lineHeight = height("sans", LABEL_SIZE);
@@ -153,44 +165,52 @@ export function places(
 		for (const i of inTier) {
 			const bar = bars[i];
 			const { name } = bar.label;
-			if (!name.trim()) {
+			if (!name.trim() || !bar.arrows.length) {
 				placed[i] = null;
 				continue;
 			}
-			const width = measure(name, "sans", LABEL_SIZE);
+			const wide = measure(name, "sans", LABEL_SIZE);
 			const roomiest = bar.arrows.reduce((a, b) => (room(b) > room(a) ? b : a));
-			if (width + 2 * PAD_X <= room(roomiest) && lineHeight <= BAND) {
+			if (wide + 2 * PAD_X <= room(roomiest) && lineHeight <= BAND) {
 				placed[i] = { inside: roomiest };
 				continue;
 			}
-			const left = (bar.start + bar.end - width) / 2;
+			const centred = (bar.start + bar.end - wide) / 2;
+			const left =
+				width !== undefined && wide <= width
+					? Math.min(Math.max(centred, 0), width - wide)
+					: centred;
 			const near = inTier.some(
 				(j) =>
 					j !== i &&
 					bars[j].end > left - BAR_GAP &&
-					bars[j].start < left + width + BAR_GAP,
+					bars[j].start < left + wide + BAR_GAP,
 			);
 			if (left < last + BAR_GAP || near) continue;
 			placed[i] = { under: left };
-			last = left + width;
+			last = left + wide;
 		}
 	}
 	return placed;
 }
 
 /**
- * The outline of `arrow` about the height `middle`: its band `band` thick, and a head at each end
- * it has.
+ * The outline of `arrow` about the height `middle`: its band `band` thick, a head at each end it
+ * has, and with `zigzag` a zigzag edge at each end where it is cut, if its band has room.
  */
 export function outline(
 	arrow: Arrow,
 	middle: number,
 	band = BAND,
+	zigzag = false,
 ): [number, number][] {
 	const [first, last] = body(arrow);
 	const reach = overhang(band);
 	const top = middle - band / 2;
 	const bottom = middle + band / 2;
+	const quarter = band / 4;
+	// Teeth need room on the band, which a head may fill.
+	const teeth = zigzag && last - first >= 2 * ZIGZAG;
 	const points: [number, number][] = [];
 	if (arrow.headStart) {
 		points.push([arrow.start, middle], [first, top - reach]);
@@ -202,9 +222,22 @@ export function outline(
 			[arrow.end, middle],
 			[last, bottom + reach],
 		);
+	} else if (teeth && arrow.cutEnd) {
+		points.push(
+			[last - ZIGZAG, middle - quarter],
+			[last, middle],
+			[last - ZIGZAG, middle + quarter],
+		);
 	}
 	points.push([last, bottom], [first, bottom]);
 	if (arrow.headStart) points.push([first, bottom + reach]);
+	else if (teeth && arrow.cutStart) {
+		points.push(
+			[first + ZIGZAG, middle + quarter],
+			[first, middle],
+			[first + ZIGZAG, middle - quarter],
+		);
+	}
 	return points;
 }
 
