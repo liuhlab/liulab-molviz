@@ -62,8 +62,9 @@ export const INK = "#252525";
 export const CONNECTOR = "#666666";
 export const CONNECTOR_WIDTH = 1.5;
 
-/** The line from a label to what it names. */
+/** The line from a label to what it names, and its thickness. */
 export const LEADER = "#7f7f7f";
+export const LEADER_WIDTH = 0.8;
 
 /** The sequence view's rail and its ticks. */
 export const RAIL = LEADER;

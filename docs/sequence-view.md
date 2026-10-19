@@ -1,8 +1,9 @@
 # The sequence view
 
 This page draws each test record with its sequence view, in your browser, when the page opens.
-The map comes first, and the sequence view sits under it. The page uses the same viewer the
-Python package carries, so what you see here is what a page written by the package shows.
+The map comes first, and the sequence view sits under it. A circular record's map is the
+circle. The page uses the same viewer the Python package carries, so what you see here is what
+a page written by the package shows.
 
 The sequence view sets the bases in rows of 60. The top strand runs over the bottom strand,
 with a rail of ticks between them, one tick for each base. A number stands over every tenth
@@ -117,19 +118,6 @@ An N inside a CDS, so one codon reads as X, and an EcoRI cut at the origin.
 </script>
 </div>
 
-## crowded-sites
-
-A circle where 40 enzymes cut within 143 bases. The map hides some of their labels; the sequence view draws every cut site it is given.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
-<script type="application/json" data-options>
-{"sequence_view": true}
-</script>
-</div>
-
 ## puc19-gfp-product, with GFP lit
 
 GFP and the two primers that copy it are lit. They keep their colours, and everything else turns pale grey, in the map and in the sequence view alike.
@@ -179,18 +167,5 @@ Rows of 20 bases instead of 60.
 </script>
 <script type="application/json" data-options>
 {"sequence_view": true, "bases_per_row": 20}
-</script>
-</div>
-
-## crowded-sites, with every enzyme
-
-The cut sites of all 40 enzymes. The map hides many of their labels, and the sequence view hides none.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
-<script type="application/json" data-options>
-{"sequence_view": true, "enzymes": ["AatII", "Acc65I", "AflII", "AgeI", "AscI", "AvrII", "BamHI", "BanII", "BglII", "BsaI", "BsiWI", "BsmBI", "ClaI", "EcoRI", "EcoRV", "Esp3I", "HindIII", "HpaI", "KpnI", "MfeI", "MluI", "NcoI", "NdeI", "NheI", "NotI", "NruI", "NsiI", "PacI", "PmeI", "PstI", "SacI", "SalI", "SmaI", "SnaBI", "SpeI", "SphI", "StuI", "XbaI", "XhoI", "XmaI"]}
 </script>
 </div>

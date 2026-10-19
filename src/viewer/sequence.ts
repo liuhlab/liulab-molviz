@@ -4,7 +4,6 @@
  */
 
 import {
-	BAND,
 	barShapes,
 	barsOf,
 	type ColoredFeature,
@@ -13,10 +12,12 @@ import {
 	OVERHANG,
 	pack,
 	places,
+	SHAFT,
 	TIER_GAP,
 } from "./arrows";
+import { aroundBoxes, boxOf } from "./bounds";
 import { LABEL_SIZE, type Label, PAD_Y, SMALL_SIZE } from "./labels";
-import { around, boxOf, MARGIN } from "./line";
+import { MARGIN } from "./line";
 import type { Options } from "./options";
 import { INK, RAIL } from "./paint";
 import { pieces } from "./pieces";
@@ -261,8 +262,8 @@ function featureBars(
 			chipped = Math.max(chipped, over.bottom);
 		}
 		y = chipped;
-		middles.push(y + OVERHANG + BAND / 2);
-		y += 2 * OVERHANG + BAND;
+		middles.push(y + OVERHANG + SHAFT / 2);
+		y += 2 * OVERHANG + SHAFT;
 		if (tiers.some((t, i) => t === tier && isUnder(placed[i]))) {
 			y += PAD_Y + lineHeight;
 		}
@@ -377,14 +378,4 @@ function complement(bases: string): string {
 /** The number of the base before `end` as a reader reads it. */
 function lastText(end: number, length: number): string {
 	return String(((end - 1) % length) + 1);
-}
-
-/** The box around `boxes`, of which there is at least one. */
-function aroundBoxes(boxes: readonly Box[]): Box {
-	return around(
-		boxes.flatMap(({ x, y, width, height }) => [
-			[x, y],
-			[x + width, y + height],
-		]),
-	) as Box;
 }

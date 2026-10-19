@@ -1,9 +1,10 @@
 /** An input drawn as SVG text, with no DOM. */
 
+import { layoutCircle } from "./circle";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
-import { layout } from "./line";
+import { layoutLine } from "./line";
 import { checkOptions } from "./options";
 import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
@@ -32,8 +33,8 @@ export interface Views {
 }
 
 /**
- * Check `record`, then `options` against it, and lay the record's map out as they say. Throws
- * one FormatError naming every problem in the record, or else in the options.
+ * Check `record`, then `options` against it, and lay the record out on the map they name.
+ * Throws one FormatError naming every problem in the record, or else in the options.
  */
 export function prepare(record: unknown, options: unknown): MapScene {
 	return prepareViews(record, options).map;
@@ -48,7 +49,10 @@ export function prepareViews(
 	const checked = check(record);
 	const drawn = checkOptions(options, checked, where);
 	return {
-		map: layout(checked, drawn),
+		map:
+			drawn.map === "circle"
+				? layoutCircle(checked, drawn)
+				: layoutLine(checked, drawn),
 		sequence: drawn.sequence_view ? layoutSequence(checked, drawn) : null,
 	};
 }

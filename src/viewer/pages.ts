@@ -1,6 +1,6 @@
 /** A map with its sequence view under it, as a file draws them, and the view cut into PDF pages. */
 
-import { boxOf } from "./line";
+import { boxOf } from "./bounds";
 import { type Box, moved, type Scene, type Shape } from "./scene";
 import type { SequenceScene } from "./sequence";
 
