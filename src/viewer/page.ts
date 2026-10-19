@@ -148,9 +148,9 @@ export function openPage(
 		const scene = held === null ? laid : { ...laid, extent: held };
 		if (map.zoom === 1) sizes.set(name, scene.extent);
 		const svg = toElement(scene, document);
-		hoverBox(svg);
 		if (shown === null) box.append(svg);
 		else shown.svg.replaceWith(svg);
+		hoverBox(svg);
 		shown = { name, zoom: map.zoom, extent: scene.extent, svg };
 		sizeToRoom();
 		if (flipped) {

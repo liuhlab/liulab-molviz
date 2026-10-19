@@ -23,23 +23,25 @@ const STYLE = [
 	`font:12px/1.4 "${families.sans}", sans-serif`,
 ].join(";");
 
-/** The documents whose pointer the box follows. */
-const followed = new WeakSet<Document>();
+/** For each document whose pointer the box follows, the shape it shows the hover of, if any. */
+const followed = new WeakMap<Document, { over: Element | null }>();
 
 /** One box a page shows, for each of its drawings. */
 const boxes = new WeakMap<Document, HTMLElement>();
 
 /**
- * Show the hovers of `svg`, drawn on a page, in a box the moment the pointer rests on one, in
+ * Show the hovers of `svg`, just put on a page, in a box the moment the pointer rests on one, in
  * place of each `<title>`: its first line in bold, then the rest, `OFFSET` off the pointer and
- * flipped at the window's edge.
+ * flipped at the window's edge. A box showing a shape no longer on the page hides.
  */
 export function hoverBox(svg: SVGSVGElement): void {
 	for (const title of [...svg.querySelectorAll("title")]) {
 		title.parentElement?.setAttribute(HOVER, title.textContent ?? "");
 		title.remove();
 	}
-	follow(svg.ownerDocument);
+	const document = svg.ownerDocument;
+	const { over } = follow(document);
+	if (over !== null && !over.isConnected) hide(document);
 }
 
 /**
@@ -60,26 +62,26 @@ export function boxPlace(
 	};
 }
 
-/** Show the box over each hover the pointer rests on in `document`, once a drawing asks. */
-function follow(document: Document): void {
-	if (followed.has(document)) return;
-	followed.add(document);
-	let shown: Element | null = null;
-	const hide = () => {
-		boxes.get(document)?.setAttribute("hidden", "");
-		shown = null;
-	};
+/**
+ * Show the box over each hover the pointer rests on in `document`, once a drawing asks. Returns
+ * what the box shows.
+ */
+function follow(document: Document): { over: Element | null } {
+	const kept = followed.get(document);
+	if (kept) return kept;
+	const shows: { over: Element | null } = { over: null };
+	followed.set(document, shows);
 	document.addEventListener("pointermove", (event) => {
 		const target = event.target as Partial<Element> | null;
 		const over = target?.closest?.(`[${HOVER}]`) ?? null;
 		if (over === null) {
-			hide();
+			hide(document);
 			return;
 		}
 		const box = boxIn(document);
-		if (over !== shown) {
+		if (over !== shows.over) {
 			say(box, over.getAttribute(HOVER) ?? "");
-			shown = over;
+			shows.over = over;
 		}
 		box.hidden = false;
 		const window = document.defaultView;
@@ -92,8 +94,16 @@ function follow(document: Document): void {
 		box.style.top = `${top}px`;
 	});
 	document.addEventListener("pointerout", (event) => {
-		if (event.relatedTarget === null) hide();
+		if (event.relatedTarget === null) hide(document);
 	});
+	return shows;
+}
+
+/** Hide `document`'s box, showing nothing. */
+function hide(document: Document): void {
+	boxes.get(document)?.setAttribute("hidden", "");
+	const shows = followed.get(document);
+	if (shows) shows.over = null;
 }
 
 /** The page's box, added to `document` hidden if it has none. */

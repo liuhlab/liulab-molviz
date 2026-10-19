@@ -135,6 +135,26 @@ describe("the wheel over the circle", () => {
 	});
 });
 
+test("a turn or a zoom under a still pointer hides the hover box, its item gone", async () => {
+	const page = opened(ring);
+	const floating = () =>
+		document.querySelector<HTMLElement>("body > div:not(:has(svg))");
+	const rest = () =>
+		page.box
+			.querySelector("[data-molviz-hover]")
+			?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
+	rest();
+	expect(floating()?.hidden).toBe(false);
+	wheel(page, { deltaY: 100 });
+	await frame();
+	expect(floating()?.hidden).toBe(true);
+	rest();
+	expect(floating()?.hidden).toBe(false);
+	wheel(page, { deltaY: -100, ctrlKey: true });
+	await frame();
+	expect(floating()?.hidden).toBe(true);
+});
+
 test("the turn survives a flip to the line and back", async () => {
 	const page = opened(ring);
 	wheel(page, { deltaY: -500 });
