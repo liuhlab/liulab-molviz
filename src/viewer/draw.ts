@@ -42,15 +42,16 @@ export function draw(
 
 /**
  * Draw `records` stacked, each with `options`, into `element`, after what it holds, its letters
- * as real text. A still drawing, with no switches. Throws one FormatError naming every problem
- * in the records, or else in the options.
+ * as real text. A still drawing, with no switches. A span past the sequence view's limit leaves
+ * the view out. Throws one FormatError naming every problem in the records, or else in the
+ * options.
  */
 export function drawFigure(
 	element: Element,
 	records: unknown,
 	options: unknown = {},
 ): LiveDrawing {
-	return drawScene(element, prepareFigure(records, options));
+	return drawScene(element, prepareFigure(records, options, { page: true }));
 }
 
 /**

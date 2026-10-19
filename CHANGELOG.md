@@ -71,8 +71,8 @@ sets one.
 - `Drawing.write` refuses a PNG past 2**22 pixels on a side or 2**28 in all, and says to write
   a PDF instead.
 - In the viewer, `molviz.SEQUENCE_VIEW_LIMIT`, and the sequence view drawn under the map by
-  `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` leaves the view out, and
-  `molviz.svg` raises an error.
+  `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` and `molviz.drawFigure` leave
+  the view out, and `molviz.svg`, `molviz.figureSvg` and the still calls raise an error.
 
 ### Removed
 

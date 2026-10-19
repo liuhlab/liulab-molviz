@@ -51,10 +51,14 @@ interface Laid {
 	readonly circle: boolean;
 }
 
-/** Check `records`, then `options` against each, and lay each record's views out. */
-function layOut(records: unknown, options: unknown): Laid[] {
+/** Check `records`, then `options` against each, for a `page` or a file, and lay each out. */
+function layOut(
+	records: unknown,
+	options: unknown,
+	where: { page?: boolean } = {},
+): Laid[] {
 	const checked = checkFigure(records);
-	const each = checkEach(options, checked);
+	const each = checkEach(options, checked, where);
 	return checked.map((record, i) => ({
 		name: record.name,
 		views: layoutViews(record, each[i]),
@@ -78,10 +82,14 @@ function whole(laid: readonly Laid[]): MapScene {
 
 /**
  * Check `records`, then `options` against each, and lay the records out stacked, each as `svg`
- * draws it.
+ * draws it, or on a `page` as `draw` does.
  */
-export function prepareFigure(records: unknown, options: unknown): MapScene {
-	return whole(layOut(records, options));
+export function prepareFigure(
+	records: unknown,
+	options: unknown,
+	where: { page?: boolean } = {},
+): MapScene {
+	return whole(layOut(records, options, where));
 }
 
 /** A figure laid out as a file draws it. */
@@ -135,15 +143,20 @@ export function figureSvg(records: unknown, options: unknown = {}): Drawing {
 }
 
 /**
- * `input` as options for each of `records`, or one FormatError naming each problem once. A
- * problem only some records have names them after its path, as `options.span.end (records[1])`.
+ * `input` as options for each of `records`, on a `page` or else in a file, or one FormatError
+ * naming each problem once. A problem only some records have names them after its path, as
+ * `options.span.end (records[1])`.
  */
-function checkEach(input: unknown, records: readonly Record[]): Options[] {
+function checkEach(
+	input: unknown,
+	records: readonly Record[],
+	{ page = false }: { page?: boolean },
+): Options[] {
 	const checked: Options[] = [];
 	const problems = new Map<string, number[]>();
 	for (const [i, record] of records.entries()) {
 		try {
-			checked.push(checkOptions(input, record, { drawn: records }));
+			checked.push(checkOptions(input, record, { page, drawn: records }));
 		} catch (error) {
 			if (!(error instanceof FormatError)) throw error;
 			for (const line of error.message.split("\n")) {

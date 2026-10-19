@@ -288,6 +288,12 @@ test.each([
 			"options.sequence_view: must be false past 100,000 bases, and the span holds 100,004",
 	},
 	{
+		call: () =>
+			figureStillSvg([{ ...record, bases: "ACGT".repeat(25_001) }], view),
+		problem:
+			"options.sequence_view: must be false past 100,000 bases, and the span holds 100,004",
+	},
+	{
 		call: () => gelStillSvg({ ...gel, lanes: [{ name: "GFP" }] }),
 		problem: "lanes[0].bands: missing",
 	},

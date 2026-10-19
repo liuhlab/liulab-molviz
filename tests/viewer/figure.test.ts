@@ -304,6 +304,14 @@ describe("figureSvg", () => {
 			],
 		],
 		[
+			"a sequence view past 100,000 bases, as a page would leave out",
+			[{ ...first, bases: "ACGT".repeat(25_001) }],
+			{ sequence_view: true },
+			[
+				"options.sequence_view: must be false past 100,000 bases, and the span holds 100,004",
+			],
+		],
+		[
 			"the circle over a span short of one record's whole, naming that record",
 			[firstRing, secondRing],
 			{ map: "circle", span: { start: 0, end: 100 } },
@@ -337,6 +345,16 @@ describe("drawFigure", () => {
 		).toHaveLength(4);
 		drawing.destroy();
 		expect(element.children).toHaveLength(0);
+	});
+
+	test("leaves the sequence views out past 100,000 bases, with no error", () => {
+		const long = { ...first, bases: "ACGT".repeat(25_001) };
+		const records = [long, { ...long, name: "round 2" }];
+		const element = document.createElement("div");
+		drawFigure(element, records, { sequence_view: true });
+		const alone = document.createElement("div");
+		drawFigure(alone, records, {});
+		expect(element.innerHTML).toBe(alone.innerHTML);
 	});
 
 	test("throws a FormatError on a bad record, adding nothing to the page", () => {
