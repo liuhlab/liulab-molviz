@@ -101,6 +101,7 @@ function boxIn(document: Document): HTMLElement {
 	const kept = boxes.get(document);
 	if (kept?.isConnected) return kept;
 	const box = document.createElement("div");
+	box.className = "molviz-hover";
 	box.style.cssText = STYLE;
 	box.hidden = true;
 	document.body.append(box);

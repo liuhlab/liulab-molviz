@@ -192,6 +192,74 @@ describe("the sequence view's switch", () => {
 	});
 });
 
+/** The rules the page's style holds for print, by their selector. */
+function printRules(): Map<string, CSSStyleDeclaration> {
+	const style = document.getElementById("molviz-page") as HTMLStyleElement;
+	const rules = new Map<string, CSSStyleDeclaration>();
+	for (const rule of style.sheet?.cssRules ?? []) {
+		if (!(rule instanceof CSSMediaRule) || rule.media.mediaText !== "print") {
+			continue;
+		}
+		for (const inner of rule.cssRules) {
+			if (inner instanceof CSSStyleRule) {
+				rules.set(inner.selectorText, inner.style);
+			}
+		}
+	}
+	return rules;
+}
+
+describe("printing", () => {
+	test("hides the bar, and the hover box were it showing", () => {
+		const page = opened(circular);
+		expect(printRules().get(".molviz .bar")?.display).toBe("none");
+		page.box
+			.querySelector("[data-molviz-hover]")
+			?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
+		const shown = document.querySelector("body > div:not(:has(svg))");
+		expect(shown).not.toBeNull();
+		const hidden = [...printRules()].filter(
+			([selector, style]) =>
+				shown?.matches(selector) && style.display === "none",
+		);
+		expect(hidden).toHaveLength(1);
+	});
+
+	test("lays a zoomed map out at 1×, turned as shown, and zooms it back after", () => {
+		const page = opened(circular);
+		page.shown().turn = 30;
+		page.redraw();
+		const turned = page.box.innerHTML;
+		page.shown().zoom = 2;
+		page.redraw();
+		const zoomed = page.box.innerHTML;
+		page.box.scrollLeft = 30;
+		page.box.scrollTop = 40;
+		window.dispatchEvent(new Event("beforeprint"));
+		expect(page.box.innerHTML).toBe(turned);
+		window.dispatchEvent(new Event("afterprint"));
+		expect(page.box.innerHTML).toBe(zoomed);
+		expect([page.box.scrollLeft, page.box.scrollTop]).toEqual([30, 40]);
+		expect(page.shown().zoom).toBe(2);
+	});
+
+	test("leaves a map at 1× as it is", () => {
+		const page = opened(circular);
+		const svg = page.box.firstElementChild;
+		window.dispatchEvent(new Event("beforeprint"));
+		window.dispatchEvent(new Event("afterprint"));
+		expect(page.box.firstElementChild).toBe(svg);
+	});
+
+	test("shows the whole map, its box neither scrolling nor keeping its size", () => {
+		opened(circular);
+		const box = printRules().get(".molviz .map, .molviz .sequence");
+		expect(box?.overflow).toBe("visible");
+		expect([box?.width, box?.height]).toEqual(["auto", "auto"]);
+		expect(box?.getPropertyPriority("width")).toBe("important");
+	});
+});
+
 test("destroy removes the page and leaves the styles for another", () => {
 	const element = spot();
 	const page = openPage(

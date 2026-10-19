@@ -17,6 +17,11 @@ A name that fits on its arrow is written along it. Every other label sits in a c
 the ring, on a line to what it names. Where labels would crowd, some are hidden, and a note at
 the bottom right counts them.
 
+The bar above each circle works as it does on the line map. Scroll over the circle to turn
+it, and its labels find new places as it turns. Hold Ctrl or ⌘ and scroll to zoom. Line
+shows the record as a line, and Circle brings the circle back as you left it. Reset returns
+to the first view, with base 1 at the top. A print keeps the turn.
+
 If a record cannot be drawn, its place on the page says why.
 
 ## puc19-gfp-product

@@ -163,8 +163,28 @@ export function openPage(
 			redraw();
 		});
 	}
+	// A zoomed map prints at 1×, then gets its zoom and scroll back.
+	let printed: { zoom: number; left: number; top: number } | null = null;
+	const beforePrint = () => {
+		const map = state.maps[state.options.map];
+		if (map.zoom === 1) return;
+		printed = { zoom: map.zoom, left: box.scrollLeft, top: box.scrollTop };
+		map.zoom = 1;
+		redraw();
+	};
+	const afterPrint = () => {
+		if (printed === null) return;
+		const { zoom, left, top } = printed;
+		printed = null;
+		state.maps[state.options.map].zoom = zoom;
+		redraw();
+		box.scrollLeft = left;
+		box.scrollTop = top;
+	};
 	const { defaultView } = document;
 	defaultView?.addEventListener("resize", fit);
+	defaultView?.addEventListener("beforeprint", beforePrint);
+	defaultView?.addEventListener("afterprint", afterPrint);
 	redraw();
 
 	const page: Page = {
@@ -180,6 +200,8 @@ export function openPage(
 		redraw,
 		destroy: () => {
 			defaultView?.removeEventListener("resize", fit);
+			defaultView?.removeEventListener("beforeprint", beforePrint);
+			defaultView?.removeEventListener("afterprint", afterPrint);
 			frame.remove();
 		},
 	};
@@ -311,5 +333,13 @@ function css(): string {
 .molviz .map { max-width: 100%; overflow: auto; }
 .molviz .sequence { overflow-x: auto; }
 .molviz svg { display: block; max-width: none; }
+@media print {
+	.molviz .bar { display: none; }
+	.molviz .map, .molviz .sequence {
+		overflow: visible; width: auto !important; height: auto !important;
+	}
+	.molviz svg { max-width: 100%; height: auto !important; }
+	.molviz-hover { display: none !important; }
+}
 `;
 }
