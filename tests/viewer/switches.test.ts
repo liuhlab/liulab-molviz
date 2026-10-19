@@ -4,6 +4,7 @@ import { draw } from "../../src/viewer/draw";
 import { svg } from "../../src/viewer/drawing";
 import { displayScale, type Frame } from "../../src/viewer/frame";
 import ap1File from "../records/ap1-product.json";
+import trace from "../records/trace-3730.json";
 import { input, opened } from "./live";
 
 /** AP-1 with every enzyme it holds on, so its circle hides six cut sites. */
@@ -193,6 +194,16 @@ describe("a change", () => {
 		const { width, height } = frame.box.style;
 		expect(parseFloat(width)).toBeCloseTo(size.width * scale, 6);
 		expect(parseFloat(height)).toBeCloseTo(size.height * scale, 6);
+	});
+
+	test("to Sequence shows the Tracks switch, as only the sequence view draws tracks", () => {
+		const frame = opened(trace);
+		const tracks = input(frame, "tracks").closest("label");
+		expect(tracks?.hidden).toBe(true);
+		input(frame, "sequence").click();
+		expect(tracks?.hidden).toBe(false);
+		input(frame, "sequence").click();
+		expect(tracks?.hidden).toBe(true);
 	});
 
 	test("to Cut sites greys the enzymes while it is off, and to Features the types", () => {
