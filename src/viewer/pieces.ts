@@ -1,6 +1,6 @@
 /** Where an item lies along a span, counted as the span counts, and as a reader reads it. */
 
-import type { Bounds, Span } from "./record";
+import { type Bounds, runsOnFromStart, type Span } from "./record";
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
 export interface Piece {
@@ -30,7 +30,7 @@ export function pieces(
 	const runs: [number, number, string | null][] = [];
 	for (const [i, segment] of segments.entries()) {
 		const before = segments[i - 1];
-		if (before && !bounds.circular && segment.start < before.start) {
+		if (before && runsOnFromStart(before, segment, bounds)) {
 			if (before.end < bounds.length) {
 				runs.push([before.end, bounds.length, null]);
 			}

@@ -153,6 +153,18 @@ function segment(bounds: Bounds) {
 }
 
 /**
+ * Whether `segment`, the one after `before` in a feature, runs on from a linear record's start:
+ * the feature ran off the end between them.
+ */
+export function runsOnFromStart(
+	before: Span,
+	segment: Span,
+	{ circular }: Bounds,
+): boolean {
+	return !circular && segment.start < before.start;
+}
+
+/**
  * A feature's segments, in ascending order of start. On a circular record a later segment may
  * start past the length, counted on past the origin, within one turn from the first. On a
  * linear record one segment may start lower than the one before, where the feature runs off
@@ -171,13 +183,13 @@ function segments(bounds: Bounds) {
 			for (let i = 1; i < segments.length; i++) {
 				const { start, end } = segments[i];
 				const previous = segments[i - 1].start;
-				if (!circular && !crossed && start < previous) {
+				const runsOn = runsOnFromStart(segments[i - 1], segments[i], bounds);
+				if (runsOn && !crossed) {
 					crossed = true;
 				} else if (start <= previous) {
-					const again = crossed && start < previous;
 					yield [
 						[i, "start"],
-						`must be greater than the previous segment's start${again ? ": a feature runs off a linear record's end once" : ""}`,
+						`must be greater than the previous segment's start${runsOn ? ": a feature runs off a linear record's end once" : ""}`,
 					];
 				}
 				// Ends need not ascend, so each is held to where the first segment starts.
