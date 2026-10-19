@@ -4,7 +4,8 @@
  */
 
 import { bounds } from "./bounds";
-import { type Anchored, columns, REACH } from "./columns";
+import { type Anchored, columns, type Point, REACH } from "./columns";
+import { cutSites } from "./cuts";
 import {
 	hiddenOf,
 	hidingOrder,
@@ -19,14 +20,16 @@ import {
 	PAD_Y,
 	SMALL_SIZE,
 } from "./labels";
-import { tickStep, title } from "./line";
+import { pointText, spanText, tickStep, title } from "./line";
 import type { Options } from "./options";
 import {
 	CONNECTOR,
 	colorOf,
 	INK,
+	INSERTION,
 	LEADER,
 	OUTLINE_WIDTH,
+	PRIMER,
 	painted,
 	shaded,
 	textColor,
@@ -61,6 +64,14 @@ const CENTRE = 0.4;
 
 const CONNECTOR_WIDTH = 1.5;
 
+// An insertion's bar: how far it reaches past the backbone either side, and how thick it is.
+const INSERTION_REACH = 1.5;
+const INSERTION_WIDTH = 2;
+
+// A primer's arrow outside the backbone: its band's thickness, and the room either side of it.
+const PRIMER_BAND = 4;
+const PRIMER_GAP = 2;
+
 /** How far beyond the drawing a label's leader starts. */
 const ANCHOR = 4;
 const LEADER_WIDTH = 0.8;
@@ -94,6 +105,14 @@ interface Drawn {
 	readonly name: Shape | null;
 }
 
+/** A label set in a column, and the angle its leader starts from. */
+interface Outside {
+	readonly label: Label;
+	readonly angle: number;
+	/** Whether its leader carries on in to the backbone, to point at a point between two bases. */
+	readonly inward: boolean;
+}
+
 /** Everything a part of the circle is laid out against. */
 interface Ring {
 	readonly length: number;
@@ -118,44 +137,63 @@ export function layoutCircle(
 		radius: RADIUS * zoom,
 		turn: (rotation * Math.PI) / 180,
 	};
+	const off = new Set(options.kinds_off);
 	const middle = centre(record.name, ring);
-	const drawn = options.kinds_off.includes("features")
+	const drawn = off.has("features")
 		? []
 		: features(record, options, ring, middle.reach);
-	const drawing = ring.radius + BACKBONE / 2;
-	const boxed = drawn.filter(
-		(feature) => feature.name === null && feature.label.name.trim(),
+	const sites = off.has("primers") ? [] : primers(record, options, ring);
+	const marks = off.has("insertions") ? [] : insertions(record, options, ring);
+	const backboneEdge = ring.radius + BACKBONE / 2;
+	const drawing = Math.max(
+		backboneEdge,
+		...sites.map(({ arrow }) => arrow.radius + arrow.width / 2 + reach(arrow)),
 	);
-	const anchored: Anchored[] = boxed.map(({ label, hull }) => ({
+	const midway = ({ start, end }: Span) => angleOf((start + end) / 2, ring);
+	const outside: Outside[] = [
+		...drawn.flatMap(({ label, hull, name }) =>
+			name === null && label.name.trim()
+				? [{ label, angle: midway(hull), inward: false }]
+				: [],
+		),
+		...sites.map(({ label, hull }) => ({
+			label,
+			angle: midway(hull),
+			inward: false,
+		})),
+		...(off.has("cuts")
+			? []
+			: cutSites(record, options.enzymes, options.highlight)
+		).map(({ label, at }) => ({
+			label,
+			angle: angleOf(at, ring),
+			inward: true,
+		})),
+		...marks.map(({ label, angle }) => ({ label, angle, inward: true })),
+	];
+	const anchored: Anchored[] = outside.map(({ label, angle }) => ({
 		...labelSize(label),
-		anchor: xy(drawing + ANCHOR, angleOf((hull.start + hull.end) / 2, ring)),
+		anchor: xy(drawing + ANCHOR, angle),
 	}));
-	const order = [...boxed.keys()].sort((i, j) =>
-		hidingOrder(boxed[i].label, boxed[j].label),
+	const order = [...outside.keys()].sort((i, j) =>
+		hidingOrder(outside[i].label, outside[j].label),
 	);
-	const reach = REACH + ring.radius - RADIUS;
-	const { placed, hidden } = columns(anchored, order, drawing, reach);
+	const cap = REACH + ring.radius - RADIUS;
+	const { placed, hidden } = columns(anchored, order, drawing, cap);
 	const shapes: Shape[] = [
 		...backbone(ring),
 		...ruler(ring),
 		...drawn.flatMap(featureShapes),
+		...sites.map(({ arrow }) => arrowShape(arrow)),
+		...marks.map(({ bar }) => bar),
 	];
 	const boxes: Box[] = [];
 	for (const [i, one] of placed.entries()) {
 		if (!one) continue;
+		const { label, angle, inward } = outside[i];
 		const [from, to] = one.leader;
-		shapes.push(
-			{
-				shape: "line",
-				x1: from.x,
-				y1: from.y,
-				x2: to.x,
-				y2: to.y,
-				stroke: LEADER,
-				strokeWidth: LEADER_WIDTH,
-			},
-			...labelShapes(boxed[i].label, one.box),
-		);
+		if (inward) shapes.push(leader(xy(backboneEdge, angle), from));
+		shapes.push(leader(from, to), ...labelShapes(label, one.box));
 		boxes.push(one.box);
 	}
 	shapes.push(...middle.shapes);
@@ -167,7 +205,7 @@ export function layoutCircle(
 		],
 		MARGIN,
 	);
-	const left = hidden.map((i) => boxed[i].label);
+	const left = hidden.map((i) => outside[i].label);
 	const notice = noticeShapes(
 		left,
 		covered.x + covered.width - MARGIN,
@@ -180,6 +218,59 @@ export function layoutCircle(
 		shapes,
 		hidden: left.map(hiddenOf),
 	};
+}
+
+function leader(from: Point, to: Point): Shape {
+	return {
+		shape: "line",
+		x1: from.x,
+		y1: from.y,
+		x2: to.x,
+		y2: to.y,
+		stroke: LEADER,
+		strokeWidth: LEADER_WIDTH,
+	};
+}
+
+/**
+ * Each insertion as a bar across the backbone at its point, labelled with what it adds, its name
+ * and point on hover.
+ */
+function insertions(
+	record: Record,
+	options: Options,
+	ring: Ring,
+): { bar: Shape; label: Label; angle: number }[] {
+	const bounds = { length: ring.length, circular: true };
+	return record.insertions.map((insertion) => {
+		const { at } = insertion;
+		const label = labelOf(
+			{ kind: "insertions", name: insertion.name, at },
+			[{ text: `+${insertion.length} bp`, face: "sans" }],
+			insertion.color?.toLowerCase() ?? INSERTION,
+			options.highlight,
+		);
+		const angle = angleOf(at, ring);
+		const [x1, y1] = pointAt(inside(ring) - INSERTION_REACH, angle);
+		const [x2, y2] = pointAt(
+			ring.radius + BACKBONE / 2 + INSERTION_REACH,
+			angle,
+		);
+		const hover = [insertion.name.trim(), pointText(at, bounds)]
+			.filter(Boolean)
+			.join(" · ");
+		const bar: Shape = {
+			shape: "line",
+			x1,
+			y1,
+			x2,
+			y2,
+			stroke: label.color,
+			strokeWidth: INSERTION_WIDTH,
+			hover,
+		};
+		return { bar, label, angle };
+	});
 }
 
 /** The least box around `boxes`, and `margin` beyond. */
@@ -201,7 +292,7 @@ function pointAt(radius: number, angle: number): [number, number] {
 	return [radius * Math.sin(angle), -radius * Math.cos(angle)];
 }
 
-function xy(radius: number, angle: number): { x: number; y: number } {
+function xy(radius: number, angle: number): Point {
 	const [x, y] = pointAt(radius, angle);
 	return { x, y };
 }
@@ -411,23 +502,73 @@ function featureShapes({ label, arrows, name }: Drawn): Shape[] {
 			strokeWidth: CONNECTOR_WIDTH,
 		});
 	}
-	for (const arrow of arrows) {
-		shapes.push({
-			shape: "path",
-			commands: outline(arrow),
-			fill: arrow.color,
-			stroke: shaded(arrow.color),
-			strokeWidth: OUTLINE_WIDTH,
-		});
-	}
+	shapes.push(...arrows.map(arrowShape));
 	if (name) shapes.push(name);
 	return shapes;
+}
+
+function arrowShape(arrow: Arrow): Shape {
+	return {
+		shape: "path",
+		commands: outline(arrow),
+		fill: arrow.color,
+		stroke: shaded(arrow.color),
+		strokeWidth: OUTLINE_WIDTH,
+	};
+}
+
+/** How far an arrow's heads reach beyond its band, as a feature's do in proportion. */
+function reach({ width }: Arrow): number {
+	return (width * OVERHANG) / BAND;
+}
+
+/**
+ * Each primer site as a thin arrow outside the backbone, its head at the 3' end, overlapping
+ * sites on rings further out, and its label: the primer's name and the bases the site spans.
+ */
+function primers(
+	record: Record,
+	options: Options,
+	ring: Ring,
+): { arrow: Arrow; label: Label; hull: Span }[] {
+	const sites = record.primers.flatMap(({ name, sites }) =>
+		sites.map((site) => ({ name, site })),
+	);
+	const hulls = sites.map(({ site }) => ({ start: site.start, end: site.end }));
+	const onRing = rings(hulls, ring);
+	const overhang = (PRIMER_BAND * OVERHANG) / BAND;
+	const step = PRIMER_BAND + 2 * overhang + PRIMER_GAP;
+	const first =
+		ring.radius + BACKBONE / 2 + PRIMER_GAP + overhang + PRIMER_BAND / 2;
+	return sites.map(({ name, site }, i) => {
+		const hull = hulls[i];
+		const label = labelOf(
+			{ kind: "primers", name, spans: [hull] },
+			[{ text: `${name} (${spanText(hull, ring.length)})`, face: "sans" }],
+			PRIMER,
+			options.highlight,
+		);
+		const radius = first + onRing[i] * step;
+		const start = angleOf(site.start, ring);
+		const end = angleOf(site.end, ring);
+		const arrow: Arrow = {
+			start,
+			end,
+			radius,
+			width: PRIMER_BAND,
+			color: label.color,
+			headStart: site.strand === -1,
+			headEnd: site.strand === 1,
+			head: Math.min(HEAD / radius, end - start),
+		};
+		return { arrow, label, hull };
+	});
 }
 
 /** An arrow's outline: its band, with a head at each end it points to. */
 function outline(arrow: Arrow): PathCommand[] {
 	const { radius, width, start, end, head } = arrow;
-	const reach = (width * OVERHANG) / BAND;
+	const beyond = reach(arrow);
 	const first = arrow.headStart ? start + head : start;
 	const last = arrow.headEnd ? end - head : end;
 	const outer = radius + width / 2;
@@ -436,20 +577,20 @@ function outline(arrow: Arrow): PathCommand[] {
 	const commands: PathCommand[] = arrow.headStart
 		? [
 				["M", ...pointAt(radius, start)],
-				to(outer + reach, first),
+				to(outer + beyond, first),
 				to(outer, first),
 			]
 		: [["M", ...pointAt(outer, first)]];
 	commands.push(...arc(outer, first, last));
 	if (arrow.headEnd) {
 		commands.push(
-			to(outer + reach, last),
+			to(outer + beyond, last),
 			to(radius, end),
-			to(inner - reach, last),
+			to(inner - beyond, last),
 		);
 	}
 	commands.push(to(inner, last), ...arc(inner, last, first));
-	if (arrow.headStart) commands.push(to(inner - reach, first));
+	if (arrow.headStart) commands.push(to(inner - beyond, first));
 	commands.push(["Z"]);
 	return commands;
 }

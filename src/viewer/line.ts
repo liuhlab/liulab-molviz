@@ -458,14 +458,14 @@ function points(
  * The point `at` as a reader reads it, GenBank's `before^after`. At a circle's origin the last
  * base is before the first; a linear record's ends read `0^1` and `length^length+1`.
  */
-function pointText(at: number, { length, circular }: Bounds): string {
+export function pointText(at: number, { length, circular }: Bounds): string {
 	return circular
 		? `${((at - 1 + length) % length) + 1}^${(at % length) + 1}`
 		: `${at}^${at + 1}`;
 }
 
 /** `span` as a reader reads it, 1-based and inclusive, across the origin as `2684 .. 3`. */
-function spanText({ start, end }: Span, length: number): string {
+export function spanText({ start, end }: Span, length: number): string {
 	return `${(start % length) + 1} .. ${((end - 1) % length) + 1}`;
 }
 

@@ -1,9 +1,11 @@
+/// <reference types="vite/client" />
 import { describe, expect, test } from "vitest";
+import { bounds } from "../../src/viewer/bounds";
 import { layoutCircle } from "../../src/viewer/circle";
-import type { MapScene } from "../../src/viewer/labels";
+import { type Hidden, type MapScene, notice } from "../../src/viewer/labels";
 import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
-import type { PathCommand, Scene, Shape } from "../../src/viewer/scene";
+import { check, type Record } from "../../src/viewer/record";
+import type { Box, PathCommand, Scene, Shape } from "../../src/viewer/scene";
 import { baseline, height, measure, metrics } from "../../src/viewer/text";
 import ap1File from "../records/ap1-product.json";
 import colourTestFile from "../records/colour-test.json";
@@ -413,6 +415,288 @@ describe("a feature's name", () => {
 	});
 });
 
+/** How far a primer's heads reach beyond its band 4 points thick, as a feature's do in proportion. */
+const PRIMER_REACH = (4 * 4) / 15;
+
+/** The middle of the first ring of primers: 2 points and a head's reach beyond the backbone. */
+const PRIMER_MIDDLE = 221.3 + 2 + PRIMER_REACH + 2;
+
+/** The radii of a primer's arrow with a head, its band's middle at `middle`. */
+function primerRadii(middle: number): number[] {
+	return [-2 - PRIMER_REACH, -2, 0, 2, 2 + PRIMER_REACH].map((d) =>
+		Number((middle + d).toFixed(3)),
+	);
+}
+
+/** A primer named `name` binding at each of `sites`, `[start, end, strand]`. */
+function primer(name: string, sites: [number, number, number][]) {
+	return {
+		name,
+		bases: "A".repeat(300),
+		sites: sites.map(([start, end, strand]) => ({ start, end, strand })),
+	};
+}
+
+describe("a primer", () => {
+	test("draws a thin arrow outside the backbone at each site, its head at the 3' end, one overlapping further out", () => {
+		const scene = lay([], {
+			record: {
+				primers: [
+					primer("p1", [
+						[0, 250, 1],
+						[500, 750, -1],
+					]),
+					primer("p2", [[200, 300, 1]]),
+				],
+			},
+		});
+		const [first, second, third, ...more] = arrows(scene, "#aa3377");
+		expect(more).toEqual([]);
+		expect(radii(first)).toEqual(primerRadii(PRIMER_MIDDLE));
+		expect(tips(first, PRIMER_MIDDLE)).toEqual([90]);
+		expect(tips(second, PRIMER_MIDDLE)).toEqual([180]);
+		const further = PRIMER_MIDDLE + 4 + 2 * PRIMER_REACH + 2;
+		expect(radii(third)).toEqual(primerRadii(further));
+		expect(tips(third, further)).toEqual([108]);
+	});
+
+	test("is labelled by name and bases, unboxed in its colour, on a leader from beyond the primers", () => {
+		const scene = lay([], {
+			record: { primers: [primer("p1", [[100, 110, 1]])] },
+		});
+		const [label] = texts(scene).filter((t) => t.text === "p1 (101 .. 110)");
+		expect([label.fill, label.face]).toEqual(["#aa3377", "sans"]);
+		expect(rects(scene)).toEqual([]);
+		const [leader, ...more] = leaders(scene);
+		expect(more).toEqual([]);
+		expect(Math.hypot(leader.x1, leader.y1)).toBeCloseTo(
+			PRIMER_MIDDLE + 2 + PRIMER_REACH + 4,
+		);
+		expect(degreesOf(leader.x1, leader.y1)).toBeCloseTo(37.8);
+		expect(leader.x2).toBeCloseTo(label.x - 3);
+	});
+});
+
+/** The lines from a label to what it names. */
+function leaders(scene: Scene): Line[] {
+	return lines(scene).filter((l) => l.stroke === "#7f7f7f");
+}
+
+describe("a cut site", () => {
+	test("is labelled by its enzymes and the base before the cut, on a leader carried on to the backbone", () => {
+		const scene = lay([], {
+			record: {
+				cuts: [
+					{ enzyme: "SacI", start: 400, end: 406, at: 405, stagger: -4 },
+					{ enzyme: "BanII", start: 400, end: 406, at: 405, stagger: -4 },
+					{ enzyme: "BanII", start: 700, end: 706, at: 705, stagger: -4 },
+				],
+			},
+			options: { enzymes: ["BanII", "SacI"] },
+		});
+		const runs = texts(scene).filter((t) => t.size === 11.5);
+		expect(runs.map((t) => [t.text, t.face, t.fill])).toEqual([
+			["BanII - ", "sans", "#000000"],
+			["SacI", "sans-bold", "#000000"],
+			[" (405)", "sans", "#000000"],
+			["BanII (705)", "sans", "#000000"],
+		]);
+		expect(rects(scene)).toEqual([]);
+		const [inward, leader] = leaders(scene);
+		expect(Math.hypot(inward.x1, inward.y1)).toBeCloseTo(221.3);
+		expect(degreesOf(inward.x1, inward.y1)).toBeCloseTo(145.8);
+		expect([inward.x2, inward.y2]).toEqual([leader.x1, leader.y1]);
+		expect(Math.hypot(leader.x1, leader.y1)).toBeCloseTo(225.3);
+		expect(degreesOf(leader.x1, leader.y1)).toBeCloseTo(145.8);
+		expect(leader.x2).toBeCloseTo(runs[0].x - 3);
+		expect(leaders(scene)).toHaveLength(4);
+	});
+
+	test("at the origin reads the record's length", () => {
+		const scene = lay([], {
+			record: {
+				cuts: [{ enzyme: "EcoRI", start: 999, end: 1005, at: 0, stagger: 4 }],
+			},
+		});
+		expect(texts(scene).map((t) => t.text)).toContain(" (1000)");
+	});
+});
+
+describe("an insertion", () => {
+	test("draws a bar across the backbone, labelled with what it adds in its colour, its name and point on hover", () => {
+		const scene = lay([], {
+			record: {
+				insertions: [
+					{ name: "ins", at: 250, length: 8 },
+					{ name: "", at: 750, length: 1, color: "#00AA00" },
+				],
+			},
+		});
+		const bars = lines(scene).filter((l) => l.strokeWidth === 2);
+		expect(bars.map((b) => [b.stroke, b.hover])).toEqual([
+			["#cc3311", "ins · 250^251"],
+			["#00aa00", "750^751"],
+		]);
+		const [bar] = bars;
+		expect([bar.y1, bar.y2]).toEqual([0, 0].map(() => expect.closeTo(0)));
+		expect([bar.x1, bar.x2]).toEqual([
+			expect.closeTo(214.9 - 1.5),
+			expect.closeTo(221.3 + 1.5),
+		]);
+		const labels = texts(scene).filter((t) => t.size === 11.5);
+		expect(labels.map((t) => [t.text, t.fill])).toEqual([
+			["+8 bp", "#cc3311"],
+			["+1 bp", "#00aa00"],
+		]);
+		const [inward] = leaders(scene);
+		expect([inward.x1, inward.y1]).toEqual([
+			expect.closeTo(221.3),
+			expect.closeTo(0),
+		]);
+	});
+});
+
+/** A record of one item of each kind, a source feature, and an enzyme that cuts twice. */
+const EVERY_KIND = {
+	features: [
+		{
+			name: "f",
+			type: "misc_feature",
+			strand: 1,
+			color: "#000080",
+			segments: [{ start: 100, end: 110 }],
+		},
+		{
+			name: "all",
+			type: "source",
+			strand: 0,
+			segments: [{ start: 0, end: 1000 }],
+		},
+	],
+	primers: [primer("p1", [[300, 320, 1]])],
+	cuts: [
+		{ enzyme: "EcoRI", start: 500, end: 506, at: 501, stagger: 4 },
+		{ enzyme: "BamHI", start: 600, end: 606, at: 601, stagger: 4 },
+		{ enzyme: "BamHI", start: 800, end: 806, at: 801, stagger: 4 },
+	],
+	insertions: [{ name: "ins", at: 700, length: 3 }],
+};
+
+/** What the labels say, a run at a time. */
+function said(scene: Scene): string[] {
+	return texts(scene)
+		.filter((t) => t.size === 11.5)
+		.map((t) => t.text);
+}
+
+/** The colours of the marks drawn on the circle: arrows, then insertions' bars. */
+function marks(scene: Scene): string[] {
+	return [
+		...paths(scene).filter((p) => p.fill !== "none"),
+		...lines(scene).filter((l) => l.strokeWidth === 2),
+	].map((s) => ("fill" in s ? s.fill : s.stroke));
+}
+
+describe("the options", () => {
+	test("draw every kind, the cut sites of the unique cutters, and no source feature, by default", () => {
+		const scene = lay([], { record: EVERY_KIND });
+		expect(said(scene)).toEqual([
+			"f",
+			"p1 (301 .. 320)",
+			"EcoRI",
+			" (501)",
+			"+3 bp",
+		]);
+		expect(marks(scene)).toEqual(["#000080", "#aa3377", "#cc3311"]);
+	});
+
+	test.each([
+		["features", ["p1 (301 .. 320)", "EcoRI", " (501)", "+3 bp"]],
+		["primers", ["f", "EcoRI", " (501)", "+3 bp"]],
+		["cuts", ["f", "p1 (301 .. 320)", "+3 bp"]],
+		["insertions", ["f", "p1 (301 .. 320)", "EcoRI", " (501)"]],
+	])("leave out every %s, marks and labels, switched off", (kind, left) => {
+		const scene = lay([], {
+			record: EVERY_KIND,
+			options: { kinds_off: [kind] },
+		});
+		expect(said(scene)).toEqual(left);
+		const drawn = {
+			features: "#000080",
+			primers: "#aa3377",
+			cuts: "",
+			insertions: "#cc3311",
+		};
+		expect(marks(scene)).toEqual(
+			Object.entries(drawn).flatMap(([k, color]) =>
+				k === kind || !color ? [] : [color],
+			),
+		);
+	});
+
+	test("draw the cut sites of the enzymes named, and the feature types not switched off", () => {
+		const scene = lay([], {
+			record: EVERY_KIND,
+			options: { enzymes: ["bamhi"], types_off: ["misc_feature"] },
+		});
+		expect(said(scene)).toEqual([
+			"p1 (301 .. 320)",
+			"BamHI (601)",
+			"BamHI (801)",
+			"+3 bp",
+		]);
+		expect(letters(scene).map((l) => l.text)).toEqual(["all"]);
+	});
+});
+
+/** Where each shape of `scene` is and what it says, its paints left out, and the extent. */
+function geometry({ extent, shapes }: Scene) {
+	const unpainted = shapes.map((shape) =>
+		Object.entries(shape).filter(([key]) => key !== "fill" && key !== "stroke"),
+	);
+	return { extent, unpainted };
+}
+
+describe("a highlight", () => {
+	test("dims every paint of what it leaves unlit to one grey, and keeps the lit one's and the leaders", () => {
+		const scene = lay([], {
+			record: EVERY_KIND,
+			options: { highlight: ["p1"] },
+		});
+		expect(marks(scene)).toEqual(["#dddddd", "#aa3377", "#dddddd"]);
+		expect(rects(scene).map((r) => [r.fill, r.stroke])).toEqual([
+			["#dddddd", "#636363"],
+		]);
+		const fills = texts(scene)
+			.filter((t) => t.size === 11.5)
+			.map((t) => [t.text, t.fill]);
+		expect(fills).toEqual([
+			["f", "#000000"],
+			["p1 (301 .. 320)", "#aa3377"],
+			["EcoRI", "#dddddd"],
+			[" (501)", "#dddddd"],
+			["+3 bp", "#dddddd"],
+		]);
+		expect(new Set(leaders(scene).map((l) => l.stroke))).toEqual(
+			new Set(["#7f7f7f"]),
+		);
+	});
+
+	test.each([
+		["pUC19-GFP", puc19File, ["GFP", "M13 rev", "NcoI"]],
+		["colour-test", colourTestFile, ["split"]],
+	])("on %s moves nothing", (_, file, highlight) => {
+		const record = check(file);
+		const plain = layoutCircle(record, checkOptions({}, record));
+		const lit = layoutCircle(record, checkOptions({ highlight }, record));
+		expect(geometry(lit)).toEqual(geometry(plain));
+		expect(marks(lit).filter((c) => c !== "#dddddd").length).toBeGreaterThan(0);
+		expect(marks(lit).filter((c) => c === "#dddddd").length).toBeGreaterThan(
+			marks(plain).filter((c) => c === "#dddddd").length,
+		);
+	});
+});
+
 /** `[x, y]` turned `degrees` clockwise about the centre. */
 function turned([x, y]: Point, degrees: number): Point {
 	const angle = (degrees * Math.PI) / 180;
@@ -478,24 +762,270 @@ describe("the extent", () => {
 	});
 });
 
+/** Every enzyme that cuts `file`. */
+function enzymesOf(file: { cuts?: readonly { enzyme: string }[] }): string[] {
+	return [...new Set((file.cuts ?? []).map(({ enzyme }) => enzyme))];
+}
+
 describe("mbio's records", () => {
+	// From mbio's circle of the same records and enzymes, laid out at mbio 10e8785.
 	test.each([
-		["pUC19-GFP", puc19File, 5, 4],
-		["AP-1", ap1File, 6, 0],
-		["colour-test", colourTestFile, 4, 4],
+		["pUC19-GFP", puc19File, false, 5, 4, 20, 0],
+		["pUC19-GFP", puc19File, true, 5, 4, 26, 0],
+		["AP-1", ap1File, false, 6, 0, 32, 0],
+		["AP-1", ap1File, true, 6, 0, 46, 6],
+		["colour-test", colourTestFile, false, 4, 4, 23, 0],
 	])(
-		"%s takes as many rings and names on arrows as mbio draws",
-		(_, file, rings, named) => {
+		"%s, every enzyme %s, takes as many rings, names on arrows, labels and hidden labels as mbio draws",
+		(_, file, every, rings, named, labelled, hidden) => {
 			const record = check(file);
-			const scene = layoutCircle(record, checkOptions({}, record));
+			const options = every ? { enzymes: enzymesOf(file) } : {};
+			const scene = layoutCircle(record, checkOptions(options, record));
 			const middles = paths(scene)
 				.filter((p) => p.fill !== "none")
 				.map((p) => {
 					const all = ends(p.commands).map(([x, y]) => Math.hypot(x, y));
 					return ((Math.min(...all) + Math.max(...all)) / 2).toFixed(2);
-				});
+				})
+				.filter((middle) => Number(middle) < 220);
 			expect(new Set(middles).size).toBe(rings);
 			expect(letters(scene)).toHaveLength(named);
+			expect(labelsOf(scene)).toHaveLength(labelled);
+			expect(scene.hidden).toHaveLength(hidden);
 		},
 	);
+});
+
+/** A label set in a column: its box, its leader, and the leader's part carried on to the backbone. */
+interface Outside {
+	readonly box: Box;
+	readonly leader: Line;
+	readonly inward: Line | null;
+}
+
+/** Each label in a column, read from the shapes that draw it: its leaders, then its box or text. */
+function labelsOf(scene: Scene): Outside[] {
+	const found: { lines: Line[]; parts: (Rect | Text)[] }[] = [];
+	let open = false;
+	for (const shape of scene.shapes) {
+		const last = found[found.length - 1];
+		if (shape.shape === "line" && shape.stroke === "#7f7f7f") {
+			if (open && last.parts.length === 0) last.lines.push(shape);
+			else found.push({ lines: [shape], parts: [] });
+			open = true;
+		} else if (
+			open &&
+			(shape.shape === "rect" ||
+				(shape.shape === "text" && shape.size === 11.5 && !shape.rotate))
+		) {
+			last.parts.push(shape);
+		} else open = false;
+	}
+	return found.map(({ lines, parts }) => ({
+		box: boxOf(parts),
+		leader: lines[lines.length - 1],
+		inward: lines.length > 1 ? lines[0] : null,
+	}));
+}
+
+/** A label's box: its rectangle, or its text with 3 points either side and 1 above and below. */
+function boxOf(parts: readonly (Rect | Text)[]): Box {
+	const [first] = parts;
+	if (first.shape === "rect") return first;
+	const last = parts[parts.length - 1] as Text;
+	const tall = height("sans", 11.5) + 2;
+	const x = first.x - 3;
+	const middle = first.y - baseline("sans", 11.5, 0);
+	return {
+		x,
+		y: middle - tall / 2,
+		width: last.x + measure(last.text, last.face, 11.5) + 3 - x,
+		height: tall,
+	};
+}
+
+/** How far two shapes may reach into each other and still count as touching. */
+const TOUCH = 1e-6;
+
+function overlap(one: Box, other: Box): boolean {
+	return (
+		one.x < other.x + other.width - TOUCH &&
+		other.x < one.x + one.width - TOUCH &&
+		one.y < other.y + other.height - TOUCH &&
+		other.y < one.y + one.height - TOUCH
+	);
+}
+
+/** How near the centre any point of `box` comes. */
+function nearestToCentre(box: Box): number {
+	const dx = Math.max(box.x, 0, -(box.x + box.width));
+	const dy = Math.max(box.y, 0, -(box.y + box.height));
+	return Math.hypot(dx, dy);
+}
+
+/** How near the centre any point of the line comes. */
+function closestToCentre({ x1, y1, x2, y2 }: Line): number {
+	const [dx, dy] = [x2 - x1, y2 - y1];
+	const t = Math.min(
+		1,
+		Math.max(0, -(x1 * dx + y1 * dy) / (dx * dx + dy * dy || 1)),
+	);
+	return Math.hypot(x1 + t * dx, y1 + t * dy);
+}
+
+/** Whether the line passes through the inside of `box`, by clipping it to the box. */
+function crosses({ x1, y1, x2, y2 }: Line, box: Box): boolean {
+	let low = 0;
+	let high = 1;
+	for (const [p, q] of [
+		[x1 - x2, x1 - (box.x + TOUCH)],
+		[x2 - x1, box.x + box.width - TOUCH - x1],
+		[y1 - y2, y1 - (box.y + TOUCH)],
+		[y2 - y1, box.y + box.height - TOUCH - y1],
+	]) {
+		if (p === 0) {
+			if (q < 0) return false;
+		} else if (p < 0) low = Math.max(low, q / p);
+		else high = Math.min(high, q / p);
+	}
+	return low < high;
+}
+
+const RECORDS = import.meta.glob("../records/*.json", {
+	eager: true,
+	import: "default",
+}) as { [path: string]: RecordFile };
+
+type RecordFile = Parameters<typeof check>[0] & {
+	readonly circular: boolean;
+	readonly cuts?: readonly { enzyme: string }[];
+};
+
+const CIRCULAR = Object.entries(RECORDS)
+	.filter(([, file]) => file.circular)
+	.map(([path, file]) => [path.slice("../records/".length, -5), file] as const);
+
+/** Each kind's place in the order labels hide. */
+const HIDING = ["cuts", "primers", "features", "insertions"];
+
+/** Where `hidden` comes in the order labels hide, for `record` with no highlight. */
+function hidingKey(hidden: Hidden, record: Record): number[] {
+	const length = record.bases.length;
+	const counts = new Map<string, number>();
+	for (const { enzyme } of record.cuts)
+		counts.set(enzyme, (counts.get(enzyme) ?? 0) + 1);
+	if ("at" in hidden) {
+		if (hidden.kind === "insertions") return [3, 0, 0];
+		const fewest = Math.min(
+			...hidden.name.split(" - ").map((e) => counts.get(e) ?? 0),
+		);
+		const text = `${hidden.name} (${hidden.at || length})`;
+		return [0, -fewest, -text.length];
+	}
+	const [{ start, end }] = hidden.spans;
+	const text =
+		hidden.kind === "primers"
+			? `${hidden.name} (${(start % length) + 1} .. ${((end - 1) % length) + 1})`
+			: hidden.name;
+	return [HIDING.indexOf(hidden.kind), 0, -text.length];
+}
+
+function before(a: number[], b: number[]): boolean {
+	for (const [i, value] of a.entries()) {
+		if (value !== b[i]) return value < b[i];
+	}
+	return true;
+}
+
+describe.each(CIRCULAR)("%s drawn whole", (_, file) => {
+	describe.each([
+		["the unique cutters", {}],
+		["every enzyme", { enzymes: enzymesOf(file) }],
+	])("with %s", (__, given) => {
+		describe.each([0, 100, 250])("turned %i degrees", (rotation) => {
+			const record = check(file);
+			const options = checkOptions(given, record);
+			const scene = layoutCircle(record, options, rotation);
+			const placed = labelsOf(scene);
+			const boxes = placed.map(({ box }) => box);
+			const backbone = 221.3;
+			const drawing = Math.max(
+				backbone,
+				...paths(scene)
+					.filter((p) => p.fill !== "none")
+					.flatMap((p) => ends(p.commands).map(([x, y]) => Math.hypot(x, y))),
+			);
+
+			test("names each item once: on its arrow, in a column, or hidden", () => {
+				const off = new Set(options.types_off);
+				const on = new Set(options.enzymes);
+				const items =
+					record.features.filter((f) => !off.has(f.type) && f.name.trim())
+						.length +
+					record.primers.flatMap((p) => p.sites).length +
+					new Set(record.cuts.filter((c) => on.has(c.enzyme)).map((c) => c.at))
+						.size +
+					record.insertions.length;
+				expect(
+					letters(scene).length + placed.length + scene.hidden.length,
+				).toBe(items);
+			});
+
+			test("no two labels overlap, and none overlaps the drawing", () => {
+				const pairs = boxes.flatMap((one, k) =>
+					boxes.slice(k + 1).filter((other) => overlap(one, other)),
+				);
+				expect(pairs).toEqual([]);
+				for (const box of boxes)
+					expect(nearestToCentre(box)).toBeGreaterThanOrEqual(drawing);
+			});
+
+			test("no leader enters the drawing or crosses another label", () => {
+				for (const { leader, inward, box } of placed) {
+					expect(closestToCentre(leader)).toBeGreaterThanOrEqual(
+						drawing - TOUCH,
+					);
+					if (inward) {
+						expect(closestToCentre(inward)).toBeCloseTo(backbone, 9);
+						expect([inward.x2, inward.y2]).toEqual([leader.x1, leader.y1]);
+					}
+					const others = boxes.filter((other) => other !== box);
+					expect(others.filter((other) => crosses(leader, other))).toEqual([]);
+				}
+			});
+
+			test("every label lies within 390 points above and below the centre", () => {
+				for (const box of boxes) {
+					expect(box.y).toBeGreaterThanOrEqual(-390);
+					expect(box.y + box.height).toBeLessThanOrEqual(390);
+				}
+			});
+
+			test("labels hide in order", () => {
+				const keys = scene.hidden.map((h) => hidingKey(h, record));
+				for (const [k, key] of keys.slice(1).entries())
+					expect(before(keys[k], key)).toBe(true);
+			});
+
+			test("the notice sits at the bottom right, clear of everything", () => {
+				const notices = texts(scene).filter((t) => t.text.endsWith("hidden"));
+				expect(notices).toHaveLength(scene.hidden.length ? 1 : 0);
+				for (const { text, hover } of notices) {
+					expect(text).toBe(notice(scene.hidden));
+					expect(hover?.split("\n")).toHaveLength(scene.hidden.length);
+				}
+				const { extent } = scene;
+				for (const shown of notices) {
+					const box = bounds(shown) as Box;
+					expect(box.x + box.width).toBeCloseTo(extent.x + extent.width - 16);
+					expect(box.y + box.height).toBeLessThanOrEqual(
+						extent.y + extent.height - 16,
+					);
+					expect(box.y).toBeGreaterThan(
+						Math.max(drawing, ...boxes.map((b) => b.y + b.height)),
+					);
+				}
+			});
+		});
+	});
 });
