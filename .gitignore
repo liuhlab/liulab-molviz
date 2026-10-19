@@ -7,10 +7,11 @@ site/
 .cache/
 dist/
 build/
-# The viewer: npm packages, the file `build-js` writes into the Python package, and the docs
-# site's copy of that file.
+# The viewer: npm packages, the files `build-js` writes into the Python package, and the docs
+# site's copy of the viewer.
 node_modules/
 src/molviz/viewer.js
+src/molviz/outlines.js
 docs/assets/molviz/viewer.js
 __pycache__/
 *.egg-info/

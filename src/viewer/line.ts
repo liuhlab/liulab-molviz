@@ -93,6 +93,8 @@ export interface LineMarks {
 	readonly shapes: readonly Shape[];
 	/** Its labels, to set above the line. */
 	readonly labels: readonly Anchored[];
+	/** Its labels shown on what they name, which are never counted hidden. */
+	readonly inPlace?: readonly Label[];
 	/** How high its marks reach, which the labels clear, and how low, which the title clears. */
 	readonly top: number;
 	readonly bottom: number;
@@ -159,6 +161,9 @@ export function layoutLine(
 	const above = labelsAbove(
 		drawn.flatMap((one) => one.labels),
 		top,
+		{
+			inPlace: drawn.flatMap((one) => one.inPlace ?? []),
+		},
 	);
 	shapes.push(...above.shapes);
 	const bottom = Math.max(rulerBottom(), ...drawn.map((one) => one.bottom));
@@ -224,7 +229,10 @@ function features({
 			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: backboneTop }]
 			: [],
 	);
-	return { ...NOTHING, shapes, labels, bottom: y };
+	const inPlace = bars.flatMap((bar, i) =>
+		placed[i] && placed[i] !== "boxed" ? [bar.label] : [],
+	);
+	return { ...NOTHING, shapes, labels, inPlace, bottom: y };
 }
 
 /** Each cut site in the span, its label on a leader from the backbone's top at the cut. */

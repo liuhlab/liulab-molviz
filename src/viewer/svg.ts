@@ -3,6 +3,7 @@
  * with no font, or with its letters as real text, as elements of a page or as text for one.
  */
 
+import { units } from "./faces";
 import {
 	leftEdge,
 	type PathCommand,
@@ -15,8 +16,8 @@ import {
 	families,
 	glyphs,
 	inFace,
+	outlineOf,
 	textWidth,
-	unitsPerEm,
 	weights,
 } from "./text";
 
@@ -220,11 +221,12 @@ function tag(shape: Shape, defined?: Defined): Tag {
 			const x = leftEdge(shape, width);
 			if (defined) {
 				// A glyph's outline is in its face's units; the group scales it to the text's size.
-				const scale = size / unitsPerEm(face);
+				const scale = size / units(face).unitsPerEm;
 				const uses: Tag[] = [];
 				for (const glyph of glyphs(text, face, size, cell)) {
-					if (!glyph.outline) continue;
-					defined.set(glyph.id, glyph.outline);
+					const outline = outlineOf(face, glyph.index);
+					if (!outline) continue;
+					defined.set(glyph.id, outline);
 					uses.push({
 						name: "use",
 						attributes: [
@@ -288,14 +290,16 @@ function glyph(
 	defined: Defined,
 ): Tag | null {
 	const [first] = glyphs(letter, face, size);
-	if (!first?.outline) return null;
-	defined.set(first.id, first.outline);
+	if (!first) return null;
+	const outline = outlineOf(face, first.index);
+	if (!outline) return null;
+	defined.set(first.id, outline);
 	const at = `translate(${twoDecimals(x)} ${twoDecimals(y)}) rotate(${twoDecimals(rotate)})`;
 	return {
 		name: "use",
 		attributes: [
 			["xlink:href", `#${first.id}`],
-			["transform", `${at} scale(${size / unitsPerEm(face)})`],
+			["transform", `${at} scale(${size / units(face).unitsPerEm})`],
 		],
 	};
 }

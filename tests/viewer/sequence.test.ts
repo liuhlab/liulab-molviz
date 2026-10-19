@@ -282,6 +282,37 @@ describe("feature bars", () => {
 			9,
 		);
 	});
+
+	test("join a piece to a linear record's end in its row, and the start to the next", () => {
+		const scene = lay(
+			{ bases_per_row: 10 },
+			{
+				bases: "ACGT".repeat(10),
+				features: features([
+					{
+						segments: [
+							[33, 37],
+							[2, 5],
+						],
+						color: "#000001",
+					},
+				]),
+			},
+		);
+		const joins = scene.shapes.filter(
+			(s): s is Extract<Shape, { shape: "line" }> =>
+				s.shape === "line" && s.stroke === "#666666",
+		);
+		expect(joins.map((g) => [g.x1, g.x2])).toEqual([
+			[0, 22],
+			[77, 110],
+		]);
+		const [after, before] = arrows(scene, "#000001");
+		expect([left(after), left(before)]).toEqual([22, 33]);
+		expect(joins[0].y1).toBe(middle(after));
+		expect(joins[1].y1).toBe(middle(before));
+		expect(middle(before)).toBeGreaterThan(scene.rows[3].y);
+	});
 });
 
 describe("feature names", () => {

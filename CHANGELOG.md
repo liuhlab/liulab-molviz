@@ -61,8 +61,7 @@ sets one.
   `molviz.calls` names each input's still call.
 - A gel's, a plate's or a figure's `.html` page holds its still drawing and the font rules,
   and no viewer. A record's page still draws it with the viewer.
-- Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
-  opentype.js, built into the viewer, which reads its fonts.
+- A new runtime dependency: vl-convert-python, which writes PNG and PDF.
 - `draw(record, sequence_view=True)` draws the sequence view under the map: the bases in rows
   on both strands, with what is drawn on them. `bases_per_row` sets a row's length, and
   `bottom_strand=False` leaves the bottom strand out. It draws at most
@@ -73,6 +72,18 @@ sets one.
 - In the viewer, `molviz.SEQUENCE_VIEW_LIMIT`, and the sequence view drawn under the map by
   `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` and `molviz.drawFigure` leave
   the view out, and `molviz.svg`, `molviz.figureSvg` and the still calls raise an error.
+- On a linear record, a feature may run off the end and on from the start, once: one of its
+  segments may start lower than the one before it. The map and the sequence view draw each
+  piece where it lies, with a grey join to the end it meets.
+
+- The package carries a second script, the outline script, beside the viewer. It holds the
+  shape of each letter, which a file draws.
+- In the viewer, `molviz.svg`, `molviz.gelSvg`, `molviz.plateSvg` and `molviz.figureSvg` need
+  the outline script run beside the viewer, and throw an error without it. Drawing on a page
+  and the still calls need only the viewer.
+- The viewer measures text from tables made from its fonts when it is built, and a page loads
+  the fonts as WOFF2. Its script is about a third of the size it was, and every drawing is
+  the same.
 
 ### Removed
 

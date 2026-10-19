@@ -205,7 +205,9 @@ function layoutRow(
 	const above = labelsAbove(
 		drawn.flatMap((one) => one.labels),
 		0,
-		Number.POSITIVE_INFINITY,
+		{
+			rise: Number.POSITIVE_INFINITY,
+		},
 	);
 	shapes.push(...above.shapes);
 	const box = aroundBoxes([
