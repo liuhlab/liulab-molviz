@@ -32,10 +32,10 @@ const plate = {
 };
 
 /** The map `draw` puts in an element for `record`, with no sequence view. */
-function drawnMap(): Element {
+function drawnMap(): Element | null {
 	const element = document.createElement("div");
 	draw(element, record, {});
-	return element.children[0];
+	return element.querySelector(".map > svg");
 }
 
 function spot(): HTMLElement {
@@ -53,8 +53,8 @@ describe("draw", () => {
 	test("puts one SVG in the element, its letters as text in the viewer's faces", () => {
 		const element = spot();
 		draw(element, record, {});
-		expect(element.children).toHaveLength(1);
-		const svg = element.children[0];
+		expect(element.querySelectorAll("svg")).toHaveLength(1);
+		const svg = element.querySelectorAll("svg")[0];
 		expect(svg.namespaceURI).toBe("http://www.w3.org/2000/svg");
 		const texts = [...svg.querySelectorAll("text")];
 		expect(texts.map((t) => t.textContent)).toEqual(
@@ -65,12 +65,14 @@ describe("draw", () => {
 		}
 	});
 
-	test("declares the faces on the page once, however many drawings it holds", () => {
+	test("declares the faces and the page's style once, however many drawings it holds", () => {
 		draw(spot(), record, {});
 		draw(spot(), record, {});
 		const styles = document.querySelectorAll("style");
-		expect(styles).toHaveLength(1);
-		expect(styles[0].textContent).toBe(fontFaceCss());
+		expect(styles).toHaveLength(2);
+		expect(document.getElementById("molviz-fonts")?.textContent).toBe(
+			fontFaceCss(),
+		);
 	});
 
 	test("returns a handle whose destroy removes the drawing alone, harmlessly twice", () => {
@@ -84,16 +86,17 @@ describe("draw", () => {
 		drawing.destroy();
 		expect([...element.children]).toEqual([before]);
 		expect(other.querySelectorAll("svg")).toHaveLength(1);
-		expect(document.querySelectorAll("style")).toHaveLength(1);
+		expect(document.querySelectorAll("style")).toHaveLength(2);
 	});
 
 	test("adds the sequence view under the map, its bases as text, and destroy removes both", () => {
 		const element = spot();
 		const drawing = draw(element, record, { sequence_view: true });
-		const [map, view] = element.children;
-		expect(element.children).toHaveLength(2);
-		expect(map.outerHTML).toBe(drawnMap().outerHTML);
-		expect((view as SVGSVGElement).style.display).toBe("block");
+		const map = element.querySelector(".map > svg");
+		const view = element.querySelector(".map + .sequence > svg");
+		if (!map || !view) throw new Error("not drawn");
+		expect(element.querySelectorAll("svg")).toHaveLength(2);
+		expect(map.outerHTML).toBe(drawnMap()?.outerHTML);
 		const bases = [...view.querySelectorAll("text")].filter(
 			(t) => t.getAttribute("font-family") === families.mono,
 		);

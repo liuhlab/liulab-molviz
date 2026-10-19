@@ -46,7 +46,7 @@ import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, type Face, height, measure } from "./text";
 
 /** The line's length, unless a layout is given another. */
-const WIDTH = 720;
+export const WIDTH = 720;
 
 /** How far an insertion's bar reaches past the backbone either side. */
 export const INSERTION_REACH = 1.5;

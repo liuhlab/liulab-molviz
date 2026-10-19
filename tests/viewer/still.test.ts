@@ -115,7 +115,8 @@ test.each(
 		expect(held.children).toHaveLength(1);
 		// The parser keeps the namespace as an attribute too, which draws nothing.
 		held.children[0].removeAttribute("xmlns");
-		expect(held.children[0].isEqualNode(drawn.children[0])).toBe(true);
+		const [svg] = drawn.querySelectorAll("svg");
+		expect(held.children[0].isEqualNode(svg)).toBe(true);
 	},
 );
 
@@ -193,7 +194,7 @@ describe("the still SVG of a record with its sequence view", () => {
 	const { document } = new Window();
 	const live = document.createElement("div");
 	draw(live as unknown as Element, primers, view);
-	const [map, sequence] = [...live.children];
+	const [map, sequence] = [...live.querySelectorAll("svg")];
 	const held = document.createElement("div");
 	held.innerHTML = stillSvg(primers, view).svg;
 	const [ground, ...still] = [...held.children[0].children];

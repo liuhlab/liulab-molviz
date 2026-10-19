@@ -1,6 +1,9 @@
 /** An input drawn live into an element of a page. */
 
-import { prepareGel, preparePlate, prepareViews } from "./drawing";
+import { prepareGel, preparePlate } from "./drawing";
+import { checkOptions } from "./options";
+import { openPage } from "./page";
+import { check } from "./record";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { fontFaceCss } from "./text";
@@ -15,28 +18,21 @@ export interface LiveDrawing {
 }
 
 /**
- * Draw `record` with `options` into `element`, after what it holds, its letters as real text.
- * A span past the sequence view's limit leaves the view out. Throws one FormatError naming every
- * problem in the record, or else in the options.
+ * Draw `record` with `options` into `element`, after what it holds, its letters as real text: a
+ * bar of controls, the map, and the sequence view under it. A span past the sequence view's limit
+ * leaves the view out. Throws one FormatError naming every problem in the record, or else in the
+ * options.
  */
 export function draw(
 	element: Element,
 	record: unknown,
 	options: unknown = {},
 ): LiveDrawing {
-	const { map, sequence } = prepareViews(record, options, { page: true });
-	const drawn = [drawScene(element, map)];
-	if (sequence !== null) {
-		const view = drawScene(element, sequence);
-		// A block, so it starts under the map rather than beside it.
-		view.svg.style.display = "block";
-		drawn.push(view);
-	}
-	return {
-		destroy: () => {
-			for (const one of drawn) one.destroy();
-		},
-	};
+	const checked = check(record);
+	const drawn = checkOptions(options, checked, { page: true });
+	declareFaces(element.ownerDocument);
+	const page = openPage(element, checked, drawn);
+	return { destroy: page.destroy };
 }
 
 /**
@@ -56,15 +52,12 @@ export function drawPlate(element: Element, plate: unknown): LiveDrawing {
 }
 
 /** Draw `scene` into `element`, after what it holds, declaring the faces if no drawing has. */
-function drawScene(
-	element: Element,
-	scene: Scene,
-): LiveDrawing & { svg: SVGSVGElement } {
+function drawScene(element: Element, scene: Scene): LiveDrawing {
 	const document = element.ownerDocument;
 	declareFaces(document);
 	const svg = toElement(scene, document);
 	element.append(svg);
-	return { svg, destroy: () => svg.remove() };
+	return { destroy: () => svg.remove() };
 }
 
 /** Add the faces' `@font-face` rules to `document`, unless a drawing already has. */

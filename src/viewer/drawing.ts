@@ -4,12 +4,12 @@ import { layoutCircle } from "./circle";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
-import { layoutLine } from "./line";
-import { checkOptions } from "./options";
+import { layoutLine, WIDTH } from "./line";
+import { checkOptions, type Options } from "./options";
 import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
 import { layoutPlate } from "./plate-layout";
-import { check } from "./record";
+import { check, type Record } from "./record";
 import type { Scene } from "./scene";
 import { layoutSequence, type SequenceScene } from "./sequence";
 import { toSvg } from "./svg";
@@ -47,14 +47,32 @@ export function prepareViews(
 	where: { page?: boolean } = {},
 ): Views {
 	const checked = check(record);
-	const drawn = checkOptions(options, checked, where);
+	return layoutViews(checked, checkOptions(options, checked, where));
+}
+
+/** Lay `record`'s map out as `options` say, and its sequence view if they draw one. */
+export function layoutViews(record: Record, options: Options): Views {
 	return {
-		map:
-			drawn.map === "circle"
-				? layoutCircle(checked, drawn)
-				: layoutLine(checked, drawn),
-		sequence: drawn.sequence_view ? layoutSequence(checked, drawn) : null,
+		map: layoutMap(record, options),
+		sequence: options.sequence_view ? layoutSequence(record, options) : null,
 	};
+}
+
+/**
+ * Lay `record` out on the map `options` name, `zoom` times its opening size, the circle's origin
+ * turned `turn` degrees clockwise from the top.
+ */
+export function layoutMap(
+	record: Record,
+	options: Options,
+	{
+		zoom = 1,
+		turn = 0,
+	}: { readonly zoom?: number; readonly turn?: number } = {},
+): MapScene {
+	return options.map === "circle"
+		? layoutCircle(record, options, turn, zoom)
+		: layoutLine(record, options, WIDTH * zoom);
 }
 
 /** Check `gel` and lay it out. Throws one FormatError naming every problem in the gel. */
