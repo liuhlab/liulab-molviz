@@ -42,13 +42,21 @@ export function preparePlate(plate: unknown): Scene {
 	return layoutPlate(checkPlate(plate));
 }
 
+/** `scene` written by `write`, with the labels it left out and their notice. */
+export function drawn(
+	scene: Scene | MapScene,
+	write: (scene: Scene) => string,
+): Omit<Drawing, "pages"> {
+	const hidden = "hidden" in scene ? scene.hidden : [];
+	return { svg: write(scene), hidden, notice: notice(hidden) };
+}
+
 /**
  * Draw `record` with `options` as SVG text, every letter an outline. Throws one FormatError
  * naming every problem in the record, or else in the options.
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
-	const scene = prepare(record, options);
-	return whole(toSvg(scene), scene.hidden);
+	return whole(prepare(record, options));
 }
 
 /**
@@ -57,7 +65,7 @@ export function svg(record: unknown, options: unknown = {}): Drawing {
  * gel.
  */
 export function gelSvg(gel: unknown): Drawing {
-	return whole(toSvg(prepareGel(gel)));
+	return whole(prepareGel(gel));
 }
 
 /**
@@ -65,10 +73,11 @@ export function gelSvg(gel: unknown): Drawing {
  * problem in the plate.
  */
 export function plateSvg(plate: unknown): Drawing {
-	return whole(toSvg(preparePlate(plate)));
+	return whole(preparePlate(plate));
 }
 
-/** `svg` as a drawing of one page that left out `hidden`. */
-function whole(svg: string, hidden: readonly Hidden[] = []): Drawing {
-	return { svg, pages: [svg], hidden, notice: notice(hidden) };
+/** `scene` as SVG text, a drawing of one page. */
+function whole(scene: Scene | MapScene): Drawing {
+	const drawing = drawn(scene, toSvg);
+	return { ...drawing, pages: [drawing.svg] };
 }

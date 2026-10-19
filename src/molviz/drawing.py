@@ -6,8 +6,11 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
-from molviz._runtime import call, calls
+from molviz._runtime import call, call_json, calls, font_rules
 from molviz.viewer import viewer_script
+
+# The inputs whose page draws live, with the viewer; any other's page holds its still drawing.
+_LIVE = frozenset({"record"})
 
 
 def check(record: dict[str, Any]) -> None:
@@ -56,9 +59,10 @@ class Drawing:
         # `drawn` is the viewer's drawing of `data`, the input called `name`. A page titled
         # `title` hands that input's draw call `data`, then any `options`.
         self._name = name
-        # As text, so a change the caller makes to an input afterwards never reaches the page.
-        self._data = _json(data)
-        self._options = None if options is None else _json(options)
+        # Each argument of the draw call by its block's id on a page. As text, so a change the
+        # caller makes to an input afterwards never reaches the page.
+        given = {name: data} if options is None else {name: data, "options": options}
+        self._arguments = {block: _json(value) for block, value in given.items()}
         self._title = title
         self._svg: str = drawn["svg"]
         self._pages: list[str] = drawn["pages"]
@@ -68,9 +72,10 @@ class Drawing:
     def write(self, path: str | PathLike[str], dpi: float = 300) -> None:
         """Write the drawing to ``path``, in the format its ending names, in any case.
 
-        The endings are ``.html``, a page that draws it; ``.svg``; ``.png``, at ``dpi``
+        The endings are ``.html``, a page that opens offline; ``.svg``; ``.png``, at ``dpi``
         pixels per inch; and ``.pdf``. One unit of the drawing is one point, so a PDF page is
-        the drawing's own size and a PNG is that size in print, cut to whole pixels.
+        the drawing's own size and a PNG is that size in print, cut to whole pixels. A record's
+        page draws it with the viewer; any other page holds its still SVG and no viewer.
 
         Raises
         ------
@@ -82,7 +87,10 @@ class Drawing:
         path = Path(path)
         match path.suffix.lower():
             case ".html":
-                page = _page(self._title, self._name, self._data, self._options)
+                if self._name in _LIVE:
+                    page = _page(self._title, self._name, self._arguments)
+                else:
+                    page = _still_page(self._title, self.still_svg())
                 path.write_bytes(page.encode())
             case ".svg":
                 path.write_bytes(self._svg.encode())
@@ -106,6 +114,16 @@ class Drawing:
                     f"cannot write {path!s}: its ending must be .html, .svg, .png or .pdf"
                 )
 
+    def still_svg(self) -> str:
+        """Return the drawing as SVG with real text, for a page that holds no viewer.
+
+        It is laid out as the ``.svg`` file is and hides the same labels. Each text is held to
+        its measured width, and each hover is a ``<title>``. It draws in the viewer's faces
+        only on a page that writes ``font_rules()`` once, in a ``<style>`` element.
+        """
+        arguments = f"[{','.join(self._arguments.values())}]"
+        return call_json(self._name, "still", arguments)["svg"]
+
 
 # Characters unsafe in a script element or in JavaScript source, each written as its JSON escape.
 _UNSAFE = str.maketrans({c: f"\\u{ord(c):04x}" for c in "<>&\u2028\u2029"})
@@ -116,17 +134,37 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, allow_nan=False).translate(_UNSAFE)
 
 
-def _page(title: str, name: str, data: str, options: str | None) -> str:
+def _page(title: str, name: str, texts: dict[str, str]) -> str:
     """Return a page titled ``title`` that draws offline, with the viewer's draw call for ``name``.
 
-    It hands that call the element to draw in, then the JSON ``data``, then any JSON ``options``.
+    It hands that call the element to draw in, then each of ``texts``, JSON text by its block's
+    id, in order.
     """
-    texts = {name: data} if options is None else {name: data, "options": options}
     blocks = "".join(
         f'<script type="application/json" id="{block}">{text}</script>\n'
         for block, text in texts.items()
     )
     arguments = "".join(f', data("{block}")' for block in texts)
+    return _document(
+        title,
+        f"""<div id="drawing"></div>
+{blocks}<script>{viewer_script()}</script>
+<script>
+const data = (id) => JSON.parse(document.getElementById(id).textContent);
+molviz.{calls()[name]["draw"]}(document.getElementById("drawing"){arguments});
+</script>
+""",
+    )
+
+
+def _still_page(title: str, svg: str) -> str:
+    """Return a page titled ``title`` that holds the still drawing ``svg`` and the font rules."""
+    return _document(title, f'<div id="drawing">{svg}</div>\n', font_rules())
+
+
+def _document(title: str, body: str, style: str = "") -> str:
+    """Return a page titled ``title`` holding ``body``, with any ``style`` after the page's own."""
+    style = f"\n{style}" if style else ""
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -134,16 +172,10 @@ def _page(title: str, name: str, data: str, options: str | None) -> str:
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>{html.escape(title)}</title>
-<style>body{{margin:16px;background:#ffffff;color:#252525}}</style>
+<style>body{{margin:16px;background:#ffffff;color:#252525}}{style}</style>
 </head>
 <body>
-<div id="drawing"></div>
-{blocks}<script>{viewer_script()}</script>
-<script>
-const data = (id) => JSON.parse(document.getElementById(id).textContent);
-molviz.{calls()[name]["draw"]}(document.getElementById("drawing"){arguments});
-</script>
-</body>
+{body}</body>
 </html>
 """
 
