@@ -113,6 +113,15 @@ describe("labelsAbove", () => {
 		expect(hidden).toEqual([twice]);
 	});
 
+	test("never lists a label that hides from the stack but shows in place", () => {
+		const shown = label("the longest name, first to hide");
+		const { shapes, hidden } = labelsAbove(at(100, [shown, ...many(41)]), 0, {
+			inPlace: [shown],
+		});
+		expect(boxes(shapes)).toHaveLength(41);
+		expect(hidden).toEqual([]);
+	});
+
 	test("hides only from the stack too tall, never a label beside it", () => {
 		// A stack at 100 must hide 4. A wide label first to hide reaches from it to labels at 400,
 		// some next to hide, that fit; nothing in the stack rests on it.

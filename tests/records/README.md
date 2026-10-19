@@ -8,6 +8,8 @@ file through the viewer's check, so the records stay valid as the format grows.
 | File | Made from | What it covers |
 | --- | --- | --- |
 | `puc19-gfp-product.json` | mbio's `docs/examples/pUC19-GFP/product.dna` | A Golden Gate product. Its `lacZα` CDS is joined across the GFP insert. Some of its primers have 5' tails, and its BsmBI and Esp3I sites run across the origin. |
+| `puc19-backbone-amplicon.json` | mbio's `docs/examples/pUC19-GFP/puc19-backbone-amplicon.dna` | A linear PCR product that starts inside `lacZα`, a CDS on the reverse strand. `lacZα` runs off the record's end and on from its start, so its second segment starts lower than its first. Its two primers, one at each end, have 5' tails. |
+| `gfp-amplicon.json` | mbio's `docs/examples/pUC19-GFP/gfp-amplicon.dna` | A linear PCR product of GFP. Its forward `GFP` CDS ends at a Golden Gate overhang, and its two primers have 5' tails. |
 | `ap1-product.json` | mbio's `docs/examples/ap1-library/product.dna` | A larger product with many features, some on no strand. Its `rop` and `lacI` start with GTG, so their translations start with V. |
 | `colour-test.json` | mbio's `tests/data/colour-test-snapgene.gbk` | Joined, white and grey features. The `split` CDS joins three segments, each later segment with its own colour. The `across` feature runs over the origin. The `source` feature has an empty name. |
 | `primer-test.json` | mbio's `tests/data/primer-test.dna` | A linear record. The primer `rev-mismatch` has one mismatch. |
@@ -26,7 +28,7 @@ over the span `(2600, 2750)`. That span runs across the origin, as its `across` 
 
 ## Making the records again
 
-`scripts/write_test_records.py` writes the four records from mbio, the test gels in
+`scripts/write_test_records.py` writes the six records from mbio, the test gels in
 `tests/gels/`, and the test plates in `tests/plates/`. It runs in mbio's own pixi environment
 and changes nothing there. It reads each mbio file at the commit named by `REVISION` in the
 script. It stops if the mbio code it runs differs from that commit in `src/`.

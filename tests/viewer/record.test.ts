@@ -114,7 +114,7 @@ describe("features", () => {
 
 	test.each<[string, boolean, object[], string[]]>([
 		[
-			"with starts that do not ascend",
+			"with a start equal to the one before",
 			false,
 			[
 				{ start: 50, end: 60 },
@@ -123,7 +123,68 @@ describe("features", () => {
 			],
 			[
 				"features[0].segments[1].start: must be greater than the previous segment's start",
-				"features[0].segments[2].start: must be greater than the previous segment's start",
+			],
+		],
+		[
+			"running off a linear record's end and on from its start",
+			false,
+			[
+				{ start: 90, end: 98 },
+				{ start: 2, end: 9 },
+			],
+			[],
+		],
+		[
+			"running off a linear record's end twice",
+			false,
+			[
+				{ start: 50, end: 60 },
+				{ start: 20, end: 30 },
+				{ start: 10, end: 15 },
+			],
+			[
+				"features[0].segments[2].start: must be greater than the previous segment's start: a feature runs off a linear record's end once",
+			],
+		],
+		[
+			"past where it began, after running off a linear record's end",
+			false,
+			[
+				{ start: 50, end: 60 },
+				{ start: 10, end: 20 },
+				{ start: 30, end: 51 },
+			],
+			[
+				"features[0].segments[2].end: must be at most segments[0].start, 50, once the feature has run off the end",
+			],
+		],
+		[
+			"up to where it began, after running off a linear record's end",
+			false,
+			[
+				{ start: 50, end: 60 },
+				{ start: 20, end: 50 },
+			],
+			[],
+		],
+		[
+			"from a linear record's last base on from its first",
+			false,
+			[
+				{ start: 90, end: 100 },
+				{ start: 0, end: 5 },
+			],
+			[],
+		],
+		[
+			"running back past the origin of a circular record",
+			true,
+			[
+				{ start: 90, end: 98 },
+				{ start: 2, end: 9 },
+			],
+			[
+				"features[0].segments[1].start: must be greater than the previous segment's start",
 			],
 		],
 		[
@@ -763,9 +824,10 @@ describe("a record whose length or shape is malformed", () => {
 
 	test.each<[string, object, string[]]>([
 		[
+			// The feature's lower second start is where it runs off a linear record's end.
 			"bases, on a linear record",
 			{ circular: false, bases: 7 },
-			["bases: must be text", ascend, outside(0), outside(1), bottom, empty],
+			["bases: must be text", outside(0), outside(1), bottom, empty],
 		],
 		[
 			// Mismatch 2 may lie past the origin, inside a site that crosses it.

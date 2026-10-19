@@ -35,6 +35,8 @@ REVISION = "10e87856849e7d484f0274064b8ff96357a5f618"
 #: Each record's file name in ``tests/records/``, and its input in mbio.
 RECORDS = {
     "puc19-gfp-product": "docs/examples/pUC19-GFP/product.dna",
+    "puc19-backbone-amplicon": "docs/examples/pUC19-GFP/puc19-backbone-amplicon.dna",
+    "gfp-amplicon": "docs/examples/pUC19-GFP/gfp-amplicon.dna",
     "ap1-product": "docs/examples/ap1-library/product.dna",
     "colour-test": "tests/data/colour-test-snapgene.gbk",
     "primer-test": "tests/data/primer-test.dna",
