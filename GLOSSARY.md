@@ -135,7 +135,9 @@ _Avoid_: kind, for what a well holds, which is a record's word
 
 ### Page
 
-One HTML file that opens offline and draws one or more inputs: records, gels or plates.
+One HTML file that opens offline and shows one or more inputs: records, figures, gels or plates.
+A record's page carries the viewer, which draws it in the browser; the others hold still
+drawings.
 
 ### Still drawing
 
