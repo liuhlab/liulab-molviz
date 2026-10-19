@@ -128,7 +128,7 @@ interface Ring {
 
 /**
  * Lay out `record` as a circle drawn as `options` say, its origin turned `rotation` degrees
- * clockwise from the top, its backbone's radius `zoom` times 220 points.
+ * clockwise from the top, its backbone's radius `zoom` times `RADIUS`.
  */
 export function layoutCircle(
 	record: Record,

@@ -831,7 +831,7 @@ function enzymesOf(file: { cuts?: readonly { enzyme: string }[] }): string[] {
 }
 
 describe("mbio's records", () => {
-	// From mbio's circle of the same records and enzymes, laid out at mbio 10e8785.
+	// The counts mbio's circle gives for the same records and enzymes.
 	test.each([
 		["pUC19-GFP", puc19File, false, 5, 4, 20, 0],
 		["pUC19-GFP", puc19File, true, 5, 4, 26, 0],

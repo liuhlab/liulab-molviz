@@ -63,7 +63,7 @@ export interface Columns {
  * Place `labels` in two columns round the circle of `radius`, hiding labels while a crowd
  * reaches past `reach` above or below the centre.
  *
- * Each anchor lies outside the circle and less than 14 points beyond it. `order` holds every
+ * Each anchor lies outside the circle and less than `GAP` beyond it. `order` holds every
  * label's index once, the first to hide first.
  */
 export function columns(
