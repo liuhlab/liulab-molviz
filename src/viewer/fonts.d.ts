@@ -1,4 +1,4 @@
-// The modules the build writes from the font subsets: see `scripts/font_tables.ts`.
+// The modules the build writes from the font subsets: see `scripts/font-tables.ts`.
 
 declare module "virtual:molviz-fonts" {
 	/** What the viewer knows of one face, in the face's units. */

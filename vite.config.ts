@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { defineConfig } from "vitest/config";
-import { fontTables } from "./scripts/font_tables.ts";
+import { fontTables } from "./scripts/font-tables.ts";
 
 /**
  * A comment holding the licence of each package bundled from `modules`, and of the fonts.

@@ -1,7 +1,7 @@
 import vm from "node:vm";
 import { build, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
-import { fontTables } from "../../scripts/font_tables";
+import { fontTables } from "../../scripts/font-tables";
 import {
 	fontFaceCss,
 	glyphs,

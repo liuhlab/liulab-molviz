@@ -20,7 +20,7 @@ const FONTS = "virtual:molviz-fonts";
 const OUTLINES = "virtual:molviz-outlines";
 
 // The script the viewer kerns under: DejaVu files its kerning there.
-const SCRIPT = "latn";
+const KERN_SCRIPT = "latn";
 
 function font(face: Face): Font {
 	return parse(new Uint8Array(readFileSync(`${FOLDER}/${face}.ttf`)).buffer);
@@ -49,7 +49,7 @@ function table(font: Font): FaceTable {
  * the one form this reads.
  */
 function kerning(font: Font, count: number): Kerning | null {
-	const subtables = (font.position.getKerningTables(SCRIPT) ?? []).flatMap(
+	const subtables = (font.position.getKerningTables(KERN_SCRIPT) ?? []).flatMap(
 		(lookup) => lookup.subtables,
 	);
 	if (subtables.length === 0) {
