@@ -80,6 +80,12 @@ export interface Shelf extends RowMarks {
 	readonly bottom: number;
 }
 
+/**
+ * The tier each item running on from one row into the next took, by the item: a feature by its
+ * label, a primer by its site.
+ */
+export type RunOn = Map<object, number>;
+
 /** Where a row's strands lie, each from its top to its bottom, and its rail between them. */
 export interface Strands {
 	readonly top: readonly [top: number, bottom: number];
@@ -114,7 +120,7 @@ export function layoutSequence(
 		: coloredFeatures(record, options);
 	const shapes: Shape[] = [];
 	const rows: Box[] = [];
-	let before = new Map<Label, number>();
+	let before: RunOn = new Map();
 	let top = 0;
 	for (const [i, start] of starts.entries()) {
 		const end = Math.min(start + perRow, span.end);
@@ -148,18 +154,18 @@ export function layoutSequence(
 
 /**
  * One row laid out from the height 0 down, its last position `last` ending at `right`, with the
- * tier each feature running on from the row before took there in `before`: its shapes, the box
- * they take, and the tier of each feature running on into the row after.
+ * tier each item running on from the row before took there in `before`: its shapes, the box they
+ * take, and the tier of each item running on into the row after.
  */
 function layoutRow(
 	row: Row,
 	drawables: readonly ColoredFeature[],
-	before: ReadonlyMap<Label, number>,
+	before: RunOn,
 	last: string,
 	right: number,
-): { shapes: Shape[]; box: Box; after: Map<Label, number> } {
+): { shapes: Shape[]; box: Box; after: RunOn } {
 	const { record, start, end } = row;
-	const forward = primers(row, 0, 1);
+	const forward = primers(row, 0, 1, before);
 	let y = forward.bottom;
 	const shapes: Shape[] = [...numbers(row, y + height("sans", SMALL_SIZE) / 2)];
 	y += height("sans", SMALL_SIZE) + NUMBERS_GAP;
@@ -186,7 +192,7 @@ function layoutRow(
 		anchor: "start",
 		fill: INK,
 	});
-	const reverse = primers(row, y, -1);
+	const reverse = primers(row, y, -1, before);
 	const bars = featureBars(row, drawables, before, reverse.bottom);
 	const across = acrossStrands(row, {
 		top: topStrand,
@@ -207,7 +213,8 @@ function layoutRow(
 		...above.boxes,
 		...drawn.flatMap((one) => one.covers ?? []),
 	]);
-	return { shapes, box, after: bars.after };
+	const after = new Map([...bars.after, ...forward.after, ...reverse.after]);
+	return { shapes, box, after };
 }
 
 /**
@@ -218,9 +225,9 @@ function layoutRow(
 function featureBars(
 	row: Row,
 	drawables: readonly ColoredFeature[],
-	before: ReadonlyMap<Label, number>,
+	before: RunOn,
 	top: number,
-): Shelf & { after: Map<Label, number> } {
+): Shelf & { after: RunOn } {
 	const { start, end, at, bounds, options } = row;
 	const found = drawables.flatMap(({ feature, label, segments }, order) =>
 		barsOf(feature, label, pieces(segments, { start, end }, bounds), at).map(
@@ -260,7 +267,7 @@ function featureBars(
 			y += PAD_Y + lineHeight;
 		}
 	}
-	const after = new Map<Label, number>();
+	const after: RunOn = new Map();
 	for (const [i, bar] of bars.entries()) {
 		if (bar.end === at(end)) after.set(bar.label, tiers[i]);
 		shapes.push(...barShapes(bar, middles[tiers[i]], placed[i], true));

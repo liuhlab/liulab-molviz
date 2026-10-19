@@ -198,6 +198,32 @@ describe("a primer", () => {
 		expect(middle(d) - middle(c)).toBeCloseTo(12.75, 9);
 	});
 
+	test("keeps its tier in the next row among primers starting with it, on either strand", () => {
+		// Each lit primer starts after its dimmed partner, which takes the tier nearer the bases.
+		const scene = lay(
+			{
+				primers: [
+					primer("a", [{ start: 5, end: 25, strand: 1 }]),
+					primer("b", [{ start: 2, end: 25, strand: 1 }]),
+					primer("c", [{ start: 5, end: 25, strand: -1 }]),
+					primer("d", [{ start: 2, end: 25, strand: -1 }]),
+				],
+			},
+			{ bases_per_row: 10, highlight: ["a", "c"] },
+		);
+		// The primers run through the first three rows.
+		for (const row of scene.rows.slice(0, 3)) {
+			const inRow = (fill: string) =>
+				polygons(scene, fill).filter(
+					(p) => row.y <= middle(p) && middle(p) <= row.y + row.height,
+				);
+			const [a, c] = inRow(PRIMER);
+			const [b, d] = inRow("#dddddd");
+			expect(middle(b)).toBeGreaterThan(middle(a));
+			expect(middle(d)).toBeLessThan(middle(c));
+		}
+	});
+
 	test("is labelled by name and site above each row holding part of its site, on a leader from the row's top", () => {
 		const scene = lay(
 			{

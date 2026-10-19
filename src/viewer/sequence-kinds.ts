@@ -24,7 +24,7 @@ import {
 } from "./paint";
 import { isWhole, pieces, pointText, spanText, turns } from "./pieces";
 import type { Box, Shape } from "./scene";
-import type { Row, RowMarks, Shelf, Strands } from "./sequence";
+import type { Row, RowMarks, RunOn, Shelf, Strands } from "./sequence";
 import type { Anchored } from "./staircase";
 
 /** The height of a row's top, where every leader from a label above it ends. */
@@ -68,6 +68,8 @@ export function acrossStrands(row: Row, strands: Strands): RowMarks {
  * does not pair with.
  */
 interface Primed {
+	/** The site, as the record gives it. */
+	readonly site: object;
 	readonly start: number;
 	readonly end: number;
 	readonly label: Label;
@@ -81,12 +83,25 @@ interface Primed {
 /**
  * The primer sites on `strand` in `row`, each an arrow, its 5' tail and its mismatches, in tiers
  * packed by start on a shelf from `top` down, the first tier nearest the bases: the forward
- * primers' above the numbers, the reverse primers' under the strands. Each is labelled above the
+ * primers' above the numbers, the reverse primers' under the strands. Sites starting together
+ * keep the order of the tiers they took in the row before, `before`. Each is labelled above the
  * row where the row holds part of its site.
  */
-export function primers(row: Row, top: number, strand: 1 | -1): Shelf {
-	const found = primed(row, strand);
+export function primers(
+	row: Row,
+	top: number,
+	strand: 1 | -1,
+	before: RunOn,
+): Shelf & { after: RunOn } {
+	const earlier = (site: object) => before.get(site) ?? Number.MAX_SAFE_INTEGER;
+	const found = primed(row, strand).sort(
+		(a, b) => a.start - b.start || earlier(a.site) - earlier(b.site),
+	);
 	const tiers = pack(found);
+	const after: RunOn = new Map();
+	for (const [i, { site, end }] of found.entries()) {
+		if (end === row.at(row.end)) after.set(site, tiers[i]);
+	}
 	const count = Math.max(0, ...tiers.map((tier) => tier + 1));
 	const shapes: Shape[] = [];
 	for (const [
@@ -126,7 +141,7 @@ export function primers(row: Row, top: number, strand: 1 | -1): Shelf {
 	const labels = found.flatMap(({ label, arrow }) =>
 		arrow ? [{ label, x: (arrow.start + arrow.end) / 2, foot: ROW_TOP }] : [],
 	);
-	return { shapes, labels, bottom: top + count * TIER };
+	return { shapes, labels, bottom: top + count * TIER, after };
 }
 
 /** What `row` holds of each primer site on `strand`, with its tail. */
@@ -167,6 +182,7 @@ function primed(row: Row, strand: 1 | -1): Primed[] {
 						: [Math.max(piece.start, high), piece.end];
 				const tailed = strand === 1 ? far < near : near < far;
 				found.push({
+					site,
 					start: at(piece.start),
 					end: at(piece.end),
 					label,
