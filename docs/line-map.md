@@ -105,3 +105,15 @@ An N inside a CDS, so one codon translates as X, and an EcoRI cut at the origin.
 --8<-- "tests/records/n-and-cut-at-origin.json"
 </script>
 </div>
+
+## crowded-sites
+
+A circle where 40 enzymes cut within 143 bases, with primers, tiny features and an insertion in
+that stretch and just past it. Its labels crowd, so some are hidden, and the note at the bottom
+right counts them.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/crowded-sites.json"
+</script>
+</div>
