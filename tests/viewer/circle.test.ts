@@ -10,6 +10,7 @@ import { baseline, height, measure, metrics } from "../../src/viewer/text";
 import ap1File from "../records/ap1-product.json";
 import colourTestFile from "../records/colour-test.json";
 import puc19File from "../records/puc19-gfp-product.json";
+import verifiedFile from "../records/puc19-gfp-verification.json";
 import {
 	closestToCentre,
 	crosses,
@@ -884,33 +885,9 @@ test("AP-1 with every enzyme hides the sites of the enzymes that cut it most, as
 	]);
 });
 
-/** pUC19-GFP's verification in mbio's example: its consensus read, and two disagreements in their verdicts' colours. */
-const VERIFIED = {
-	...puc19File,
-	reads: [{ name: "consensus.fasta", start: 0, end: 3347, strand: 1 }],
-	disagreements: [
-		{
-			name: "696 A>G",
-			start: 695,
-			end: 696,
-			bases: "G",
-			reads: ["consensus.fasta"],
-			color: "#cc3311",
-		},
-		{
-			name: "2687 C>T",
-			start: 2686,
-			end: 2687,
-			bases: "T",
-			reads: ["consensus.fasta"],
-			color: "#bbbbbb",
-		},
-	],
-};
-
 describe("pUC19-GFP's verification map", () => {
 	// mbio's page draws its map with no cut sites, lighting the disagreements and the read.
-	const record = check(VERIFIED);
+	const record = check(verifiedFile);
 	const scene = layoutCircle(
 		record,
 		checkOptions(

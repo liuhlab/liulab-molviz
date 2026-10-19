@@ -5,31 +5,7 @@ import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import type { Scene, Shape } from "../../src/viewer/scene";
 import { measure } from "../../src/viewer/text";
-import puc19File from "../records/puc19-gfp-product.json";
-
-/** pUC19-GFP's verification in mbio's example: its consensus read, and two disagreements in their verdicts' colours. */
-const VERIFIED = {
-	...puc19File,
-	reads: [{ name: "consensus.fasta", start: 0, end: 3347, strand: 1 }],
-	disagreements: [
-		{
-			name: "696 A>G",
-			start: 695,
-			end: 696,
-			bases: "G",
-			reads: ["consensus.fasta"],
-			color: "#cc3311",
-		},
-		{
-			name: "2687 C>T",
-			start: 2686,
-			end: 2687,
-			bases: "T",
-			reads: ["consensus.fasta"],
-			color: "#bbbbbb",
-		},
-	],
-};
+import verifiedFile from "../records/puc19-gfp-verification.json";
 
 function lay(record: unknown, options: object = {}): MapScene {
 	const checked = check(record);
@@ -79,7 +55,7 @@ function closeTo(values: readonly number[], expected: readonly number[]) {
 
 describe("pUC19-GFP's close-up of 696 A>G", () => {
 	// mbio's committed verification page draws these numbers for the same window and highlight.
-	const scene = lay(VERIFIED, {
+	const scene = lay(verifiedFile, {
 		span: { start: 665, end: 726 },
 		kinds_off: ["cuts"],
 		highlight: ["696 A>G", "consensus.fasta"],
