@@ -1,25 +1,25 @@
-/** A record's page switches: each kind it holds, each feature type and each enzyme. */
+/** A record's switches in its frame's bar: each kind it holds, each feature type and each enzyme. */
 
 import { byName, cutCounts } from "./cuts";
 import { folded } from "./format";
+import type { Frame } from "./frame";
 import { KINDS, type Kind } from "./labels";
-import type { Page } from "./page";
 
 /** What a kind's switch says, where that is not its key capitalised. */
 const SAID: { readonly [K in Kind]?: string } = { cuts: "Cut sites" };
 
 /** The kinds only the sequence view draws, whose switches show only with it. */
-const VIEW_ONLY: ReadonlySet<string> = new Set(["tracks"]);
+const SEQUENCE_ONLY: ReadonlySet<string> = new Set(["tracks"]);
 
 /**
- * Add `page`'s switches at the left of its bar, each ticked as the page's options start: the
+ * Add `frame`'s switches at the left of its bar, each ticked as the frame's options start: the
  * kinds the record holds, its feature types, and its enzymes folded in a list. A change sets the
- * options and lays the page out again.
+ * options and lays the frame out again.
  */
-export function switches(page: Page): void {
-	const { record, bar } = page;
+export function switches(frame: Frame): void {
+	const { record, bar } = frame;
 	const document = bar.ownerDocument;
-	const { kinds_off, types_off, enzymes } = page.state.options;
+	const { kinds_off, types_off, enzymes } = frame.state.options;
 	const make = (name: string, value: string, on: boolean, ...text: Content[]) =>
 		checkbox(document, name, value, on, ...text);
 
@@ -61,12 +61,12 @@ export function switches(page: Page): void {
 		...list.querySelectorAll<HTMLInputElement>("input:checked"),
 	];
 	const refresh = () => {
-		const { kinds_off, sequence_view } = page.state.options;
+		const { kinds_off, sequence_view } = frame.state.options;
 		summary.textContent = `Enzymes (${ticked().length} of ${counts.size})`;
 		list.disabled = kinds_off.includes("cuts");
 		types.disabled = kinds_off.includes("features");
 		for (const [kind, label] of held) {
-			label.hidden = VIEW_ONLY.has(kind) && !sequence_view;
+			label.hidden = SEQUENCE_ONLY.has(kind) && !sequence_view;
 		}
 	};
 	refresh();
@@ -77,7 +77,7 @@ export function switches(page: Page): void {
 
 	bar.addEventListener("change", (event) => {
 		const { name, value, checked } = event.target as HTMLInputElement;
-		const options = page.state.options;
+		const options = frame.state.options;
 		const toggled = <T extends string>(off: readonly T[]) =>
 			checked ? off.filter((one) => one !== value) : [...off, value as T];
 		const changed =
@@ -89,8 +89,8 @@ export function switches(page: Page): void {
 						? { enzymes: ticked().map((one) => one.value) }
 						: null;
 		if (changed !== null) {
-			page.state.options = { ...options, ...changed };
-			page.redraw();
+			frame.state.options = { ...options, ...changed };
+			frame.redraw();
 		}
 		refresh();
 	});

@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
 import { draw } from "../../src/viewer/draw";
+import { displayScale, openFrame } from "../../src/viewer/frame";
 import { checkOptions } from "../../src/viewer/options";
-import { displayScale, openPage } from "../../src/viewer/page";
 import { check } from "../../src/viewer/record";
 
 const linear = {
@@ -27,17 +27,17 @@ function spot(): HTMLElement {
 	return element;
 }
 
-/** `record` opened on a page with `options`, as `draw` opens it. */
+/** `record` opened in a frame with `options`, as `draw` opens it. */
 function opened(record: unknown, options: unknown = {}) {
 	const checked = check(record);
-	return openPage(
+	return openFrame(
 		spot(),
 		checked,
 		checkOptions(options, checked, { page: true }),
 	);
 }
 
-/** The map's drawing `draw` puts on a fresh page for `record` and `options`. */
+/** The map's drawing `draw` puts in a fresh frame for `record` and `options`. */
 function mapOf(record: unknown, options: unknown = {}): string {
 	const element = spot();
 	draw(element, record, options);
@@ -46,8 +46,8 @@ function mapOf(record: unknown, options: unknown = {}): string {
 	return svg.outerHTML;
 }
 
-function input(page: { bar: HTMLElement }, value: string): HTMLInputElement {
-	const found = page.bar.querySelector<HTMLInputElement>(
+function input(frame: { bar: HTMLElement }, value: string): HTMLInputElement {
+	const found = frame.bar.querySelector<HTMLInputElement>(
 		`input[value="${value}"]`,
 	);
 	if (!found) throw new Error(`no ${value} in the bar`);
@@ -55,8 +55,8 @@ function input(page: { bar: HTMLElement }, value: string): HTMLInputElement {
 }
 
 /** The value of each input in the bar's views, as the reader sees them in order. */
-function views(page: { bar: HTMLElement }): string[] {
-	return [...page.bar.querySelectorAll<HTMLInputElement>(".views input")].map(
+function views(frame: { bar: HTMLElement }): string[] {
+	return [...frame.bar.querySelectorAll<HTMLInputElement>(".views input")].map(
 		(one) => one.value,
 	);
 }
@@ -80,7 +80,7 @@ describe("displayScale", () => {
 	});
 });
 
-describe("a record's page", () => {
+describe("a record's frame", () => {
 	test("holds a bar, then the map's box, then the sequence view's", () => {
 		const element = spot();
 		draw(element, linear, {});
@@ -116,47 +116,47 @@ describe("a record's page", () => {
 	});
 
 	test("ticks the map and the sequence view the options open on", () => {
-		const page = opened(circular, { map: "line", sequence_view: true });
-		expect(input(page, "circle").checked).toBe(false);
-		expect(input(page, "line").checked).toBe(true);
-		expect(input(page, "sequence").checked).toBe(true);
+		const frame = opened(circular, { map: "line", sequence_view: true });
+		expect(input(frame, "circle").checked).toBe(false);
+		expect(input(frame, "line").checked).toBe(true);
+		expect(input(frame, "sequence").checked).toBe(true);
 	});
 });
 
 describe("flipping the map", () => {
-	test("draws the map flipped to as a page opening on it does", () => {
-		const page = opened(circular);
-		input(page, "line").click();
-		expect(page.state.options.map).toBe("line");
-		expect(page.box.innerHTML).toBe(mapOf(circular, { map: "line" }));
-		input(page, "circle").click();
-		expect(page.box.innerHTML).toBe(mapOf(circular));
+	test("draws the map flipped to as a frame opening on it does", () => {
+		const frame = opened(circular);
+		input(frame, "line").click();
+		expect(frame.state.options.map).toBe("line");
+		expect(frame.box.innerHTML).toBe(mapOf(circular, { map: "line" }));
+		input(frame, "circle").click();
+		expect(frame.box.innerHTML).toBe(mapOf(circular));
 	});
 
 	test("keeps each map's zoom and scroll while the other shows", () => {
-		const page = opened(circular);
-		page.shown().zoom = 2;
-		page.redraw();
-		const zoomed = page.box.innerHTML;
+		const frame = opened(circular);
+		frame.shown().zoom = 2;
+		frame.redraw();
+		const zoomed = frame.box.innerHTML;
 		expect(zoomed).not.toBe(mapOf(circular));
-		page.box.scrollLeft = 30;
-		page.box.scrollTop = 40;
-		input(page, "line").click();
-		expect([page.box.scrollLeft, page.box.scrollTop]).toEqual([0, 0]);
-		expect(page.box.innerHTML).toBe(mapOf(circular, { map: "line" }));
-		page.box.scrollLeft = 50;
-		input(page, "circle").click();
-		expect([page.box.scrollLeft, page.box.scrollTop]).toEqual([30, 40]);
-		expect(page.box.innerHTML).toBe(zoomed);
-		input(page, "line").click();
-		expect([page.box.scrollLeft, page.box.scrollTop]).toEqual([50, 0]);
+		frame.box.scrollLeft = 30;
+		frame.box.scrollTop = 40;
+		input(frame, "line").click();
+		expect([frame.box.scrollLeft, frame.box.scrollTop]).toEqual([0, 0]);
+		expect(frame.box.innerHTML).toBe(mapOf(circular, { map: "line" }));
+		frame.box.scrollLeft = 50;
+		input(frame, "circle").click();
+		expect([frame.box.scrollLeft, frame.box.scrollTop]).toEqual([30, 40]);
+		expect(frame.box.innerHTML).toBe(zoomed);
+		input(frame, "line").click();
+		expect([frame.box.scrollLeft, frame.box.scrollTop]).toEqual([50, 0]);
 	});
 
 	test("shows the hovers of the map flipped to in the page's box, with no title", () => {
-		const page = opened(circular);
-		input(page, "line").click();
-		expect(page.box.querySelectorAll("title")).toHaveLength(0);
-		const arrow = page.box.querySelector("path[fill='#77aadd']");
+		const frame = opened(circular);
+		input(frame, "line").click();
+		expect(frame.box.querySelectorAll("title")).toHaveLength(0);
+		const arrow = frame.box.querySelector("path[fill='#77aadd']");
 		arrow?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
 		const box = document.querySelector<HTMLElement>(
 			"body > div:not(:has(svg))",
@@ -167,34 +167,34 @@ describe("flipping the map", () => {
 });
 
 describe("the sequence view's switch", () => {
-	test("shows the view as a page opening with it does, and hides it again", () => {
-		const page = opened(linear);
-		const pane = page.box.nextElementSibling as HTMLElement;
+	test("shows the view as a frame opening with it does, and hides it again", () => {
+		const frame = opened(linear);
+		const pane = frame.box.nextElementSibling as HTMLElement;
 		expect(pane.hidden).toBe(true);
-		input(page, "sequence").click();
-		expect(page.state.options.sequence_view).toBe(true);
+		input(frame, "sequence").click();
+		expect(frame.state.options.sequence_view).toBe(true);
 		expect(pane.hidden).toBe(false);
 		const fresh = spot();
 		draw(fresh, linear, { sequence_view: true });
 		expect(pane.innerHTML).toBe(fresh.querySelector(".sequence")?.innerHTML);
-		input(page, "sequence").click();
-		expect(page.state.options.sequence_view).toBe(false);
+		input(frame, "sequence").click();
+		expect(frame.state.options.sequence_view).toBe(false);
 		expect(pane.hidden).toBe(true);
 	});
 
 	test("leaves the view as it is drawn when only the map changes", () => {
-		const page = opened(circular, { sequence_view: true });
-		const view = page.box.nextElementSibling?.firstElementChild;
-		input(page, "line").click();
-		page.shown().zoom = 2;
-		page.redraw();
-		expect(page.box.nextElementSibling?.firstElementChild).toBe(view);
+		const frame = opened(circular, { sequence_view: true });
+		const view = frame.box.nextElementSibling?.firstElementChild;
+		input(frame, "line").click();
+		frame.shown().zoom = 2;
+		frame.redraw();
+		expect(frame.box.nextElementSibling?.firstElementChild).toBe(view);
 	});
 });
 
-/** The rules the page's style holds for print, by their selector. */
+/** The rules the frames' style holds for print, by their selector. */
 function printRules(): Map<string, CSSStyleDeclaration> {
-	const style = document.getElementById("molviz-page") as HTMLStyleElement;
+	const style = document.getElementById("molviz-frame") as HTMLStyleElement;
 	const rules = new Map<string, CSSStyleDeclaration>();
 	for (const rule of style.sheet?.cssRules ?? []) {
 		if (!(rule instanceof CSSMediaRule) || rule.media.mediaText !== "print") {
@@ -211,9 +211,9 @@ function printRules(): Map<string, CSSStyleDeclaration> {
 
 describe("printing", () => {
 	test("hides the bar, and the hover box were it showing", () => {
-		const page = opened(circular);
+		const frame = opened(circular);
 		expect(printRules().get(".molviz .bar")?.display).toBe("none");
-		page.box
+		frame.box
 			.querySelector("[data-molviz-hover]")
 			?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
 		const shown = document.querySelector("body > div:not(:has(svg))");
@@ -226,29 +226,29 @@ describe("printing", () => {
 	});
 
 	test("lays a zoomed map out at 1×, turned as shown, and zooms it back after", () => {
-		const page = opened(circular);
-		page.shown().turn = 30;
-		page.redraw();
-		const turned = page.box.innerHTML;
-		page.shown().zoom = 2;
-		page.redraw();
-		const zoomed = page.box.innerHTML;
-		page.box.scrollLeft = 30;
-		page.box.scrollTop = 40;
+		const frame = opened(circular);
+		frame.shown().turn = 30;
+		frame.redraw();
+		const turned = frame.box.innerHTML;
+		frame.shown().zoom = 2;
+		frame.redraw();
+		const zoomed = frame.box.innerHTML;
+		frame.box.scrollLeft = 30;
+		frame.box.scrollTop = 40;
 		window.dispatchEvent(new Event("beforeprint"));
-		expect(page.box.innerHTML).toBe(turned);
+		expect(frame.box.innerHTML).toBe(turned);
 		window.dispatchEvent(new Event("afterprint"));
-		expect(page.box.innerHTML).toBe(zoomed);
-		expect([page.box.scrollLeft, page.box.scrollTop]).toEqual([30, 40]);
-		expect(page.shown().zoom).toBe(2);
+		expect(frame.box.innerHTML).toBe(zoomed);
+		expect([frame.box.scrollLeft, frame.box.scrollTop]).toEqual([30, 40]);
+		expect(frame.shown().zoom).toBe(2);
 	});
 
 	test("leaves a map at 1× as it is", () => {
-		const page = opened(circular);
-		const svg = page.box.firstElementChild;
+		const frame = opened(circular);
+		const svg = frame.box.firstElementChild;
 		window.dispatchEvent(new Event("beforeprint"));
 		window.dispatchEvent(new Event("afterprint"));
-		expect(page.box.firstElementChild).toBe(svg);
+		expect(frame.box.firstElementChild).toBe(svg);
 	});
 
 	test("shows the whole map, its box neither scrolling nor keeping its size", () => {
@@ -260,17 +260,17 @@ describe("printing", () => {
 	});
 });
 
-test("destroy removes the page and leaves the styles for another", () => {
+test("destroy removes the frame and leaves the styles for another", () => {
 	const element = spot();
-	const page = openPage(
+	const frame = openFrame(
 		element,
 		check(linear),
 		checkOptions({}, check(linear), { page: true }),
 	);
 	opened(linear);
-	page.destroy();
-	page.destroy();
+	frame.destroy();
+	frame.destroy();
 	expect(element.children).toHaveLength(0);
 	expect(document.querySelectorAll(".molviz")).toHaveLength(1);
-	expect(document.querySelectorAll("#molviz-page")).toHaveLength(1);
+	expect(document.querySelectorAll("#molviz-frame")).toHaveLength(1);
 });

@@ -2,8 +2,8 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { draw } from "../../src/viewer/draw";
 import { svg } from "../../src/viewer/drawing";
+import { displayScale, type Frame, openFrame } from "../../src/viewer/frame";
 import { checkOptions } from "../../src/viewer/options";
-import { displayScale, openPage, type Page } from "../../src/viewer/page";
 import { check } from "../../src/viewer/record";
 import { switches } from "../../src/viewer/switches";
 import ap1File from "../records/ap1-product.json";
@@ -54,23 +54,23 @@ const record = {
 	],
 };
 
-/** `record` on a page with `options`, its switches added, as `draw` opens it. */
-function opened(input: unknown, options: unknown = {}): Page {
+/** `record` in a frame with `options`, its switches added, as `draw` opens it. */
+function opened(input: unknown, options: unknown = {}): Frame {
 	const element = document.createElement("div");
 	document.body.append(element);
 	const checked = check(input);
-	const page = openPage(
+	const frame = openFrame(
 		element,
 		checked,
 		checkOptions(options, checked, { page: true }),
 	);
-	switches(page);
-	return page;
+	switches(frame);
+	return frame;
 }
 
 /** Each switch in the fieldset `name` as the reader sees it: its text, and a tick if on. */
-function ticks(page: Page, name: string): string[] {
-	const set = page.bar.querySelector(`fieldset[aria-label="${name}"]`);
+function ticks(frame: Frame, name: string): string[] {
+	const set = frame.bar.querySelector(`fieldset[aria-label="${name}"]`);
 	if (!set) throw new Error(`no ${name} in the bar`);
 	return [...set.querySelectorAll("label")].map((label) => {
 		const input = label.querySelector("input");
@@ -78,8 +78,8 @@ function ticks(page: Page, name: string): string[] {
 	});
 }
 
-function input(page: Page, value: string): HTMLInputElement {
-	const found = page.bar.querySelector<HTMLInputElement>(
+function input(frame: Frame, value: string): HTMLInputElement {
+	const found = frame.bar.querySelector<HTMLInputElement>(
 		`input[value="${value}"]`,
 	);
 	if (!found) throw new Error(`no ${value} in the bar`);
@@ -87,8 +87,8 @@ function input(page: Page, value: string): HTMLInputElement {
 }
 
 /** Each text the map draws, without its hover. */
-function texts(page: Page): string[] {
-	return [...page.box.querySelectorAll("text")].map((text) =>
+function texts(frame: Frame): string[] {
+	return [...frame.box.querySelectorAll("text")].map((text) =>
 		[...text.childNodes]
 			.filter((node) => node.nodeType === node.TEXT_NODE)
 			.map((node) => node.textContent)
@@ -97,8 +97,8 @@ function texts(page: Page): string[] {
 }
 
 /** The hidden-label notice on the map, or nothing. */
-function notice(page: Page): string {
-	return texts(page).find((text) => text.endsWith(" hidden")) ?? "";
+function notice(frame: Frame): string {
+	return texts(frame).find((text) => text.endsWith(" hidden")) ?? "";
 }
 
 afterEach(() => {
@@ -108,8 +108,8 @@ afterEach(() => {
 
 describe("the switches", () => {
 	test("switch each kind the record holds, ticked unless the options start it off", () => {
-		const page = opened(record, { kinds_off: ["insertions"] });
-		expect(ticks(page, "Kinds")).toEqual([
+		const frame = opened(record, { kinds_off: ["insertions"] });
+		expect(ticks(frame, "Kinds")).toEqual([
 			"x Features",
 			"x Cut sites",
 			"  Insertions",
@@ -117,10 +117,10 @@ describe("the switches", () => {
 	});
 
 	test("switch each feature type the record holds, in order whatever their case", () => {
-		const page = opened(record, {
+		const frame = opened(record, {
 			types_off: ["source", "gene", "rep_origin"],
 		});
-		expect(ticks(page, "Feature types")).toEqual([
+		expect(ticks(frame, "Feature types")).toEqual([
 			"x CDS",
 			"x promoter",
 			"x RBS",
@@ -130,27 +130,27 @@ describe("the switches", () => {
 	});
 
 	test("fold every enzyme the record holds into a list, with its cuts, the unique cutters bold", () => {
-		const page = opened(record);
-		expect(page.bar.querySelector("summary")?.textContent).toBe(
+		const frame = opened(record);
+		expect(frame.bar.querySelector("summary")?.textContent).toBe(
 			"Enzymes (2 of 3)",
 		);
-		expect(ticks(page, "Enzymes")).toEqual([
+		expect(ticks(frame, "Enzymes")).toEqual([
 			"  BsaI (2)",
 			"x EcoRI (1)",
 			"x NcoI (1)",
 		]);
-		const bold = page.bar.querySelectorAll("fieldset[aria-label=Enzymes] b");
+		const bold = frame.bar.querySelectorAll("fieldset[aria-label=Enzymes] b");
 		expect([...bold].map((b) => b.textContent)).toEqual(["EcoRI", "NcoI"]);
 	});
 
 	test("tick the enzymes the options name, whatever their case", () => {
-		const page = opened(record, { enzymes: ["bsai", "SmaI"] });
-		expect(ticks(page, "Enzymes")).toEqual([
+		const frame = opened(record, { enzymes: ["bsai", "SmaI"] });
+		expect(ticks(frame, "Enzymes")).toEqual([
 			"x BsaI (2)",
 			"  EcoRI (1)",
 			"  NcoI (1)",
 		]);
-		expect(page.bar.querySelector("summary")?.textContent).toBe(
+		expect(frame.bar.querySelector("summary")?.textContent).toBe(
 			"Enzymes (1 of 3)",
 		);
 	});
@@ -158,46 +158,46 @@ describe("the switches", () => {
 
 describe("a change", () => {
 	test("to a kind lays the map out again, showing the labels it frees", () => {
-		const page = opened(...ap1);
-		expect(notice(page)).toBe("6 cut sites are hidden");
-		expect(texts(page)).not.toContain("BtgZI (1864)");
-		input(page, "features").click();
-		expect(page.state.options.kinds_off).toEqual(["features"]);
-		expect(notice(page)).toBe("");
-		expect(texts(page)).toEqual(
+		const frame = opened(...ap1);
+		expect(notice(frame)).toBe("6 cut sites are hidden");
+		expect(texts(frame)).not.toContain("BtgZI (1864)");
+		input(frame, "features").click();
+		expect(frame.state.options.kinds_off).toEqual(["features"]);
+		expect(notice(frame)).toBe("");
+		expect(texts(frame)).toEqual(
 			expect.arrayContaining(["BtgZI (1864)", "BspQI - SapI (2295)"]),
 		);
 	});
 
 	test("to a feature type lays the map out again", () => {
-		const page = opened(...ap1);
-		input(page, "RBS").click();
-		expect(page.state.options.types_off).toEqual(["source", "RBS"]);
-		expect(notice(page)).toBe("2 cut sites are hidden");
-		input(page, "RBS").click();
-		expect(page.state.options.types_off).toEqual(["source"]);
-		expect(notice(page)).toBe("6 cut sites are hidden");
+		const frame = opened(...ap1);
+		input(frame, "RBS").click();
+		expect(frame.state.options.types_off).toEqual(["source", "RBS"]);
+		expect(notice(frame)).toBe("2 cut sites are hidden");
+		input(frame, "RBS").click();
+		expect(frame.state.options.types_off).toEqual(["source"]);
+		expect(notice(frame)).toBe("6 cut sites are hidden");
 	});
 
 	test("to an enzyme lays the map out again and recounts the list", () => {
-		const page = opened(...ap1);
-		input(page, "BtgZI").click();
-		expect(page.state.options.enzymes).not.toContain("BtgZI");
-		expect(page.state.options.enzymes).toHaveLength(13);
-		expect(notice(page)).toBe("2 cut sites are hidden");
-		expect(page.bar.querySelector("summary")?.textContent).toBe(
+		const frame = opened(...ap1);
+		input(frame, "BtgZI").click();
+		expect(frame.state.options.enzymes).not.toContain("BtgZI");
+		expect(frame.state.options.enzymes).toHaveLength(13);
+		expect(notice(frame)).toBe("2 cut sites are hidden");
+		expect(frame.bar.querySelector("summary")?.textContent).toBe(
 			"Enzymes (13 of 14)",
 		);
 	});
 
 	test("to a kind lays the sequence view out again too", () => {
-		const page = opened(record, { sequence_view: true });
-		const before = page.box.nextElementSibling?.innerHTML;
-		input(page, "features").click();
-		expect(page.box.nextElementSibling?.innerHTML).not.toBe(before);
+		const frame = opened(record, { sequence_view: true });
+		const before = frame.box.nextElementSibling?.innerHTML;
+		input(frame, "features").click();
+		expect(frame.box.nextElementSibling?.innerHTML).not.toBe(before);
 		const fresh = document.createElement("div");
 		draw(fresh, record, { sequence_view: true, kinds_off: ["features"] });
-		expect(page.box.nextElementSibling?.innerHTML).toBe(
+		expect(frame.box.nextElementSibling?.innerHTML).toBe(
 			fresh.querySelector(".sequence")?.innerHTML,
 		);
 	});
@@ -206,35 +206,35 @@ describe("a change", () => {
 		const room = 400;
 		const fresh = opened(ap1[0], { ...ap1[1], kinds_off: ["features"] });
 		const size = fresh.drawn().extent;
-		const page = opened(...ap1);
-		const frame = page.box.parentElement as HTMLElement;
-		Object.defineProperty(frame, "clientWidth", { value: room });
-		page.shown().zoom = 2;
-		page.redraw();
-		input(page, "features").click();
+		const frame = opened(...ap1);
+		const root = frame.box.parentElement as HTMLElement;
+		Object.defineProperty(root, "clientWidth", { value: room });
+		frame.shown().zoom = 2;
+		frame.redraw();
+		input(frame, "features").click();
 		const scale = displayScale(size.width, room);
-		expect(page.drawn().scale).toBe(scale);
-		const { width, height } = page.box.style;
+		expect(frame.drawn().scale).toBe(scale);
+		const { width, height } = frame.box.style;
 		expect(parseFloat(width)).toBeCloseTo(size.width * scale, 6);
 		expect(parseFloat(height)).toBeCloseTo(size.height * scale, 6);
 	});
 
 	test("to Cut sites greys the enzymes while it is off, and to Features the types", () => {
-		const page = opened(record, { kinds_off: ["cuts"] });
+		const frame = opened(record, { kinds_off: ["cuts"] });
 		const set = (name: string) =>
-			page.bar.querySelector<HTMLFieldSetElement>(
+			frame.bar.querySelector<HTMLFieldSetElement>(
 				`fieldset[aria-label="${name}"]`,
 			);
 		expect(set("Enzymes")?.disabled).toBe(true);
 		expect(set("Feature types")?.disabled).toBe(false);
-		input(page, "cuts").click();
-		input(page, "features").click();
+		input(frame, "cuts").click();
+		input(frame, "features").click();
 		expect(set("Enzymes")?.disabled).toBe(false);
 		expect(set("Feature types")?.disabled).toBe(true);
 	});
 });
 
-describe("a page", () => {
+describe("a frame", () => {
 	/** The name of each set of controls in the bar, in order. */
 	const sets = (bar: Element) =>
 		[...bar.children].map(
@@ -244,10 +244,10 @@ describe("a page", () => {
 		);
 
 	test("opens on what a file with the same options draws", () => {
-		const page = opened(...ap1);
+		const frame = opened(...ap1);
 		const file = svg(...ap1);
-		expect(notice(page)).toBe(file.notice);
-		expect(page.redraw().hidden).toEqual(file.hidden);
+		expect(notice(frame)).toBe(file.notice);
+		expect(frame.redraw().hidden).toEqual(file.hidden);
 	});
 
 	test("from draw holds its switches left of the views", () => {

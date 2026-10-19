@@ -1,6 +1,6 @@
 /**
- * A record on a page: a bar of controls, the map's box under it and the sequence view's under
- * that. A control changes the page's state, then calls `redraw`.
+ * A record's frame on a page: a bar of controls, the map's box under it and the sequence view's
+ * under that. A control changes the frame's state, then calls `redraw`.
  */
 
 import { aroundBoxes } from "./bounds";
@@ -16,15 +16,15 @@ import { families } from "./text";
 import { addTurn } from "./turn";
 import { addZoom } from "./zoom";
 
-/** The style element holding the pages' rules, shared by every page on a document. */
-const STYLE = "molviz-page";
+/** The style element holding the frames' rules, shared by every frame on a page. */
+const STYLE = "molviz-frame";
 
 type MapName = Options["map"];
 
 /** How far apart, in degrees, the turns are that a turning circle's box is sized from. */
 const TURN_STEP = 10;
 
-/** How a page shows one map. Each map keeps its own, so flipping back finds it as it was. */
+/** How a frame shows one map. Each map keeps its own, so flipping back finds it as it was. */
 export interface MapState {
 	/** How many times its opening size the map is laid out. */
 	zoom: number;
@@ -35,16 +35,16 @@ export interface MapState {
 	top: number;
 }
 
-/** What a page's controls change. */
-export interface PageState {
+/** What a frame's controls change. */
+export interface FrameState {
 	options: Options;
 	readonly maps: { readonly [M in MapName]: MapState };
 }
 
-/** A record drawn on a page, for its controls to change. */
-export interface Page {
+/** A record drawn in a frame on a page, for its controls to change. */
+export interface Frame {
 	readonly record: Record;
-	readonly state: PageState;
+	readonly state: FrameState;
 	/** The bar of controls. The map's flip and the sequence view's switch sit at its right. */
 	readonly bar: HTMLFormElement;
 	/** The map's box, which keeps its size at 1× and scrolls when the map is zoomed. */
@@ -60,7 +60,7 @@ export interface Page {
 	 * a full turn; any other redraw lets it go.
 	 */
 	redraw(hold?: boolean): MapScene;
-	/** Remove the page, leaving the styles for any other. Calling it again does nothing. */
+	/** Remove the frame, leaving the styles for any other. Calling it again does nothing. */
 	destroy(): void;
 }
 
@@ -72,12 +72,12 @@ export function displayScale(width: number, room: number): number {
 	return room > 0 ? Math.min(1, room / width) : 1;
 }
 
-/** Draw `record` as `options` say into a page added at the end of `element`. */
-export function openPage(
+/** Draw `record` as `options` say into a frame added at the end of `element`. */
+export function openFrame(
 	element: Element,
 	record: Record,
 	options: Options,
-): Page {
+): Frame {
 	const document = element.ownerDocument;
 	declareStyle(document);
 	const make = <K extends keyof HTMLElementTagNameMap>(
@@ -88,15 +88,15 @@ export function openPage(
 		made.className = name;
 		return made;
 	};
-	const frame = make("div", "molviz");
+	const root = make("div", "molviz");
 	const bar = make("form", "bar");
 	bar.autocomplete = "off";
 	const box = make("div", "map");
 	const pane = make("div", "sequence");
-	frame.append(bar, box, pane);
-	element.append(frame);
+	root.append(bar, box, pane);
+	element.append(root);
 
-	const state: PageState = {
+	const state: FrameState = {
 		options,
 		maps: { circle: opening(), line: opening() },
 	};
@@ -117,7 +117,7 @@ export function openPage(
 
 	/** The scale a map shows at: its size at 1× fitted to the room. */
 	const scaleOf = ({ name, extent }: NonNullable<typeof shown>) =>
-		displayScale((sizes.get(name)?.extent ?? extent).width, frame.clientWidth);
+		displayScale((sizes.get(name)?.extent ?? extent).width, root.clientWidth);
 
 	const sizeToRoom = () => {
 		if (shown === null) return;
@@ -206,14 +206,14 @@ export function openPage(
 	defaultView?.addEventListener("afterprint", afterPrint);
 	redraw();
 
-	const page: Page = {
+	const frame: Frame = {
 		record,
 		state,
 		bar,
 		box,
 		shown: () => state.maps[state.options.map],
 		drawn: () => {
-			if (shown === null) throw new Error("the page has drawn no map");
+			if (shown === null) throw new Error("the frame has drawn no map");
 			return { extent: shown.extent, scale: scaleOf(shown) };
 		},
 		redraw,
@@ -221,12 +221,12 @@ export function openPage(
 			defaultView?.removeEventListener("resize", sizeToRoom);
 			defaultView?.removeEventListener("beforeprint", beforePrint);
 			defaultView?.removeEventListener("afterprint", afterPrint);
-			frame.remove();
+			root.remove();
 		},
 	};
-	addZoom(page);
-	addTurn(page);
-	return page;
+	addZoom(frame);
+	addTurn(frame);
+	return frame;
 }
 
 /**
@@ -317,7 +317,7 @@ function choice(
 	return label;
 }
 
-/** Add the pages' rules to `document`, unless a page already has. */
+/** Add the frames' rules to `document`, unless a frame already has. */
 function declareStyle(document: Document): void {
 	if (document.getElementById(STYLE)) return;
 	const style = document.createElement("style");
@@ -326,7 +326,7 @@ function declareStyle(document: Document): void {
 	document.head.append(style);
 }
 
-/** The pages' rules, each under `.molviz` so a site's own styles leave the bar alone. */
+/** The frames' rules, each under `.molviz` so a site's own styles leave the bar alone. */
 function css(): string {
 	return `
 .molviz .bar {

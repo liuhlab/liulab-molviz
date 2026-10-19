@@ -19,8 +19,8 @@ the bottom right counts them.
 
 The bar above each circle works as it does on the line map. Scroll over the circle to turn
 it, and its labels find new places as it turns. Hold Ctrl or ⌘ and scroll to zoom. Line
-shows the record as a line, and Circle brings the circle back as you left it. Reset returns
-to the first view, with base 1 at the top. A print keeps the turn.
+shows the record as a line, and Circle brings the circle back as you left it. Reset undoes
+the zoom and the turn, with base 1 at the top again. A print keeps the turn.
 
 If a record cannot be drawn, its place on the page says why.
 

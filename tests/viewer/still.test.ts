@@ -59,7 +59,7 @@ function withoutHover(element: string): string {
 
 /**
  * A copy of `element` but for its hovers, which a live map shows in the page's box and a still
- * page as `<title>`s.
+ * drawing as `<title>`s.
  */
 function unhovered<T>(element: T): T {
 	const copy = (element as unknown as Element).cloneNode(true) as Element;

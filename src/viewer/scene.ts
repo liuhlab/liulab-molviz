@@ -106,7 +106,7 @@ export type Shape = (
 	readonly hover?: string;
 	/**
 	 * What a live page's hover box shows in place of `hover`: lines, the first in bold, as an
-	 * item's name, type, span and length. A still page and a file leave it out.
+	 * item's name, type, span and length. A still drawing and a file leave it out.
 	 */
 	readonly tip?: string;
 };

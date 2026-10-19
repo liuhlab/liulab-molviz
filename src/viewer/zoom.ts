@@ -1,10 +1,10 @@
 /**
- * Zooming a page's map from 1× to 8×: a slider and Reset in the bar, and Ctrl or ⌘ with the
+ * Zooming a frame's map from 1× to 8×: a slider and Reset in the bar, and Ctrl or ⌘ with the
  * wheel about the pointer.
  */
 
+import type { Frame } from "./frame";
 import type { Options } from "./options";
-import type { Page } from "./page";
 import type { Box } from "./scene";
 
 /** The most a map zooms, in doublings: 8×. */
@@ -19,17 +19,17 @@ export interface Spot {
 /** The part of a wheel event that moves up or down. */
 export type Wheel = Pick<WheelEvent, "deltaY" | "deltaMode">;
 
-/** How far `wheel` moves, in CSS pixels down, a line 16 of them and a page `page`. */
-export function pixels({ deltaY, deltaMode }: Wheel, page: number): number {
-	return deltaY * (deltaMode === 1 ? 16 : deltaMode === 2 ? page : 1);
+/** How far `wheel` moves, in CSS pixels down: a line is 16 of them, a frame a box's `height`. */
+export function pixels({ deltaY, deltaMode }: Wheel, height: number): number {
+	return deltaY * (deltaMode === 1 ? 16 : deltaMode === 2 ? height : 1);
 }
 
 /**
- * How many doublings `wheel` zooms in, in a box `page` CSS pixels tall: a pinch by its own scale,
+ * How many doublings `wheel` zooms in, in a box `height` CSS pixels tall: a pinch by its own scale,
  * a wheel's notch half a doubling at most.
  */
-export function zoomBy(wheel: Wheel, page: number): number {
-	const by = -pixels(wheel, page) / 100 / Math.LN2;
+export function zoomBy(wheel: Wheel, height: number): number {
+	const by = -pixels(wheel, height) / 100 / Math.LN2;
 	return Math.min(Math.max(by, -0.5), 0.5);
 }
 
@@ -103,30 +103,30 @@ export function eachFrame(view: Window | null, run: () => void): () => void {
 }
 
 /**
- * Change `page`'s state with `change`, lay its map out again, and scroll its box so the spot `at`
+ * Change `frame`'s state with `change`, lay its map out again, and scroll its box so the spot `at`
  * stays over the same place of the map. With `hold`, the map's box takes in the one before.
  */
 export function redrawKeeping(
-	page: Page,
+	frame: Frame,
 	at: Spot,
 	change: () => void,
 	hold = false,
 ): void {
-	const { extent: before, scale } = page.drawn();
-	const from = page.shown().zoom;
+	const { extent: before, scale } = frame.drawn();
+	const from = frame.shown().zoom;
 	change();
-	const { box } = page;
+	const { box } = frame;
 	const scroll = anchored(
-		page.state.options.map,
+		frame.state.options.map,
 		before,
-		page.redraw(hold).extent,
+		frame.redraw(hold).extent,
 		{
 			scale,
-			rescaled: page.drawn().scale,
+			rescaled: frame.drawn().scale,
 			at,
 			left: box.scrollLeft,
 			top: box.scrollTop,
-			by: page.shown().zoom / from,
+			by: frame.shown().zoom / from,
 		},
 	);
 	box.scrollLeft = scroll.left;
@@ -134,11 +134,11 @@ export function redrawKeeping(
 }
 
 /**
- * Add the zoom to the right of `page`'s bar: a slider in doublings and Reset, and Ctrl or ⌘ with
+ * Add the zoom to the right of `frame`'s bar: a slider in doublings and Reset, and Ctrl or ⌘ with
  * the wheel over the map.
  */
-export function addZoom(page: Page): void {
-	const { bar, box } = page;
+export function addZoom(frame: Frame): void {
+	const { bar, box } = frame;
 	const document = box.ownerDocument;
 	const slider = document.createElement("input");
 	slider.type = "range";
@@ -166,8 +166,8 @@ export function addZoom(page: Page): void {
 		if (asked === null) return;
 		const { level, at } = asked;
 		asked = null;
-		redrawKeeping(page, at, () => {
-			page.shown().zoom = 2 ** level;
+		redrawKeeping(frame, at, () => {
+			frame.shown().zoom = 2 ** level;
 		});
 		slider.value = String(level);
 	});
@@ -177,7 +177,7 @@ export function addZoom(page: Page): void {
 	};
 
 	slider.addEventListener("input", () => {
-		const { extent, scale } = page.drawn();
+		const { extent, scale } = frame.drawn();
 		const at = middle(
 			extent.width * scale,
 			extent.height * scale,
@@ -192,7 +192,7 @@ export function addZoom(page: Page): void {
 		(event) => {
 			if (!(event.ctrlKey || event.metaKey)) return;
 			event.preventDefault();
-			const level = asked?.level ?? Math.log2(page.shown().zoom);
+			const level = asked?.level ?? Math.log2(frame.shown().zoom);
 			const { left, top } = box.getBoundingClientRect();
 			zoomTo(level + zoomBy(event, box.clientHeight), {
 				x: event.clientX - left,
@@ -203,10 +203,10 @@ export function addZoom(page: Page): void {
 	);
 	reset.addEventListener("click", () => {
 		asked = null;
-		const map = page.shown();
+		const map = frame.shown();
 		map.zoom = 1;
 		map.turn = 0;
-		page.redraw();
+		frame.redraw();
 		box.scrollLeft = 0;
 		box.scrollTop = 0;
 		slider.value = "0";
@@ -215,6 +215,6 @@ export function addZoom(page: Page): void {
 	bar.addEventListener("change", (event) => {
 		if (event.target === slider) return;
 		asked = null;
-		slider.value = String(Math.log2(page.shown().zoom));
+		slider.value = String(Math.log2(frame.shown().zoom));
 	});
 }

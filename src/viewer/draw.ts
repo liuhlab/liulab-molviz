@@ -2,8 +2,8 @@
 
 import { prepareGel, preparePlate } from "./drawing";
 import { prepareFigure } from "./figure";
+import { openFrame } from "./frame";
 import { checkOptions } from "./options";
-import { openPage } from "./page";
 import { check } from "./record";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
@@ -33,9 +33,9 @@ export function draw(
 	const checked = check(record);
 	const drawn = checkOptions(options, checked, { page: true });
 	declareFaces(element.ownerDocument);
-	const page = openPage(element, checked, drawn);
-	switches(page);
-	return { destroy: page.destroy };
+	const frame = openFrame(element, checked, drawn);
+	switches(frame);
+	return { destroy: frame.destroy };
 }
 
 /**
