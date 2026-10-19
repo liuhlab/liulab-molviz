@@ -10,7 +10,14 @@ import {
 	type Shape,
 	twoDecimals,
 } from "./scene";
-import { families, glyphs, inFace, measure, unitsPerEm, weights } from "./text";
+import {
+	families,
+	glyphs,
+	inFace,
+	textWidth,
+	unitsPerEm,
+	weights,
+} from "./text";
 
 const GROUND = "#ffffff";
 const NAMESPACE = "http://www.w3.org/2000/svg";
@@ -170,10 +177,7 @@ function tag(shape: Shape, defined?: Defined): Tag {
 			};
 		case "text": {
 			const { text, face, size, y, fill, cell } = shape;
-			const width =
-				cell === undefined
-					? measure(text, face, size)
-					: [...text].length * cell;
+			const width = textWidth(text, face, size, cell);
 			const x = leftEdge(shape, width);
 			if (defined) {
 				// A glyph's outline is in its face's units; the group scales it to the text's size.

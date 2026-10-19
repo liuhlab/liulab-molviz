@@ -1,13 +1,19 @@
 /** The amino-acid chips over a translated feature's bar in the sequence view. */
 
 import type { Bar } from "./arrows";
-import { OUTLINE_WIDTH, painted, shaded, textColor } from "./paint";
-import type { Record } from "./record";
+import {
+	CHIPS,
+	OUTLINE_WIDTH,
+	painted,
+	STOP,
+	shaded,
+	textColor,
+} from "./paint";
+import { turns } from "./pieces";
+import type { Feature } from "./record";
 import type { Shape } from "./scene";
-import type { Lane, Row } from "./sequence";
+import type { Row, Shelf } from "./sequence";
 import { baseline } from "./text";
-
-type Feature = Record["features"][number];
 
 /** A chip's height, how far its point and notch reach along the row, and the room under it. */
 const CHIP = 15;
@@ -16,16 +22,6 @@ const CHIP_GAP = 1;
 
 /** The size a chip's letter is set at. */
 const LETTER_SIZE = 11;
-
-/** SeqViz's chip colours as they show at its 0.7 opacity on white, taken by a letter's code. */
-// biome-ignore format: a table reads better packed
-const PALETTE = [
-	"#baf0f2", "#b1e8af", "#ddf6a8", "#afe8d1", "#f5bfdd", "#f9d79c",
-	"#f5a5a5", "#fcc2ab", "#f5b8f9", "#d6baff", "#97a7ff", "#aac1ff",
-];
-
-/** A stop's chip. */
-const STOP = "#cc3311";
 
 /** One codon's bases next to one another in a row, as the span counts them. */
 interface Run {
@@ -37,11 +33,16 @@ interface Run {
 }
 
 /**
- * The chips of `feature` over its `bar` in `row`, in a lane from `top` down: a chevron over each
+ * The chips of `feature` over its `bar` in `row`, on a shelf from `top` down: a chevron over each
  * codon's bases there, pointing along the strand, its letter where its middle base is. A feature
  * with no translation has none.
  */
-export function chips(feature: Feature, bar: Bar, row: Row, top: number): Lane {
+export function chips(
+	feature: Feature,
+	bar: Bar,
+	row: Row,
+	top: number,
+): Shelf {
 	const { translation } = feature;
 	if (translation === undefined) return { shapes: [], labels: [], bottom: top };
 	const shapes: Shape[] = [];
@@ -52,7 +53,7 @@ export function chips(feature: Feature, bar: Bar, row: Row, top: number): Lane {
 		const x2 = row.at(run.end);
 		const letter = translation[run.codon];
 		const fill = painted(
-			letter === "*" ? STOP : PALETTE[letter.charCodeAt(0) % PALETTE.length],
+			letter === "*" ? STOP : CHIPS[letter.charCodeAt(0) % CHIPS.length],
 			bar.label.dim,
 		);
 		shapes.push({
@@ -109,8 +110,7 @@ function runs(
 				: before - segment.start) -
 			(codon_start - 1);
 		before += width;
-		const shifts = bounds.circular ? [-bounds.length, 0, bounds.length] : [0];
-		for (const shift of shifts) {
+		for (const shift of turns(bounds)) {
 			const from = Math.max(segment.start + shift, start);
 			const to = Math.min(segment.end + shift, end);
 			if (from >= to) continue;

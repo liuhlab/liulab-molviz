@@ -9,7 +9,7 @@ import { fontFaceCss } from "./text";
 const FONTS = "molviz-fonts";
 
 /** A drawing in an element of a page. */
-export interface Drawn {
+export interface LiveDrawing {
 	/** Remove the drawing, leaving the faces for any other. Calling it again does nothing. */
 	destroy(): void;
 }
@@ -22,7 +22,7 @@ export function draw(
 	element: Element,
 	record: unknown,
 	options: unknown = {},
-): Drawn {
+): LiveDrawing {
 	const { map, sequence } = prepareViews(record, options);
 	const drawn = [drawScene(element, map)];
 	if (sequence !== null) {
@@ -42,7 +42,7 @@ export function draw(
  * Draw `gel` into `element`, after what it holds, its letters as real text. Throws one
  * FormatError naming every problem in the gel.
  */
-export function drawGel(element: Element, gel: unknown): Drawn {
+export function drawGel(element: Element, gel: unknown): LiveDrawing {
 	return drawScene(element, prepareGel(gel));
 }
 
@@ -50,7 +50,7 @@ export function drawGel(element: Element, gel: unknown): Drawn {
  * Draw `plate` into `element`, after what it holds, its letters as real text. Throws one
  * FormatError naming every problem in the plate.
  */
-export function drawPlate(element: Element, plate: unknown): Drawn {
+export function drawPlate(element: Element, plate: unknown): LiveDrawing {
 	return drawScene(element, preparePlate(plate));
 }
 
@@ -58,7 +58,7 @@ export function drawPlate(element: Element, plate: unknown): Drawn {
 function drawScene(
 	element: Element,
 	scene: Scene,
-): Drawn & { svg: SVGSVGElement } {
+): LiveDrawing & { svg: SVGSVGElement } {
 	const document = element.ownerDocument;
 	declareFaces(document);
 	const svg = toElement(scene, document);

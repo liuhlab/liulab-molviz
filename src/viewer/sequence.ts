@@ -5,42 +5,33 @@
 
 import {
 	BAND,
+	barShapes,
 	barsOf,
-	body,
+	type ColoredFeature,
+	coloredFeatures,
 	isUnder,
-	middleOf,
 	OVERHANG,
-	outline,
 	pack,
 	places,
 	TIER_GAP,
 } from "./arrows";
-import { LABEL_SIZE, type Label, labelOf, PAD_Y, SMALL_SIZE } from "./labels";
-import { boxOf } from "./line";
+import { LABEL_SIZE, type Label, PAD_Y, SMALL_SIZE } from "./labels";
+import { around, boxOf, MARGIN } from "./line";
 import type { Options } from "./options";
-import {
-	CONNECTOR,
-	colorOf,
-	INK,
-	OUTLINE_WIDTH,
-	painted,
-	shaded,
-	textColor,
-} from "./paint";
+import { INK, RAIL } from "./paint";
 import { pieces } from "./pieces";
-import type { Bounds, Record, Span } from "./record";
-import type { Box, PathCommand, Scene, Shape } from "./scene";
+import type { Bounds, Record } from "./record";
 import {
-	acrossStrands,
-	forwardPrimers,
-	reversePrimers,
-} from "./sequence-kinds";
+	type Box,
+	moved,
+	type PathCommand,
+	type Scene,
+	type Shape,
+} from "./scene";
+import { acrossStrands, primers } from "./sequence-kinds";
 import { chips } from "./sequence-translation";
 import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, height, measure } from "./text";
-
-/** The most bases of a span the sequence view draws. */
-export const LIMIT = 100_000;
 
 /** How wide a base's cell is, and the size its letter is set at. */
 const CELL = 11;
@@ -53,16 +44,11 @@ const RAIL_GAP = 2;
 const TICKS = [1.5, 2.5, 3.5] as const;
 const LAST_GAP = 14;
 
-/** The rail's colour and thickness, and its ticks'. */
-const RAIL = "#7f7f7f";
+/** The rail's thickness, and its ticks'. */
 const RAIL_WIDTH = 1.6;
 const TICK_WIDTH = 1;
 
-/** The thickness of the line across a join's gap. */
-const CONNECTOR_WIDTH = 1.5;
-
 const ROW_GAP = 16;
-const MARGIN = 16;
 
 /** The sequence view laid out, and the box each row takes, top to bottom. */
 export interface SequenceScene extends Scene {
@@ -82,15 +68,15 @@ export interface Row {
 }
 
 /** What a part of a row draws, and the labels it sets above the row. */
-export interface Drawn {
+export interface RowMarks {
 	readonly shapes: readonly Shape[];
 	readonly labels: readonly Anchored[];
 	/** What its marks cover that their shapes' boxes leave out, such as a line's stroke. */
 	readonly covers?: readonly Box[];
 }
 
-/** A lane of a row, stacked under what lies above it: what it draws, and where it ends. */
-export interface Lane extends Drawn {
+/** A shelf of a row, stacked under what lies above it: what it draws, and where it ends. */
+export interface Shelf extends RowMarks {
 	readonly bottom: number;
 }
 
@@ -100,15 +86,6 @@ export interface Strands {
 	readonly rail: number;
 	/** Nothing when the bottom strand is not drawn. */
 	readonly bottom: readonly [top: number, bottom: number] | null;
-}
-
-type Feature = Record["features"][number];
-
-/** A feature as each row draws it: its label, and its segments in their colours. */
-interface Drawable {
-	readonly feature: Feature;
-	readonly label: Label;
-	readonly segments: readonly (Span & { readonly color: string })[];
 }
 
 /** Lay out the span `options` gives of `record` in rows of `options.bases_per_row` bases. */
@@ -132,7 +109,9 @@ export function layoutSequence(
 		perRow * CELL +
 		LAST_GAP +
 		Math.max(...lasts.map((text) => measure(text, "sans", SMALL_SIZE)));
-	const drawables = drawable(record, options);
+	const drawables = options.kinds_off.includes("features")
+		? []
+		: coloredFeatures(record, options);
 	const shapes: Shape[] = [];
 	const rows: Box[] = [];
 	let before = new Map<Label, number>();
@@ -154,7 +133,7 @@ export function layoutSequence(
 		top += laid.box.height + ROW_GAP;
 		before = laid.after;
 	}
-	const covered = around(rows);
+	const covered = aroundBoxes(rows);
 	return {
 		extent: {
 			x: covered.x - MARGIN,
@@ -167,31 +146,6 @@ export function layoutSequence(
 	};
 }
 
-/** The features `options` draws, each with its label and colours. */
-function drawable(record: Record, options: Options): Drawable[] {
-	if (options.kinds_off.includes("features")) return [];
-	const off = new Set(options.types_off);
-	return record.features
-		.filter((feature) => !off.has(feature.type))
-		.map((feature) => {
-			const label = labelOf(
-				{
-					kind: "features",
-					name: feature.name,
-					spans: feature.segments.map(({ start, end }) => ({ start, end })),
-				},
-				[{ text: feature.name, face: "sans" }],
-				colorOf(feature, feature.segments[0]),
-				options.highlight,
-			);
-			const segments = feature.segments.map((segment) => ({
-				...segment,
-				color: painted(colorOf(feature, segment), label.dim),
-			}));
-			return { feature, label, segments };
-		});
-}
-
 /**
  * One row laid out from the height 0 down, its last position `last` ending at `right`, with the
  * tier each feature running on from the row before took there in `before`: its shapes, the box
@@ -199,13 +153,13 @@ function drawable(record: Record, options: Options): Drawable[] {
  */
 function layoutRow(
 	row: Row,
-	drawables: readonly Drawable[],
+	drawables: readonly ColoredFeature[],
 	before: ReadonlyMap<Label, number>,
 	last: string,
 	right: number,
 ): { shapes: Shape[]; box: Box; after: Map<Label, number> } {
 	const { record, start, end } = row;
-	const forward = forwardPrimers(row, 0);
+	const forward = primers(row, 0, 1);
 	let y = forward.bottom;
 	const shapes: Shape[] = [...numbers(row, y + height("sans", SMALL_SIZE) / 2)];
 	y += height("sans", SMALL_SIZE) + NUMBERS_GAP;
@@ -232,7 +186,7 @@ function layoutRow(
 		anchor: "start",
 		fill: INK,
 	});
-	const reverse = reversePrimers(row, y);
+	const reverse = primers(row, y, -1);
 	const bars = featureBars(row, drawables, before, reverse.bottom);
 	const across = acrossStrands(row, {
 		top: topStrand,
@@ -247,7 +201,7 @@ function layoutRow(
 		Number.POSITIVE_INFINITY,
 	);
 	shapes.push(...above.shapes);
-	const box = around([
+	const box = aroundBoxes([
 		{ x: 0, y: 0, width: right, height: bars.bottom },
 		...shapes.flatMap((shape) => boxOf(shape) ?? []),
 		...above.boxes,
@@ -263,10 +217,10 @@ function layoutRow(
  */
 function featureBars(
 	row: Row,
-	drawables: readonly Drawable[],
+	drawables: readonly ColoredFeature[],
 	before: ReadonlyMap<Label, number>,
 	top: number,
-): Lane & { after: Map<Label, number> } {
+): Shelf & { after: Map<Label, number> } {
 	const { start, end, at, bounds, options } = row;
 	const found = drawables.flatMap(({ feature, label, segments }, order) =>
 		barsOf(feature, label, pieces(segments, { start, end }, bounds), at).map(
@@ -291,15 +245,15 @@ function featureBars(
 	let y = top;
 	for (let tier = 0; tier <= Math.max(-1, ...tiers); tier++) {
 		y += TIER_GAP;
-		let lane = y;
+		let chipped = y;
 		for (const [i, { bar, feature }] of found.entries()) {
 			if (tiers[i] !== tier) continue;
 			const over = chips(feature, bar, row, y);
 			shapes.push(...over.shapes);
 			labels.push(...over.labels);
-			lane = Math.max(lane, over.bottom);
+			chipped = Math.max(chipped, over.bottom);
 		}
-		y = lane;
+		y = chipped;
 		middles.push(y + OVERHANG + BAND / 2);
 		y += 2 * OVERHANG + BAND;
 		if (tiers.some((t, i) => t === tier && isUnder(placed[i]))) {
@@ -308,54 +262,11 @@ function featureBars(
 	}
 	const after = new Map<Label, number>();
 	for (const [i, bar] of bars.entries()) {
-		const middle = middles[tiers[i]];
-		const { dim } = bar.label;
 		if (bar.end === at(end)) after.set(bar.label, tiers[i]);
-		for (const [x1, x2] of bar.gaps) {
-			shapes.push({
-				shape: "line",
-				x1,
-				y1: middle,
-				x2,
-				y2: middle,
-				stroke: painted(CONNECTOR, dim),
-				strokeWidth: CONNECTOR_WIDTH,
-			});
-		}
-		for (const arrow of bar.arrows) {
-			shapes.push({
-				shape: "polygon",
-				points: outline(arrow, middle, BAND, true),
-				fill: arrow.color,
-				stroke: shaded(arrow.color),
-				strokeWidth: OUTLINE_WIDTH,
-			});
-		}
-		const place = placed[i];
-		if (place === null) continue;
-		if (place === "boxed") {
+		shapes.push(...barShapes(bar, middles[tiers[i]], placed[i], true));
+		if (placed[i] === "boxed") {
 			labels.push({ label: bar.label, x: (bar.start + bar.end) / 2, foot: 0 });
-			continue;
 		}
-		const { name } = bar.label;
-		const [x, fill, textMiddle] =
-			"inside" in place
-				? [middleOf(body(place.inside)), textColor(place.inside.color), middle]
-				: [
-						place.under + measure(name, "sans", LABEL_SIZE) / 2,
-						painted(INK, dim),
-						middle + BAND / 2 + OVERHANG + PAD_Y + lineHeight / 2,
-					];
-		shapes.push({
-			shape: "text",
-			text: name,
-			face: "sans",
-			size: LABEL_SIZE,
-			x,
-			y: baseline("sans", LABEL_SIZE, textMiddle),
-			anchor: "middle",
-			fill,
-		});
 	}
 	return { shapes, labels, bottom: y, after };
 }
@@ -461,53 +372,12 @@ function lastText(end: number, length: number): string {
 	return String(((end - 1) % length) + 1);
 }
 
-/** The box around `boxes`. */
-function around(boxes: readonly Box[]): Box {
-	const left = Math.min(...boxes.map((b) => b.x));
-	const top = Math.min(...boxes.map((b) => b.y));
-	const right = Math.max(...boxes.map((b) => b.x + b.width));
-	const bottom = Math.max(...boxes.map((b) => b.y + b.height));
-	return { x: left, y: top, width: right - left, height: bottom - top };
-}
-
-/** `shape` moved `dx` right and `dy` down. */
-export function moved(shape: Shape, dx: number, dy: number): Shape {
-	switch (shape.shape) {
-		case "line":
-			return {
-				...shape,
-				x1: shape.x1 + dx,
-				y1: shape.y1 + dy,
-				x2: shape.x2 + dx,
-				y2: shape.y2 + dy,
-			};
-		case "polygon":
-			return {
-				...shape,
-				points: shape.points.map(([x, y]) => [x + dx, y + dy] as const),
-			};
-		case "path":
-			return {
-				...shape,
-				commands: shape.commands.map((command) => {
-					switch (command[0]) {
-						case "Z":
-							return command;
-						case "A": {
-							const [letter, r, large, sweep, x, y] = command;
-							return [letter, r, large, sweep, x + dx, y + dy] as const;
-						}
-						default: {
-							const [letter, x, y] = command;
-							return [letter, x + dx, y + dy] as const;
-						}
-					}
-				}),
-			};
-		case "circle":
-			return { ...shape, cx: shape.cx + dx, cy: shape.cy + dy };
-		case "rect":
-		case "text":
-			return { ...shape, x: shape.x + dx, y: shape.y + dy };
-	}
+/** The box around `boxes`, of which there is at least one. */
+function aroundBoxes(boxes: readonly Box[]): Box {
+	return around(
+		boxes.flatMap(({ x, y, width, height }) => [
+			[x, y],
+			[x + width, y + height],
+		]),
+	) as Box;
 }

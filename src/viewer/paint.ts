@@ -1,7 +1,7 @@
 /** The colours a map paints. Each is written `#rrggbb`. */
 
 import { folded } from "./format";
-import type { Record } from "./record";
+import type { Feature } from "./record";
 
 /** The colour of each group of feature types, by the types it holds. */
 // Paul Tol's light scheme, with `#aa3377` from his bright scheme.
@@ -49,25 +49,46 @@ export const ENZYME = "#000000";
 /** An insertion's mark and label, where it has no colour of its own. */
 export const INSERTION = "#cc3311";
 
+/** The thickness of an insertion's mark. */
+export const INSERTION_WIDTH = 2;
+
 /** The one grey every paint of an item a highlight leaves unlit takes. */
 export const DIM = "#dddddd";
 
 /** The backbone, the ruler and the title. */
 export const INK = "#252525";
 
-/** The thin line across the gap between two segments of a feature. */
+/** The thin line across the gap between two segments of a feature, and its thickness. */
 export const CONNECTOR = "#666666";
+export const CONNECTOR_WIDTH = 1.5;
 
 /** The line from a label to what it names. */
 export const LEADER = "#7f7f7f";
+
+/** The sequence view's rail and its ticks. */
+export const RAIL = LEADER;
+
+/** The box over a cut's recognition span in the sequence view. */
+export const CUT_BOX = LEADER;
+
+/** The mark on a base a primer does not pair with. */
+export const MISMATCH = INSERTION;
+
+/** A stop's amino-acid chip. */
+export const STOP = INSERTION;
+
+/** SeqViz's amino-acid chip colours as they show at its 0.7 opacity on white, by a letter's code. */
+// biome-ignore format: a table reads better packed
+export const CHIPS = [
+	"#baf0f2", "#b1e8af", "#ddf6a8", "#afe8d1", "#f5bfdd", "#f9d79c",
+	"#f5a5a5", "#fcc2ab", "#f5b8f9", "#d6baff", "#97a7ff", "#aac1ff",
+];
 
 /** The width of an arrow's outline, and of a box's. */
 export const OUTLINE_WIDTH = 0.8;
 
 /** How much of each channel of its fill an outline keeps. */
 const OUTLINE_SHADE = 0.45;
-
-type Feature = Record["features"][number];
 
 /** The colour `segment` of `feature` fills: its own, else the feature's, else its type's. */
 export function colorOf(

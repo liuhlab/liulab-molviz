@@ -109,3 +109,45 @@ export function twoDecimals(value: number): string {
 	const text = value.toFixed(2);
 	return text === "-0.00" ? "0.00" : text;
 }
+
+/** `shape` moved `dx` right and `dy` down. */
+export function moved(shape: Shape, dx: number, dy: number): Shape {
+	switch (shape.shape) {
+		case "line":
+			return {
+				...shape,
+				x1: shape.x1 + dx,
+				y1: shape.y1 + dy,
+				x2: shape.x2 + dx,
+				y2: shape.y2 + dy,
+			};
+		case "polygon":
+			return {
+				...shape,
+				points: shape.points.map(([x, y]) => [x + dx, y + dy] as const),
+			};
+		case "path":
+			return {
+				...shape,
+				commands: shape.commands.map((command) => {
+					switch (command[0]) {
+						case "Z":
+							return command;
+						case "A": {
+							const [letter, r, large, sweep, x, y] = command;
+							return [letter, r, large, sweep, x + dx, y + dy] as const;
+						}
+						default: {
+							const [letter, x, y] = command;
+							return [letter, x + dx, y + dy] as const;
+						}
+					}
+				}),
+			};
+		case "circle":
+			return { ...shape, cx: shape.cx + dx, cy: shape.cy + dy };
+		case "rect":
+		case "text":
+			return { ...shape, x: shape.x + dx, y: shape.y + dy };
+	}
+}

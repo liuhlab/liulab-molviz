@@ -144,7 +144,7 @@ function strands(scene: SequenceScene): {
 		.sort((a, b) => a - b)
 		.map((rail) => {
 			const above = letters.filter((t) => t.y < rail).at(-1) as Text;
-			// A bottom strand's baseline lies 16 below the rail; the next row's strand, further.
+			// A bottom strand lies just under the rail, nearer than the next row's top strand.
 			const below = letters.find((t) => t.y > rail && t.y < rail + 20);
 			return {
 				top: extent(above),
@@ -173,7 +173,7 @@ describe("a primer", () => {
 		expect(top[1]).toBeLessThan(ys(rev)[0]);
 	});
 
-	test("takes a track by start, 11.82 from the last, the first nearest the bases", () => {
+	test("takes a tier by start, 11.82 from the last, the first nearest the bases", () => {
 		const scene = lay({
 			primers: [
 				primer("a", [{ start: 2, end: 12, strand: 1 }]),

@@ -1,9 +1,21 @@
 /** Arrows along a line or a row, and a feature's bars of them: tiers, outlines and names. */
 
-import { LABEL_SIZE, type Label, PAD_X } from "./labels";
+import { LABEL_SIZE, type Label, labelOf, PAD_X, PAD_Y } from "./labels";
+import type { Options } from "./options";
+import {
+	CONNECTOR,
+	CONNECTOR_WIDTH,
+	colorOf,
+	INK,
+	OUTLINE_WIDTH,
+	painted,
+	shaded,
+	textColor,
+} from "./paint";
 import type { Piece } from "./pieces";
-import type { Record } from "./record";
-import { height, measure } from "./text";
+import type { Feature, Record, Span } from "./record";
+import type { Shape } from "./scene";
+import { baseline, height, measure } from "./text";
 
 // A feature's arrow: the band's thickness, how far a head reaches beyond the band, the least room
 // between two bars in a tier, and between tiers.
@@ -15,6 +27,10 @@ export const TIER_GAP = 4;
 
 /** How deep the teeth of a zigzag edge are. */
 const ZIGZAG = 4;
+
+// A primer's arrow: its band's thickness, and the room either side of it.
+export const PRIMER_BAND = 4;
+export const PRIMER_GAP = 2;
 
 /** One segment's arrow along the line. */
 export interface Arrow {
@@ -44,7 +60,39 @@ export interface Bar {
  */
 export type Place = { inside: Arrow } | { under: number } | "boxed" | null;
 
-type Feature = Record["features"][number];
+/** A feature as a map or a row draws it: its label, and its segments in their colours. */
+export interface ColoredFeature {
+	readonly feature: Feature;
+	readonly label: Label;
+	readonly segments: readonly (Span & { readonly color: string })[];
+}
+
+/** Each feature of `record` whose type `options` leave on, dimmed where they leave it unlit. */
+export function coloredFeatures(
+	record: Record,
+	options: Options,
+): ColoredFeature[] {
+	const off = new Set(options.types_off);
+	return record.features
+		.filter((feature) => !off.has(feature.type))
+		.map((feature) => {
+			const label = labelOf(
+				{
+					kind: "features",
+					name: feature.name,
+					spans: feature.segments.map(({ start, end }) => ({ start, end })),
+				},
+				[{ text: feature.name, face: "sans" }],
+				colorOf(feature, feature.segments[0]),
+				options.highlight,
+			);
+			const segments = feature.segments.map((segment) => ({
+				...segment,
+				color: painted(colorOf(feature, segment), label.dim),
+			}));
+			return { feature, label, segments };
+		});
+}
 
 /**
  * The bars `found` draws, each run of pieces that follow on from one another, named by `label`.
@@ -239,6 +287,61 @@ export function outline(
 		);
 	}
 	return points;
+}
+
+/**
+ * `bar` about the height `middle`: a line across each gap, each arrow, with zigzag edges where it
+ * is cut if `zigzag`, and its name where `place` sets it inside or under the bar.
+ */
+export function barShapes(
+	bar: Bar,
+	middle: number,
+	place: Place,
+	zigzag: boolean,
+): Shape[] {
+	const { dim, name } = bar.label;
+	const shapes: Shape[] = [];
+	for (const [x1, x2] of bar.gaps) {
+		shapes.push({
+			shape: "line",
+			x1,
+			y1: middle,
+			x2,
+			y2: middle,
+			stroke: painted(CONNECTOR, dim),
+			strokeWidth: CONNECTOR_WIDTH,
+		});
+	}
+	for (const arrow of bar.arrows) {
+		shapes.push({
+			shape: "polygon",
+			points: outline(arrow, middle, BAND, zigzag),
+			fill: arrow.color,
+			stroke: shaded(arrow.color),
+			strokeWidth: OUTLINE_WIDTH,
+		});
+	}
+	if (place === "boxed" || place === null) return shapes;
+	const lineHeight = height("sans", LABEL_SIZE);
+	const [x, fill, textMiddle] =
+		"inside" in place
+			? [middleOf(body(place.inside)), textColor(place.inside.color), middle]
+			: [
+					place.under + measure(name, "sans", LABEL_SIZE) / 2,
+					painted(INK, dim),
+					middle + BAND / 2 + OVERHANG + PAD_Y + lineHeight / 2,
+				];
+	shapes.push({
+		shape: "text",
+		text: name,
+		face: "sans",
+		size: LABEL_SIZE,
+		x,
+		y: baseline("sans", LABEL_SIZE, textMiddle),
+		anchor: "middle",
+		fill,
+	});
+	return shapes;
 }
 
 /** How far the heads of an arrow `band` thick reach beyond it, as a feature's do in proportion. */

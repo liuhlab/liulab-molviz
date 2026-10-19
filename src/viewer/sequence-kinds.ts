@@ -1,65 +1,55 @@
-/** The sequence view's primers, cut sites and insertions, each row's lanes and marks of them. */
+/** The sequence view's primers, cut sites and insertions, each row's shelves and marks of them. */
 
-import { type Arrow, outline, overhang, pack } from "./arrows";
+import {
+	type Arrow,
+	outline,
+	overhang,
+	PRIMER_BAND,
+	PRIMER_GAP,
+	pack,
+} from "./arrows";
 import { cutSites } from "./cuts";
 import { folded } from "./format";
 import { type Label, labelOf } from "./labels";
 import {
+	CUT_BOX,
 	INK,
 	INSERTION,
+	INSERTION_WIDTH,
+	MISMATCH,
 	OUTLINE_WIDTH,
 	PRIMER,
 	painted,
 	shaded,
 } from "./paint";
-import { pieces, pointText, spanText } from "./pieces";
-import type { Bounds } from "./record";
+import { isWhole, pieces, pointText, spanText, turns } from "./pieces";
 import type { Box, Shape } from "./scene";
-import type { Drawn, Lane, Row, Strands } from "./sequence";
+import type { Row, RowMarks, Shelf, Strands } from "./sequence";
 import type { Anchored } from "./staircase";
-
-/** How wide a base's cell is, as the rows set it. */
-const CELL = 11;
 
 /** The height of a row's top, where every leader from a label above it ends. */
 const ROW_TOP = 0;
 
-// A primer's arrow: its band's thickness, and the room between two tracks. Then how far its tail
-// bends away from the band's middle, and how thick it is.
-const PRIMER_BAND = 4;
-const PRIMER_GAP = 2;
+// How far a primer's tail bends away from its band's middle, and how thick it is.
 const BEND = 6;
 const TAIL_WIDTH = 1.5;
 
-// How far a primer's track reaches towards the bases, its head's half, and away from them.
+// How far a primer's tier reaches towards the bases, its head's half, and away from them; then
+// how far one tier lies from the next.
 const NEAR = PRIMER_BAND / 2 + overhang(PRIMER_BAND);
 const AWAY = Math.max(BEND + TAIL_WIDTH / 2, NEAR);
-const TRACK = AWAY + NEAR + PRIMER_GAP;
+const TIER = AWAY + NEAR + PRIMER_GAP;
 
-/** A base a primer does not pair with: its mark's colour, and the room either side in its cell. */
-const MISMATCH = "#cc3311";
+/** The room either side of a mismatch's mark in its cell. */
 const MARK_INSET = 2;
 
-/** The outline of a cut site's recognition span, and the thickness of its cuts' lines. */
-const BOX = "#7f7f7f";
+/** The thickness of a cut's lines. */
 const CUT_WIDTH = 1.2;
 
-const INSERTION_WIDTH = 2;
-
-const NOTHING: Drawn = { shapes: [], labels: [] };
-
-/** The forward primers' arrows in `row`, in a lane from `top` down, above its numbers. */
-export function forwardPrimers(row: Row, top: number): Lane {
-	return primers(row, top, 1);
-}
-
-/** The reverse primers' arrows in `row`, in a lane from `top` down, under its strands. */
-export function reversePrimers(row: Row, top: number): Lane {
-	return primers(row, top, -1);
-}
+const NOTHING: RowMarks = { shapes: [], labels: [] };
 
 /** The cut sites and insertions in `row`, drawn through its `strands`. */
-export function acrossStrands(row: Row, strands: Strands): Drawn {
+export function acrossStrands(row: Row, strands: Strands): RowMarks {
 	const cut = cuts(row, strands);
 	const inserted = insertions(row, strands);
 	return {
@@ -71,29 +61,30 @@ export function acrossStrands(row: Row, strands: Strands): Drawn {
 
 /**
  * What a row holds of one primer site and its tail: where that starts and ends, the arrow of its
- * site and the line of its tail where the row holds them, and where each base of the site it does
- * not pair with starts.
+ * site and the line of its tail where the row holds them, and the cell of each base of the site it
+ * does not pair with.
  */
 interface Primed {
 	readonly start: number;
 	readonly end: number;
 	readonly label: Label;
 	readonly arrow: Arrow | null;
-	/** From the end nearer the site; it `bends` where it leaves the site. */
-	readonly tail: readonly [near: number, far: number] | null;
+	/** Its end nearer the site, a cell on from there, and its far end; it `bends` leaving the site. */
+	readonly tail: readonly [near: number, next: number, far: number] | null;
 	readonly bends: boolean;
-	readonly mismatches: readonly number[];
+	readonly mismatches: readonly (readonly [start: number, end: number])[];
 }
 
 /**
- * The primer sites on `strand` in `row`, each an arrow, its 5' tail and its mismatches, in tracks
- * packed by start from `top` down, the first track nearest the bases. Each is labelled above the
+ * The primer sites on `strand` in `row`, each an arrow, its 5' tail and its mismatches, in tiers
+ * packed by start on a shelf from `top` down, the first tier nearest the bases: the forward
+ * primers' above the numbers, the reverse primers' under the strands. Each is labelled above the
  * row where the row holds part of its site.
  */
-function primers(row: Row, top: number, strand: 1 | -1): Lane {
+export function primers(row: Row, top: number, strand: 1 | -1): Shelf {
 	const found = primed(row, strand);
-	const tracks = pack(found);
-	const count = Math.max(0, ...tracks.map((track) => track + 1));
+	const tiers = pack(found);
+	const count = Math.max(0, ...tiers.map((tier) => tier + 1));
 	const shapes: Shape[] = [];
 	for (const [
 		i,
@@ -101,8 +92,8 @@ function primers(row: Row, top: number, strand: 1 | -1): Lane {
 	] of found.entries()) {
 		const middle =
 			strand === 1
-				? top + (count - 1 - tracks[i]) * TRACK + AWAY
-				: top + tracks[i] * TRACK + PRIMER_GAP + NEAR;
+				? top + (count - 1 - tiers[i]) * TIER + AWAY
+				: top + tiers[i] * TIER + PRIMER_GAP + NEAR;
 		if (tail) {
 			shapes.push(tailShape(tail, bends, middle, -strand, label.color));
 		}
@@ -115,12 +106,12 @@ function primers(row: Row, top: number, strand: 1 | -1): Lane {
 				strokeWidth: OUTLINE_WIDTH,
 			});
 		}
-		for (const x of mismatches) {
+		for (const [x, end] of mismatches) {
 			shapes.push({
 				shape: "rect",
 				x: x + MARK_INSET,
 				y: middle - NEAR,
-				width: CELL - 2 * MARK_INSET,
+				width: end - x - 2 * MARK_INSET,
 				height: 2 * NEAR,
 				corner: 0,
 				fill: painted(MISMATCH, label.dim),
@@ -132,7 +123,7 @@ function primers(row: Row, top: number, strand: 1 | -1): Lane {
 	const labels = found.flatMap(({ label, arrow }) =>
 		arrow ? [{ label, x: (arrow.start + arrow.end) / 2, foot: ROW_TOP }] : [],
 	);
-	return { shapes, labels, bottom: top + count * TRACK };
+	return { shapes, labels, bottom: top + count * TIER };
 }
 
 /** What `row` holds of each primer site on `strand`, with its tail. */
@@ -188,13 +179,17 @@ function primed(row: Row, strand: 1 | -1): Primed[] {
 									cutEnd: last < high,
 								}
 							: null,
-					tail: tailed ? [at(near), at(far)] : null,
+					tail: tailed
+						? [at(near), at(near + Math.sign(far - near)), at(far)]
+						: null,
 					bends: strand === 1 ? low <= piece.end : piece.start <= high,
 					mismatches: (site.mismatches ?? []).flatMap((base) => {
 						// A site across the origin holds the bases past it a turn on.
 						const position =
 							low + ((base - start + bounds.length) % bounds.length);
-						return first <= position && position < last ? [at(position)] : [];
+						return first <= position && position < last
+							? [[at(position), at(position + 1)] as const]
+							: [];
 					}),
 				});
 			}
@@ -205,30 +200,29 @@ function primed(row: Row, strand: 1 | -1): Primed[] {
 
 /**
  * A primer's tail from `near` to `far` about the height `middle`, `away` from the bases (-1 up,
- * 1 down): bent from the middle across its first cell where it `bends`, else level.
+ * 1 down): bent from the middle across its first cell, to `next`, where it `bends`, else level.
  */
 function tailShape(
-	[near, far]: readonly [number, number],
+	[near, next, far]: readonly [number, number, number],
 	bends: boolean,
 	middle: number,
 	away: number,
 	color: string,
 ): Shape {
 	const level = middle + away * BEND;
-	const step = Math.sign(far - near) * CELL;
 	const points: [number, number][] = !bends
 		? [
 				[near, level],
 				[far, level],
 			]
-		: Math.abs(far - near) <= CELL
+		: Math.abs(far - near) <= Math.abs(next - near)
 			? [
 					[near, middle],
 					[far, level],
 				]
 			: [
 					[near, middle],
-					[near + step, level],
+					[next, level],
 					[far, level],
 				];
 	return {
@@ -246,7 +240,7 @@ function tailShape(
  * and through the bottom strand where it cuts that, so its overhang shows. A cut is drawn in
  * every row its overhang reaches, and labelled in the row holding its top-strand cut.
  */
-function cuts(row: Row, { top, rail, bottom }: Strands): Drawn {
+function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
 	if (options.kinds_off.includes("cuts")) return NOTHING;
 	const on = new Set(options.enzymes.map(folded));
@@ -272,7 +266,11 @@ function cuts(row: Row, { top, rail, bottom }: Strands): Drawn {
 			(one) => one.at === point && on.has(folded(one.enzyme)),
 		);
 		for (const { start, end } of made) {
-			for (const piece of pieces([{ start, end, color: BOX }], row, bounds)) {
+			for (const piece of pieces(
+				[{ start, end, color: CUT_BOX }],
+				row,
+				bounds,
+			)) {
 				add({
 					shape: "rect",
 					x: at(piece.start),
@@ -281,7 +279,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): Drawn {
 					height: floor - top[0],
 					corner: 0,
 					fill: "none",
-					stroke: painted(BOX, dim),
+					stroke: painted(CUT_BOX, dim),
 					strokeWidth: OUTLINE_WIDTH,
 				});
 			}
@@ -318,7 +316,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): Drawn {
  * Each insertion in `row` as a line through both strands, or the top one, at its point, in the
  * row holding the base after it. It is labelled with what it adds, its name and point on hover.
  */
-function insertions(row: Row, { top, rail, bottom }: Strands): Drawn {
+function insertions(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
 	if (options.kinds_off.includes("insertions")) return NOTHING;
 	const [y1, y2] = [top[0], bottom ? bottom[1] : rail];
@@ -370,13 +368,8 @@ function holds(row: Row, p: number, after: boolean): boolean {
 	const { start, end, options, bounds } = row;
 	const { span } = options;
 	if (p < start || p > end) return false;
-	const whole = bounds.circular && span.end - span.start === bounds.length;
+	const whole = isWhole(span, bounds);
 	if (p === start && !after && (start > span.start || whole)) return false;
 	if (p === end && after && (end < span.end || whole)) return false;
 	return true;
-}
-
-/** How far a position may lie from where the record counts it: a turn either way on a circle. */
-function turns({ length, circular }: Bounds): number[] {
-	return circular ? [0, -length, length] : [0];
 }

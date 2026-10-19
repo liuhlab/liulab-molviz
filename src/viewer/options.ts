@@ -16,9 +16,11 @@ import {
 } from "./format";
 import { KINDS } from "./labels";
 import { type Record, span } from "./record";
-import { LIMIT } from "./sequence";
 
 const OnOff = v.boolean("must be true or false");
+
+/** The most bases of a span the sequence view draws. */
+export const LIMIT = 100_000;
 
 function optionsSchema(record: Record) {
 	const bounds = { length: record.bases.length, circular: record.circular };

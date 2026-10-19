@@ -1,8 +1,8 @@
 /** A map with its sequence view under it, as a file draws them, and the view cut into PDF pages. */
 
 import { boxOf } from "./line";
-import type { Box, Scene, Shape } from "./scene";
-import { moved, type SequenceScene } from "./sequence";
+import { type Box, moved, type Scene, type Shape } from "./scene";
+import type { SequenceScene } from "./sequence";
 
 /** `under` set below `top`, the narrower centred on the wider, their extents touching. */
 export function stacked(top: Scene, under: Scene): Scene {

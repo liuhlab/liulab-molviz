@@ -7,13 +7,15 @@ import {
 	type Arrow,
 	BAND,
 	type Bar,
+	barShapes,
 	barsOf,
-	body,
+	coloredFeatures,
 	isUnder,
-	middleOf,
 	OVERHANG,
 	outline,
 	overhang,
+	PRIMER_BAND,
+	PRIMER_GAP,
 	pack,
 	places,
 	TIER_GAP,
@@ -34,32 +36,31 @@ import {
 } from "./labels";
 import type { Options } from "./options";
 import {
-	CONNECTOR,
-	colorOf,
 	INK,
 	INSERTION,
+	INSERTION_WIDTH,
 	OUTLINE_WIDTH,
 	PRIMER,
-	painted,
 	shaded,
-	textColor,
 } from "./paint";
 import { pieces, points, pointText, spanText } from "./pieces";
 import type { Bounds, Record, Span } from "./record";
 import { type Box, leftEdge, type Shape } from "./scene";
 import { type Anchored, labelsAbove } from "./staircase";
-import { baseline, type Face, height, measure, metrics } from "./text";
+import {
+	baseline,
+	type Face,
+	height,
+	measure,
+	metrics,
+	textWidth,
+} from "./text";
 
 /** The line's length, unless a layout is given another. */
 const WIDTH = 720;
 
-// A primer's arrow above the backbone: its band's thickness, and the room either side of it.
-const PRIMER_BAND = 4;
-const PRIMER_GAP = 2;
-
-// An insertion's bar: how far it reaches past the backbone either side, and how thick it is.
+/** How far an insertion's bar reaches past the backbone either side. */
 const INSERTION_REACH = 1.5;
-const INSERTION_WIDTH = 2;
 
 // The backbone: each strand's line, and how far apart they are.
 const BACKBONE = 2.6;
@@ -82,10 +83,8 @@ const NUMBERS = 10;
 
 const NAME_SIZE = 13.5;
 
-const CONNECTOR_WIDTH = 1.5;
-
-/** The room left around everything the drawing covers. */
-const MARGIN = 16;
+/** The room left around everything a record's drawing covers. */
+export const MARGIN = 16;
 
 /** What every kind is drawn against. */
 export interface Along {
@@ -99,7 +98,7 @@ export interface Along {
 }
 
 /** What one kind draws on the line. */
-export interface Drawn {
+export interface LineMarks {
 	/** Its marks, in the order they are drawn. */
 	readonly shapes: readonly Shape[];
 	/** Its labels, to set above the line. */
@@ -112,7 +111,7 @@ export interface Drawn {
 }
 
 /** A kind that draws nothing, which reaches no height either way: what each kind starts from. */
-const NOTHING: Drawn = {
+const NOTHING: LineMarks = {
 	shapes: [],
 	labels: [],
 	top: Number.POSITIVE_INFINITY,
@@ -120,7 +119,7 @@ const NOTHING: Drawn = {
 };
 
 /** How the line draws each kind. One switched off is skipped. */
-const DRAWS: { readonly [K in Kind]: (along: Along) => Drawn } = {
+const DRAWS: { readonly [K in Kind]: (along: Along) => LineMarks } = {
 	features,
 	primers,
 	insertions,
@@ -201,26 +200,16 @@ function rulerBottom(): number {
  * Each feature as arrows in tiers under the ruler, its name inside them, under them, or boxed
  * above the line.
  */
-function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
-	const off = new Set(options.types_off);
+function features({
+	record,
+	options,
+	bounds,
+	at,
+	backboneTop,
+}: Along): LineMarks {
 	const bars: Bar[] = [];
-	for (const feature of record.features) {
-		if (off.has(feature.type)) continue;
-		const label = labelOf(
-			{
-				kind: "features",
-				name: feature.name,
-				spans: feature.segments.map(({ start, end }) => ({ start, end })),
-			},
-			[{ text: feature.name, face: "sans" }],
-			colorOf(feature, feature.segments[0]),
-			options.highlight,
-		);
-		const colored = feature.segments.map((segment) => ({
-			...segment,
-			color: painted(colorOf(feature, segment), label.dim),
-		}));
-		const found = pieces(colored, options.span, bounds);
+	for (const { feature, label, segments } of coloredFeatures(record, options)) {
+		const found = pieces(segments, options.span, bounds);
 		bars.push(
 			...barsOf(feature, label, found, at).filter((bar) => bar.arrows.length),
 		);
@@ -237,52 +226,9 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 		y += 2 * OVERHANG + BAND;
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
-	const shapes: Shape[] = [];
-	for (const [i, bar] of bars.entries()) {
-		const middle = middles[tiers[i]];
-		const { dim } = bar.label;
-		for (const [x1, x2] of bar.gaps) {
-			shapes.push({
-				shape: "line",
-				x1,
-				y1: middle,
-				x2,
-				y2: middle,
-				stroke: painted(CONNECTOR, dim),
-				strokeWidth: CONNECTOR_WIDTH,
-			});
-		}
-		for (const arrow of bar.arrows) {
-			shapes.push({
-				shape: "polygon",
-				points: outline(arrow, middle),
-				fill: arrow.color,
-				stroke: shaded(arrow.color),
-				strokeWidth: OUTLINE_WIDTH,
-			});
-		}
-		const place = placed[i];
-		if (place === "boxed" || place === null) continue;
-		const { name } = bar.label;
-		const [x, fill, textMiddle] =
-			"inside" in place
-				? [middleOf(body(place.inside)), textColor(place.inside.color), middle]
-				: [
-						place.under + measure(name, "sans", LABEL_SIZE) / 2,
-						painted(INK, dim),
-						middle + BAND / 2 + OVERHANG + PAD_Y + lineHeight / 2,
-					];
-		shapes.push({
-			shape: "text",
-			text: name,
-			face: "sans",
-			size: LABEL_SIZE,
-			x,
-			y: baseline("sans", LABEL_SIZE, textMiddle),
-			anchor: "middle",
-			fill,
-		});
-	}
+	const shapes = bars.flatMap((bar, i) =>
+		barShapes(bar, middles[tiers[i]], placed[i], false),
+	);
 	const labels = bars.flatMap((bar, i) =>
 		placed[i] === "boxed"
 			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: backboneTop }]
@@ -292,7 +238,7 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 }
 
 /** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
-function cuts({ record, options, bounds, at, backboneTop }: Along): Drawn {
+function cuts({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 	const sites = cutSites(record, options.enzymes, options.highlight);
 	const labels = sites.flatMap((site) =>
 		points(site.at, options.span, bounds).map((point) => ({
@@ -308,7 +254,7 @@ function cuts({ record, options, bounds, at, backboneTop }: Along): Drawn {
  * Each primer site as a thin arrow above the backbone, its head at the 3' end, in rows packed
  * by start, labelled by the primer's name and the bases the site spans.
  */
-function primers({ record, options, bounds, at }: Along): Drawn {
+function primers({ record, options, bounds, at }: Along): LineMarks {
 	const reach = overhang(PRIMER_BAND);
 	const step = PRIMER_BAND + 2 * reach + PRIMER_GAP;
 	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_BAND / 2;
@@ -367,7 +313,7 @@ function insertions({
 	bounds,
 	at,
 	backboneTop,
-}: Along): Drawn {
+}: Along): LineMarks {
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
@@ -436,10 +382,7 @@ export function boxOf(shape: Shape): Box | null {
 				height: 2 * shape.r,
 			};
 		case "text": {
-			const width =
-				shape.cell === undefined
-					? measure(shape.text, shape.face, shape.size)
-					: [...shape.text].length * shape.cell;
+			const width = textWidth(shape.text, shape.face, shape.size, shape.cell);
 			return {
 				x: leftEdge(shape, width),
 				y: shape.y - metrics(shape.face).ascent * shape.size,
@@ -451,7 +394,7 @@ export function boxOf(shape: Shape): Box | null {
 }
 
 /** The box around `points`, or nothing for none. */
-function around(
+export function around(
 	points: readonly (readonly [x: number, y: number])[],
 ): Box | null {
 	if (!points.length) return null;

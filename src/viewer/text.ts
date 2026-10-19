@@ -86,6 +86,18 @@ export function measure(text: string, face: Face, size: number): number {
 	return font(face).getAdvanceWidth(inFace(text, face), size, kerned);
 }
 
+/** How wide `text` is set in `face` at `size`, or, given `cell`, in cells that wide. */
+export function textWidth(
+	text: string,
+	face: Face,
+	size: number,
+	cell?: number,
+): number {
+	return cell === undefined
+		? measure(text, face, size)
+		: [...text].length * cell;
+}
+
 /**
  * `text` broken into lines no wider than `width`, as many words to a line as fit, and none for
  * text with no word. A word wider than a line breaks between letters, and a letter wider than a

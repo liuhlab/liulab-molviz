@@ -18,7 +18,7 @@ SEQUENCE_VIEW_LIMIT = 100_000
 ``sequence_view=True`` raises ``ValueError``."""
 
 # The largest PNG drawn: past this many pixels a side, vl-convert places shapes off where they
-# were laid out, and past this many in all it may need more memory than a laptop has.
+# were laid out, and past this many in all it may run out of memory.
 _PNG_SIDE = 2**22
 _PNG_PIXELS = 2**28
 

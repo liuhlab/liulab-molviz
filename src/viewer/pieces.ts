@@ -24,7 +24,7 @@ export interface Piece {
 export function pieces(
 	segments: readonly (Span & { readonly color: string })[],
 	{ start, end }: Span,
-	{ length, circular }: Bounds,
+	bounds: Bounds,
 ): Piece[] {
 	const runs: [number, number, string | null][] = [];
 	for (const [i, segment] of segments.entries()) {
@@ -38,7 +38,7 @@ export function pieces(
 	const last = segments[segments.length - 1].end;
 	const found: Piece[] = [];
 	for (const [low, high, color] of runs) {
-		for (const shift of circular ? [-length, 0, length] : [0]) {
+		for (const shift of turns(bounds)) {
 			const from = Math.max(low + shift, start);
 			const to = Math.min(high + shift, end);
 			if (from >= to) continue;
@@ -60,15 +60,25 @@ export function pieces(
  * Where the point `at` lies in the span, counted as the span counts: either end of the span
  * included, but the two ends of a circle opened whole are one point, its end.
  */
-export function points(
-	at: number,
-	{ start, end }: Span,
-	{ length, circular }: Bounds,
-): number[] {
-	const whole = circular && end - start === length;
-	return (circular ? [-length, 0, length] : [0])
+export function points(at: number, span: Span, bounds: Bounds): number[] {
+	const { start, end } = span;
+	const whole = isWhole(span, bounds);
+	return turns(bounds)
 		.map((shift) => at + shift)
 		.filter((p) => start <= p && p <= end && !(whole && p === start));
+}
+
+/** How far a position may lie from where the record counts it: a turn either way on a circle. */
+export function turns({ length, circular }: Bounds): number[] {
+	return circular ? [-length, 0, length] : [0];
+}
+
+/** Whether `span` opens a circle whole, so that its two ends are one point. */
+export function isWhole(
+	{ start, end }: Span,
+	{ length, circular }: Bounds,
+): boolean {
+	return circular && end - start === length;
 }
 
 /**
