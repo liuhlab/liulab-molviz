@@ -74,8 +74,7 @@ function texts(scene: Scene): Text[] {
 	);
 }
 
-// The heights are mbio's, measured on its line: an arrow's middle at -6.37, its heads reaching
-// from -9.43 to -3.30.
+// The heights are mbio's.
 describe("a primer", () => {
 	test("draws a thin arrow above the backbone at each site, its head at the 3' end", () => {
 		const scene = lay({
@@ -248,7 +247,7 @@ describe("an insertion", () => {
 		const [cut, insertion] = ["EcoRI", "+8 bp"].map(
 			(text) => texts(scene).filter((t) => t.text === text)[0].y,
 		);
-		// mbio's boxes rise 17.39 points apart: the insertion's lower.
+		// The insertion's label sits a row under the site's, as on mbio's line.
 		expect(insertion - cut).toBeCloseTo(17.39, 2);
 	});
 });

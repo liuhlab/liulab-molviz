@@ -1,4 +1,4 @@
-/** The colours a map paints, which the line and the circle share. Each is written `#rrggbb`. */
+/** The colours a map paints. Each is written `#rrggbb`. */
 
 import { folded } from "./format";
 import type { Record } from "./record";

@@ -1,4 +1,4 @@
-/** A map's labels, which the line and the circle share. */
+/** A map's labels, the order they hide in, and the notice that counts them. */
 
 import { INK, OUTLINE_WIDTH, painted, shaded, textColor, unlit } from "./paint";
 import type { Span } from "./record";
