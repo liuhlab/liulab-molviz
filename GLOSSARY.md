@@ -97,6 +97,7 @@ _Avoid_: mismatch, which is a primer's; difference
 ### Figure
 
 A still drawing of one record, or several stacked, to one span, set beside a protocol step.
+_Avoid_: row, for one of its records, which is the sequence view's word and a plate's
 
 ### Gel
 
