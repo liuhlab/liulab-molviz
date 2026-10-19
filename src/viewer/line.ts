@@ -171,17 +171,18 @@ export function layout(
 	const above = labelsAbove(
 		drawn.flatMap((one) => one.labels),
 		top,
+		{
+			inPlace: drawn.flatMap((one) => one.inPlace ?? []),
+		},
 	);
 	shapes.push(...above.shapes);
-	const inPlace = new Set(drawn.flatMap((one) => one.inPlace ?? []));
-	const hidden = above.hidden.filter((label) => !inPlace.has(label));
 	const bottom = Math.max(rulerBottom(), ...drawn.map((one) => one.bottom));
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
 	const boxes = [...above.boxes, ...drawn.flatMap((one) => one.covers ?? [])];
 	const covered = extent(shapes, width, boxes);
 	shapes.push(
 		...noticeShapes(
-			hidden,
+			above.hidden,
 			covered.x + covered.width - MARGIN,
 			covered.y + covered.height - MARGIN,
 		),
@@ -189,7 +190,7 @@ export function layout(
 	return {
 		extent: extent(shapes, width, boxes),
 		shapes,
-		hidden: hidden.map(hiddenOf),
+		hidden: above.hidden.map(hiddenOf),
 	};
 }
 
