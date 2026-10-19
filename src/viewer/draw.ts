@@ -1,6 +1,6 @@
 /** An input drawn live into an element of a page. */
 
-import { prepare, prepareGel, preparePlate } from "./drawing";
+import { prepareGel, preparePlate, prepareViews } from "./drawing";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { fontFaceCss } from "./text";
@@ -23,7 +23,19 @@ export function draw(
 	record: unknown,
 	options: unknown = {},
 ): Drawn {
-	return drawScene(element, prepare(record, options));
+	const { map, sequence } = prepareViews(record, options);
+	const drawn = [drawScene(element, map)];
+	if (sequence !== null) {
+		const view = drawScene(element, sequence);
+		// A block, so it starts under the map rather than beside it.
+		view.svg.style.display = "block";
+		drawn.push(view);
+	}
+	return {
+		destroy: () => {
+			for (const one of drawn) one.destroy();
+		},
+	};
 }
 
 /**
@@ -43,12 +55,15 @@ export function drawPlate(element: Element, plate: unknown): Drawn {
 }
 
 /** Draw `scene` into `element`, after what it holds, declaring the faces if no drawing has. */
-function drawScene(element: Element, scene: Scene): Drawn {
+function drawScene(
+	element: Element,
+	scene: Scene,
+): Drawn & { svg: SVGSVGElement } {
 	const document = element.ownerDocument;
 	declareFaces(document);
 	const svg = toElement(scene, document);
 	element.append(svg);
-	return { destroy: () => svg.remove() };
+	return { svg, destroy: () => svg.remove() };
 }
 
 /** Add the faces' `@font-face` rules to `document`, unless a drawing already has. */

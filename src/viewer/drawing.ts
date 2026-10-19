@@ -5,10 +5,12 @@ import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
 import { layout } from "./line";
 import { checkOptions } from "./options";
+import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
 import { layoutPlate } from "./plate-layout";
 import { check } from "./record";
 import type { Scene } from "./scene";
+import { layoutSequence, type SequenceScene } from "./sequence";
 import { toSvg } from "./svg";
 
 /** What each call that draws as SVG text returns. */
@@ -23,13 +25,28 @@ export interface Drawing {
 	readonly notice: string;
 }
 
+/** A record laid out: its map, and its sequence view if the options draw one. */
+export interface Views {
+	readonly map: MapScene;
+	readonly sequence: SequenceScene | null;
+}
+
 /**
- * Check `record`, then `options` against it, and lay the record out as they say. Throws one
- * FormatError naming every problem in the record, or else in the options.
+ * Check `record`, then `options` against it, and lay the record's map out as they say. Throws
+ * one FormatError naming every problem in the record, or else in the options.
  */
 export function prepare(record: unknown, options: unknown): MapScene {
+	return prepareViews(record, options).map;
+}
+
+/** `prepare`, with the sequence view laid out too if `options` draw it. */
+export function prepareViews(record: unknown, options: unknown): Views {
 	const checked = check(record);
-	return layout(checked, checkOptions(options, checked));
+	const drawn = checkOptions(options, checked);
+	return {
+		map: layout(checked, drawn),
+		sequence: drawn.sequence_view ? layoutSequence(checked, drawn) : null,
+	};
 }
 
 /** Check `gel` and lay it out. Throws one FormatError naming every problem in the gel. */
@@ -43,12 +60,19 @@ export function preparePlate(plate: unknown): Scene {
 }
 
 /**
- * Draw `record` with `options` as SVG text, every letter an outline. Throws one FormatError
- * naming every problem in the record, or else in the options.
+ * Draw `record` with `options` as SVG text, every letter an outline, the sequence view under
+ * the map. A PDF has the map on its first page and the view's rows on the pages after. Throws
+ * one FormatError naming every problem in the record, or else in the options.
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
-	const scene = prepare(record, options);
-	return whole(toSvg(scene), scene.hidden);
+	const { map, sequence } = prepareViews(record, options);
+	if (sequence === null) return whole(toSvg(map), map.hidden);
+	return {
+		svg: toSvg(stacked(map, sequence)),
+		pages: [map, ...rowPages(sequence)].map(toSvg),
+		hidden: map.hidden,
+		notice: notice(map.hidden),
+	};
 }
 
 /**
