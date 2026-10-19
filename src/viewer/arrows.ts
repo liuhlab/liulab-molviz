@@ -1,6 +1,13 @@
 /** Arrows along a line or a row, and a feature's bars of them: tiers, outlines and names. */
 
-import { LABEL_SIZE, type Label, labelOf, PAD_X, PAD_Y } from "./labels";
+import {
+	disagreementLabel,
+	LABEL_SIZE,
+	type Label,
+	labelOf,
+	PAD_X,
+	PAD_Y,
+} from "./labels";
 import type { Options } from "./options";
 import {
 	CONNECTOR,
@@ -98,6 +105,33 @@ export function coloredFeatures(
 			}));
 			return { feature, label, segments };
 		});
+}
+
+/**
+ * Each disagreement of `record` over a span, as a feature of no type on no strand in its colour,
+ * dimmed where `options` leave it unlit. No feature type turns one off.
+ */
+export function disagreementBars(
+	record: Record,
+	options: Options,
+): ColoredFeature[] {
+	const bounds = { length: record.bases.length, circular: record.circular };
+	return record.disagreements.flatMap((disagreement) => {
+		if (disagreement.at !== undefined) return [];
+		const { name, start, end } = disagreement;
+		const { label } = disagreementLabel(
+			disagreement,
+			bounds,
+			options.highlight,
+		);
+		const feature: Feature = {
+			name,
+			type: "",
+			strand: 0,
+			segments: [{ start, end }],
+		};
+		return [{ feature, label, segments: [{ start, end, color: label.color }] }];
+	});
 }
 
 /** Whether an arrow on `strand` has a head where it starts, and where it ends. */

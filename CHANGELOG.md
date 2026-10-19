@@ -62,6 +62,20 @@ sets one.
   `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` leaves the view out, and
   `molviz.svg` raises an error.
 
+- A record may hold reads, disagreements and tracks.
+  - A read is one sequencing result: its name, the bases it covers, and its strand.
+  - A disagreement is a place where reads differ from the record. It lies over a span, or at a
+    point where the reads add bases. It gives the bases the reads hold there, which may be none,
+    the names of the reads that show it, and a colour, grey by default.
+  - A track is a trace's four curves, `A`, `C`, `G` and `T`, and its peaks. A peak says which
+    sample lies over which base.
+  - `check` refuses two reads with one name, and a disagreement that names a read the record
+    does not hold.
+  - `kinds_off` takes `"reads"`, `"disagreements"` and `"tracks"`, and `highlight` takes their
+    names.
+  - Where labels crowd, a read's label hides after a primer's and before a feature's. A
+    disagreement's label hides last. The notice counts them as reads and disagreements.
+
 ### Removed
 
 - `greet`, the template's placeholder, and its `molviz greet` command.

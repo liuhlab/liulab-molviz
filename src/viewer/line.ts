@@ -114,6 +114,9 @@ const DRAWS: { readonly [K in Kind]: (along: Along) => LineMarks } = {
 	primers,
 	insertions,
 	cuts,
+	reads: () => NOTHING,
+	disagreements: () => NOTHING,
+	tracks: () => NOTHING,
 };
 
 /** Each kind's place in the order kinds draw and their labels gather, the first lowest at one x. */
@@ -122,6 +125,9 @@ const ORDER: { readonly [K in Kind]: number } = {
 	primers: 1,
 	insertions: 2,
 	cuts: 3,
+	reads: 4,
+	disagreements: 5,
+	tracks: 6,
 };
 
 /** Lay out `record` as a line `width` long, drawn as `options` say. */

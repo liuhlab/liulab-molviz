@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { Hidden, Kind, Label } from "../../src/viewer/labels";
+import type { Hidden, Label, LabelKind } from "../../src/viewer/labels";
 import type { Box, Shape } from "../../src/viewer/scene";
 import { type Anchored, labelsAbove } from "../../src/viewer/staircase";
 
@@ -10,7 +10,7 @@ function label(
 		kind = "features",
 		fewestCuts = 0,
 		dim = false,
-	}: { kind?: Kind; fewestCuts?: number; dim?: boolean } = {},
+	}: { kind?: LabelKind; fewestCuts?: number; dim?: boolean } = {},
 ): Label {
 	const item: Hidden =
 		kind === "cuts" || kind === "insertions"

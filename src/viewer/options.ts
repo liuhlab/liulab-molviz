@@ -125,8 +125,8 @@ export function checkOptions(
 }
 
 /**
- * The names a highlight may give for `record`, each `folded`: its features', primers' and
- * insertions', and each enzyme with a cut in it.
+ * The names a highlight may give for `record`, each `folded`: its features', primers',
+ * insertions', reads', disagreements' and tracks', and each enzyme with a cut in it.
  */
 export function answersTo(record: Record): Set<string> {
 	return new Set(
@@ -134,6 +134,9 @@ export function answersTo(record: Record): Set<string> {
 			...record.features,
 			...record.primers,
 			...record.insertions,
+			...record.reads,
+			...record.disagreements,
+			...record.tracks,
 			...record.cuts.map(({ enzyme }) => ({ name: enzyme })),
 		].map(({ name }) => folded(name)),
 	);
