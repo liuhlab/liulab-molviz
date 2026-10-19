@@ -5,9 +5,9 @@ the same viewer the Python package carries, so what you see here is what a page 
 the package shows.
 
 The records are the files in `tests/records/` in the repo. The note under each one says what
-it holds. For now the map draws only a record's features, primer binding sites among them.
-The primers, cut sites and insertions a record lists apart from its features are not drawn
-yet.
+it holds. The map draws a record's features, its primers at each place they bind, its
+insertions, and the cut sites of each enzyme that cuts it once. Where labels would crowd, some
+are hidden, and a note at the bottom right counts them.
 
 If a record cannot be drawn, its place on the page says why.
 
@@ -18,6 +18,20 @@ A Golden Gate product. Its lacZα CDS is joined across the GFP insert.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/puc19-gfp-product.json"
+</script>
+</div>
+
+## puc19-gfp-product, with GFP lit
+
+The same record with GFP and the two primers that copy it lit. They keep their colours, and
+everything else turns pale grey. Nothing moves.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-gfp-product.json"
+</script>
+<script type="application/json" data-options>
+{"highlight": ["GFP", "GFP forward", "GFP reverse"]}
 </script>
 </div>
 
@@ -115,5 +129,20 @@ right counts them.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/crowded-sites.json"
+</script>
+</div>
+
+## crowded-sites, with every enzyme and EcoRI lit
+
+The same circle with the cut sites of all 40 enzymes. EcoRI cuts it three times, so with
+nothing lit its sites are among the first labels to hide. Here EcoRI is lit, so its sites are
+the last to hide, and other sites hide in their place.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/crowded-sites.json"
+</script>
+<script type="application/json" data-options>
+{"enzymes": ["AatII", "Acc65I", "AflII", "AgeI", "AscI", "AvrII", "BamHI", "BanII", "BglII", "BsaI", "BsiWI", "BsmBI", "ClaI", "EcoRI", "EcoRV", "Esp3I", "HindIII", "HpaI", "KpnI", "MfeI", "MluI", "NcoI", "NdeI", "NheI", "NotI", "NruI", "NsiI", "PacI", "PmeI", "PstI", "SacI", "SalI", "SmaI", "SnaBI", "SpeI", "SphI", "StuI", "XbaI", "XhoI", "XmaI"], "highlight": ["EcoRI"]}
 </script>
 </div>

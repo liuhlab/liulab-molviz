@@ -52,7 +52,7 @@ does not know is an error, and one left out takes its default.
 | `types_off` | The feature types to leave out. A type the record does not have is ignored. | `["source"]` |
 | `kinds_off` | The kinds of thing to leave out: any of `"features"`, `"primers"`, `"cuts"` and `"insertions"`. | `[]` |
 | `enzymes` | The enzymes whose cut sites are drawn. A name matches in any case. A name that does not cut the record is ignored. | each enzyme that cuts the record once |
-| `highlight` | The names to light up: a feature, a primer, an insertion, or an enzyme, which lights every site it cuts. All else turns one pale grey, and nothing moves. A name in any case matches. A name that matches nothing in the record is an error. | `[]` |
+| `highlight` | The names to light up: a feature, a primer, an insertion, or an enzyme, which lights every site it cuts. All else turns one pale grey, and nothing moves. Where labels crowd, a lit label is the last to hide. A name in any case matches. A name that matches nothing in the record is an error. | `[]` |
 
 ## The command line
 
