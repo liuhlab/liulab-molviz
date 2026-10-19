@@ -154,6 +154,11 @@ again: it cannot be zoomed or switched. Figures, gels and plates go into a page 
 The `@font-face` rules that set molviz's faces, written once in a page for all its still
 drawings.
 
+### Outline script
+
+The second script a release ships beside the viewer: each letter's outline, which only writing
+a file needs.
+
 ### Reader promise
 
 One of the nine things a drawing guarantees its reader, listed in section 5 of

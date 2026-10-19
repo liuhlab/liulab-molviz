@@ -5,8 +5,9 @@
 		"lib": ["es2023", "dom"],
 		"strict": true,
 		"noEmit": true,
+		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"skipLibCheck": true
 	},
-	"include": ["src/viewer", "tests", "vite.config.ts"]
+	"include": ["src/viewer", "tests", "scripts", "vite.config.ts"]
 }

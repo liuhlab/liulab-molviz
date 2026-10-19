@@ -1,11 +1,13 @@
 import vm from "node:vm";
 import { build, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
+import { fontTables } from "../../scripts/font-tables";
 import {
 	fontFaceCss,
 	glyphs,
 	measure,
 	metrics,
+	outlineOf,
 	wrap,
 } from "../../src/viewer/text";
 
@@ -54,30 +56,40 @@ describe("fontFaceCss", () => {
 			"molviz Sans 700",
 		]);
 	});
+
+	test("loads each face as WOFF2 from a data URL", () => {
+		const sources = [...fontFaceCss().matchAll(/src:([^}]*)\}/g)].map(
+			([, source]) => source,
+		);
+		expect(sources).toHaveLength(3);
+		for (const source of sources)
+			expect(source).toMatch(
+				/^url\(data:font\/woff2;base64,[A-Za-z0-9+/]+=*\) format\("woff2"\)$/,
+			);
+	});
+});
+
+describe("outlineOf", () => {
+	test("gives a glyph's outline in its face's units, y down, from its origin", () => {
+		const [glyph] = glyphs("I", "sans", 12);
+		expect(glyph.x).toBe(0);
+		expect(outlineOf("sans", glyph.index)).toBe(
+			"M201.00 0.00L201.00 -1493.00L403.00 -1493.00L403.00 0.00L201.00 0.00",
+		);
+	});
+
+	test("gives a glyph with no ink, such as a space, no outline", () => {
+		expect(outlineOf("sans", glyphs("a b", "sans", 10)[1].index)).toBe("");
+	});
 });
 
 describe("glyphs", () => {
-	test("gives each glyph's outline in its face's units, y down, from its origin", () => {
-		expect(glyphs("I", "sans", 12)).toEqual([
-			{
-				id: expect.any(String),
-				outline:
-					"M201.00 0.00L201.00 -1493.00L403.00 -1493.00L403.00 0.00L201.00 0.00",
-				x: 0,
-			},
-		]);
-	});
-
 	test("names a glyph the same wherever it is set, and apart from other faces' glyphs", () => {
 		const [first, second] = glyphs("II", "sans", 12);
 		expect(first.id).toBe(second.id);
 		expect(glyphs("I", "sans-bold", 30)[0].id).not.toBe(first.id);
 		expect(glyphs("I", "mono", 12)[0].id).not.toBe(first.id);
 		expect(glyphs("J", "sans", 12)[0].id).not.toBe(first.id);
-	});
-
-	test("gives a glyph with no ink, such as a space, no outline", () => {
-		expect(glyphs("a b", "sans", 10)[1].outline).toBe("");
 	});
 
 	test("sets each glyph at the kerned advance of those before it", () => {
@@ -152,6 +164,7 @@ test("runs bundled in a bare V8 context, with no DOM, to the same results", asyn
 	const [bundle] = (await build({
 		configFile: false,
 		logLevel: "silent",
+		plugins: [fontTables()],
 		build: {
 			write: false,
 			minify: false,

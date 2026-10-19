@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      opentype.js:
-        specifier: ^2.0.0
-        version: 2.0.0
       valibot:
         specifier: ^1.5.0
         version: 1.5.0(typescript@7.0.2)
@@ -21,6 +18,9 @@ importers:
       happy-dom:
         specifier: ^21.0.3
         version: 21.0.3
+      opentype.js:
+        specifier: ^2.0.0
+        version: 2.0.0
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
