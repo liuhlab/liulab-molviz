@@ -15,7 +15,7 @@ import {
 	places,
 	TIER_GAP,
 } from "./arrows";
-import { around, boxOf } from "./bounds";
+import { aroundBoxes, boxOf } from "./bounds";
 import { LABEL_SIZE, type Label, PAD_Y, SMALL_SIZE } from "./labels";
 import { MARGIN } from "./line";
 import type { Options } from "./options";
@@ -378,14 +378,4 @@ function complement(bases: string): string {
 /** The number of the base before `end` as a reader reads it. */
 function lastText(end: number, length: number): string {
 	return String(((end - 1) % length) + 1);
-}
-
-/** The box around `boxes`, of which there is at least one. */
-function aroundBoxes(boxes: readonly Box[]): Box {
-	return around(
-		boxes.flatMap(({ x, y, width, height }) => [
-			[x, y],
-			[x + width, y + height],
-		]),
-	) as Box;
 }

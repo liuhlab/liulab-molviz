@@ -11,7 +11,7 @@ import {
 	PRIMER_BAND,
 	PRIMER_GAP,
 } from "./arrows";
-import { boxOf } from "./bounds";
+import { aroundBoxes, boxOf } from "./bounds";
 import { type Anchored, columns, type Point, REACH } from "./columns";
 import { cutSites } from "./cuts";
 import {
@@ -194,7 +194,7 @@ export function layoutCircle(
 	}
 	shapes.push(...middle.shapes);
 	const square = drawing + ANCHOR;
-	const covered = around(
+	const covered = aroundBoxes(
 		[
 			{ x: -square, y: -square, width: 2 * square, height: 2 * square },
 			...boxes,
@@ -210,7 +210,9 @@ export function layoutCircle(
 	shapes.push(...notice);
 	const below = notice.flatMap((s) => boxOf(s) ?? []);
 	return {
-		extent: below.length ? around([covered, around(below, MARGIN)]) : covered,
+		extent: below.length
+			? aroundBoxes([covered, aroundBoxes(below, MARGIN)])
+			: covered,
 		shapes,
 		hidden: left.map(hiddenOf),
 	};
@@ -267,15 +269,6 @@ function insertions(
 		};
 		return { bar, label, angle };
 	});
-}
-
-/** The least box around `boxes`, and `margin` beyond. */
-function around(boxes: readonly Box[], margin = 0): Box {
-	const left = Math.min(...boxes.map((b) => b.x)) - margin;
-	const top = Math.min(...boxes.map((b) => b.y)) - margin;
-	const right = Math.max(...boxes.map((b) => b.x + b.width)) + margin;
-	const bottom = Math.max(...boxes.map((b) => b.y + b.height)) + margin;
-	return { x: left, y: top, width: right - left, height: bottom - top };
 }
 
 /** The angle of `position`, in radians clockwise from the top. */

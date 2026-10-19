@@ -20,7 +20,7 @@ import {
 	places,
 	TIER_GAP,
 } from "./arrows";
-import { boxOf } from "./bounds";
+import { aroundBoxes, boxOf } from "./bounds";
 import { cutSites } from "./cuts";
 import {
 	GAP,
@@ -362,11 +362,7 @@ function extent(
 		...shapes.flatMap((shape) => boxOf(shape) ?? []),
 		...more,
 	];
-	const left = Math.min(...boxes.map((b) => b.x)) - MARGIN;
-	const top = Math.min(...boxes.map((b) => b.y)) - MARGIN;
-	const right = Math.max(...boxes.map((b) => b.x + b.width)) + MARGIN;
-	const bottom = Math.max(...boxes.map((b) => b.y + b.height)) + MARGIN;
-	return { x: left, y: top, width: right - left, height: bottom - top };
+	return aroundBoxes(boxes, MARGIN);
 }
 
 /**

@@ -72,8 +72,17 @@ function turn([x, y]: Point, [px, py]: Point, degrees: number): Point {
 	return [px + dx * cos - dy * sin, py + dx * sin + dy * cos];
 }
 
+/** The least box around `boxes`, of which there is at least one, and `margin` beyond. */
+export function aroundBoxes(boxes: readonly Box[], margin = 0): Box {
+	const left = Math.min(...boxes.map((b) => b.x)) - margin;
+	const top = Math.min(...boxes.map((b) => b.y)) - margin;
+	const right = Math.max(...boxes.map((b) => b.x + b.width)) + margin;
+	const bottom = Math.max(...boxes.map((b) => b.y + b.height)) + margin;
+	return { x: left, y: top, width: right - left, height: bottom - top };
+}
+
 /** The least box around `points`, or nothing for none. */
-export function around(points: readonly Point[]): Box | null {
+function around(points: readonly Point[]): Box | null {
 	if (!points.length) return null;
 	const xs = points.map(([x]) => x);
 	const ys = points.map(([, y]) => y);
