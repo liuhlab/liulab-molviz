@@ -1,7 +1,8 @@
+// @vitest-environment happy-dom
 import { describe, expect, test } from "vitest";
 import type { Scene } from "../../src/viewer/scene";
-import { toSvg } from "../../src/viewer/svg";
-import { measure, outline } from "../../src/viewer/text";
+import { toElement, toSvg } from "../../src/viewer/svg";
+import { type Face, glyphs, measure } from "../../src/viewer/text";
 
 const scene: Scene = {
 	extent: { x: -16, y: -30.5, width: 752, height: 120.25 },
@@ -58,6 +59,17 @@ const scene: Scene = {
 			anchor: "start",
 			fill: "#252525",
 		},
+		{
+			shape: "text",
+			text: "ACGA",
+			face: "mono",
+			size: 11,
+			cell: 11,
+			x: 0,
+			y: 90,
+			anchor: "start",
+			fill: "#1c1e21",
+		},
 	],
 };
 
@@ -79,28 +91,66 @@ describe("toSvg", () => {
 		);
 	});
 
-	test("draws every letter as an outline, from where its anchor puts it", () => {
+	test("draws every letter as a use of its glyph, each glyph defined once before the ground", () => {
 		expect(written).not.toContain("<text");
+		const defined = [
+			...(
+				written.match(/^<svg[^>]*><defs>(.*?)<\/defs><rect /)?.[1] ?? ""
+			).matchAll(/<path id="([^"]+)" d="([^"]+)"\/>/g),
+		].map((m) => [m[1], m[2]]);
+		const texts: [string, Face][] = [
+			["lacZ", "sans"],
+			["pUC19", "sans-bold"],
+			["ACGA", "mono"],
+		];
+		const expected = new Map(
+			texts.flatMap(([text, face]) =>
+				glyphs(text, face, 10).map((g) => [g.id, g.outline] as const),
+			),
+		);
+		expect(defined).toEqual([...expected]);
+		expect(written.match(/<use /g)).toHaveLength(13);
+	});
+
+	test("sets each text from where its anchor puts it, scaled from its face's units", () => {
+		const uses = (text: string, face: Face) =>
+			glyphs(text, face, 2048)
+				.map((g) => `<use href="#${g.id}" x="${g.x.toFixed(2)}"/>`)
+				.join("");
 		const start = 360 - measure("lacZ", "sans", 11.5) / 2;
 		expect(written).toContain(
-			`<path d="${outline("lacZ", "sans", 11.5, start, 50)}" fill="#000000"/>`,
+			`<g transform="translate(${start.toFixed(2)} 50.00) scale(0.005615234375)" fill="#000000">${uses("lacZ", "sans")}</g>`,
 		);
 		expect(written).toContain(
-			`<path d="${outline("pUC19", "sans-bold", 13.5, 12, 70)}" fill="#252525"/>`,
+			`<g transform="translate(12.00 70.00) scale(0.006591796875)" fill="#252525">${uses("pUC19", "sans-bold")}</g>`,
+		);
+	});
+
+	test("sets text in cells a glyph to a cell, each centred in its own", () => {
+		const [a, c, g] = glyphs("ACG", "mono", 11);
+		expect(written).toContain(
+			'<g transform="translate(0.00 90.00) scale(0.00537109375)" fill="#1c1e21">' +
+				`<use href="#${a.id}" x="407.50"/><use href="#${c.id}" x="2455.50"/>` +
+				`<use href="#${g.id}" x="4503.50"/><use href="#${a.id}" x="6551.50"/></g>`,
 		);
 	});
 
 	test("writes the shapes in order, every number with two decimals", () => {
-		const tags = [...written.matchAll(/<(\w+)/g)].map((m) => m[1]);
+		const shapes = written.slice(written.indexOf("</defs>"));
+		const tags = [...shapes.matchAll(/<(\w+)/g)].map((m) => m[1]);
+		const uses = (count: number) => Array(count).fill("use");
 		expect(tags).toEqual([
-			"svg",
 			"rect",
 			"line",
 			"path",
 			"rect",
 			"circle",
-			"path",
-			"path",
+			"g",
+			...uses(4),
+			"g",
+			...uses(5),
+			"g",
+			...uses(4),
 		]);
 		expect(written).toContain(
 			'<line x1="0.00" y1="0.00" x2="720.00" y2="0.00" stroke="#252525" stroke-width="2.60"/>',
@@ -135,7 +185,41 @@ describe("toSvg", () => {
 		};
 		const written = toSvg(tiny);
 		expect(written).toContain('cx="0.00"');
-		expect(written).toMatch(/<path d="M[^"]* 0\.00L/);
+		expect(written).toContain("translate(0.00 0.00)");
+		expect(written).toMatch(/<path id="[^"]+" d="M[^"]* 0\.00L/);
 		expect(written).not.toContain("-0.00");
+	});
+});
+
+describe("toElement", () => {
+	test("writes text set in cells as one text element, each letter placed in its cell", () => {
+		const svg = toElement(
+			{
+				extent: { x: 0, y: 0, width: 50, height: 30 },
+				shapes: [
+					{
+						shape: "text",
+						text: "ACGA",
+						face: "mono",
+						size: 11,
+						cell: 11,
+						x: 22,
+						y: 20,
+						anchor: "middle",
+						fill: "#1c1e21",
+					},
+				],
+			},
+			document,
+		);
+		const texts = svg.querySelectorAll("text");
+		expect(texts).toHaveLength(1);
+		const [text] = texts;
+		expect(text.textContent).toBe("ACGA");
+		expect(text.getAttribute("x")).toBe("2.19 13.19 24.19 35.19");
+		expect(text.getAttribute("y")).toBe("20.00");
+		expect(text.getAttribute("font-family")).toBe("molviz Mono");
+		expect(text.getAttribute("font-weight")).toBe("400");
+		expect(text.hasAttribute("textLength")).toBe(false);
 	});
 });

@@ -3,9 +3,9 @@ import { build, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
 import {
 	fontFaceCss,
+	glyphs,
 	measure,
 	metrics,
-	outline,
 	wrap,
 } from "../../src/viewer/text";
 
@@ -56,17 +56,56 @@ describe("fontFaceCss", () => {
 	});
 });
 
-describe("outline", () => {
-	test("places the face's contours at x on the baseline y, scaled to the size", () => {
-		expect(outline("I", "sans", 12, 10.5, 20.25)).toBe(
-			"M11.68 20.25L11.68 11.50L12.86 11.50L12.86 20.25L11.68 20.25",
-		);
+describe("glyphs", () => {
+	test("gives each glyph's outline in its face's units, y down, from its origin", () => {
+		expect(glyphs("I", "sans", 12)).toEqual([
+			{
+				id: expect.any(String),
+				outline:
+					"M201.00 0.00L201.00 -1493.00L403.00 -1493.00L403.00 0.00L201.00 0.00",
+				x: 0,
+			},
+		]);
+	});
+
+	test("names a glyph the same wherever it is set, and apart from other faces' glyphs", () => {
+		const [first, second] = glyphs("II", "sans", 12);
+		expect(first.id).toBe(second.id);
+		expect(glyphs("I", "sans-bold", 30)[0].id).not.toBe(first.id);
+		expect(glyphs("I", "mono", 12)[0].id).not.toBe(first.id);
+		expect(glyphs("J", "sans", 12)[0].id).not.toBe(first.id);
+	});
+
+	test("gives a glyph with no ink, such as a space, no outline", () => {
+		expect(glyphs("a b", "sans", 10)[1].outline).toBe("");
 	});
 
 	test("sets each glyph at the kerned advance of those before it", () => {
-		expect(outline("AV", "sans", 2048, 0, 0)).toBe(
-			outline("A", "sans", 2048, 0, 0) + outline("V", "sans", 2048, 1270, 0),
+		expect(glyphs("AV", "sans", 2048).map((g) => g.x)).toEqual([0, 1270]);
+		expect(glyphs("AV", "sans", 12).map((g) => g.x)).toEqual([
+			0,
+			(1270 * 12) / 2048,
+		]);
+	});
+
+	test("centres each glyph in a cell of its own, the cells side by side", () => {
+		const margin = (11 - (1233 * 11) / 2048) / 2;
+		expect(glyphs("ACGT", "mono", 11, 11).map((g) => g.x)).toEqual(
+			[0, 11, 22, 33].map((start) => start + margin),
 		);
+		expect(glyphs("iW", "sans", 10, 12).map((g) => g.x)).toEqual([
+			(12 - measure("i", "sans", 10)) / 2,
+			12 + (12 - measure("W", "sans", 10)) / 2,
+		]);
+	});
+
+	test("takes a character the face lacks as U+FFFD, one glyph to a cell", () => {
+		const [lacked] = glyphs("中", "mono", 11, 11);
+		expect(glyphs("😀A", "mono", 11, 11)).toEqual([
+			lacked,
+			{ ...glyphs("A", "mono", 11, 11)[0], x: 11 + lacked.x },
+		]);
+		expect(lacked.id).toBe(glyphs("\ufffd", "mono", 11)[0].id);
 	});
 });
 
@@ -107,7 +146,7 @@ test("runs bundled in a bare V8 context, with no DOM, to the same results", asyn
 		vm.runInContext(`text.${expression}`, context);
 
 	expect(call('measure("AVATo", "sans", 12)')).toBe(34.79296875);
-	expect(call('outline("GFP (1..720)", "sans-bold", 11, 3.3, 7.7)')).toBe(
-		outline("GFP (1..720)", "sans-bold", 11, 3.3, 7.7),
+	expect(call('glyphs("GFP (1..720)", "sans-bold", 11)')).toEqual(
+		glyphs("GFP (1..720)", "sans-bold", 11),
 	);
 });

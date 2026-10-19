@@ -61,6 +61,8 @@ export type Shape = (
 			readonly y: number;
 			readonly anchor: "start" | "middle";
 			readonly fill: string;
+			/** If given, each letter sits centred in a cell this wide, the cells side by side. */
+			readonly cell?: number;
 	  }
 ) & {
 	/** What a page shows while the pointer rests on the shape. A file leaves it out. */
