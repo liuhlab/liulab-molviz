@@ -110,7 +110,7 @@ export function openPage(
 	const scaleOf = ({ name, extent }: NonNullable<typeof shown>) =>
 		displayScale((sizes.get(name) ?? extent).width, frame.clientWidth);
 
-	const fit = () => {
+	const sizeToRoom = () => {
 		if (shown === null) return;
 		const { extent } = shown;
 		const size = sizes.get(shown.name) ?? extent;
@@ -142,7 +142,7 @@ export function openPage(
 		if (shown === null) box.append(svg);
 		else shown.svg.replaceWith(svg);
 		shown = { name, zoom: map.zoom, extent: scene.extent, svg };
-		fit();
+		sizeToRoom();
 		if (flipped) {
 			box.scrollLeft = map.left;
 			box.scrollTop = map.top;
@@ -182,7 +182,7 @@ export function openPage(
 		box.scrollTop = top;
 	};
 	const { defaultView } = document;
-	defaultView?.addEventListener("resize", fit);
+	defaultView?.addEventListener("resize", sizeToRoom);
 	defaultView?.addEventListener("beforeprint", beforePrint);
 	defaultView?.addEventListener("afterprint", afterPrint);
 	redraw();
@@ -199,7 +199,7 @@ export function openPage(
 		},
 		redraw,
 		destroy: () => {
-			defaultView?.removeEventListener("resize", fit);
+			defaultView?.removeEventListener("resize", sizeToRoom);
 			defaultView?.removeEventListener("beforeprint", beforePrint);
 			defaultView?.removeEventListener("afterprint", afterPrint);
 			frame.remove();
