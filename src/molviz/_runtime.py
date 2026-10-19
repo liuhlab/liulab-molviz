@@ -4,7 +4,7 @@ import json
 from functools import cache
 from typing import Any
 
-from molviz.viewer import viewer_script
+from molviz.viewer import outlines_script, viewer_script
 
 # The arguments cross as JSON text, so a key such as `__proto__` stays a key.
 _CALL = """((name, call, text) => {
@@ -67,6 +67,8 @@ def call(name: str, function: str, *arguments: Any) -> Any:
 def call_json(name: str, function: str, arguments: str) -> Any:
     """Call as ``call`` does, with ``arguments`` already written as one JSON array.
 
+    Only an ``svg`` call, which writes a file, runs the outline script too.
+
     Raises
     ------
     ValueError
@@ -78,6 +80,8 @@ def call_json(name: str, function: str, arguments: str) -> Any:
 
     with MiniRacer() as ctx:
         ctx.eval(viewer_script())
+        if function == "svg":
+            ctx.eval(outlines_script())
         answer = ctx.call(_CALL, name, function, arguments)
     if "problems" in answer:
         raise ValueError(answer["problems"])

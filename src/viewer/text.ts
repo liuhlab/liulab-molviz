@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 /** Text in the faces the viewer carries: measured, and outlined as SVG paths. */
 
-import outlineTable from "virtual:molviz-outlines";
+import type { Outlines } from "virtual:molviz-outlines";
 import { advance, has, places, units } from "./faces";
 import monoUrl from "./fonts/mono.woff2?inline";
 import sansUrl from "./fonts/sans.woff2?inline";
@@ -157,9 +157,13 @@ const outlines: Partial<Record<Face, Map<number, string>>> = {};
 /**
  * The outline of glyph `index` of `face` as SVG path data in its face's units, y down, from its
  * origin on the baseline, every number with two decimals. Empty for a glyph with no ink, such
- * as a space.
+ * as a space. Throws unless the outline script has run.
  */
 export function outlineOf(face: Face, index: number): string {
+	const outlineTable = (globalThis as { molvizOutlines?: Outlines })
+		.molvizOutlines;
+	if (outlineTable === undefined)
+		throw new Error("molviz: a file's outlines need the outline script");
 	outlines[face] ??= new Map();
 	const known = outlines[face];
 	let outline = known.get(index);

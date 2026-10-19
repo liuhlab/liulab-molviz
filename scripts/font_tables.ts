@@ -99,9 +99,19 @@ function pathData(commands: readonly PathCommand[]): string {
 	return d;
 }
 
+/** The outline script: a comment holding the fonts' licence, then the global it sets. */
+function outlineScript(outlines: string): string {
+	const licence = readFileSync(`${FOLDER}/LICENSE`, "utf8").replaceAll(
+		"*/",
+		"* /",
+	);
+	return `/*!\nDejaVu fonts\n\n${licence}\n*/\nglobalThis.molvizOutlines=${outlines};\n`;
+}
+
 /**
- * The Vite plugin serving the tables as modules: `virtual:molviz-fonts`, what the viewer measures
- * with, and `virtual:molviz-outlines`, each glyph's outline.
+ * The Vite plugin serving the tables as modules, `virtual:molviz-fonts`, what the viewer measures
+ * with, and `virtual:molviz-outlines`, each glyph's outline; and writing the outline script,
+ * `outlines.js`, beside the viewer.
  */
 export function fontTables(): Plugin {
 	let built: { fonts: string; outlines: string } | undefined;
@@ -126,6 +136,13 @@ export function fontTables(): Plugin {
 			if (id === `\0${OUTLINES}`)
 				return `export default ${modules().outlines};`;
 			return null;
+		},
+		generateBundle() {
+			this.emitFile({
+				type: "asset",
+				fileName: "outlines.js",
+				source: outlineScript(modules().outlines),
+			});
 		},
 	};
 }

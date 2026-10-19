@@ -33,8 +33,9 @@ declare module "virtual:molviz-outlines" {
 	 * Each glyph's outline by face, then by index, as SVG path data in its face's units, y down,
 	 * each number as JavaScript writes it. A glyph with no ink is absent.
 	 */
-	const outlines: Readonly<
+	export type Outlines = Readonly<
 		Record<"sans" | "sans-bold" | "mono", Readonly<Record<number, string>>>
 	>;
+	const outlines: Outlines;
 	export default outlines;
 }
