@@ -60,7 +60,7 @@ sets one.
   `molviz.svg` raises an error.
 
 - The package carries a second script, the outline script, beside the viewer. It holds the
-  shape of each letter, which a file draws. `molviz.viewer.outlines_script()` returns it.
+  shape of each letter, which a file draws.
 - In the viewer, `molviz.svg`, `molviz.gelSvg` and `molviz.plateSvg` need the outline script
   run beside the viewer, and throw an error without it. Drawing on a page and the still calls
   need only the viewer.

@@ -26,8 +26,6 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.viewer.viewer_script
 
-::: molviz.viewer.outlines_script
-
 ::: molviz.font_rules
 
 ::: molviz.check

@@ -17,13 +17,13 @@ reasons.
 - **The look.** SnapGene Viewer is the reference. The map keeps SnapGene's labels; the
   sequence view and its interactions copy SeqViz.
 - **The core** is molviz's own framework-free SVG layout on small d3 modules and rbush, not a
-  viewer package. opentype.js runs only in the build. mbio's Python layout is not ported.
+  viewer package. opentype.js runs only in the build and its tests. mbio's Python layout is not
+  ported.
 - **Reader promises.** All nine in section 5 of
   [the drawings note](docs/research/molviz-mbio-drawings.md)
   hold. A crowded label is hidden and counted.
-- **Releases.** A release ships the Python package `liulab-molviz` with both built scripts. It
-  exports SVG, PNG and PDF with no browser. A record's page inlines the viewer, a gel's or
-  plate's a still drawing.
+- **Releases.** A release ships the Python package `liulab-molviz`, which exports SVG, PNG and
+  PDF with no browser. A record's page inlines the viewer, a gel's or plate's a still drawing.
   mbio and liulab-protein pin it. The Python side holds no layout or biology; the drawing is
   JavaScript.
 - **The roadmap** is a `wayfinder:map` issue here. Its destination: a release mbio can pin that
