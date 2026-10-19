@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
+	type Hidden,
 	hidingOrder,
 	type Kind,
 	type Label,
@@ -9,9 +10,11 @@ import {
 import { leftEdge } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 
-/** A hidden label of `kind` named `name`. */
-function hid(kind: Kind, name = "x") {
-	return { kind, name, spans: [] };
+/** A hidden label of `kind` named `name`, at the record's start. */
+function hid(kind: Kind, name = "x"): Hidden {
+	return kind === "cuts" || kind === "insertions"
+		? { kind, name, at: 0 }
+		: { kind, name, spans: [] };
 }
 
 /** A label of `kind` that says `text` in one run. */
@@ -21,9 +24,7 @@ function label(
 	{ fewestCuts = 0, dim = false } = {},
 ): Label {
 	return {
-		kind,
-		name: text,
-		spans: [],
+		...hid(kind, text),
 		runs: [{ text, face: "sans" }],
 		color: "#000000",
 		dim,

@@ -38,7 +38,8 @@ class Drawing:
     hidden : list[dict[str, Any]]
         The labels left out because they would overlap: of what a file draws at full size, or
         of what a page opens on. Each is the viewer's ``Hidden``, defined in its
-        ``labels.ts``: the label's kind, its name and its spans.
+        ``labels.ts``: its ``kind``, ``name``, and ``spans`` or, for a cut site or an
+        insertion, its point ``at``.
     notice : str
         The sentence that counts the hidden labels by kind, worded by the viewer, such as
         "3 cut sites and 1 primer are hidden". Empty when nothing hides.

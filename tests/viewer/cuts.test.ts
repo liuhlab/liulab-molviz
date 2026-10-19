@@ -98,7 +98,7 @@ describe("cutSites", () => {
 		]);
 	});
 
-	test("names a site as a hidden label: its enzymes, an empty span at the cut, its fewest cuts", () => {
+	test("names a site as a hidden label: its enzymes, its point, its fewest cuts", () => {
 		const record = cutBy([
 			["BsmBI", 3],
 			["Esp3I", 3],
@@ -112,9 +112,10 @@ describe("cutSites", () => {
 		expect(site.label).toMatchObject({
 			kind: "cuts",
 			name: "BsmBI - Esp3I",
-			spans: [{ start: 3, end: 3 }],
+			at: 3,
 			fewestCuts: 2,
 		});
+		expect(site.label).not.toHaveProperty("spans");
 	});
 });
 

@@ -92,7 +92,7 @@ def test_draw_passes_the_kinds_enzymes_and_highlight_through() -> None:
 def test_draw_returns_the_labels_the_viewer_hid_a_lit_one_last() -> None:
     record = json.loads((ROOT / "tests" / "records" / "crowded-sites.json").read_text("utf-8"))
     every = sorted({cut["enzyme"] for cut in record["cuts"]})
-    site = {"kind": "cuts", "name": "EcoRI", "spans": [{"start": 1275, "end": 1275}]}
+    site = {"kind": "cuts", "name": "EcoRI", "at": 1275}
     plain = molviz.draw(record, enzymes=every)
     lit = molviz.draw(record, enzymes=every, highlight=["ecori"])
     assert site in plain.hidden

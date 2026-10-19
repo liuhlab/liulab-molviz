@@ -409,11 +409,7 @@ function insertions({
 			.filter(Boolean)
 			.join(" · ");
 		const label = labelOf(
-			{
-				kind: "insertions",
-				name: insertion.name,
-				spans: [{ start: point, end: point }],
-			},
+			{ kind: "insertions", name: insertion.name, at: point },
 			[{ text: `+${insertion.length} bp`, face: "sans" }],
 			insertion.color?.toLowerCase() ?? INSERTION,
 			options.highlight,

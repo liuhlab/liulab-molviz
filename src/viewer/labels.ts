@@ -21,13 +21,20 @@ export const KINDS = ["features", "primers", "cuts", "insertions"] as const;
 
 export type Kind = (typeof KINDS)[number];
 
-/** A label left out because it would overlap. */
-export interface Hidden {
-	readonly kind: Kind;
-	readonly name: string;
-	/** The spans the label belongs to. */
-	readonly spans: readonly Span[];
-}
+/** The kinds whose items lie at a point between two bases. */
+type AtPoint = "cuts" | "insertions";
+
+/**
+ * A label left out because it would overlap: a feature's or primer's by the spans it belongs to,
+ * a cut site's or insertion's by its point, as the record writes it.
+ */
+export type Hidden =
+	| {
+			readonly kind: Exclude<Kind, AtPoint>;
+			readonly name: string;
+			readonly spans: readonly Span[];
+	  }
+	| { readonly kind: AtPoint; readonly name: string; readonly at: number };
 
 /** A map laid out, and the labels it left out. */
 export interface MapScene extends Scene {
@@ -44,7 +51,7 @@ export interface Run {
  * One label: what it names, its text, and what decides when it hides. Every label of one item is
  * one `Label`.
  */
-export interface Label extends Hidden {
+export type Label = Hidden & {
 	/** Its text, in runs set side by side. */
 	readonly runs: readonly Run[];
 	/** A feature's box, or any other label's text. */
@@ -53,7 +60,7 @@ export interface Label extends Hidden {
 	readonly dim: boolean;
 	/** For a cut site, the fewest times one of its enzymes cuts the record; else 0. */
 	readonly fewestCuts: number;
-}
+};
 
 /**
  * The label of `item` that says `runs` in `color`, dimmed to one grey when `highlight` names
@@ -159,8 +166,11 @@ export function hidingOrder(a: Label, b: Label): number {
 }
 
 /** `label` as a drawing lists it once it hides. */
-export function hiddenOf({ kind, name, spans }: Label): Hidden {
-	return { kind, name, spans };
+export function hiddenOf(label: Label): Hidden {
+	const { name } = label;
+	return "at" in label
+		? { kind: label.kind, name, at: label.at }
+		: { kind: label.kind, name, spans: label.spans };
 }
 
 /** All of a label's text. */

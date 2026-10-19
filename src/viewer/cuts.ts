@@ -81,11 +81,7 @@ function siteLabel(
 	// On a circle, a cut at the origin follows the last base.
 	add(` (${record.circular && at === 0 ? record.bases.length : at})`, "sans");
 	return labelOf(
-		{
-			kind: "cuts",
-			name: enzymes.join(SEPARATOR),
-			spans: [{ start: at, end: at }],
-		},
+		{ kind: "cuts", name: enzymes.join(SEPARATOR), at },
 		runs,
 		ENZYME,
 		highlight,

@@ -236,7 +236,11 @@ describe("on the crowded record with every enzyme, labels hide", () => {
 	])("%s", (_, highlight, hidden) => {
 		const scene = lay(crowded, { enzymes: EVERY, highlight });
 		expect(
-			scene.hidden.map(({ kind, name, spans }) => [kind, name, spans[0].start]),
+			scene.hidden.map((one) => [
+				one.kind,
+				one.name,
+				"at" in one ? one.at : one.spans[0].start,
+			]),
 		).toEqual(hidden);
 	});
 });

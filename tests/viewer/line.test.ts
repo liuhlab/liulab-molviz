@@ -613,11 +613,11 @@ describe("hidden labels", () => {
 		expect(label(wide, "feature number 10")).toBeDefined();
 	});
 
-	/** Each label `record` hides along `width` points, as its name and where it starts. */
+	/** Each label `record` hides along `width` points, as its name and its point or start. */
 	function hiddenOn(record: unknown, options: object, width: number): string[] {
 		const checked = check(record);
 		return layout(checked, checkOptions(options, checked), width).hidden.map(
-			({ name, spans }) => `${name} ${spans[0].start}`,
+			(one) => `${one.name} ${"at" in one ? one.at : one.spans[0].start}`,
 		);
 	}
 
