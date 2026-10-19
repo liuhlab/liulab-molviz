@@ -45,7 +45,7 @@ export function labelsAbove(
 	const placed = staircase(
 		sized.filter((_, i) => !out.has(i)),
 		base,
-	);
+	).boxes;
 	const shapes: Shape[] = [];
 	for (const [i, { label, x, foot }] of shown.entries()) {
 		const box = placed[i];
@@ -70,10 +70,9 @@ export function labelsAbove(
  * The labels to leave out so `staircase` sets the rest no higher than `ceiling`, in the order
  * they hid. `order` gives every label once, the first to hide first.
  *
- * Labels can lift each other only when their `x`s lie closer than their widths and `SPACING`
- * added up, and a crowd is a run of labels linked so. A crowd under the ceiling hides nothing.
- * One past it hides the fewest of its labels, taken in order, that bring it under, unless it
- * breaks apart first: then it hides what breaks it, and each part is a crowd of its own.
+ * A stack too tall is a box past the ceiling and the boxes it rests on, down to the line. Each
+ * round lays the labels out and hides, of all the labels in such stacks, the first in `order`.
+ * A label in none never hides.
  */
 function hide(
 	sized: readonly Sized[],
@@ -83,95 +82,53 @@ function hide(
 ): number[] {
 	const rank: number[] = [];
 	for (const [position, i] of order.entries()) rank[i] = position;
-	const fits = (indices: readonly number[]) =>
-		staircase(
-			indices.map((i) => sized[i]),
+	const hidden = new Set<number>();
+	const tall = () => {
+		const kept = [...sized.keys()].filter((i) => !hidden.has(i));
+		const { boxes, rests } = staircase(
+			kept.map((i) => sized[i]),
 			base,
-		).every((box) => box.y >= ceiling);
-	const hidden: number[] = [];
-	const pending = crowds(sized, [...sized.keys()]);
-	while (pending.length > 0) {
-		const crowd = pending.pop() ?? [];
-		if (fits(crowd)) continue;
-		const ranked = [...crowd].sort((i, j) => rank[i] - rank[j]);
-		const rest = (count: number) => {
-			const gone = new Set(ranked.slice(0, count));
-			return crowd.filter((i) => !gone.has(i));
-		};
-		const apart = (count: number) => crowds(sized, rest(count)).length > 1;
-		// Hiding more of a crowd almost never lifts the rest, so halving finds how many to hide;
-		// the count it finds always fits.
-		const least = fewest(0, ranked.length, (count) => fits(rest(count)));
-		if (!apart(least - 1)) {
-			hidden.push(...ranked.slice(0, least));
-			continue;
+		);
+		const stacked = new Set<number>();
+		for (const [k, box] of boxes.entries()) {
+			if (box.y >= ceiling) continue;
+			for (let on: number | undefined = k; on !== undefined; on = rests[on]) {
+				stacked.add(kept[on]);
+			}
 		}
-		const breaks = fewest(0, least - 1, apart);
-		hidden.push(...ranked.slice(0, breaks));
-		pending.push(...crowds(sized, rest(breaks)));
+		return stacked;
+	};
+	for (let stacked = tall(); stacked.size > 0; stacked = tall()) {
+		hidden.add([...stacked].reduce((a, b) => (rank[a] < rank[b] ? a : b)));
 	}
-	return hidden.sort((i, j) => rank[i] - rank[j]);
-}
-
-/**
- * `indices` split into crowds along the line, each in increasing order. A box hangs within its
- * width of its `x`, so two labels further apart than their widths and `SPACING` never meet.
- */
-function crowds(
-	sized: readonly Sized[],
-	indices: readonly number[],
-): number[][] {
-	const reaches = indices
-		.map((i) => [sized[i].x - sized[i].width - SPACING / 2, i] as const)
-		.sort(([a, i], [b, j]) => a - b || i - j);
-	const found: number[][] = [];
-	let end = Number.NEGATIVE_INFINITY;
-	for (const [left, i] of reaches) {
-		if (left >= end) found.push([]);
-		found[found.length - 1].push(i);
-		end = Math.max(end, sized[i].x + sized[i].width + SPACING / 2);
-	}
-	return found.map((crowd) => crowd.sort((a, b) => a - b));
-}
-
-/** The least count above `low`, and at most `high`, that `holds` for, where it fails at `low`. */
-function fewest(
-	low: number,
-	high: number,
-	holds: (count: number) => boolean,
-): number {
-	let [failing, holding] = [low, high];
-	while (holding - failing > 1) {
-		const middle = Math.floor((failing + holding) / 2);
-		if (holds(middle)) holding = middle;
-		else failing = middle;
-	}
-	return holding;
+	return [...hidden].sort((i, j) => rank[i] - rank[j]);
 }
 
 /**
  * Place boxes in rows above `base`, each over the point `x` its leader rises from, so close
- * neighbours rise in a staircase and no leader crosses another box.
+ * neighbours rise in a staircase and no leader crosses another box. `rests` gives, for each box,
+ * the box under it that sets its height, the one nearest its `x` where two do, or nothing on the
+ * lowest row.
  *
  * Boxes are placed from the right. A box hangs right from its `x`, just above every box already
  * placed that it meets. It hangs left instead where that puts it lower and it reaches no other
  * `x`, so a box beside a crowd is not lifted over it.
  */
-function staircase(sized: readonly Sized[], base: number): Box[] {
+function staircase(
+	sized: readonly Sized[],
+	base: number,
+): { boxes: Box[]; rests: (number | undefined)[] } {
 	const xs = sized.map((one) => one.x);
 	const ordered = [...xs].sort((a, b) => a - b);
-	// Each box placed: its left edge, its right edge and `SPACING` beyond, and the lowest a box
-	// above it may end.
-	const taken: [number, number, number][] = [];
-	const bottom = (left: number, width: number) => {
-		const right = left + width + SPACING;
-		let low = base;
-		for (const [from, to, under] of taken) {
-			if (from < right && left < to) low = Math.min(low, under);
-		}
-		return low;
-	};
-	const placed: Box[] = new Array(sized.length);
+	// Each box placed: its index, its left edge, its right edge and `SPACING` beyond, and the
+	// lowest a box above it may end.
+	const taken: [number, number, number, number][] = [];
+	const meets = (left: number, width: number) =>
+		taken.filter(([, from, to]) => from < left + width + SPACING && left < to);
+	const bottom = (left: number, width: number) =>
+		Math.min(base, ...meets(left, width).map(([, , , under]) => under));
+	const boxes: Box[] = new Array(sized.length);
+	const rests: (number | undefined)[] = new Array(sized.length);
 	const order = [...sized.keys()].sort((i, j) => xs[j] - xs[i] || i - j);
 	for (const i of order) {
 		const { width, height, x } = sized[i];
@@ -181,8 +138,13 @@ function staircase(sized: readonly Sized[], base: number): Box[] {
 		);
 		const left = near.length <= 1 ? bottom(x - width, width) : right;
 		const [low, from] = left > right ? [left, x - width] : [right, x];
-		taken.push([from, from + width + SPACING, low - height - SPACING]);
-		placed[i] = { x: from, y: low - height, width, height };
+		const away = ({ x: start, width: span }: Box) =>
+			Math.max(0, start - x, x - start - span);
+		rests[i] = meets(from, width)
+			.flatMap(([j, , , under]) => (under === low ? [j] : []))
+			.sort((a, b) => away(boxes[a]) - away(boxes[b]))[0];
+		taken.push([i, from, from + width + SPACING, low - height - SPACING]);
+		boxes[i] = { x: from, y: low - height, width, height };
 	}
-	return placed;
+	return { boxes, rests };
 }

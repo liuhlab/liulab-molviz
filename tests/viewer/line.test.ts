@@ -6,6 +6,7 @@ import { check } from "../../src/viewer/record";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
+import crowdedSitesFile from "../records/crowded-sites.json";
 
 const colourTest = check(colourTestFile);
 
@@ -610,6 +611,42 @@ describe("hidden labels", () => {
 		const wide = lay(crowd, {}, {}, 1440);
 		expect(rects(wide)).toHaveLength(50);
 		expect(label(wide, "feature number 10")).toBeDefined();
+	});
+
+	/** Each label `record` hides along `width` points, as its name and where it starts. */
+	function hiddenOn(record: unknown, options: object, width: number): string[] {
+		const checked = check(record);
+		return layout(checked, checkOptions(options, checked), width).hidden.map(
+			({ name, spans }) => `${name} ${spans[0].start}`,
+		);
+	}
+
+	test("hide only from a stack too tall, never a site with room around it", () => {
+		const enzymes = [
+			...new Set(crowdedSitesFile.cuts.map((cut) => cut.enzyme)),
+		];
+		expect(hiddenOn(crowdedSitesFile, { enzymes }, 720)).toEqual([
+			"EcoRI 1275",
+			"HindIII 1332",
+			"BsmBI - Esp3I - NruI 1273",
+			"BanII - SacI - XbaI 1217",
+		]);
+		expect(hiddenOn(crowdedSitesFile, { enzymes }, 1440)).toEqual([]);
+	});
+
+	test("hide cut sites before a feature in their stack, even one lifted to its top", () => {
+		const record = structuredClone(crowdedSitesFile);
+		record.features.push({
+			name: "in the stack",
+			type: "misc_feature",
+			strand: 0,
+			segments: [{ start: 1202, end: 1204 }],
+		});
+		expect(hiddenOn(record, {}, 720)).toEqual([
+			"BsmBI - Esp3I - NruI 1273",
+			"BanII - SacI - XbaI 1217",
+			"NheI - SphI 1289",
+		]);
 	});
 });
 

@@ -111,9 +111,9 @@ describe("labelsAbove", () => {
 		expect(hidden).toEqual([twice]);
 	});
 
-	test("hides what breaks a crowd apart, then the fewest of each part", () => {
-		// A wide label first to hide links a crowd at 100, which must hide 4, to one at 400 that
-		// fits. Hiding labels in order until both fit would hide 15.
+	test("hides only from the stack too tall, never a label beside it", () => {
+		// A stack at 100 must hide 4. A wide label first to hide reaches from it to labels at 400,
+		// some next to hide, that fit; nothing in the stack rests on it.
 		const site = (name: string, cuts: number) =>
 			label(name, { kind: "cuts", cuts });
 		const left = Array.from({ length: 45 }, (_, i) =>
@@ -127,6 +127,21 @@ describe("labelsAbove", () => {
 			[...at(100, left), ...at(250, [bridge]), ...at(400, right)],
 			0,
 		);
-		expect(names(hidden)).toEqual([bridge.name, "A01", "A02", "A03", "A04"]);
+		expect(names(hidden)).toEqual(["A01", "A02", "A03", "A04"]);
+	});
+
+	test("counts a box as resting on the one nearest its leader, where two hold it as high", () => {
+		// The wide box rests on "short" under its leader and on the far site, both on the lowest
+		// row; the stack at 100 must hide 1.
+		const site = (name: string, cuts: number) =>
+			label(name, { kind: "cuts", cuts });
+		const far = site("far (9)", 9);
+		const stack = [
+			label("short"),
+			label("a wide name that reaches the far site"),
+			...Array.from({ length: 40 }, (_, i) => site(`n${i}`, 1)),
+		];
+		const { hidden } = labelsAbove([...at(100, stack), ...at(250, [far])], 0);
+		expect(names(hidden)).toEqual(["n10"]);
 	});
 });
