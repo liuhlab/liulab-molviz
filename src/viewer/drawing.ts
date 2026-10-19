@@ -39,10 +39,14 @@ export function prepare(record: unknown, options: unknown): MapScene {
 	return prepareViews(record, options).map;
 }
 
-/** `prepare`, with the sequence view laid out too if `options` draw it. */
-export function prepareViews(record: unknown, options: unknown): Views {
+/** `prepare`, with the sequence view laid out too if `options` draw it, for a `page` or a file. */
+export function prepareViews(
+	record: unknown,
+	options: unknown,
+	where: { page?: boolean } = {},
+): Views {
 	const checked = check(record);
-	const drawn = checkOptions(options, checked);
+	const drawn = checkOptions(options, checked, where);
 	return {
 		map: layout(checked, drawn),
 		sequence: drawn.sequence_view ? layoutSequence(checked, drawn) : null,

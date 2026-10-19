@@ -102,6 +102,15 @@ describe("draw", () => {
 		expect(element.children).toHaveLength(0);
 	});
 
+	test("leaves the sequence view out past 100,000 bases, with no error", () => {
+		const long = { ...record, bases: "ACGT".repeat(25_001) };
+		const element = spot();
+		draw(element, long, { sequence_view: true });
+		const alone = spot();
+		draw(alone, long, {});
+		expect(element.innerHTML).toBe(alone.innerHTML);
+	});
+
 	test("throws a FormatError on a bad record, adding nothing to the page", () => {
 		const element = spot();
 		expect(() => draw(element, { ...record, bases: "" }, {})).toThrow(

@@ -16,14 +16,15 @@ export interface LiveDrawing {
 
 /**
  * Draw `record` with `options` into `element`, after what it holds, its letters as real text.
- * Throws one FormatError naming every problem in the record, or else in the options.
+ * A span past the sequence view's limit leaves the view out. Throws one FormatError naming every
+ * problem in the record, or else in the options.
  */
 export function draw(
 	element: Element,
 	record: unknown,
 	options: unknown = {},
 ): LiveDrawing {
-	const { map, sequence } = prepareViews(record, options);
+	const { map, sequence } = prepareViews(record, options, { page: true });
 	const drawn = [drawScene(element, map)];
 	if (sequence !== null) {
 		const view = drawScene(element, sequence);

@@ -320,6 +320,12 @@ def test_a_png_too_large_to_draw_is_refused_pointing_at_the_pdf(drawing, tmp_pat
     assert not (tmp_path / "map.png").exists()
 
 
+def test_a_sequence_view_past_the_limit_is_an_error() -> None:
+    long = {**DRAWN, "bases": "ACGT" * 25_001}
+    with pytest.raises(ValueError, match=r"^options\.sequence_view: must be false past 100,000"):
+        molviz.draw(long, sequence_view=True)
+
+
 def test_the_sequence_view_limit_is_the_viewers() -> None:
     from py_mini_racer import MiniRacer
 
