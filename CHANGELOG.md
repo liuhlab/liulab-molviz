@@ -49,8 +49,7 @@ sets one.
   `molviz.fontRules()` returns the font rules. `molviz.calls` names each input's still call.
 - A gel's or a plate's `.html` page holds its still drawing and the font rules, and no
   viewer. A record's page still draws it with the viewer.
-- Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
-  opentype.js, built into the viewer, which reads its fonts.
+- A new runtime dependency: vl-convert-python, which writes PNG and PDF.
 - `draw(record, sequence_view=True)` draws the sequence view under the map: the bases in rows
   on both strands, with what is drawn on them. `bases_per_row` sets a row's length, and
   `bottom_strand=False` leaves the bottom strand out. It draws at most
@@ -65,6 +64,14 @@ sets one.
   segments may start lower than the one before it. The map and the sequence view draw each
   piece where it lies, with a grey join to the end it meets.
 
+- The package carries a second script, the outline script, beside the viewer. It holds the
+  shape of each letter, which a file draws.
+- In the viewer, `molviz.svg`, `molviz.gelSvg` and `molviz.plateSvg` need the outline script
+  run beside the viewer, and throw an error without it. Drawing on a page and the still calls
+  need only the viewer.
+- The viewer measures text from tables made from its fonts when it is built, and a page loads
+  the fonts as WOFF2. Its script is about a third of the size it was, and every drawing is
+  the same.
 - A record may hold reads, disagreements and tracks.
   - A read is one sequencing result: its name, the bases it covers, and its strand.
   - A disagreement is a place where reads differ from the record. It lies over a span, or at a
