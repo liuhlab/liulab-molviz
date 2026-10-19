@@ -32,6 +32,13 @@ def test_the_viewer_script_opens_with_the_licence_of_what_it_bundles() -> None:
         assert holder in banner
 
 
+def test_the_viewer_script_carries_no_font_parser() -> None:
+    # opentype.js, by the name its licence is listed under and an error it throws.
+    script = viewer_script()
+    for marker in ["opentype.js", "Unsupported OpenType signature"]:
+        assert marker not in script
+
+
 def test_the_viewer_alone_refuses_to_write_a_file_naming_the_outline_script() -> None:
     record = {"name": "pUC19", "circular": True, "bases": "GATC"}
     with pytest.raises(JSEvalException, match="a file's outlines need the outline script"):
