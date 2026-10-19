@@ -99,6 +99,11 @@ _Avoid_: sequencing result, trace
 A place where a read differs from the record it was expected to match.
 _Avoid_: mismatch, which is a primer's; difference
 
+### Close-up
+
+A still drawing of a few dozen bases around one disagreement: the line and the sequence view
+over that span, with the reads and tracks on it.
+
 ### Figure
 
 A still drawing of one record, or several stacked, to one span, set beside a protocol step.
