@@ -14,6 +14,9 @@ import { families, glyphs, inFace, measure, unitsPerEm, weights } from "./text";
 
 const GROUND = "#ffffff";
 const NAMESPACE = "http://www.w3.org/2000/svg";
+// A use names its glyph by `xlink:href`, not SVG 2's `href`, which SVG 1.1 readers such as
+// Illustrator skip.
+const XLINK = "http://www.w3.org/1999/xlink";
 
 /** The outline of each glyph a scene draws, by its id, when its letters are outlines. */
 type Defined = Map<string, string>;
@@ -39,7 +42,7 @@ interface Tag {
  */
 export function toSvg(scene: Scene): string {
 	const { root, children } = tags(scene, new Map());
-	return `<svg xmlns="${NAMESPACE}"${written(root)}>${children.map(markup).join("")}</svg>`;
+	return `<svg xmlns="${NAMESPACE}" xmlns:xlink="${XLINK}"${written(root)}>${children.map(markup).join("")}</svg>`;
 }
 
 /**
@@ -182,7 +185,7 @@ function tag(shape: Shape, defined?: Defined): Tag {
 					uses.push({
 						name: "use",
 						attributes: [
-							["href", `#${glyph.id}`],
+							["xlink:href", `#${glyph.id}`],
 							["x", twoDecimals(glyph.x / scale)],
 						],
 					});
