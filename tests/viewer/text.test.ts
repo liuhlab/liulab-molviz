@@ -136,6 +136,24 @@ describe("wrap", () => {
 		expect(wrap("ab", "sans", 10, 1)).toEqual(["a", "b"]);
 	});
 
+	test("breaks a word too long for a line after a letter it is given, then between letters", () => {
+		// Six letters to a line: every letter of the mono face is as wide.
+		const width = measure("abcdef", "mono", 10);
+		expect(wrap("abcd-efgh xy", "mono", 10, width, "-_")).toEqual([
+			"abcd-",
+			"efgh",
+			"xy",
+		]);
+		expect(wrap("ab_cdefgh", "mono", 10, width, "-_")).toEqual([
+			"ab_",
+			"cdefgh",
+		]);
+		expect(wrap("abcdefgh-ij", "mono", 10, width, "-_")).toEqual([
+			"abcdef",
+			"gh-ij",
+		]);
+	});
+
 	test("gives no lines for text with no words", () => {
 		expect(wrap("", "sans", 10, 100)).toEqual([]);
 		expect(wrap("   ", "sans", 10, 100)).toEqual([]);

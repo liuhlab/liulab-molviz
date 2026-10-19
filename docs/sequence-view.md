@@ -1,8 +1,9 @@
 # The sequence view
 
 This page draws each test record with its sequence view, in your browser, when the page opens.
-The map comes first, and the sequence view sits under it. The page uses the same viewer the
-Python package carries, so what you see here is what a page written by the package shows.
+The map comes first, and the sequence view sits under it. A circular record's map is the
+circle. The page uses the same viewer the Python package carries, so what you see here is what
+a page written by the package shows.
 
 The sequence view sets the bases in rows of 60. The top strand runs over the bottom strand,
 with a rail of ticks between them, one tick for each base. A number stands over every tenth
@@ -20,6 +21,32 @@ A Golden Gate product. Its lacZα CDS is joined across the GFP insert, and some 
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/puc19-gfp-product.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true}
+</script>
+</div>
+
+## puc19-backbone-amplicon
+
+A linear PCR product that starts inside lacZα. The lacZα CDS runs past the last row's end and on from the first row's start. In each of those rows a grey join runs from its piece to the record's end, and its amino acids read on from one piece to the other.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-backbone-amplicon.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true}
+</script>
+</div>
+
+## gfp-amplicon
+
+A linear PCR product of GFP. Its GFP CDS ends at a Golden Gate overhang, and both of its primers have 5' tails that hang off the template.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/gfp-amplicon.json"
 </script>
 <script type="application/json" data-options>
 {"sequence_view": true}
@@ -117,19 +144,6 @@ An N inside a CDS, so one codon reads as X, and an EcoRI cut at the origin.
 </script>
 </div>
 
-## crowded-sites
-
-A circle where 40 enzymes cut within 143 bases. The map hides some of their labels; the sequence view draws every cut site it is given.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
-<script type="application/json" data-options>
-{"sequence_view": true}
-</script>
-</div>
-
 ## puc19-gfp-product, with GFP lit
 
 GFP and the two primers that copy it are lit. They keep their colours, and everything else turns pale grey, in the map and in the sequence view alike.
@@ -182,15 +196,28 @@ Rows of 20 bases instead of 60.
 </script>
 </div>
 
-## crowded-sites, with every enzyme
+## puc19-backbone-amplicon, its first 48 bases
 
-The cut sites of all 40 enzymes. The map hides many of their labels, and the sequence view hides none.
+Only the first 48 bases, with BbsI's cut site, the forward primer, the BbsI site and the TGGC overhang lit. The small piece of lacZα at the start is grey, and its join runs to the record's start.
 
 <div data-molviz>
 <script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
+--8<-- "tests/records/puc19-backbone-amplicon.json"
 </script>
 <script type="application/json" data-options>
-{"sequence_view": true, "enzymes": ["AatII", "Acc65I", "AflII", "AgeI", "AscI", "AvrII", "BamHI", "BanII", "BglII", "BsaI", "BsiWI", "BsmBI", "ClaI", "EcoRI", "EcoRV", "Esp3I", "HindIII", "HpaI", "KpnI", "MfeI", "MluI", "NcoI", "NdeI", "NheI", "NotI", "NruI", "NsiI", "PacI", "PmeI", "PstI", "SacI", "SalI", "SmaI", "SnaBI", "SpeI", "SphI", "StuI", "XbaI", "XhoI", "XmaI"]}
+{"sequence_view": true, "span": {"start": 0, "end": 48}, "enzymes": ["BbsI"], "highlight": ["pUC19 backbone forward", "BbsI", "BbsI site", "TGGC overhang"]}
+</script>
+</div>
+
+## puc19-backbone-amplicon, from 2580 to the end
+
+Only the bases from 2580 to the end. The large piece of lacZα stops at base 2644, and a grey join runs from it to the record's end.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-backbone-amplicon.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true, "span": {"start": 2580, "end": 2662}}
 </script>
 </div>

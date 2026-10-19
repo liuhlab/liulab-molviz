@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
+import { layoutCircle } from "../../src/viewer/circle";
 import { gelSvg, plateSvg, prepare, svg } from "../../src/viewer/drawing";
 import { FormatError } from "../../src/viewer/format";
+import { layoutLine } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { leftEdge } from "../../src/viewer/scene";
@@ -21,6 +23,16 @@ describe("svg", () => {
 			new FormatError(
 				"options.span.end: must be at most the record's length, 100",
 			),
+		);
+	});
+
+	test("lays a whole circular record out as the circle, or as the line when asked", () => {
+		const circular = check({ ...good, circular: true });
+		expect(prepare(circular, {})).toStrictEqual(
+			layoutCircle(circular, checkOptions({}, circular)),
+		);
+		expect(prepare(circular, { map: "line" })).toStrictEqual(
+			layoutLine(circular, checkOptions({ map: "line" }, circular)),
 		);
 	});
 
@@ -113,10 +125,10 @@ describe("svg", () => {
 				length: 3,
 			})),
 		};
-		const drawn = svg(record);
+		const drawn = svg(record, { map: "line" });
 		expect(drawn.hidden).toEqual([]);
 		expect(drawn.notice).toBe("");
-		const said = prepare(record, {}).shapes.filter(
+		const said = prepare(record, { map: "line" }).shapes.filter(
 			(s) => s.shape === "text" && s.text === "across (996 .. 5)",
 		);
 		expect(said).toHaveLength(1);
@@ -160,6 +172,21 @@ describe("svg with the sequence view", () => {
 	test("hides nothing it would not hide without the view", () => {
 		expect(drawn.hidden).toEqual([]);
 		expect(drawn.notice).toBe("");
+	});
+
+	test("draws a whole circular record's circle above the view, the circle its first page", () => {
+		const circular = check({ ...record, circular: true });
+		const both = svg(circular, { sequence_view: true });
+		const circle = svg(circular);
+		expect(both.pages[0]).toBe(circle.svg);
+		const view = layoutSequence(
+			circular,
+			checkOptions({ sequence_view: true }, circular),
+		).extent;
+		expect(size(both.svg).height).toBeCloseTo(
+			size(circle.svg).height + view.height,
+			2,
+		);
 	});
 });
 

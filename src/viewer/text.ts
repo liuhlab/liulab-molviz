@@ -61,14 +61,16 @@ export function textWidth(
 
 /**
  * `text` broken into lines no wider than `width`, as many words to a line as fit, and none for
- * text with no word. A word wider than a line breaks between letters, and a letter wider than a
- * line takes a line alone.
+ * text with no word. A word wider than a line breaks after any of the letters `after`, as many
+ * pieces to a line as fit; a piece still too wide breaks between letters, and a letter wider
+ * than a line takes a line alone.
  */
 export function wrap(
 	text: string,
 	face: Face,
 	size: number,
 	width: number,
+	after = "",
 ): string[] {
 	const fits = (line: string) => measure(line, face, size) <= width;
 	const lines: string[] = [];
@@ -80,16 +82,35 @@ export function wrap(
 			continue;
 		}
 		if (line) lines.push(line);
-		let rest = [...word];
-		while (!fits(rest.join(""))) {
-			let cut = 1;
-			while (cut < rest.length && fits(rest.slice(0, cut + 1).join(""))) cut++;
-			lines.push(rest.slice(0, cut).join(""));
-			rest = rest.slice(cut);
+		line = "";
+		for (const piece of piecesOf(word, after)) {
+			if (fits(line + piece)) {
+				line += piece;
+				continue;
+			}
+			if (line) lines.push(line);
+			let rest = [...piece];
+			while (!fits(rest.join(""))) {
+				let cut = 1;
+				while (cut < rest.length && fits(rest.slice(0, cut + 1).join("")))
+					cut++;
+				lines.push(rest.slice(0, cut).join(""));
+				rest = rest.slice(cut);
+			}
+			line = rest.join("");
 		}
-		line = rest.join("");
 	}
 	return line ? [...lines, line] : lines;
+}
+
+/** `word` cut after each run of the letters `after`. */
+function piecesOf(word: string, after: string): string[] {
+	if (!after) return [word];
+	const letters = after.replace(/[\]\\^-]/g, "\\$&");
+	return (
+		word.match(new RegExp(`[^${letters}]*[${letters}]+|[^${letters}]+`, "g")) ??
+		[]
+	);
 }
 
 /** How far `face` reaches above and below its baseline, per unit of size. */

@@ -47,9 +47,24 @@ export type Shape = (
 	| {
 			readonly shape: "path";
 			readonly commands: readonly PathCommand[];
+			/** `none` leaves it unfilled. */
 			readonly fill: string;
 			readonly stroke: string;
 			readonly strokeWidth: number;
+	  }
+	| {
+			/** A name set along a curve, a letter at a time. */
+			readonly shape: "letters";
+			readonly text: string;
+			readonly face: Face;
+			readonly size: number;
+			readonly fill: string;
+			/** Where each letter starts on its baseline, and the degrees it turns clockwise there. */
+			readonly places: readonly (readonly [
+				x: number,
+				y: number,
+				rotate: number,
+			])[];
 	  }
 	| {
 			readonly shape: "rect";
@@ -79,6 +94,8 @@ export type Shape = (
 			readonly x: number;
 			/** The baseline. */
 			readonly y: number;
+			/** Degrees it turns clockwise about `x` and `y`. */
+			readonly rotate?: number;
 			readonly anchor: "start" | "middle";
 			readonly fill: string;
 			/** If given, each letter sits centred in a cell this wide, the cells side by side. */
@@ -143,6 +160,13 @@ export function moved(shape: Shape, dx: number, dy: number): Shape {
 						}
 					}
 				}),
+			};
+		case "letters":
+			return {
+				...shape,
+				places: shape.places.map(
+					([x, y, turn]) => [x + dx, y + dy, turn] as const,
+				),
 			};
 		case "circle":
 			return { ...shape, cx: shape.cx + dx, cy: shape.cy + dy };

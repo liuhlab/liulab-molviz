@@ -1,14 +1,15 @@
 import { describe, expect, test } from "vitest";
 import type { MapScene } from "../../src/viewer/labels";
-import { layout } from "../../src/viewer/line";
+import { layoutLine } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
-import crowdedSitesFile from "../records/crowded-sites.json";
+import backboneFile from "../records/puc19-backbone-amplicon.json";
 
 const colourTest = check(colourTestFile);
+const backbone = check(backboneFile);
 
 /** The span the test records' README names for drawing `colour-test` across its origin. */
 const ACROSS = { span: { start: 2600, end: 2750 } };
@@ -43,7 +44,7 @@ function lay(
 		})),
 		...record,
 	});
-	return layout(checked, checkOptions(options, checked), width);
+	return layoutLine(checked, checkOptions(options, checked), width);
 }
 
 type Polygon = Extract<Shape, { shape: "polygon" }>;
@@ -182,6 +183,63 @@ describe("a joined feature", () => {
 		expect([tips(first), tips(second)]).toEqual([[72], []]);
 		expect(lines(scene, "#666666")).toEqual([]);
 	});
+
+	test("across a linear record's end joins each piece to the end it runs off or on from", () => {
+		const scene = lay([
+			{
+				strand: 2,
+				segments: [
+					[900, 960],
+					[20, 50],
+				],
+				color: "#000001",
+			},
+		]);
+		const [after, before] = arrows(scene, "#000001");
+		// Its head on each strand is where the feature starts, 900, and ends, 50.
+		expect([left(after), right(after), tips(after)]).toEqual([14.4, 36, [36]]);
+		expect([left(before), right(before), tips(before)]).toEqual([
+			648,
+			691.2,
+			[648],
+		]);
+		const y = middle(after);
+		expect(middle(before)).toBe(y);
+		expect(lines(scene, "#666666")).toEqual([
+			expect.objectContaining({ x1: 0, x2: 14.4, y1: y, y2: y }),
+			expect.objectContaining({ x1: 691.2, x2: 720, y1: y, y2: y }),
+		]);
+	});
+
+	test("across the backbone amplicon's end lies where mbio draws it", () => {
+		const scene = layoutLine(backbone, checkOptions({}, backbone));
+		const [after, before] = arrows(scene, "#993366");
+		// mbio's lacZα at 720 points, to two places: 2394..2644 with its head at 2394, joined to
+		// the end. mbio leaves out the piece after the start; its join ends where molviz draws it.
+		expect(left(before)).toBeCloseTo(647.51, 2);
+		expect(right(before)).toBeCloseTo(715.13, 2);
+		expect(tips(before)).toEqual([left(before)]);
+		const [fromStart, toEnd] = lines(scene, "#666666");
+		expect(fromStart.x1).toBe(0);
+		expect(fromStart.x2).toBeCloseTo(3.79, 2);
+		expect(left(after)).toBe(fromStart.x2);
+		expect(toEnd.x1).toBeCloseTo(715.13, 2);
+		expect(toEnd.x2).toBe(720);
+	});
+
+	test("across a linear record's end draws no join to an end it meets", () => {
+		const scene = lay([
+			{
+				segments: [
+					[900, 1000],
+					[0, 50],
+				],
+				color: "#000001",
+			},
+		]);
+		expect(arrows(scene, "#000001")).toHaveLength(2);
+		expect(lines(scene, "#666666")).toEqual([]);
+	});
 });
 
 /** The x of each dot, left to right. */
@@ -207,7 +265,7 @@ describe("the ends", () => {
 });
 
 describe("a span across the origin", () => {
-	const scene = layout(colourTest, checkOptions(ACROSS, colourTest));
+	const scene = layoutLine(colourTest, checkOptions(ACROSS, colourTest));
 
 	test("draws a feature across the origin whole, its head at its end", () => {
 		const [across] = arrows(scene, "#993366");
@@ -260,7 +318,7 @@ describe("the ruler", () => {
 	);
 
 	test("numbers a span across the origin as the record does, with a long tick at the origin", () => {
-		const scene = layout(colourTest, checkOptions(ACROSS, colourTest));
+		const scene = layoutLine(colourTest, checkOptions(ACROSS, colourTest));
 		expect(numbers(scene)).toEqual([
 			...steps(2620, 2680, 20),
 			...steps(20, 60, 20),
@@ -291,7 +349,7 @@ describe("the ruler", () => {
 
 	test("leaves out a number too near the origin's tick", () => {
 		const options = { span: { start: 2650, end: 2700 } };
-		const scene = layout(colourTest, checkOptions(options, colourTest));
+		const scene = layoutLine(colourTest, checkOptions(options, colourTest));
 		expect(numbers(scene)).toEqual([...steps(2655, 2680, 5), "5", "10"]);
 	});
 });
@@ -314,7 +372,7 @@ describe("the title", () => {
 	});
 
 	test("gives a span's bases as the record numbers them", () => {
-		const scene = layout(colourTest, checkOptions(ACROSS, colourTest));
+		const scene = layoutLine(colourTest, checkOptions(ACROSS, colourTest));
 		const [length] = texts(scene, 10.5).filter((t) => t.y > 40);
 		expect(length.text).toBe("2601 .. 64 (150 bp)");
 	});
@@ -370,7 +428,7 @@ describe("colours", () => {
 				},
 			],
 		});
-		const segmented = layout(own, checkOptions({}, own));
+		const segmented = layoutLine(own, checkOptions({}, own));
 		expect(arrows(scene, "#123abc")).toHaveLength(2);
 		expect(arrows(segmented, "#123abc")).toHaveLength(1);
 		expect(arrows(segmented, "#00ff00")).toHaveLength(1);
@@ -425,7 +483,7 @@ function edges(r: Rect) {
 }
 
 describe("a feature's name", () => {
-	test("goes inside its arrow, centred on its band, when it fits", () => {
+	test("goes inside its arrow, centred on its shaft, when it fits", () => {
 		const scene = lay([
 			{ name: "lacZ", segments: [[100, 500]], color: "#000080" },
 			{ name: "bla", segments: [[600, 900]], color: "#ffffcc" },
@@ -597,6 +655,29 @@ describe("hidden labels", () => {
 		}
 	});
 
+	test("never count a name hidden that shows inside another bar of its feature", () => {
+		// The feature's piece before the end, in a crowd, is boxed; the longest name, it hides
+		// first. Its piece after the end has room for the name inside.
+		const name = "a feature off its end";
+		const scene = lay([
+			{
+				name,
+				segments: [
+					[990, 995],
+					[100, 600],
+				],
+				color: "#000004",
+			},
+			...Array.from({ length: 50 }, (_, i) => ({
+				name: `feature number ${i}`,
+				segments: [[979 - 2 * i, 980 - 2 * i]] as [number, number][],
+				color: "#000001",
+			})),
+		]);
+		expect(label(scene, name).fill).toBe("#ffffff");
+		expect(scene.hidden.map((one) => one.name)).not.toContain(name);
+	});
+
 	test("never hide a name inside or under an arrow", () => {
 		const scene = lay(crowd);
 		expect(label(scene, "lacZ").fill).toBe("#ffffff");
@@ -616,36 +697,66 @@ describe("hidden labels", () => {
 	/** Each label `record` hides along `width` points, as its name and its point or start. */
 	function hiddenOn(record: unknown, options: object, width: number): string[] {
 		const checked = check(record);
-		return layout(checked, checkOptions(options, checked), width).hidden.map(
+		return layoutLine(
+			checked,
+			checkOptions(options, checked),
+			width,
+		).hidden.map(
 			(one) => `${one.name} ${"at" in one ? one.at : one.spans[0].start}`,
 		);
 	}
 
+	/** A cut by `enzyme` at `at`, its site the six bases from the base before. */
+	function cut(enzyme: string, at: number) {
+		return { enzyme, start: at - 1, end: at + 5, at, stagger: 4 };
+	}
+
+	// The fewest cut sites whose labels stack past the ceiling: 44 enzymes cutting once, a base
+	// apart, and Twice, which cuts at the stack's end and again at 100, where it has room.
+	const sites = {
+		name: "test",
+		circular: false,
+		bases: BASES,
+		cuts: [
+			...Array.from({ length: 44 }, (_, i) => cut(`E${i + 1}`, 500 + i)),
+			cut("Twice", 544),
+			cut("Twice", 100),
+		],
+	};
+	const enzymes = [...new Set(sites.cuts.map(({ enzyme }) => enzyme))];
+
 	test("hide only from a stack too tall, never a site with room around it", () => {
-		const enzymes = [
-			...new Set(crowdedSitesFile.cuts.map((cut) => cut.enzyme)),
-		];
-		expect(hiddenOn(crowdedSitesFile, { enzymes }, 720)).toEqual([
-			"EcoRI 1275",
-			"HindIII 1332",
-			"BsmBI - Esp3I - NruI 1273",
-			"BanII - SacI - XbaI 1217",
+		expect(hiddenOn(sites, { enzymes }, 720)).toEqual([
+			"Twice 544",
+			"E10 509",
+			"E11 510",
+			"E12 511",
 		]);
-		expect(hiddenOn(crowdedSitesFile, { enzymes }, 1440)).toEqual([]);
 	});
 
 	test("hide cut sites before a feature in their stack, even one lifted to its top", () => {
-		const record = structuredClone(crowdedSitesFile);
-		record.features.push({
-			name: "in the stack",
+		// Two tiny features whose names cannot go under them, so both are boxed in the stack.
+		const tiny = (name: string, start: number) => ({
+			name,
 			type: "misc_feature",
 			strand: 0,
-			segments: [{ start: 1202, end: 1204 }],
+			segments: [{ start, end: start + 2 }],
 		});
-		expect(hiddenOn(record, {}, 720)).toEqual([
-			"BsmBI - Esp3I - NruI 1273",
-			"BanII - SacI - XbaI 1217",
-			"NheI - SphI 1289",
+		const record = {
+			...sites,
+			features: [tiny("in the stack", 520), tiny("beside it", 530)],
+		};
+		const checked = check(record);
+		const scene = layoutLine(checked, checkOptions({ enzymes }, checked));
+		// Above the line, so in the stack, not under its arrow.
+		expect(label(scene, "in the stack").y).toBeLessThan(0);
+		expect(hiddenOn(record, { enzymes }, 720)).toEqual([
+			"Twice 544",
+			"E10 509",
+			"E11 510",
+			"E12 511",
+			"E13 512",
+			"E14 513",
 		]);
 	});
 });

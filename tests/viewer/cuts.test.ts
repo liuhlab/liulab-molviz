@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { cutSites } from "../../src/viewer/cuts";
-import { layout } from "../../src/viewer/line";
+import { layoutLine } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import type { Scene, Shape } from "../../src/viewer/scene";
@@ -123,7 +123,7 @@ type Line = Extract<Shape, { shape: "line" }>;
 type Text = Extract<Shape, { shape: "text" }>;
 
 function drawn(record: ReturnType<typeof check>, options: object = {}): Scene {
-	return layout(record, checkOptions(options, record));
+	return layoutLine(record, checkOptions(options, record));
 }
 
 /** The leaders, left to right. */

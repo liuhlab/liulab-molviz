@@ -15,7 +15,7 @@ import {
 	Text,
 } from "./format";
 import { KINDS } from "./labels";
-import { type Record, type Span, span } from "./record";
+import { type Record, rule, type Span, span } from "./record";
 
 const OnOff = v.boolean("must be true or false");
 
@@ -25,11 +25,23 @@ export const LIMIT = 100_000;
 function optionsSchema(record: Record, page: boolean) {
 	const bounds = { length: record.bases.length, circular: record.circular };
 	const names = answersTo(record);
-	const options = exact({
+	const whole = ({ start, end }: Span) => start === 0 && end === bounds.length;
+	const given = exact({
 		/** Draw only this stretch, as a line numbered as the record. The whole record by default. */
 		span: v.optional(span(bounds), () => ({ start: 0, end: bounds.length })),
-		/** The map a page opens on, or the one a file draws. */
-		map: v.optional(oneOf(["line"]), "line"),
+		/**
+		 * The map a page opens on, or the one a file draws: the circle for a circular record
+		 * drawn whole, else the line.
+		 */
+		map: v.optional(
+			v.pipe(
+				oneOf(["circle", "line"]),
+				v.check(
+					(map) => map === "line" || record.circular,
+					'must be "line" on a linear record',
+				),
+			),
+		),
 		/** The feature types off at the start. A type the record lacks is ignored. */
 		types_off: v.optional(list(Text), () => ["source"]),
 		/** The kinds off at the start. */
@@ -64,10 +76,17 @@ function optionsSchema(record: Record, page: boolean) {
 	});
 	const fits = ({ start, end }: Span) => end - start <= LIMIT;
 	return v.pipe(
-		options,
-		v.transform((given) =>
-			page && !fits(given.span) ? { ...given, sequence_view: false } : given,
+		given,
+		v.transform((options) =>
+			page && !fits(options.span)
+				? { ...options, sequence_view: false }
+				: options,
 		),
+		rule<v.InferOutput<typeof given>>(function* ({ span, map }) {
+			if (map === "circle" && !whole(span)) {
+				yield [["map"], 'must be "line" when span is not the whole record'];
+			}
+		}),
 		v.forward(
 			v.check(
 				({ span, sequence_view }) => !sequence_view || fits(span),
@@ -76,6 +95,12 @@ function optionsSchema(record: Record, page: boolean) {
 			),
 			["sequence_view"],
 		),
+		v.transform((options) => ({
+			...options,
+			map:
+				options.map ??
+				(record.circular && whole(options.span) ? "circle" : "line"),
+		})),
 	);
 }
 

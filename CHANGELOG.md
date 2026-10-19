@@ -13,8 +13,10 @@ sets one.
 - `viewer_script()` returns the viewer's text, for a page to inline.
 - `check(record)` checks a record against the format.
 - `draw(record, **options)` checks a record and the options for drawing it, and returns a
-  `Drawing` of the record as a line map. Its `map` option takes only `"line"` for now, so a
-  circular record's default map changes when the circle is added.
+  `Drawing` of the record as a circle or a line map. Its `map` option is `"circle"` or
+  `"line"`. A circular record drawn whole is drawn as a circle unless `map="line"` asks for
+  the line. The circle of a linear record, or of a `span` short of the whole record, is an
+  error.
 - `Drawing.write(path, dpi=300)` writes the drawing in the format its ending names: `.html`,
   a page that draws the record offline; `.svg`; `.png`, at `dpi` pixels per inch; or `.pdf`.
 - In the viewer, `molviz.draw(element, record, options)` draws a record into an element of a
@@ -58,6 +60,9 @@ sets one.
 - In the viewer, `molviz.SEQUENCE_VIEW_LIMIT`, and the sequence view drawn under the map by
   `molviz.draw` and `molviz.svg`. Past the limit `molviz.draw` leaves the view out, and
   `molviz.svg` raises an error.
+- On a linear record, a feature may run off the end and on from the start, once: one of its
+  segments may start lower than the one before it. The map and the sequence view draw each
+  piece where it lies, with a grey join to the end it meets.
 
 - The package carries a second script, the outline script, beside the viewer. It holds the
   shape of each letter, which a file draws.

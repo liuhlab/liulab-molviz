@@ -50,6 +50,11 @@ A named stretch of a record with a type, such as a CDS or a promoter, on one str
 none, in one segment or several joined.
 _Avoid_: annotation
 
+### Chip
+
+One amino acid of a feature's translation, drawn in the sequence view as a coloured arrow-shaped
+block over its codon, pointing along the strand, with the amino acid's one-letter code.
+
 ### Primer
 
 An oligo drawn at each site it binds, with its 5' tail and the bases it does not pair with.
@@ -94,6 +99,11 @@ _Avoid_: sequencing result, trace
 A place where a read differs from the record it was expected to match.
 _Avoid_: mismatch, which is a primer's; difference
 
+### Close-up
+
+A still drawing of a few dozen bases around one disagreement: the line and the sequence view
+over that span, with the reads and tracks on it.
+
 ### Figure
 
 A still drawing of one record, or several stacked, to one span, set beside a protocol step.
@@ -130,7 +140,19 @@ _Avoid_: kind, for what a well holds, which is a record's word
 
 ### Page
 
-One HTML file that opens offline and draws one or more inputs: records, gels or plates.
+One HTML file that opens offline and shows one or more inputs: records, figures, gels or plates.
+A record's page carries the viewer, which draws it in the browser; the others hold still
+drawings.
+
+### Still drawing
+
+A drawing written into a page as SVG with real text and no viewer, so it is never laid out
+again: it cannot be zoomed or switched. Figures, gels and plates go into a page this way.
+
+### Font rules
+
+The `@font-face` rules that set molviz's faces, written once in a page for all its still
+drawings.
 
 ### Outline script
 

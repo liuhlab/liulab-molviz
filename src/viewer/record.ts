@@ -51,7 +51,7 @@ type Problem = readonly [keys: readonly Key[], message: string];
  * A rule across the parts of a well-formed value, which reports each problem at the part it
  * concerns.
  */
-function rule<T>(find: (value: T) => Iterable<Problem>) {
+export function rule<T>(find: (value: T) => Iterable<Problem>) {
 	return v.rawCheck<T>(({ dataset, addIssue }) => {
 		if (!dataset.typed) return;
 		for (const [keys, message] of find(dataset.value)) {
@@ -153,8 +153,22 @@ function segment(bounds: Bounds) {
 }
 
 /**
+ * Whether `segment`, the one after `before` in a feature, runs on from a linear record's start:
+ * the feature ran off the end between them.
+ */
+export function runsOnFromStart(
+	before: Span,
+	segment: Span,
+	{ circular }: Bounds,
+): boolean {
+	return !circular && segment.start < before.start;
+}
+
+/**
  * A feature's segments, in ascending order of start. On a circular record a later segment may
- * start past the length, counted on past the origin, within one turn from the first.
+ * start past the length, counted on past the origin, within one turn from the first. On a
+ * linear record one segment may start lower than the one before, where the feature runs off
+ * the end and on from the start.
  */
 function segments(bounds: Bounds) {
 	const { length, circular } = bounds;
@@ -165,16 +179,33 @@ function segments(bounds: Bounds) {
 		v.tupleWithRest([segment(bounds)], segment(laterBounds)),
 		rule(function* (segments) {
 			const first = segments[0].start;
+			let crossed = false;
 			for (let i = 1; i < segments.length; i++) {
-				if (segments[i].start <= segments[i - 1].start) {
+				const { start, end } = segments[i];
+				const previous = segments[i - 1].start;
+				const runsOn = runsOnFromStart(segments[i - 1], segments[i], bounds);
+				if (runsOn && !crossed) {
+					crossed = true;
+				} else if (runsOn) {
+					yield [
+						[i, "start"],
+						"must be greater than the previous segment's start: a feature runs off a linear record's end once",
+					];
+				} else if (start <= previous) {
 					yield [
 						[i, "start"],
 						"must be greater than the previous segment's start",
 					];
 				}
-				// Ends need not ascend, so each is held to the first segment's turn.
+				// Ends need not ascend, so each is held to the first start: at most it on a linear
+				// record once the feature has run off the end, within one turn past it on a circle.
+				if (crossed && end > first) {
+					yield [
+						[i, "end"],
+						`must be at most segments[0].start, ${first}, once the feature has run off the end`,
+					];
+				}
 				if (circular) {
-					const { end } = segments[i];
 					yield* pastOneTurn(
 						[i, "end"],
 						"segments[0].start",
@@ -329,6 +360,9 @@ export type Record = v.InferOutput<ReturnType<typeof recordSchema>>;
 
 /** One of a record's features. */
 export type Feature = Record["features"][number];
+
+/** One of a record's insertions. */
+export type Insertion = Record["insertions"][number];
 
 /**
  * What a record's coordinates are checked against. Where `bases` or `circular` is malformed
