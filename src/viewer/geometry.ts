@@ -1,13 +1,13 @@
 /**
- * Where each view sets the bases, in the points it is laid out in: a position to a point and a
- * point back to the base under it.
+ * Where each view sets the bases, in the points it is laid out in: a position to a point, a point
+ * back to the base under it, and a selection shaded.
  */
 
 import { SHADING, SHADING_EDGE, SHADING_EDGE_WIDTH } from "./paint";
 import { type Piece, pieces } from "./pieces";
 import type { Bounds, Span } from "./record";
 import type { PathCommand, Shape } from "./scene";
-import { CELL, type RowBox } from "./sequence";
+import { CELL, type RowBox, type Strands } from "./sequence";
 
 /** Where the line sets the bases, and the highest and lowest its marks reach. */
 export interface LineGeometry {
@@ -112,7 +112,7 @@ export function rowBase(
 ): number | null {
 	const above = rows.findLastIndex((row) => row.strands.top[0] <= y);
 	const { start, end, strands } = rows[Math.max(above, 0)];
-	const foot = bottom && strands.bottom ? strands.bottom[1] : strands.rail;
+	const foot = footOf(strands, bottom);
 	const index = Math.floor(x / CELL);
 	const count = end - start;
 	if (
@@ -181,12 +181,10 @@ export function rowShading(
 			.filter((row) => row.start < piece.end && piece.start < row.end)
 			.flatMap((row) => {
 				const { strands } = row;
-				const foot =
-					bottom && strands.bottom ? strands.bottom[1] : strands.rail;
 				return shaded(
 					rowX(row, Math.max(piece.start, row.start)),
 					rowX(row, Math.min(piece.end, row.end)),
-					[strands.top[0], foot],
+					[strands.top[0], footOf(strands, bottom)],
 					{
 						starts: piece.starts && piece.start >= row.start,
 						ends: piece.ends && piece.end <= row.end,
@@ -194,6 +192,11 @@ export function rowShading(
 				);
 			}),
 	);
+}
+
+/** Where a row's bases end: under the bottom strand, or at the rail without `bottom`. */
+function footOf(strands: Strands, bottom: boolean): number {
+	return bottom && strands.bottom ? strands.bottom[1] : strands.rail;
 }
 
 /** What of `span` lies in `drawn`, counted as `drawn` counts. */
