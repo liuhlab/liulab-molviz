@@ -16,13 +16,14 @@ reasons.
   gels; plates.
 - **The look.** SnapGene Viewer is the reference. The map keeps SnapGene's labels; the
   sequence view and its interactions copy SeqViz.
-- **The core** is molviz's own framework-free SVG layout on small d3 modules, rbush and
-  opentype.js, not a viewer package. mbio's Python layout is not ported.
+- **The core** is molviz's own framework-free SVG layout on small d3 modules and rbush, not a
+  viewer package. opentype.js runs only in the build. mbio's Python layout is not ported.
 - **Reader promises.** All nine in section 5 of
   [the drawings note](docs/research/molviz-mbio-drawings.md)
   hold. A crowded label is hidden and counted.
-- **Releases.** A release ships the Python package `liulab-molviz`, which exports SVG, PNG and
-  PDF with no browser. A record's page inlines the viewer, a gel's or plate's a still drawing.
+- **Releases.** A release ships the Python package `liulab-molviz` with both built scripts. It
+  exports SVG, PNG and PDF with no browser. A record's page inlines the viewer, a gel's or
+  plate's a still drawing.
   mbio and liulab-protein pin it. The Python side holds no layout or biology; the drawing is
   JavaScript.
 - **The roadmap** is a `wayfinder:map` issue here. Its destination: a release mbio can pin that
@@ -57,16 +58,15 @@ misfires, is as much a contribution as adding one.
   Biome. pixi installs node, pnpm and Biome. `package.json` lists npm packages and nothing
   else, `pnpm-lock.yaml` locks them, and every command is a pixi task: add a package with
   `pixi run -- pnpm add -D <name>`, format with `pixi run fmt-js`.
-- **The built viewer** is `src/molviz/viewer.js`, gitignored: one script that sets the global
-  `molviz`, with a fixed name and no hash, so a release ships the same bytes.
-  `test` and `build` run `build-js` first, and
-  `python -m build` fails when the file is missing.
+- **The built viewer** is two gitignored scripts with fixed names: `src/molviz/viewer.js` sets
+  the global `molviz`; `outlines.js` holds a file's outlines. `test` and `build` run
+  `build-js` first; `python -m build` fails when either is missing.
 - Platforms: `osx-arm64` and `linux-64`.
 
 ## Layout
 
 ```text
-src/molviz/       the Python package; viewer.js in it is built, never edited
+src/molviz/       the Python package; its two .js files are built, never edited
 src/viewer/       the viewer, TypeScript
 tests/            pytest and Vitest (*.test.ts), mirroring src/
 docs/             the published site; docs/adr/ and docs/agents/ are agent-facing
