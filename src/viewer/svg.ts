@@ -202,14 +202,17 @@ function markup(tag: Tag): string {
 	return inside ? `${open}>${inside}</${tag.name}>` : `${open}/>`;
 }
 
-/** `text` as SVG text that reads back as `text`. */
+/** `text` as SVG text that reads back as `text`, in an element or a quoted attribute. */
 function escaped(text: string): string {
 	return text
 		.replaceAll("&", "&amp;")
 		.replaceAll("<", "&lt;")
-		.replaceAll(">", "&gt;");
+		.replaceAll(">", "&gt;")
+		.replaceAll('"', "&quot;");
 }
 
 function written(attributes: Attributes): string {
-	return attributes.map(([name, value]) => ` ${name}="${value}"`).join("");
+	return attributes
+		.map(([name, value]) => ` ${name}="${escaped(value)}"`)
+		.join("");
 }
