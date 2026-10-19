@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
 import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
+import { units } from "../../src/viewer/faces";
 import type { Scene, Shape } from "../../src/viewer/scene";
 import { toElement, toStill, toSvg } from "../../src/viewer/svg";
-import { type Face, glyphs, measure, unitsPerEm } from "../../src/viewer/text";
+import { type Face, glyphs, measure, outlineOf } from "../../src/viewer/text";
 
 const scene: Scene = {
 	extent: { x: -16, y: -30.5, width: 752, height: 120.25 },
@@ -126,7 +127,7 @@ describe("a curve or a turn", () => {
 		const left = (-measure("100", "sans", 10.5) / 2).toFixed(2);
 		const turn = "rotate(90.00 0.00 -190.00)";
 		expect(file).toContain(
-			`<g transform="${turn} translate(${left} -190.00) scale(${10.5 / unitsPerEm("sans")})" fill="#252525"><use `,
+			`<g transform="${turn} translate(${left} -190.00) scale(${10.5 / units("sans").unitsPerEm})" fill="#252525"><use `,
 		);
 		expect(page.querySelector("text")?.outerHTML).toContain(
 			`transform="${turn}"`,
@@ -164,14 +165,18 @@ describe("a curve or a turn", () => {
 		const [a] = glyphs("a", "sans", 11.5);
 		const [b] = glyphs("b", "sans", 11.5);
 		const letter = (id: string, at: string) =>
-			`<use xlink:href="#${id}" transform="${at} scale(${11.5 / unitsPerEm("sans")})"/>`;
+			`<use xlink:href="#${id}" transform="${at} scale(${11.5 / units("sans").unitsPerEm})"/>`;
 		const { file } = both(name);
 		expect(file).toContain(
 			`<g fill="#000000">${letter(a.id, "translate(0.00 -180.00) rotate(-10.00)")}` +
 				`${letter(b.id, "translate(14.50 -180.00) rotate(10.50)")}</g>`,
 		);
-		expect(file).toContain(`<path id="${a.id}" d="${a.outline}"/>`);
-		expect(file).toContain(`<path id="${b.id}" d="${b.outline}"/>`);
+		expect(file).toContain(
+			`<path id="${a.id}" d="${outlineOf("sans", a.index)}"/>`,
+		);
+		expect(file).toContain(
+			`<path id="${b.id}" d="${outlineOf("sans", b.index)}"/>`,
+		);
 	});
 });
 
@@ -205,7 +210,9 @@ describe("toSvg", () => {
 		];
 		const expected = new Map(
 			texts.flatMap(([text, face]) =>
-				glyphs(text, face, 10).map((g) => [g.id, g.outline] as const),
+				glyphs(text, face, 10).map(
+					(g) => [g.id, outlineOf(face, g.index)] as const,
+				),
 			),
 		);
 		expect(defined).toEqual([...expected]);

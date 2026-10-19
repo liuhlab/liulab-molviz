@@ -16,8 +16,8 @@ The measurements are in
 
 ## Considered options
 
-- **Keep opentype.js and the TTF faces for export, in the second script.** A simpler build, but
-  two font formats in the repo and a 354 KB export script.
+- **Keep opentype.js and the TTF faces for export, in the second script.** A simpler build, but the
+  faces ship twice, as WOFF2 for pages and TTF for export, in a 354 KB export script.
 - **opentype.js reading WOFF, in one script.** It saves 62 KB.
 - **The tables and the outlines in one script.** It comes to about the size of today's viewer.
 
@@ -27,4 +27,6 @@ The measurements are in
   `molviz.svg` works only where the outline script is loaded beside the viewer.
 - The build gains a step that writes the tables and the WOFF2 faces, and a test that the table
   gives opentype.js's widths.
+- The TTF subsets stay in the repo as the build's input, since opentype.js cannot read WOFF2.
+  Only the WOFF2 faces ship.
 - opentype.js is a build dependency, not a run-time one.

@@ -4,7 +4,8 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import vm from "node:vm";
-import { expect, test } from "vitest";
+import { OUTLINES_GLOBAL } from "virtual:molviz-fonts";
+import { expect, test, vi } from "vitest";
 
 const record = {
 	name: "pTest",
@@ -54,11 +55,16 @@ function open(html: string): NodeListOf<SVGSVGElement> {
 	return document.querySelectorAll("#drawing svg");
 }
 
-test("a page the Python package writes draws its record when it opens", () => {
-	const drawn = open(written("draw", record));
-	expect(drawn).toHaveLength(1);
-	const texts = [...drawn[0].querySelectorAll("text")];
-	expect(texts.map((t) => t.textContent)).toContain("lacZ");
+test("a page the Python package writes draws its record when it opens, with no outline script", () => {
+	vi.stubGlobal(OUTLINES_GLOBAL, undefined);
+	try {
+		const drawn = open(written("draw", record));
+		expect(drawn).toHaveLength(1);
+		const texts = [...drawn[0].querySelectorAll("text")];
+		expect(texts.map((t) => t.textContent)).toContain("lacZ");
+	} finally {
+		vi.unstubAllGlobals();
+	}
 });
 
 test.each([
