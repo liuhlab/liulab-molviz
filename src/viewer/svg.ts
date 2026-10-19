@@ -1,6 +1,6 @@
 /**
  * A scene as SVG on a white ground: as text with every letter an outline, so it draws the same
- * with no font, or as elements of a page with its letters as real text.
+ * with no font, or with its letters as real text, as elements of a page or as text for one.
  */
 
 import {
@@ -49,7 +49,8 @@ interface Tag {
  */
 export function toSvg(scene: Scene): string {
 	const { root, children } = tags(scene, new Map());
-	return `<svg xmlns="${NAMESPACE}" xmlns:xlink="${XLINK}"${written(root)}>${children.map(markup).join("")}</svg>`;
+	const inside = children.map(({ hover, ...tag }) => markup(tag)).join("");
+	return `<svg xmlns="${NAMESPACE}" xmlns:xlink="${XLINK}"${written(root)}>${inside}</svg>`;
 }
 
 /**
@@ -63,6 +64,16 @@ export function toElement(scene: Scene, document: Document): SVGSVGElement {
 	for (const [name, value] of root) svg.setAttribute(name, value);
 	svg.append(...children.map((tag) => element(tag, document)));
 	return svg;
+}
+
+/**
+ * `scene` as one SVG document that draws as `toElement` does, for a page to hold as it is: its
+ * letters `<text>` in the viewer's faces, each shape's hover text a `<title>` in it. The page
+ * must declare the faces.
+ */
+export function toStill(scene: Scene): string {
+	const { root, children } = tags(scene);
+	return `<svg xmlns="${NAMESPACE}"${written(root)}>${children.map(markup).join("")}</svg>`;
 }
 
 /**
@@ -255,11 +266,14 @@ function stroke(shape: { stroke: string; strokeWidth: number }): Attributes {
 	];
 }
 
+/** `tag` as SVG text: its text, then the elements inside it, then its hover as a `<title>`. */
 function markup(tag: Tag): string {
 	const open = `<${tag.name}${written(tag.attributes)}`;
-	return tag.children?.length
-		? `${open}>${tag.children.map(markup).join("")}</${tag.name}>`
-		: `${open}/>`;
+	const inside =
+		(tag.text === undefined ? "" : escaped(tag.text)) +
+		(tag.children ?? []).map(markup).join("") +
+		(tag.hover === undefined ? "" : `<title>${escaped(tag.hover)}</title>`);
+	return inside ? `${open}>${inside}</${tag.name}>` : `${open}/>`;
 }
 
 function element(tag: Tag, document: Document): Element {
@@ -275,6 +289,17 @@ function element(tag: Tag, document: Document): Element {
 	return out;
 }
 
+/** `text` as SVG text that reads back as `text`, in an element or a quoted attribute. */
+function escaped(text: string): string {
+	return text
+		.replaceAll("&", "&amp;")
+		.replaceAll("<", "&lt;")
+		.replaceAll(">", "&gt;")
+		.replaceAll('"', "&quot;");
+}
+
 function written(attributes: Attributes): string {
-	return attributes.map(([name, value]) => ` ${name}="${value}"`).join("");
+	return attributes
+		.map(([name, value]) => ` ${name}="${escaped(value)}"`)
+		.join("");
 }

@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 import pytest
 
 import molviz
-from molviz import Drawing, check, viewer_script
+from molviz import Drawing, check, font_rules, viewer_script
 
 ROOT = Path(__file__).parents[1]
 
@@ -173,43 +173,29 @@ GEL = {
 
 PLATE = {"title": "picked 1", "rows": 8, "columns": 12, "wells": {"A1": "quarter 1"}}
 
-# Each draw call with an input it draws, its page's title, and the call that page makes.
+# Each draw call with an input it draws, and its page's title.
 DRAWS = [
-    pytest.param(
-        molviz.draw,
-        DRAWN,
-        "pTest",
-        'molviz.draw(document.getElementById("drawing"), data("record"), data("options"));',
-        id="record",
-    ),
+    pytest.param(molviz.draw, DRAWN, "pTest", id="record"),
     pytest.param(
         lambda record: molviz.draw(record, sequence_view=True),
         DRAWN,
         "pTest",
-        'molviz.draw(document.getElementById("drawing"), data("record"), data("options"));',
         id="record with its sequence view",
     ),
-    pytest.param(
-        molviz.draw_gel,
-        GEL,
-        "PCR products",
-        'molviz.drawGel(document.getElementById("drawing"), data("gel"));',
-        id="gel",
-    ),
-    pytest.param(
-        molviz.draw_plate,
-        PLATE,
-        "picked 1",
-        'molviz.drawPlate(document.getElementById("drawing"), data("plate"));',
-        id="plate",
-    ),
+    pytest.param(molviz.draw_gel, GEL, "PCR products", id="gel"),
+    pytest.param(molviz.draw_plate, PLATE, "picked 1", id="plate"),
 ]
 
+# The draws whose page draws live, with the viewer, and those whose page holds the still
+# drawing and no viewer.
+LIVE = [draw for draw in DRAWS if draw.id in ("record", "record with its sequence view")]
+STILL = [draw for draw in DRAWS if draw not in LIVE]
 
-@pytest.mark.parametrize(("draw", "data", "page_title", "bootstrap"), DRAWS)
+
+@pytest.mark.parametrize(("draw", "data", "page_title"), DRAWS)
 @pytest.mark.parametrize(("ending", "starts"), ENDINGS.items())
 def test_an_input_writes_each_ending_the_same_each_time(
-    tmp_path, draw, data, page_title, bootstrap, ending, starts
+    tmp_path, draw, data, page_title, ending, starts
 ) -> None:
     draw(data).write(tmp_path / f"first{ending}")
     draw(data).write(tmp_path / f"second{ending}")
@@ -248,14 +234,29 @@ def title(page: str) -> str:
     return html.unescape(found[1])
 
 
-@pytest.mark.parametrize(("draw", "data", "page_title", "bootstrap"), DRAWS)
-def test_a_page_inlines_the_viewer_and_draws_the_input_held_once(
-    tmp_path, draw, data, page_title, bootstrap
+@pytest.mark.parametrize(("draw", "data", "page_title"), LIVE)
+def test_a_records_page_inlines_the_viewer_and_draws_the_record_held_once(
+    tmp_path, draw, data, page_title
 ) -> None:
     written = page(draw(data), tmp_path)
     assert viewer_script() in written
     assert [json.loads(block) for block in embedded(written)].count(data) == 1
-    assert bootstrap in written
+    assert (
+        'molviz.draw(document.getElementById("drawing"), data("record"), data("options"));'
+        in written
+    )
+    assert title(written) == page_title
+
+
+@pytest.mark.parametrize(("draw", "data", "page_title"), STILL)
+def test_a_page_holds_the_still_drawing_and_the_font_rules_and_no_viewer(
+    tmp_path, draw, data, page_title
+) -> None:
+    drawing = draw(data)
+    written = page(drawing, tmp_path)
+    assert "<script" not in written.lower()
+    assert written.count(font_rules()) == 1
+    assert written.count(drawing.still_svg()) == 1
     assert title(written) == page_title
 
 
@@ -277,10 +278,33 @@ NETWORK = re.compile(
 )
 
 
-def test_a_page_loads_nothing_over_the_network(drawing, tmp_path) -> None:
-    written = page(drawing, tmp_path)
+@pytest.mark.parametrize(("draw", "data", "page_title"), DRAWS)
+def test_a_page_loads_nothing_over_the_network(tmp_path, draw, data, page_title) -> None:
+    written = page(draw(data), tmp_path)
     assert NETWORK.search('<script src="https://example.org/viewer.js">')
     assert not NETWORK.search(written)
+
+
+def test_the_font_rules_load_each_face_from_the_rules_themselves() -> None:
+    rules = font_rules()
+    sources = re.findall(r"url\(([^)]*)\)", rules)
+    assert len(sources) == rules.count("@font-face") > 0
+    assert all(source.startswith("data:") for source in sources)
+
+
+def test_a_still_svg_writes_each_label_as_text(drawing) -> None:
+    still = drawing.still_svg()
+    assert still.startswith("<svg ")
+    for label in ["lacZ", "pTest", "100 bp"]:
+        assert f">{label}</text>" in still
+
+
+def test_a_still_svg_shows_the_notice_of_what_the_drawing_hid() -> None:
+    record = json.loads((ROOT / "tests" / "records" / "crowded-sites.json").read_text("utf-8"))
+    every = sorted({cut["enzyme"] for cut in record["cuts"]})
+    drawing = molviz.draw(record, enzymes=every)
+    assert drawing.notice
+    assert f">{drawing.notice}<title>" in drawing.still_svg()
 
 
 def test_a_page_escapes_a_name_that_would_end_its_script(tmp_path) -> None:

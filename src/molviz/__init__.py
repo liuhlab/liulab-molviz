@@ -2,6 +2,7 @@
 
 from importlib.metadata import version
 
+from molviz._runtime import font_rules
 from molviz.drawing import SEQUENCE_VIEW_LIMIT, Drawing, check, draw
 from molviz.gel import check_gel, draw_gel
 from molviz.plate import check_plate, draw_plate
@@ -21,5 +22,6 @@ __all__ = [
     "draw",
     "draw_gel",
     "draw_plate",
+    "font_rules",
     "viewer_script",
 ]

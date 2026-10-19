@@ -38,6 +38,15 @@ sets one.
   `molviz.svg` does. On a page, resting the pointer on a well shows its name and its contents.
 - In the viewer, `molviz.calls` names the calls for each input, `record`, `gel` or `plate`: the
   one that checks it, the one that draws it into an element, and the one that returns SVG.
+- `Drawing.still_svg()` returns the drawing as SVG with real text, for a page with no
+  viewer. It is laid out as the `.svg` file is and hides the same labels; each hover is a
+  tooltip. `font_rules()` returns the CSS such a page writes once, in a `<style>` element,
+  to load the viewer's fonts.
+- In the viewer, `molviz.stillSvg(record, options)`, `molviz.gelStillSvg(gel)` and
+  `molviz.plateStillSvg(plate)` return a still drawing as `{svg, hidden, notice}`, and
+  `molviz.fontRules()` returns the font rules. `molviz.calls` names each input's still call.
+- A gel's or a plate's `.html` page holds its still drawing and the font rules, and no
+  viewer. A record's page still draws it with the viewer.
 - Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
   opentype.js, built into the viewer, which reads its fonts.
 - `draw(record, sequence_view=True)` draws the sequence view under the map: the bases in rows

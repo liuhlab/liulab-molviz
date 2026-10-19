@@ -24,7 +24,10 @@ DRAW = {
 }
 
 
-def sha256_of_written(drawing: molviz.Drawing, path: Path) -> str:
+def digest(drawing: molviz.Drawing, path: Path) -> str:
+    """The SHA-256 of the file ``drawing`` writes to ``path``, or of its still SVG."""
+    if path.name.endswith(".still.svg"):
+        return hashlib.sha256(drawing.still_svg().encode()).hexdigest()
     drawing.write(path)
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -39,8 +42,7 @@ def test_each_input_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None:
     subprocess.run([sys.executable, SCRIPT, "--tests", tmp_path, output], check=True)
 
     expected = [
-        f"{sha256_of_written(draw(INPUTS[folder][stem]), tmp_path / f'w{ending}')}"
-        f"  {name}/{stem}{ending}"
+        f"{digest(draw(INPUTS[folder][stem]), tmp_path / f'w{ending}')}  {name}/{stem}{ending}"
         for name, stem in [
             ("gels", "a-first"),
             ("plates", "a-first"),
@@ -50,6 +52,6 @@ def test_each_input_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None:
             ("sequence-views", "b-second"),
         ]
         for folder, draw in [DRAW[name]]
-        for ending in (".html", ".pdf", ".png", ".svg")
+        for ending in (".html", ".pdf", ".png", ".still.svg", ".svg")
     ]
     assert output.read_text(encoding="utf-8").splitlines() == expected

@@ -63,19 +63,34 @@ export function preparePlate(plate: unknown): Scene {
 	return layoutPlate(checkPlate(plate));
 }
 
+/** `views` as one scene, the sequence view under the map, hiding what the map hides. */
+export function stackedViews({ map, sequence }: Views): MapScene {
+	return sequence === null
+		? map
+		: { ...stacked(map, sequence), hidden: map.hidden };
+}
+
+/** `scene` written by `write`, with the labels it left out and their notice. */
+export function drawn(
+	scene: Scene | MapScene,
+	write: (scene: Scene) => string,
+): Omit<Drawing, "pages"> {
+	const hidden = "hidden" in scene ? scene.hidden : [];
+	return { svg: write(scene), hidden, notice: notice(hidden) };
+}
+
 /**
  * Draw `record` with `options` as SVG text, every letter an outline, the sequence view under
  * the map. A PDF has the map on its first page and the view's rows on the pages after. Throws
  * one FormatError naming every problem in the record, or else in the options.
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
-	const { map, sequence } = prepareViews(record, options);
-	if (sequence === null) return whole(toSvg(map), map.hidden);
+	const views = prepareViews(record, options);
+	const drawing = whole(stackedViews(views));
+	if (views.sequence === null) return drawing;
 	return {
-		svg: toSvg(stacked(map, sequence)),
-		pages: [map, ...rowPages(sequence)].map(toSvg),
-		hidden: map.hidden,
-		notice: notice(map.hidden),
+		...drawing,
+		pages: [views.map, ...rowPages(views.sequence)].map(toSvg),
 	};
 }
 
@@ -85,7 +100,7 @@ export function svg(record: unknown, options: unknown = {}): Drawing {
  * gel.
  */
 export function gelSvg(gel: unknown): Drawing {
-	return whole(toSvg(prepareGel(gel)));
+	return whole(prepareGel(gel));
 }
 
 /**
@@ -93,10 +108,11 @@ export function gelSvg(gel: unknown): Drawing {
  * problem in the plate.
  */
 export function plateSvg(plate: unknown): Drawing {
-	return whole(toSvg(preparePlate(plate)));
+	return whole(preparePlate(plate));
 }
 
-/** `svg` as a drawing of one page that left out `hidden`. */
-function whole(svg: string, hidden: readonly Hidden[] = []): Drawing {
-	return { svg, pages: [svg], hidden, notice: notice(hidden) };
+/** `scene` as SVG text, a drawing of one page. */
+function whole(scene: Scene | MapScene): Drawing {
+	const drawing = drawn(scene, toSvg);
+	return { ...drawing, pages: [drawing.svg] };
 }

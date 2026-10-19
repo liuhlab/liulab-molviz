@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
+import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
 import type { Scene } from "../../src/viewer/scene";
-import { toElement, toSvg } from "../../src/viewer/svg";
+import { toElement, toStill, toSvg } from "../../src/viewer/svg";
 import { type Face, glyphs, measure } from "../../src/viewer/text";
 
 const scene: Scene = {
@@ -212,6 +213,16 @@ describe("toSvg", () => {
 			'<path d="M1.00 2.00L3.46 4.00A5.00 5.00 0 1 0 6.00 7.50Z" fill="none" stroke="#7f7f7f" stroke-width="1.00"/>',
 		);
 	});
+
+	test("writes no hover text, though a shape has one", () => {
+		const hovered: Scene = {
+			extent: { x: 0, y: 0, width: 10, height: 10 },
+			shapes: [
+				{ shape: "circle", cx: 5, cy: 5, r: 1, fill: "#000000", hover: "A1" },
+			],
+		};
+		expect(toSvg(hovered)).not.toContain("<title");
+	});
 });
 
 describe("toElement", () => {
@@ -246,3 +257,20 @@ describe("toElement", () => {
 		expect(text.hasAttribute("textLength")).toBe(false);
 	});
 });
+
+test.each([
+	{ writer: "toSvg", write: toSvg },
+	{ writer: "toStill", write: toStill },
+])(
+	"$writer writes an attribute value that reads back as it was",
+	({ write }) => {
+		const fill = 'a&amp;b<c"d';
+		const odd: Scene = {
+			extent: { x: 0, y: 0, width: 10, height: 10 },
+			shapes: [{ shape: "circle", cx: 5, cy: 5, r: 1, fill }],
+		};
+		const { DOMParser } = new Window();
+		const parsed = new DOMParser().parseFromString(write(odd), "image/svg+xml");
+		expect(parsed.querySelector("circle")?.getAttribute("fill")).toBe(fill);
+	},
+);
