@@ -3,19 +3,33 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import molviz
 
 SCRIPT = Path(__file__).parents[2] / "scripts" / "digest_drawings.py"
-INPUTS = {
+INPUTS: dict[str, dict[str, Any]] = {
     "records": {
         "b-second": {"name": "pB", "circular": False, "bases": "ACGT" * 25},
         "a-first": {"name": "pA", "circular": True, "bases": "GATC" * 25},
     },
     "gels": {"a-first": {"ladder": {"name": "ladder", "bands": [100]}, "lanes": []}},
     "plates": {"a-first": {"rows": 1, "columns": 2, "wells": {"A1": "water"}}},
+    "figures": {"a-first": {"records": ["b-second", "a-first"], "options": {"map": "line"}}},
 }
-DRAW = {"records": molviz.draw, "gels": molviz.draw_gel, "plates": molviz.draw_plate}
+
+
+def draw_figure(figure: dict[str, Any]) -> molviz.Drawing:
+    records = [INPUTS["records"][stem] for stem in figure["records"]]
+    return molviz.draw_figure(records, **figure["options"])
+
+
+DRAW = {
+    "records": molviz.draw,
+    "gels": molviz.draw_gel,
+    "plates": molviz.draw_plate,
+    "figures": draw_figure,
+}
 
 
 def sha256_of_written(drawing: molviz.Drawing, path: Path) -> str:
@@ -36,6 +50,7 @@ def test_each_input_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None:
         f"{sha256_of_written(DRAW[folder](INPUTS[folder][stem]), tmp_path / f'w{ending}')}"
         f"  {folder}/{stem}{ending}"
         for folder, stem in [
+            ("figures", "a-first"),
             ("gels", "a-first"),
             ("plates", "a-first"),
             ("records", "a-first"),

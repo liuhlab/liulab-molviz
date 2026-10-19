@@ -3,10 +3,10 @@
     pixi run digest-drawings [-- OUTPUT]
 
 Each input in a folder of `DRAWS` under ``--tests`` is drawn by that folder's call with its
-defaults and written as ``.html``, ``.svg``, ``.png`` at the default dpi, and ``.pdf``. Each
-line is ``<sha256>  <folder>/<input>.<ending>``, sorted by file, the form ``sha256sum`` writes.
-CI writes this on each platform and compares the two, so the same input writing the same bytes
-is checked without a stored digest to keep up to date.
+defaults, a figure with its own options, and written as ``.html``, ``.svg``, ``.png`` at the
+default dpi, and ``.pdf``. Each line is ``<sha256>  <folder>/<input>.<ending>``, sorted by
+file, the form ``sha256sum`` writes. CI writes this on each platform and compares the two, so
+the same input writing the same bytes is checked without a stored digest to keep up to date.
 """
 
 import argparse
@@ -21,11 +21,24 @@ import molviz
 
 ENDINGS = (".html", ".svg", ".png", ".pdf")
 
-#: Each folder of test inputs, one per ``.json`` file, with the call that draws one.
-DRAWS: dict[str, Callable[[dict[str, Any]], molviz.Drawing]] = {
-    "records": molviz.draw,
-    "gels": molviz.draw_gel,
-    "plates": molviz.draw_plate,
+
+def _read(path: Path) -> Any:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _figure(path: Path) -> molviz.Drawing:
+    """Draw the figure at ``path``, its records read from the ``records`` folder beside its own."""
+    figure = _read(path)
+    records = [_read(path.parents[1] / "records" / f"{stem}.json") for stem in figure["records"]]
+    return molviz.draw_figure(records, **figure["options"])
+
+
+#: Each folder of test inputs, one per ``.json`` file, with the call that draws one from its path.
+DRAWS: dict[str, Callable[[Path], molviz.Drawing]] = {
+    "records": lambda path: molviz.draw(_read(path)),
+    "gels": lambda path: molviz.draw_gel(_read(path)),
+    "plates": lambda path: molviz.draw_plate(_read(path)),
+    "figures": _figure,
 }
 
 
@@ -38,7 +51,7 @@ def digests(tests: Path) -> list[str]:
     with tempfile.TemporaryDirectory() as scratch:
         for folder, draw in DRAWS.items():
             for path in (tests / folder).glob("*.json"):
-                drawing = draw(json.loads(path.read_text(encoding="utf-8")))
+                drawing = draw(path)
                 for ending in ENDINGS:
                     written = Path(scratch) / f"drawing{ending}"
                     drawing.write(written)

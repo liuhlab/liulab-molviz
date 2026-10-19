@@ -36,8 +36,16 @@ sets one.
   `molviz.drawPlate(element, plate)` draws it into an element of a page.
   `molviz.plateSvg(plate)` returns the drawing as `{svg, pages, hidden, notice}`, as
   `molviz.svg` does. On a page, resting the pointer on a well shows its name and its contents.
-- In the viewer, `molviz.calls` names the calls for each input, `record`, `gel` or `plate`: the
-  one that checks it, the one that draws it into an element, and the one that returns SVG.
+- `draw_figure(records, **options)` checks records and the options they share, and returns a
+  `Drawing` of them stacked top to bottom, which writes the same four endings as a record's.
+  When two or more stack, each has its name above it. A name to highlight lights what answers
+  to it in every record, and a record with nothing lit is dimmed whole.
+- In the viewer, `molviz.checkFigure(records)` checks a figure's records,
+  `molviz.drawFigure(element, records, options)` draws them into an element of a page, and
+  `molviz.figureSvg(records, options)` returns the drawing as `{svg, pages, hidden, notice}`.
+- In the viewer, `molviz.calls` names the calls for each input, `record`, `gel`, `plate` or
+  `figure`: the one that checks it, the one that draws it into an element, and the one that
+  returns SVG.
 - Two new runtime dependencies: vl-convert-python, which writes PNG and PDF, and
   opentype.js, built into the viewer, which reads its fonts.
 

@@ -48,7 +48,7 @@ class Drawing:
     def __init__(
         self,
         name: str,
-        data: dict[str, Any],
+        data: dict[str, Any] | list[dict[str, Any]],
         drawn: dict[str, Any],
         title: str,
         options: dict[str, Any] | None = None,
