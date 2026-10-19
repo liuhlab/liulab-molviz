@@ -1,33 +1,35 @@
-/** A figure: records stacked top to bottom, each drawn to one set of options. */
+/**
+ * A figure: records stacked top to bottom, each drawn to one set of options as `svg` draws it.
+ * Lines keep their x, and a circle is centred on them. When two or more stack, each record's
+ * name is set above it. A file's PDF has the maps on page 1, then each record's sequence-view
+ * rows, the first of its pages under its name.
+ */
 
 import * as v from "valibot";
 import {
 	type Drawing,
-	drawn,
 	layoutViews,
 	stackedViews,
+	toDrawing,
 	type Views,
 } from "./drawing";
-import { FormatError, list, parse } from "./format";
+import { list, orThrow, type Problem, parse } from "./format";
 import type { MapScene } from "./labels";
-import { checkOptions, type Options } from "./options";
+import { MARGIN, NAME_SIZE } from "./line";
+import { type Options, parsedOptions } from "./options";
 import { rowPages } from "./pages";
+import { MUTED } from "./paint";
 import { type Record, recordSchemaOf } from "./record";
 import { moved, type Scene, type Shape } from "./scene";
-import { toSvg } from "./svg";
 import { baseline, type Face, height } from "./text";
 
-/** How a stacked record's name is set above it, as mbio sets it. */
+/** The face of a stacked record's name, set at `NAME_SIZE` in `MUTED`. */
 const NAME_FACE: Face = "sans-bold";
-const NAME_SIZE = 13.5;
-const NAME_FILL = "#5c626b";
 
 /** The room under a name, before its record. */
 const UNDER_NAME = 2;
 /** The room from one record to the next record's name. */
 const BETWEEN = 12;
-/** The room above the first name, and left of every name: a line's own margin. */
-const MARGIN = 16;
 
 /**
  * Return `input` as a figure's records, one or more, or throw one FormatError naming every
@@ -43,20 +45,27 @@ export function checkFigure(input: unknown): Record[] {
 	return parse(schema, input, { prefix: "records" });
 }
 
-/** One of a figure's records laid out: its name, and its views drawn to the figure's options. */
-interface Laid {
+/** One of a figure's records laid out. */
+interface FigureRecord {
+	/** Its name, set above it when two or more records stack. */
 	readonly name: string;
+	/** Its views, drawn to the figure's options. */
 	readonly views: Views;
 	/** Whether its map is the circle. */
 	readonly circle: boolean;
 }
 
+/** A scene of one of a figure's records, to stack with the others. */
+type Part = Pick<FigureRecord, "name" | "circle"> & {
+	readonly scene: Scene | MapScene;
+};
+
 /** Check `records`, then `options` against each, for a `page` or a file, and lay each out. */
-function layOut(
+function prepareRecords(
 	records: unknown,
 	options: unknown,
 	where: { page?: boolean } = {},
-): Laid[] {
+): FigureRecord[] {
 	const checked = checkFigure(records);
 	const each = checkEach(options, checked, where);
 	return checked.map((record, i) => ({
@@ -66,17 +75,11 @@ function layOut(
 	}));
 }
 
-/** The names set above `laid`'s records: none for one record. */
-function namesOf(laid: readonly Laid[]): string[] | null {
-	return laid.length > 1 ? laid.map(({ name }) => name) : null;
-}
-
-/** `laid` stacked, each record as `svg` draws it. */
-function whole(laid: readonly Laid[]): MapScene {
-	return stacked(
-		laid.map(({ views }) => stackedViews(views)),
-		namesOf(laid),
-		laid.map(({ circle }) => circle),
+/** `records` stacked, each as `svg` draws it. */
+function figureScene(records: readonly FigureRecord[]): MapScene {
+	return stackRecords(
+		records.map((one) => ({ ...one, scene: stackedViews(one.views) })),
+		records.length > 1,
 	);
 }
 
@@ -89,7 +92,7 @@ export function prepareFigure(
 	options: unknown,
 	where: { page?: boolean } = {},
 ): MapScene {
-	return whole(layOut(records, options, where));
+	return figureScene(prepareRecords(records, options, where));
 }
 
 /** A figure laid out as a file draws it. */
@@ -100,46 +103,39 @@ export interface FigureFile {
 	readonly pages: readonly Scene[] | null;
 }
 
-/**
- * `prepareFigure`, with a PDF's pages when the records draw their sequence views: the maps
- * stacked, then each record's rows in record order, the first of them under the record's name
- * when two or more stack.
- */
+/** `prepareFigure` for a file, with a PDF's pages when the records draw their sequence views. */
 export function prepareFigureFile(
 	records: unknown,
 	options: unknown,
 ): FigureFile {
-	const laid = layOut(records, options);
-	const scene = whole(laid);
-	if (laid.every(({ views }) => views.sequence === null)) {
+	const prepared = prepareRecords(records, options);
+	const scene = figureScene(prepared);
+	if (prepared.every(({ views }) => views.sequence === null)) {
 		return { scene, pages: null };
 	}
-	const names = namesOf(laid);
-	const maps = stacked(
-		laid.map(({ views }) => views.map),
-		names,
-		laid.map(({ circle }) => circle),
+	const named = prepared.length > 1;
+	const maps = stackRecords(
+		prepared.map((one) => ({ ...one, scene: one.views.map })),
+		named,
 	);
-	const rows = laid.flatMap(({ name, views }) => {
+	const rows = prepared.flatMap(({ name, views }) => {
 		if (views.sequence === null) return [];
 		const [first, ...rest] = rowPages(views.sequence);
-		return [stacked([first], names && [name]), ...rest];
+		return [
+			stackRecords([{ name, circle: false, scene: first }], named),
+			...rest,
+		];
 	});
 	return { scene, pages: [maps, ...rows] };
 }
 
 /**
- * Draw `records` stacked, each with `options`, as SVG text, every letter an outline. A PDF has
- * the maps on its first page and each record's sequence-view rows on the pages after. Throws one
+ * Draw `records` stacked, each with `options`, as SVG text, every letter an outline. Throws one
  * FormatError naming every problem in the records, or else in the options.
  */
 export function figureSvg(records: unknown, options: unknown = {}): Drawing {
 	const { scene, pages } = prepareFigureFile(records, options);
-	const drawing = drawn(scene, toSvg);
-	return {
-		...drawing,
-		pages: pages === null ? [drawing.svg] : pages.map(toSvg),
-	};
+	return toDrawing(scene, pages);
 }
 
 /**
@@ -153,76 +149,81 @@ function checkEach(
 	{ page = false }: { page?: boolean },
 ): Options[] {
 	const checked: Options[] = [];
-	const problems = new Map<string, number[]>();
+	const problems = new Map<string, { problem: Problem; which: number[] }>();
 	for (const [i, record] of records.entries()) {
-		try {
-			checked.push(checkOptions(input, record, { page, drawn: records }));
-		} catch (error) {
-			if (!(error instanceof FormatError)) throw error;
-			for (const line of error.message.split("\n")) {
-				problems.set(line, [...(problems.get(line) ?? []), i]);
-			}
+		const result = parsedOptions(input, record, { page, together: records });
+		if ("output" in result) {
+			checked.push(result.output);
+			continue;
+		}
+		for (const problem of result.problems) {
+			const key = JSON.stringify([problem.path, problem.message]);
+			const seen = problems.get(key) ?? { problem, which: [] };
+			seen.which.push(i);
+			problems.set(key, seen);
 		}
 	}
-	if (!problems.size) return checked;
-	const lines = [...problems].map(([line, which]) => {
-		if (which.length === records.length) return line;
-		const at = line.indexOf(": ");
-		const named = which.map((i) => `records[${i}]`).join(", ");
-		return `${line.slice(0, at)} (${named})${line.slice(at)}`;
-	});
-	throw new FormatError(lines.join("\n"));
+	const reported = [...problems.values()].map(({ problem, which }) =>
+		which.length === records.length
+			? problem
+			: {
+					...problem,
+					path: `${problem.path} (${which.map((i) => `records[${i}]`).join(", ")})`,
+				},
+	);
+	return orThrow(
+		reported.length ? { problems: reported } : { output: checked },
+	);
 }
 
 /**
- * `scenes` one under another, each set under its name from `names`. A line keeps its x, and a
- * scene `circles` marks, centred at x 0, is centred on the lines' middle. With no names there
- * is one scene, left as it is.
+ * `parts` one under another, each under its name when `named`. Unnamed, the one part is left as
+ * it is.
  */
-function stacked(
-	scenes: readonly (Scene | MapScene)[],
-	names: readonly string[] | null,
-	circles: readonly boolean[] = [],
-): MapScene {
-	const hidden = scenes.flatMap((scene) =>
+function stackRecords(parts: readonly Part[], named: boolean): MapScene {
+	const hidden = parts.flatMap(({ scene }) =>
 		"hidden" in scene ? scene.hidden : [],
 	);
-	if (names === null) return { ...scenes[0], hidden };
-	const lines = scenes
-		.filter((_, i) => !circles[i])
-		.map(({ extent }) => extent);
+	if (!named) return { ...parts[0].scene, hidden };
+	const lines = parts
+		.filter(({ circle }) => !circle)
+		.map(({ scene }) => scene.extent);
 	const middle = lines.length
 		? (Math.min(...lines.map(({ x }) => x)) +
 				Math.max(...lines.map(({ x, width }) => x + width))) /
 			2
 		: 0;
-	const dxs = scenes.map((_, i) => (circles[i] ? middle : 0));
-	const left = Math.min(...scenes.map(({ extent }, i) => extent.x + dxs[i]));
+	const dxs = parts.map(({ circle }) => (circle ? middle : 0));
+	const left = Math.min(
+		...parts.map(({ scene }, i) => scene.extent.x + dxs[i]),
+	);
 	const right = Math.max(
-		...scenes.map(({ extent }, i) => extent.x + extent.width + dxs[i]),
+		...parts.map(
+			({ scene }, i) => scene.extent.x + scene.extent.width + dxs[i],
+		),
 	);
 	const nameHeight = height(NAME_FACE, NAME_SIZE);
-	const named = nameHeight + UNDER_NAME;
+	const nameRoom = nameHeight + UNDER_NAME;
 	const shapes: Shape[] = [];
-	let recordTop = scenes[0].extent.y;
-	const top = recordTop - named - MARGIN;
+	let recordTop = parts[0].scene.extent.y;
+	const top = recordTop - nameRoom - MARGIN;
 	let bottom = top;
-	for (const [i, { extent, shapes: own }] of scenes.entries()) {
-		const nameTop = recordTop - named;
+	for (const [i, { name, scene }] of parts.entries()) {
+		const nameTop = recordTop - nameRoom;
 		shapes.push({
 			shape: "text",
-			text: names[i],
+			text: name,
 			face: NAME_FACE,
 			size: NAME_SIZE,
 			x: left + MARGIN,
 			y: baseline(NAME_FACE, NAME_SIZE, nameTop + nameHeight / 2),
 			anchor: "start",
-			fill: NAME_FILL,
+			fill: MUTED,
 		});
-		const dy = recordTop - extent.y;
-		shapes.push(...own.map((shape) => moved(shape, dxs[i], dy)));
-		bottom = recordTop + extent.height;
-		recordTop = bottom + BETWEEN + named;
+		const dy = recordTop - scene.extent.y;
+		shapes.push(...scene.shapes.map((shape) => moved(shape, dxs[i], dy)));
+		bottom = recordTop + scene.extent.height;
+		recordTop = bottom + BETWEEN + nameRoom;
 	}
 	return {
 		extent: { x: left, y: top, width: right - left, height: bottom - top },

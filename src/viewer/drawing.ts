@@ -94,12 +94,10 @@ export function drawn(
  */
 export function svg(record: unknown, options: unknown = {}): Drawing {
 	const views = prepareViews(record, options);
-	const drawing = whole(stackedViews(views));
-	if (views.sequence === null) return drawing;
-	return {
-		...drawing,
-		pages: [views.map, ...rowPages(views.sequence)].map(toSvg),
-	};
+	return toDrawing(
+		stackedViews(views),
+		views.sequence === null ? null : [views.map, ...rowPages(views.sequence)],
+	);
 }
 
 /**
@@ -108,7 +106,7 @@ export function svg(record: unknown, options: unknown = {}): Drawing {
  * gel.
  */
 export function gelSvg(gel: unknown): Drawing {
-	return whole(prepareGel(gel));
+	return toDrawing(prepareGel(gel));
 }
 
 /**
@@ -116,11 +114,17 @@ export function gelSvg(gel: unknown): Drawing {
  * problem in the plate.
  */
 export function plateSvg(plate: unknown): Drawing {
-	return whole(preparePlate(plate));
+	return toDrawing(preparePlate(plate));
 }
 
-/** `scene` as SVG text, a drawing of one page. */
-function whole(scene: Scene | MapScene): Drawing {
+/** `scene` as SVG text, every letter an outline, with its PDF `pages`, or else as one page. */
+export function toDrawing(
+	scene: Scene | MapScene,
+	pages: readonly Scene[] | null = null,
+): Drawing {
 	const drawing = drawn(scene, toSvg);
-	return { ...drawing, pages: [drawing.svg] };
+	return {
+		...drawing,
+		pages: pages === null ? [drawing.svg] : pages.map(toSvg),
+	};
 }
