@@ -1,4 +1,7 @@
-/** The sequence view's primers, cut sites and insertions, each row's shelves and marks of them. */
+/**
+ * The sequence view's primers, reads, cut sites, insertions and disagreements at a point, each
+ * row's shelves and marks of them.
+ */
 
 import {
 	type Arrow,
@@ -8,15 +11,13 @@ import {
 	PRIMER_SHAFT,
 	pack,
 } from "./arrows";
-import { cutSites } from "./cuts";
 import { folded } from "./format";
-import { insertionLabel, type Label, primerLabel } from "./labels";
 import {
+	BASE_MARK,
 	CUT_BOX,
 	CUT_BOX_WIDTH,
 	INK,
 	INSERTION_WIDTH,
-	MISMATCH,
 	OUTLINE_WIDTH,
 	painted,
 	shaded,
@@ -24,6 +25,7 @@ import {
 import { isWhole, pieces, turns } from "./pieces";
 import type { Box, Shape } from "./scene";
 import type { Row, RowMarks, RunOn, Shelf, Strands } from "./sequence";
+import { type Aligned, shownCuts, shownMarks, shownSites } from "./shown";
 import type { Anchored } from "./staircase";
 
 /** The height of a row's top, where every leader from a label above it ends. */
@@ -42,70 +44,73 @@ const NEAR = PRIMER_SHAFT / 2 + HEAD.reach;
 const AWAY = Math.max(BEND + TAIL_WIDTH / 2, NEAR);
 const TIER = AWAY + NEAR + PRIMER_GAP;
 
-/** The room either side of a mismatch's mark in its cell. */
+/** The room either side of a marked base's mark in its cell. */
 const MARK_INSET = 2;
 
 /** The thickness of a cut's lines. */
 const CUT_WIDTH = 1.2;
 
-const NOTHING: RowMarks = { shapes: [], labels: [] };
-
-/** The cut sites and insertions in `row`, drawn through its `strands`. */
+/** The cut sites and marks in `row`, drawn through its `strands`. */
 export function acrossStrands(row: Row, strands: Strands): RowMarks {
 	const cut = cuts(row, strands);
-	const inserted = insertions(row, strands);
+	const marked = marks(row, strands);
 	return {
-		shapes: [...cut.shapes, ...inserted.shapes],
-		labels: [...cut.labels, ...inserted.labels],
-		covers: inserted.covers,
+		shapes: [...cut.shapes, ...marked.shapes],
+		labels: [...cut.labels, ...marked.labels],
+		covers: marked.covers,
 	};
 }
 
 /**
- * What a row holds of one primer site and its tail: where that starts and ends, the arrow of its
- * site and the line of its tail where the row holds them, and the cell of each base of the site it
- * does not pair with.
+ * What a row holds of a primer site and its tail, or of a read: where that starts and ends, the
+ * arrow of its site and the line of its tail where the row holds them, and the cell of each base
+ * it marks.
  */
-interface Primed {
-	/** The site, as the record gives it. */
-	readonly site: object;
+interface InRow {
+	readonly aligned: Aligned;
 	readonly start: number;
 	readonly end: number;
-	readonly label: Label;
 	readonly arrow: Arrow | null;
 	/** Its end nearer the site, a cell on from there, and its far end; it `bends` leaving the site. */
 	readonly tail: readonly [near: number, next: number, far: number] | null;
 	readonly bends: boolean;
-	readonly mismatches: readonly (readonly [start: number, end: number])[];
+	readonly cells: readonly (readonly [start: number, end: number])[];
 }
 
 /**
- * The primer sites on `strand` in `row`, each an arrow, its 5' tail and its mismatches, in tiers
- * packed by start on a shelf from `top` down, the first tier nearest the bases: the forward
- * primers' above the numbers, the reverse primers' under the strands. Sites starting together
- * keep the order of the tiers they took in the row before, `before`. Each is labelled above the
- * row where the row holds part of its site.
+ * The primer sites and reads on `strand` in `row`, each an arrow, a site's 5' tail and the bases
+ * each marks, in tiers packed by start on a shelf from `top` down, the first tier nearest the
+ * bases: the forward ones' above the numbers, the reverse ones' under the strands. Those starting
+ * together keep the order of the tiers they took in the row before, `before`. Each is labelled
+ * above the row where the row holds part of it.
  */
-export function primers(
+export function sites(
 	row: Row,
 	top: number,
 	strand: 1 | -1,
 	before: RunOn,
 ): Shelf & { after: RunOn } {
-	const earlier = (site: object) => before.get(site) ?? Number.MAX_SAFE_INTEGER;
-	const found = primed(row, strand).sort(
-		(a, b) => a.start - b.start || earlier(a.site) - earlier(b.site),
+	const earlier = ({ aligned }: InRow) =>
+		before.get(aligned.item) ?? Number.MAX_SAFE_INTEGER;
+	const found = inRow(row, strand).sort(
+		(a, b) => a.start - b.start || earlier(a) - earlier(b),
 	);
 	const tiers = pack(found);
 	const after: RunOn = new Map();
-	for (const [i, { site, end }] of found.entries()) {
-		if (end === row.at(row.end)) after.set(site, tiers[i]);
+	for (const [i, { aligned, end }] of found.entries()) {
+		if (end === row.at(row.end)) after.set(aligned.item, tiers[i]);
 	}
 	const count = Math.max(0, ...tiers.map((tier) => tier + 1));
 	const shapes: Shape[] = [];
 	for (const [
 		i,
-		{ label, arrow, tail, bends, mismatches },
+		{
+			aligned: { label },
+			arrow,
+			tail,
+			bends,
+			cells,
+		},
 	] of found.entries()) {
 		const middle =
 			strand === 1
@@ -123,7 +128,7 @@ export function primers(
 				strokeWidth: OUTLINE_WIDTH,
 			});
 		}
-		for (const [x, end] of mismatches) {
+		for (const [x, end] of cells) {
 			shapes.push({
 				shape: "rect",
 				x: x + MARK_INSET,
@@ -131,81 +136,75 @@ export function primers(
 				width: end - x - 2 * MARK_INSET,
 				height: 2 * NEAR,
 				corner: 0,
-				fill: painted(MISMATCH, label.dim),
+				fill: painted(BASE_MARK, label.dim),
 				stroke: "none",
 				strokeWidth: 0,
 			});
 		}
 	}
-	const labels = found.flatMap(({ label, arrow }) =>
+	const labels = found.flatMap(({ aligned: { label }, arrow }) =>
 		arrow ? [{ label, x: (arrow.start + arrow.end) / 2, foot: ROW_TOP }] : [],
 	);
 	return { shapes, labels, bottom: top + count * TIER, after };
 }
 
-/** What `row` holds of each primer site on `strand`, with its tail. */
-function primed(row: Row, strand: 1 | -1): Primed[] {
+/** What `row` holds of each primer site and read on `strand`, with its tail. */
+function inRow(row: Row, strand: 1 | -1): InRow[] {
 	const { record, options, bounds, at } = row;
-	if (options.kinds_off.includes("primers")) return [];
-	const found: Primed[] = [];
-	for (const { name, bases, sites } of record.primers) {
-		for (const site of sites) {
-			if (site.strand !== strand) continue;
-			const { start, end } = site;
-			const label = primerLabel(name, site, bounds.length, options.highlight);
-			const { color } = label;
-			const tail = bases.length - (end - start);
-			const whole =
+	const found: InRow[] = [];
+	for (const aligned of shownSites(record, options)) {
+		if (aligned.strand !== strand) continue;
+		const { start, end, label, tailLength, marked } = aligned;
+		const { color } = label;
+		const whole =
+			strand === 1
+				? { start: start - tailLength, end, color }
+				: { start, end: end + tailLength, color };
+		for (const piece of pieces([whole], row, bounds)) {
+			// The site as it lies in the row: here, or a turn on or back.
+			const shift =
+				turns(bounds).find(
+					(s) => whole.start + s <= piece.start && piece.end <= whole.end + s,
+				) ?? 0;
+			const [low, high] = [start + shift, end + shift];
+			const [first, last] = [
+				Math.max(piece.start, low),
+				Math.min(piece.end, high),
+			];
+			const [near, far] =
 				strand === 1
-					? { start: start - tail, end, color }
-					: { start, end: end + tail, color };
-			for (const piece of pieces([whole], row, bounds)) {
-				// The site as it lies in the row: here, or a turn on or back.
-				const shift =
-					turns(bounds).find(
-						(s) => whole.start + s <= piece.start && piece.end <= whole.end + s,
-					) ?? 0;
-				const [low, high] = [start + shift, end + shift];
-				const [first, last] = [
-					Math.max(piece.start, low),
-					Math.min(piece.end, high),
-				];
-				const [near, far] =
-					strand === 1
-						? [Math.min(piece.end, low), piece.start]
-						: [Math.max(piece.start, high), piece.end];
-				const tailed = strand === 1 ? far < near : near < far;
-				found.push({
-					site,
-					start: at(piece.start),
-					end: at(piece.end),
-					label,
-					arrow:
-						first < last
-							? {
-									start: at(first),
-									end: at(last),
-									color,
-									headStart: strand === -1 && first === low,
-									headEnd: strand === 1 && last === high,
-									cutStart: first > low,
-									cutEnd: last < high,
-								}
-							: null,
-					tail: tailed
-						? [at(near), at(near + Math.sign(far - near)), at(far)]
+					? [Math.min(piece.end, low), piece.start]
+					: [Math.max(piece.start, high), piece.end];
+			const tailed = strand === 1 ? far < near : near < far;
+			found.push({
+				aligned,
+				start: at(piece.start),
+				end: at(piece.end),
+				arrow:
+					first < last
+						? {
+								start: at(first),
+								end: at(last),
+								color,
+								headStart: strand === -1 && first === low,
+								headEnd: strand === 1 && last === high,
+								cutStart: first > low,
+								cutEnd: last < high,
+							}
 						: null,
-					bends: strand === 1 ? low <= piece.end : piece.start <= high,
-					mismatches: (site.mismatches ?? []).flatMap((base) => {
-						// A site across the origin holds the bases past it a turn on.
-						const position =
-							low + ((base - start + bounds.length) % bounds.length);
-						return first <= position && position < last
-							? [[at(position), at(position + 1)] as const]
-							: [];
-					}),
-				});
-			}
+				tail: tailed
+					? [at(near), at(near + Math.sign(far - near)), at(far)]
+					: null,
+				bends: strand === 1 ? low <= piece.end : piece.start <= high,
+				cells: marked.flatMap((base) => {
+					// A site across the origin holds the bases past it a turn on.
+					const position =
+						low + ((base - start + bounds.length) % bounds.length);
+					return first <= position && position < last
+						? [[at(position), at(position + 1)] as const]
+						: [];
+				}),
+			});
 		}
 	}
 	return found;
@@ -255,7 +254,6 @@ function tailShape(
  */
 function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
-	if (options.kinds_off.includes("cuts")) return NOTHING;
 	const on = new Set(options.enzymes.map(folded));
 	const floor = bottom ? bottom[1] : rail;
 	// Enzymes cutting at one point draw the same lines, and often the same box: each once.
@@ -272,8 +270,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 			strokeWidth: CUT_WIDTH,
 		});
 	const labels: Anchored[] = [];
-	const sites = cutSites(record, options.enzymes, options.highlight);
-	for (const { at: point, label } of sites) {
+	for (const { at: point, label } of shownCuts(record, options)) {
 		const { dim } = label;
 		const made = record.cuts.filter(
 			(one) => one.at === point && on.has(folded(one.enzyme)),
@@ -326,24 +323,19 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 }
 
 /**
- * Each insertion in `row` as a line through both strands, or the top one, at its point, in the
- * row holding the base after it. It is labelled with what it adds, its name and point on hover.
+ * Each insertion and disagreement at a point in `row` as a line through both strands, or the top
+ * one, at its point, in the row holding the base after it. An insertion is labelled with what it
+ * adds, a disagreement with its name; each has its name and point on hover.
  */
-function insertions(row: Row, { top, rail, bottom }: Strands): RowMarks {
+function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
-	if (options.kinds_off.includes("insertions")) return NOTHING;
 	const [y1, y2] = [top[0], bottom ? bottom[1] : rail];
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
-	for (const insertion of record.insertions) {
-		const { label, hover } = insertionLabel(
-			insertion,
-			bounds,
-			options.highlight,
-		);
+	for (const { at: point, label, hover } of shownMarks(record, options)) {
 		for (const shift of turns(bounds)) {
-			const p = insertion.at + shift;
+			const p = point + shift;
 			if (!holds(row, p, true)) continue;
 			const x = at(p);
 			shapes.push({

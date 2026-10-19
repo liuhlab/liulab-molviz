@@ -15,6 +15,10 @@ def circular(path: Path) -> bool:
     return json.loads(path.read_text(encoding="utf-8"))["circular"]
 
 
+def has_reads(path: Path) -> bool:
+    return bool(json.loads(path.read_text(encoding="utf-8")).get("reads"))
+
+
 @pytest.mark.parametrize(
     ("page", "folder", "takes"),
     [
@@ -23,6 +27,7 @@ def circular(path: Path) -> bool:
         ("sequence-view.md", "records", every),
         ("gels.md", "gels", every),
         ("plates.md", "plates", every),
+        ("verification.md", "records", has_reads),
     ],
 )
 def test_a_docs_page_draws_each_test_input_it_takes_from_its_folder(page, folder, takes) -> None:

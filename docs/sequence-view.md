@@ -27,6 +27,19 @@ A Golden Gate product. Its lacZα CDS is joined across the GFP insert, and some 
 </script>
 </div>
 
+## puc19-gfp-verification
+
+The same product checked against one consensus read. The read sits over the top strand, as a forward primer does, and its two bases that disagree with the record are red on it. Each disagreement is also a bar with its name, under the bases with the features: red in GFP and grey in AmpR.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-gfp-verification.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true}
+</script>
+</div>
+
 ## puc19-backbone-amplicon
 
 A linear PCR product that starts inside lacZα. The lacZα CDS runs past the last row's end and on from the first row's start. In each of those rows a grey join runs from its piece to the record's end, and its amino acids read on from one piece to the other.
@@ -177,6 +190,32 @@ An N inside a CDS, so one codon reads as X, and an EcoRI cut at the origin.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/n-and-cut-at-origin.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true}
+</script>
+</div>
+
+## trace-3730
+
+The 120 bases around one changed base in a Sanger read. Under each row, the read's trace is four curves, one for each base, after its name and a key of the four colours. Each peak sits over the base it was read as. The changed base, 61, is red on the read.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/trace-3730.json"
+</script>
+<script type="application/json" data-options>
+{"sequence_view": true}
+</script>
+</div>
+
+## trace-3730-reversed
+
+The same bases turned to the other strand. The read runs along the bottom strand, so it sits under the bases. Its trace is drawn as the top strand reads it, so each peak's tallest curve is still the base over it.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/trace-3730-reversed.json"
 </script>
 <script type="application/json" data-options>
 {"sequence_view": true}

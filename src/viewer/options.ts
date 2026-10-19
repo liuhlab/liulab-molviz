@@ -17,7 +17,7 @@ import {
 	Text,
 } from "./format";
 import { KINDS } from "./labels";
-import { type Record, rule, type Span, span } from "./record";
+import { type Record, recordBounds, rule, type Span, span } from "./record";
 
 const OnOff = v.boolean("must be true or false");
 
@@ -31,7 +31,7 @@ interface Where {
 }
 
 function optionsSchema(record: Record, { page, together }: Where) {
-	const bounds = { length: record.bases.length, circular: record.circular };
+	const bounds = recordBounds(record);
 	const names = new Set(together.flatMap((one) => [...answersTo(one)]));
 	const searched = together.length > 1 ? "any record" : "the record";
 	const whole = ({ start, end }: Span) => start === 0 && end === bounds.length;
@@ -149,8 +149,8 @@ export function parsedOptions(
 }
 
 /**
- * The names a highlight may give for `record`, each `folded`: its features', primers' and
- * insertions', and each enzyme with a cut in it.
+ * The names a highlight may give for `record`, each `folded`: its features', primers',
+ * insertions', reads', disagreements' and tracks', and each enzyme with a cut in it.
  */
 export function answersTo(record: Record): Set<string> {
 	return new Set(
@@ -158,6 +158,9 @@ export function answersTo(record: Record): Set<string> {
 			...record.features,
 			...record.primers,
 			...record.insertions,
+			...record.reads,
+			...record.disagreements,
+			...record.tracks,
 			...record.cuts.map(({ enzyme }) => ({ name: enzyme })),
 		].map(({ name }) => folded(name)),
 	);

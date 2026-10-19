@@ -31,6 +31,11 @@ const named = check({
 	],
 	cuts: [cut("BsaI", 10), cut("EcoRI", 20), cut("BsaI", 30), cut("PstI", 40)],
 	insertions: [{ name: "attB1", at: 50, length: 25 }],
+	reads: [{ name: "r1", start: 0, end: 90, strand: 1 }],
+	disagreements: [
+		{ name: "61 A>G", start: 60, end: 61, bases: "G", reads: ["r1"] },
+	],
+	tracks: [{ name: "3730", curves: { A: [], C: [], G: [], T: [] }, peaks: [] }],
 });
 
 describe("checkOptions", () => {
@@ -88,6 +93,11 @@ describe("checkOptions", () => {
 		expect(checkOptions(given, record(true))).toStrictEqual(given);
 	});
 
+	test("turns off reads, disagreements and tracks", () => {
+		const kinds_off = ["reads", "disagreements", "tracks"];
+		expect(checkOptions({ kinds_off }, named).kinds_off).toEqual(kinds_off);
+	});
+
 	test("keeps an enzyme that does not cut, and a highlight in any case", () => {
 		const given = {
 			kinds_off: ["cuts", "primers"],
@@ -134,7 +144,7 @@ describe("checkOptions", () => {
 			"a kind the format does not have",
 			{ kinds_off: ["cut_sites"] },
 			[
-				'options.kinds_off[0]: must be "features", "primers", "cuts" or "insertions"',
+				'options.kinds_off[0]: must be "features", "primers", "cuts", "insertions", "reads", "disagreements" or "tracks"',
 			],
 		],
 		[
@@ -197,12 +207,15 @@ describe("the sequence view", () => {
 describe("answersTo", () => {
 	test("gives each name of the record whatever its case, an enzyme only with a cut", () => {
 		expect([...answersTo(named)].sort()).toEqual([
+			"3730",
+			"61 a>g",
 			"attb1",
 			"bsai",
 			"ecori",
 			"lacz",
 			"m13 fwd",
 			"psti",
+			"r1",
 		]);
 		expect(answersTo(named).has(folded("M13 FWD"))).toBe(true);
 	});

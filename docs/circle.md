@@ -43,6 +43,18 @@ everything else turns pale grey. Nothing moves.
 </script>
 </div>
 
+## puc19-gfp-verification
+
+The same product checked against one consensus read. The read is a full ring just outside the
+backbone. Its two disagreements with the record are bars among the features: `696 A>G` in GFP,
+red, and `2687 C>T` in AmpR, grey.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-gfp-verification.json"
+</script>
+</div>
+
 ## ap1-product
 
 A larger product with many features, some on no strand. Its arrows need so many rings that
