@@ -6,7 +6,6 @@ import { check } from "../../src/viewer/record";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
-import crowdedSitesFile from "../records/crowded-sites.json";
 
 const colourTest = check(colourTestFile);
 
@@ -625,31 +624,57 @@ describe("hidden labels", () => {
 		);
 	}
 
+	/** A cut by `enzyme` at `at`, its site the six bases from the base before. */
+	function cut(enzyme: string, at: number) {
+		return { enzyme, start: at - 1, end: at + 5, at, stagger: 4 };
+	}
+
+	// The fewest cut sites whose labels stack past the ceiling: 44 enzymes cutting once, a base
+	// apart, and Twice, which cuts at the stack's end and again at 100, where it has room.
+	const sites = {
+		name: "test",
+		circular: false,
+		bases: BASES,
+		cuts: [
+			...Array.from({ length: 44 }, (_, i) => cut(`E${i + 1}`, 500 + i)),
+			cut("Twice", 544),
+			cut("Twice", 100),
+		],
+	};
+	const enzymes = [...new Set(sites.cuts.map(({ enzyme }) => enzyme))];
+
 	test("hide only from a stack too tall, never a site with room around it", () => {
-		const enzymes = [
-			...new Set(crowdedSitesFile.cuts.map((cut) => cut.enzyme)),
-		];
-		expect(hiddenOn(crowdedSitesFile, { enzymes }, 720)).toEqual([
-			"EcoRI 1275",
-			"HindIII 1332",
-			"BsmBI - Esp3I - NruI 1273",
-			"BanII - SacI - XbaI 1217",
+		expect(hiddenOn(sites, { enzymes }, 720)).toEqual([
+			"Twice 544",
+			"E10 509",
+			"E11 510",
+			"E12 511",
 		]);
-		expect(hiddenOn(crowdedSitesFile, { enzymes }, 1440)).toEqual([]);
 	});
 
 	test("hide cut sites before a feature in their stack, even one lifted to its top", () => {
-		const record = structuredClone(crowdedSitesFile);
-		record.features.push({
-			name: "in the stack",
+		// Two tiny features whose names cannot go under them, so both are boxed in the stack.
+		const tiny = (name: string, start: number) => ({
+			name,
 			type: "misc_feature",
 			strand: 0,
-			segments: [{ start: 1202, end: 1204 }],
+			segments: [{ start, end: start + 2 }],
 		});
-		expect(hiddenOn(record, {}, 720)).toEqual([
-			"BsmBI - Esp3I - NruI 1273",
-			"BanII - SacI - XbaI 1217",
-			"NheI - SphI 1289",
+		const record = {
+			...sites,
+			features: [tiny("in the stack", 520), tiny("beside it", 530)],
+		};
+		const checked = check(record);
+		const scene = layoutLine(checked, checkOptions({ enzymes }, checked));
+		// Above the line, so in the stack, not under its arrow.
+		expect(label(scene, "in the stack").y).toBeLessThan(0);
+		expect(hiddenOn(record, { enzymes }, 720)).toEqual([
+			"Twice 544",
+			"E10 509",
+			"E11 510",
+			"E12 511",
+			"E13 512",
+			"E14 513",
 		]);
 	});
 });

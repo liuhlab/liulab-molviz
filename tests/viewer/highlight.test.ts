@@ -11,12 +11,6 @@ const records = import.meta.glob("../records/*.json", {
 	import: "default",
 });
 
-const crowded = records["../records/crowded-sites.json"] as {
-	cuts: { enzyme: string }[];
-};
-const EVERY = [...new Set(crowded.cuts.map(({ enzyme }) => enzyme))];
-const PRIMERS = ["p1-F", "p2-R", "p3-F", "p4-R"];
-
 /** mbio's grey for everything a highlight leaves unlit, and an outline of it darkened. */
 const DIM = "#dddddd";
 const DIM_OUTLINE = "#636363";
@@ -200,41 +194,88 @@ describe("a highlight", () => {
 	});
 });
 
-// Each hidden set is mbio's line's on the same items, less the sites with room around them that
-// mbio hides with their crowd.
-describe("on the crowded record with every enzyme, labels hide", () => {
+/** A cut by `enzyme` at `at`, its site the six bases from the base before. */
+function cut(enzyme: string, at: number) {
+	return { enzyme, start: at - 1, end: at + 5, at, stagger: 4 };
+}
+
+/** A primer site from `start` to `end` on `strand`. */
+function primer(name: string, start: number, end: number, strand: number) {
+	return {
+		name,
+		bases: "A".repeat(end - start),
+		sites: [{ start, end, strand }],
+	};
+}
+
+// A stack too tall for the ceiling: 40 enzymes cutting once, a base apart, Twice, which cuts in
+// the stack and again at 100, four primers, two features too tiny for their names, and an
+// insertion.
+const CROWD = {
+	...RECORD,
+	features: [
+		feature("tiny A", [[520, 522]], "#77aadd"),
+		feature("tiny B", [[530, 532]], "#77aadd"),
+	],
+	primers: [
+		primer("p1-F", 505, 525, 1),
+		primer("p2-R", 510, 530, -1),
+		primer("p3-F", 515, 535, 1),
+		primer("p4-R", 520, 540, -1),
+	],
+	insertions: [{ name: "barcode", at: 535, length: 8 }],
+	cuts: [
+		...Array.from({ length: 40 }, (_, i) => cut(`E${i + 1}`, 500 + i)),
+		cut("Twice", 541),
+		cut("Twice", 100),
+	],
+};
+const EVERY = [...new Set(CROWD.cuts.map(({ enzyme }) => enzyme))];
+const PRIMERS = ["p1-F", "p2-R", "p3-F", "p4-R"];
+
+describe("in a crowd with every enzyme, labels hide", () => {
 	test.each<[string, string[], [string, string, number][]]>([
 		[
 			"cut sites first, the most frequent cutter first",
 			[],
 			[
-				["cuts", "EcoRI", 1275],
-				["cuts", "HindIII", 1332],
-				["cuts", "BsmBI - Esp3I - NruI", 1273],
-				["cuts", "BanII - SacI - XbaI", 1217],
+				["cuts", "Twice", 541],
+				["cuts", "E10", 509],
+				["cuts", "E11", 510],
+				["cuts", "E12", 511],
+				["cuts", "E13", 512],
+				["cuts", "E14", 513],
+				["cuts", "E15", 514],
 			],
 		],
 		[
-			"unlit primers before lit cut sites, and a lit primer last",
+			"unlit primers, features and the insertion before lit cut sites, and a lit primer last",
 			[...EVERY, "p1-F"],
 			[
-				["primers", "p2-R", 1533],
-				["primers", "p3-F", 1563],
-				["primers", "p4-R", 1593],
+				["primers", "p2-R", 510],
+				["primers", "p3-F", 515],
+				["primers", "p4-R", 520],
+				["features", "tiny A", 520],
+				["features", "tiny B", 530],
+				["insertions", "barcode", 535],
+				["cuts", "Twice", 541],
 			],
 		],
 		[
 			"an unlit feature, then an unlit insertion, then lit cut sites",
-			[...EVERY, ...PRIMERS, "MCS", "tiny A", "tiny C", "tiny D", "tiny E"],
+			[...EVERY, ...PRIMERS, "tiny A"],
 			[
-				["features", "tiny B", 1320],
-				["insertions", "barcode", 1290],
-				["cuts", "EcoRI", 1275],
-				["cuts", "HindIII", 1332],
+				["features", "tiny B", 530],
+				["insertions", "barcode", 535],
+				["cuts", "Twice", 541],
+				["cuts", "E10", 509],
+				["cuts", "E11", 510],
+				["cuts", "E12", 511],
+				["cuts", "E13", 512],
 			],
 		],
 	])("%s", (_, highlight, hidden) => {
-		const scene = lay(crowded, { enzymes: EVERY, highlight });
+		const scene = lay(CROWD, { enzymes: EVERY, highlight });
 		expect(
 			scene.hidden.map((one) => [
 				one.kind,

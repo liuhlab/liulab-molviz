@@ -139,33 +139,3 @@ An N inside a CDS, so one codon translates as X, and an EcoRI cut at the origin.
 {"map": "line"}
 </script>
 </div>
-
-## crowded-sites
-
-A circle where 40 enzymes cut within 143 bases, with primers, tiny features and an insertion in
-that stretch and just past it. Its labels crowd, so some are hidden, and the note at the bottom
-right counts them.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
-<script type="application/json" data-options>
-{"map": "line"}
-</script>
-</div>
-
-## crowded-sites, with every enzyme and EcoRI lit
-
-The same circle with the cut sites of all 40 enzymes. EcoRI cuts it three times, so with
-nothing lit, its site in the crowd is the first label to hide. Here EcoRI is lit, so that site
-is the last to hide, and other sites hide in its place.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
-<script type="application/json" data-options>
-{"map": "line", "enzymes": ["AatII", "Acc65I", "AflII", "AgeI", "AscI", "AvrII", "BamHI", "BanII", "BglII", "BsaI", "BsiWI", "BsmBI", "ClaI", "EcoRI", "EcoRV", "Esp3I", "HindIII", "HpaI", "KpnI", "MfeI", "MluI", "NcoI", "NdeI", "NheI", "NotI", "NruI", "NsiI", "PacI", "PmeI", "PstI", "SacI", "SalI", "SmaI", "SnaBI", "SpeI", "SphI", "StuI", "XbaI", "XhoI", "XmaI"], "highlight": ["EcoRI"]}
-</script>
-</div>
