@@ -3,6 +3,7 @@
  * the right and y down, the line running right from (0, 0).
  */
 
+import { cutSites } from "./cuts";
 import {
 	GAP,
 	hiddenOf,
@@ -101,7 +102,7 @@ const DRAWS: { readonly [K in Kind]: (along: Along) => Drawn } = {
 	primers: () => NOTHING,
 	insertions: () => NOTHING,
 	features,
-	cuts: () => NOTHING,
+	cuts,
 };
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
@@ -278,6 +279,33 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 			: [],
 	);
 	return { shapes, labels, top: Number.POSITIVE_INFINITY, bottom: y };
+}
+
+/** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
+function cuts({ record, options, bounds, at, backboneTop }: Along): Drawn {
+	const labels = cutSites(record, options.enzymes).flatMap((site) =>
+		within(site.at, options.span, bounds).map((position) => ({
+			label: site.label,
+			x: at(position),
+			foot: backboneTop,
+		})),
+	);
+	return { ...NOTHING, labels };
+}
+
+/**
+ * Where `point` lies in the span, counted as the span counts. A point at either end lies in it,
+ * but on a whole turn of a circle, whose ends are one point, only at the end.
+ */
+function within(
+	point: number,
+	{ start, end }: Span,
+	{ length, circular }: Bounds,
+): number[] {
+	const whole = circular && end - start === length;
+	return (circular ? [-length, 0, length] : [0])
+		.map((shift) => point + shift)
+		.filter((at) => start <= at && at <= end && !(whole && at === start));
 }
 
 function isUnder(place: Place): place is { under: number } {
