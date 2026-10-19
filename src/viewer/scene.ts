@@ -13,6 +13,19 @@ export interface Box {
 	readonly height: number;
 }
 
+/** One step of a path, in points. */
+export type PathCommand =
+	| readonly ["M" | "L", x: number, y: number]
+	| readonly [
+			"A",
+			radius: number,
+			large: 0 | 1,
+			sweep: 0 | 1,
+			x: number,
+			y: number,
+	  ]
+	| readonly ["Z"];
+
 /** One thing a scene draws. Lengths are in points; colours are written `#rrggbb`. */
 export type Shape = (
 	| {
@@ -27,6 +40,14 @@ export type Shape = (
 	| {
 			readonly shape: "polygon";
 			readonly points: readonly (readonly [x: number, y: number])[];
+			readonly fill: string;
+			readonly stroke: string;
+			readonly strokeWidth: number;
+	  }
+	| {
+			readonly shape: "path";
+			readonly commands: readonly PathCommand[];
+			/** `none` leaves it unfilled. */
 			readonly fill: string;
 			readonly stroke: string;
 			readonly strokeWidth: number;

@@ -1,6 +1,7 @@
+// @vitest-environment happy-dom
 import { describe, expect, test } from "vitest";
-import type { Scene } from "../../src/viewer/scene";
-import { toSvg } from "../../src/viewer/svg";
+import type { Scene, Shape } from "../../src/viewer/scene";
+import { toElement, toSvg } from "../../src/viewer/svg";
 import { measure, outline } from "../../src/viewer/text";
 
 const scene: Scene = {
@@ -62,6 +63,42 @@ const scene: Scene = {
 };
 
 const written = toSvg(scene);
+
+/** `shape` alone in a scene, written as a file and as a page. */
+function both(shape: Shape): { file: string; page: SVGSVGElement } {
+	const alone: Scene = {
+		extent: { x: -230, y: -230, width: 460, height: 460 },
+		shapes: [shape],
+	};
+	return { file: toSvg(alone), page: toElement(alone, document) };
+}
+
+describe("a curve or a turn", () => {
+	test("writes a path as one path element, an arc with its radius twice", () => {
+		const { file, page } = both({
+			shape: "path",
+			commands: [
+				["M", 0, -220],
+				["A", 220, 0, 1, 0, 220],
+				["L", -0.001, 216.2],
+				["A", 216.2, 1, 0, 0, -216.2],
+				["Z"],
+			],
+			fill: "none",
+			stroke: "#252525",
+			strokeWidth: 2.6,
+		});
+		const d =
+			"M0.00 -220.00A220.00 220.00 0 0 1 0.00 220.00L0.00 216.20" +
+			"A216.20 216.20 0 1 0 0.00 -216.20Z";
+		expect(file).toContain(
+			`<path d="${d}" fill="none" stroke="#252525" stroke-width="2.60"/>`,
+		);
+		expect(page.innerHTML).toContain(
+			`<path d="${d}" fill="none" stroke="#252525" stroke-width="2.60"></path>`,
+		);
+	});
+});
 
 describe("toSvg", () => {
 	test("sizes the drawing to its extent with no unit, so one unit is one point", () => {

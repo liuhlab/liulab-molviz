@@ -3,6 +3,7 @@
  * the right and y down, the line running right from (0, 0).
  */
 
+import { bounds } from "./bounds";
 import { cutSites } from "./cuts";
 import {
 	GAP,
@@ -31,9 +32,9 @@ import {
 	textColor,
 } from "./paint";
 import type { Bounds, Record, Span } from "./record";
-import { type Box, leftEdge, type Shape } from "./scene";
+import type { Box, Shape } from "./scene";
 import { type Anchored, labelsAbove } from "./staircase";
-import { baseline, type Face, height, measure, metrics } from "./text";
+import { baseline, type Face, height, measure } from "./text";
 
 /** The line's length, unless a layout is given another. */
 const WIDTH = 720;
@@ -534,39 +535,6 @@ function places(bars: readonly Bar[], tiers: readonly number[]): Place[] {
 		}
 	}
 	return placed;
-}
-
-/** The box each shape takes, a line's stroke left out. */
-function bounds(shape: Shape): Box | null {
-	switch (shape.shape) {
-		case "line":
-			return null;
-		case "rect":
-			return shape;
-		case "polygon": {
-			const xs = shape.points.map(([x]) => x);
-			const ys = shape.points.map(([, y]) => y);
-			const x = Math.min(...xs);
-			const y = Math.min(...ys);
-			return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
-		}
-		case "circle":
-			return {
-				x: shape.cx - shape.r,
-				y: shape.cy - shape.r,
-				width: 2 * shape.r,
-				height: 2 * shape.r,
-			};
-		case "text": {
-			const width = measure(shape.text, shape.face, shape.size);
-			return {
-				x: leftEdge(shape, width),
-				y: shape.y - metrics(shape.face).ascent * shape.size,
-				width,
-				height: height(shape.face, shape.size),
-			};
-		}
-	}
 }
 
 /** What `shapes`, a backbone `width` long and the boxes `more` cover, and `MARGIN` beyond. */

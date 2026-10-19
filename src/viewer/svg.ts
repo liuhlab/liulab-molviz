@@ -3,7 +3,13 @@
  * with no font, or as elements of a page with its letters as real text.
  */
 
-import { leftEdge, type Scene, type Shape, twoDecimals } from "./scene";
+import {
+	leftEdge,
+	type PathCommand,
+	type Scene,
+	type Shape,
+	twoDecimals,
+} from "./scene";
 import { family, inFace, measure, outline, weights } from "./text";
 
 const GROUND = "#ffffff";
@@ -122,6 +128,15 @@ function tag(shape: Shape, letters: Letters): Tag {
 				attributes: [["d", `${d}Z`], ["fill", shape.fill], ...stroke(shape)],
 			};
 		}
+		case "path":
+			return {
+				name: "path",
+				attributes: [
+					["d", shape.commands.map(step).join("")],
+					["fill", shape.fill],
+					...stroke(shape),
+				],
+			};
 		case "rect":
 			return {
 				name: "rect",
@@ -173,6 +188,22 @@ function tag(shape: Shape, letters: Letters): Tag {
 				text: inFace(text, face),
 			};
 		}
+	}
+}
+
+/** One step of a path as SVG path data; an arc's two radii are its one radius. */
+function step(command: PathCommand): string {
+	switch (command[0]) {
+		case "M":
+		case "L":
+			return `${command[0]}${twoDecimals(command[1])} ${twoDecimals(command[2])}`;
+		case "A": {
+			const [, radius, large, sweep, x, y] = command;
+			const r = twoDecimals(radius);
+			return `A${r} ${r} 0 ${large} ${sweep} ${twoDecimals(x)} ${twoDecimals(y)}`;
+		}
+		case "Z":
+			return "Z";
 	}
 }
 
