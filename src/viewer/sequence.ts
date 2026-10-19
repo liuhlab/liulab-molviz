@@ -30,6 +30,7 @@ import {
 	type Shape,
 } from "./scene";
 import { acrossStrands, primers } from "./sequence-kinds";
+import { type Sampled, sampledRows, strips } from "./sequence-tracks";
 import { chips } from "./sequence-translation";
 import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, height, measure } from "./text";
@@ -119,6 +120,7 @@ export function layoutSequence(
 	const drawables = options.kinds_off.includes("features")
 		? []
 		: coloredFeatures(record, options);
+	const sampled = sampledRows(record, options);
 	const shapes: Shape[] = [];
 	const rows: Box[] = [];
 	let before: RunOn = new Map();
@@ -133,7 +135,7 @@ export function layoutSequence(
 			end,
 			at: (position) => (position - start) * CELL,
 		};
-		const laid = layoutRow(row, drawables, before, lasts[i], right);
+		const laid = layoutRow(row, drawables, sampled[i], before, lasts[i], right);
 		const shift = top - laid.box.y;
 		shapes.push(...laid.shapes.map((shape) => moved(shape, 0, shift)));
 		rows.push({ ...laid.box, y: top });
@@ -155,12 +157,14 @@ export function layoutSequence(
 
 /**
  * One row laid out from the height 0 down, its last position `last` ending at `right`, with the
- * tier each item running on from the row before took there in `before`: its shapes, the box they
- * take, and the tier of each item running on into the row after.
+ * tier each item running on from the row before took there in `before`, and its tracks' strips
+ * under everything else: its shapes, the box they take, and the tier of each item running on into
+ * the row after.
  */
 function layoutRow(
 	row: Row,
 	drawables: readonly ColoredFeature[],
+	tracks: readonly Sampled[],
 	before: RunOn,
 	last: string,
 	right: number,
@@ -200,7 +204,13 @@ function layoutRow(
 		rail,
 		bottom: bottomStrand,
 	});
-	const drawn = [bars, forward, reverse, across];
+	const drawn = [
+		bars,
+		forward,
+		reverse,
+		across,
+		strips(row, tracks, bars.bottom),
+	];
 	shapes.push(...drawn.flatMap((one) => one.shapes));
 	const above = labelsAbove(
 		drawn.flatMap((one) => one.labels),
