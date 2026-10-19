@@ -11,6 +11,8 @@ import pytest
 import molviz
 from molviz import Drawing, check, viewer_script
 
+ROOT = Path(__file__).parents[1]
+
 GOOD = {"name": "pUC19", "circular": True, "bases": "GATCcatgRYN"}
 
 
@@ -71,6 +73,37 @@ def test_draw_returns_a_drawing_that_hides_nothing() -> None:
 def test_draw_rejects_an_unknown_option_by_name() -> None:
     with pytest.raises(ValueError, match=r"^options\.bogus: unknown key$"):
         molviz.draw(GOOD, bogus=1)
+
+
+LIT = {
+    **GOOD,
+    "features": [
+        {"name": "lacZ", "type": "CDS", "strand": 1, "segments": [{"start": 0, "end": 6}]}
+    ],
+    "cuts": [{"enzyme": "EcoRI", "start": 0, "end": 6, "at": 1, "stagger": 4}],
+}
+
+
+def test_draw_passes_the_kinds_enzymes_and_highlight_through() -> None:
+    drawing = molviz.draw(LIT, kinds_off=["primers"], enzymes=["EcoRI"], highlight=["LACZ"])
+    assert drawing.hidden == []
+
+
+def test_draw_returns_the_labels_the_viewer_hid_a_lit_one_last() -> None:
+    record = json.loads((ROOT / "tests" / "records" / "crowded-sites.json").read_text("utf-8"))
+    every = sorted({cut["enzyme"] for cut in record["cuts"]})
+    site = {"kind": "cuts", "name": "EcoRI", "at": 1275}
+    plain = molviz.draw(record, enzymes=every)
+    lit = molviz.draw(record, enzymes=every, highlight=["ecori"])
+    assert site in plain.hidden
+    assert lit.hidden
+    assert [one for one in lit.hidden if one["name"] == "EcoRI"] == []
+    assert lit.notice == f"{len(lit.hidden)} cut sites are hidden"
+
+
+def test_draw_rejects_a_highlight_that_names_nothing() -> None:
+    with pytest.raises(ValueError, match=r"^options\.highlight\[0\]: names nothing in the record$"):
+        molviz.draw(LIT, highlight=["SacI"])
 
 
 DRAWN = {

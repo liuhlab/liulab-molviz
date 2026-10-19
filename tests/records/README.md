@@ -15,9 +15,11 @@ file through the viewer's check, so the records stay valid as the format grows.
 | `mismatch-across-origin.json` | by hand | A primer with two sites. One site runs across the origin, with a mismatch on each side of it. The other is on the reverse strand. |
 | `linear-ends.json` | by hand | A linear record with a feature and an insertion at each end. One CDS reads from its second base, and one is on the reverse strand. Its BsaI site has no cut, because the cut would fall off the end. |
 | `n-and-cut-at-origin.json` | by hand | An N in the bases, inside a CDS, so one codon translates as X. An EcoRI cut at 0, the origin. |
+| `crowded-sites.json` | by hand | A circle of 3000 bases. Forty enzymes cut within 143 bases of its `MCS` feature. EcoRI cuts there and twice elsewhere, HindIII there and once elsewhere, and every other enzyme once. Primers, tiny features and an insertion sit in the `MCS` and just past it. Drawn 720 points long, its labels crowd and some hide; drawn twice as long, none do. |
 
 The records from mbio carry the cuts of all of mbio's enzymes. The hand-made records carry the
-cuts those same enzymes make in their bases.
+cuts those same enzymes make in their bases. `crowded-sites` also carries the cuts of 21 enzymes
+mbio does not list, so that 40 enzymes cut in one stretch.
 
 ## Drawing a region
 

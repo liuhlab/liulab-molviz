@@ -1,7 +1,7 @@
 /** The record format: what a caller hands the viewer. Its types come from these schemas. */
 
 import * as v from "valibot";
-import { exact, Integer, list, parse, Text } from "./format";
+import { exact, Integer, list, oneOf, parse, Text } from "./format";
 
 /** What a coordinate is checked against: its record's length, and whether it is circular. */
 export interface Bounds {
@@ -65,13 +65,6 @@ function rule<T>(find: (value: T) => Iterable<Problem>) {
 			addIssue({ message, path: path as [v.UnknownPathItem] });
 		}
 	});
-}
-
-/** One of `values`, with a message that lists them. */
-function oneOf<const T extends readonly number[]>(values: T) {
-	const last = values.length - 1;
-	const listed = `${values.slice(0, last).join(", ")} or ${values[last]}`;
-	return v.picklist(values, `must be ${listed}`);
 }
 
 /** An `end` more than one turn past `start`, which `from` names, reported at `keys`. */

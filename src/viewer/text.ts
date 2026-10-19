@@ -110,6 +110,12 @@ export function metrics(face: Face): { ascent: number; descent: number } {
 	};
 }
 
+/** The height of a line of text in `face` at `size`. */
+export function height(face: Face, size: number): number {
+	const { ascent, descent } = metrics(face);
+	return (ascent + descent) * size;
+}
+
 /** The baseline that centres a line of text in `face` at `size` on the height `middle`. */
 export function baseline(face: Face, size: number, middle: number): number {
 	const { ascent, descent } = metrics(face);

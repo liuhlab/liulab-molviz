@@ -1,10 +1,12 @@
 import { describe, expect, test } from "vitest";
+import type { MapScene } from "../../src/viewer/labels";
 import { layout } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
+import crowdedSitesFile from "../records/crowded-sites.json";
 
 const colourTest = check(colourTestFile);
 
@@ -26,7 +28,8 @@ function lay(
 	features: Made[],
 	options: object = {},
 	record: object = {},
-): Scene {
+	width?: number,
+): MapScene {
 	const checked = check({
 		name: "test",
 		circular: false,
@@ -40,7 +43,7 @@ function lay(
 		})),
 		...record,
 	});
-	return layout(checked, checkOptions(options, checked));
+	return layout(checked, checkOptions(options, checked), width);
 }
 
 type Polygon = Extract<Shape, { shape: "polygon" }>;
@@ -266,6 +269,24 @@ describe("the ruler", () => {
 			.filter((l) => l.x1 === l.x2)
 			.sort((a, b) => b.y2 - b.y1 - (a.y2 - a.y1))[0];
 		expect(longest.x1).toBe(((2686 - 2600) * 720) / 150);
+	});
+
+	test("keeps at most ten numbers per 720 points of a longer line", () => {
+		const scene = lay(
+			[{ segments: [[100, 500]], color: "#000001" }],
+			{},
+			{},
+			1440,
+		);
+		expect(numbers(scene)).toEqual(steps(50, 1000, 50));
+		const [arrow] = arrows(scene, "#000001");
+		expect([left(arrow), right(arrow)]).toEqual([144, 720]);
+		const backbone = lines(scene, "#252525").filter((l) => l.y1 === l.y2);
+		expect(backbone.map((l) => [l.x1, l.x2])).toEqual([
+			[0, 1440],
+			[0, 1440],
+		]);
+		expect(texts(scene, 13.5)[0].x).toBe(720);
 	});
 
 	test("leaves out a number too near the origin's tick", () => {
@@ -527,5 +548,118 @@ describe("types_off", () => {
 		const chosen = lay(features, { types_off: ["misc_feature"] });
 		expect(arrows(chosen, "#000001")).toHaveLength(1);
 		expect(arrows(chosen, "#000002")).toEqual([]);
+	});
+});
+
+describe("kinds_off", () => {
+	test("leaves out every feature, its name and its box when features are off", () => {
+		const features = [
+			{ name: "lacZ", segments: [[0, 500]], color: "#000001" },
+			{ name: "first", segments: [[600, 610]], color: "#000001" },
+			{ name: "second long name", segments: [[630, 640]], color: "#000002" },
+		] as Made[];
+		expect(rects(lay(features))).toHaveLength(1);
+		const off = lay(features, { kinds_off: ["features"] });
+		expect(off.shapes.filter((s) => s.shape === "polygon")).toEqual([]);
+		expect(rects(off)).toEqual([]);
+		expect(texts(off, 11.5)).toEqual([]);
+	});
+});
+
+describe("hidden labels", () => {
+	// Two runs of tiny features 70 pt apart along 720 pt: their boxed names stack as one
+	// staircase, past the ceiling, and along 1440 pt as two. mbio's line hides the same names.
+	const crowd: Made[] = [
+		{ name: "lacZ", segments: [[100, 500]], color: "#000002" },
+		{ name: "ori", segments: [[300, 301]], color: "#000003" },
+		...Array.from({ length: 50 }, (_, i) => {
+			const start = i < 25 ? 100 + 6 * i : 341 + 6 * (i - 25);
+			return {
+				name: `feature number ${i}`,
+				segments: [[start, start + 1]] as [number, number][],
+				color: "#000001",
+			};
+		}),
+	];
+
+	test("hide the fewest boxed names, longest first, and the rest keep apart under the ceiling", () => {
+		const scene = lay(crowd);
+		expect(scene.hidden.map((one) => one.name)).toEqual(
+			[10, 11, 12, 13, 14, 15, 16, 17].map((i) => `feature number ${i}`),
+		);
+		const boxes = rects(scene);
+		expect(boxes).toHaveLength(42);
+		for (const [i, a] of boxes.entries()) {
+			expect(a.y).toBeGreaterThanOrEqual(-1.3 - 730);
+			for (const b of boxes.slice(i + 1)) {
+				expect(overlap(edges(a), edges(b))).toBe(false);
+			}
+		}
+	});
+
+	test("never hide a name inside or under an arrow", () => {
+		const scene = lay(crowd);
+		expect(label(scene, "lacZ").fill).toBe("#ffffff");
+		expect(label(scene, "ori").fill).toBe("#252525");
+	});
+
+	test("hide fewer along a longer line, where a name hidden at 720 pt shows", () => {
+		const hiddenAt = (width: number) =>
+			lay(crowd, {}, {}, width).hidden.map((one) => one.name);
+		expect(hiddenAt(720)).toContain("feature number 10");
+		expect(hiddenAt(1440)).toEqual([]);
+		const wide = lay(crowd, {}, {}, 1440);
+		expect(rects(wide)).toHaveLength(50);
+		expect(label(wide, "feature number 10")).toBeDefined();
+	});
+
+	/** Each label `record` hides along `width` points, as its name and its point or start. */
+	function hiddenOn(record: unknown, options: object, width: number): string[] {
+		const checked = check(record);
+		return layout(checked, checkOptions(options, checked), width).hidden.map(
+			(one) => `${one.name} ${"at" in one ? one.at : one.spans[0].start}`,
+		);
+	}
+
+	test("hide only from a stack too tall, never a site with room around it", () => {
+		const enzymes = [
+			...new Set(crowdedSitesFile.cuts.map((cut) => cut.enzyme)),
+		];
+		expect(hiddenOn(crowdedSitesFile, { enzymes }, 720)).toEqual([
+			"EcoRI 1275",
+			"HindIII 1332",
+			"BsmBI - Esp3I - NruI 1273",
+			"BanII - SacI - XbaI 1217",
+		]);
+		expect(hiddenOn(crowdedSitesFile, { enzymes }, 1440)).toEqual([]);
+	});
+
+	test("hide cut sites before a feature in their stack, even one lifted to its top", () => {
+		const record = structuredClone(crowdedSitesFile);
+		record.features.push({
+			name: "in the stack",
+			type: "misc_feature",
+			strand: 0,
+			segments: [{ start: 1202, end: 1204 }],
+		});
+		expect(hiddenOn(record, {}, 720)).toEqual([
+			"BsmBI - Esp3I - NruI 1273",
+			"BanII - SacI - XbaI 1217",
+			"NheI - SphI 1289",
+		]);
+	});
+});
+
+describe("the extent", () => {
+	test("takes in a label's padded box, not only its text", () => {
+		const scene = lay(
+			[],
+			{},
+			{ insertions: [{ name: "a", at: 1000, length: 8 }] },
+		);
+		const text = box(label(scene, "+8 bp"));
+		const { extent } = scene;
+		expect(extent.x + extent.width).toBeCloseTo(text.right + 3 + 16, 9);
+		expect(extent.y).toBeCloseTo(text.top - 1 - 16, 9);
 	});
 });
