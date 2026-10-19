@@ -75,13 +75,6 @@ function middle(p: Polygon): number {
 	return (ys(p)[0] + ys(p)[1]) / 2;
 }
 
-/** The x of each point level with the polygon's middle, where an arrow's tip is. */
-function tips(p: Polygon): number[] {
-	return p.points
-		.filter(([, y]) => Math.abs(y - middle(p)) < 1e-9)
-		.map(([x]) => x);
-}
-
 /** The texts set in `face`, top to bottom, then left to right. */
 function texts(scene: SequenceScene, face: Text["face"]): Text[] {
 	return scene.shapes
@@ -155,7 +148,7 @@ function strands(scene: SequenceScene): {
 }
 
 describe("a primer", () => {
-	test("lies as an arrow along its site, a forward one above the numbers and a reverse one under the strands, its head at the 3' end", () => {
+	test("lies as an arrow along its site, a forward one above the numbers and a reverse one under the strands, its head at the 3' end, 6 long and 2 beyond its band", () => {
 		const scene = lay({
 			primers: [
 				primer("fwd", [{ start: 2, end: 12, strand: 1 }]),
@@ -164,8 +157,25 @@ describe("a primer", () => {
 		});
 		const [fwd, rev] = polygons(scene, PRIMER);
 		expect(polygons(scene, PRIMER)).toHaveLength(2);
-		expect([xs(fwd), tips(fwd)]).toEqual([[22, 132], [132]]);
-		expect([xs(rev), tips(rev)]).toEqual([[220, 330], [220]]);
+		const around = (p: Polygon) => p.points.map(([x, y]) => [x, y - middle(p)]);
+		expect(around(fwd)).toEqual([
+			[22, -2],
+			[126, -2],
+			[126, -4],
+			[132, 0],
+			[126, 4],
+			[126, 2],
+			[22, 2],
+		]);
+		expect(around(rev)).toEqual([
+			[220, 0],
+			[226, -4],
+			[226, -2],
+			[330, -2],
+			[330, 2],
+			[226, 2],
+			[226, 4],
+		]);
 		const [{ top, bottom }] = strands(scene);
 		const ten = texts(scene, "sans").find((t) => t.text === "10") as Text;
 		expect(ys(fwd)[1]).toBeLessThan(ten.y);
@@ -173,7 +183,7 @@ describe("a primer", () => {
 		expect(top[1]).toBeLessThan(ys(rev)[0]);
 	});
 
-	test("takes a tier by start, 11.82 from the last, the first nearest the bases", () => {
+	test("takes a tier by start, 12.75 from the last, the first nearest the bases", () => {
 		const scene = lay({
 			primers: [
 				primer("a", [{ start: 2, end: 12, strand: 1 }]),
@@ -184,8 +194,8 @@ describe("a primer", () => {
 		});
 		const [b, a, c, d] = polygons(scene, PRIMER);
 		expect([a, b, c, d].map((p) => xs(p)[0])).toEqual([22, 88, 220, 275]);
-		expect(middle(a) - middle(b)).toBeCloseTo(11.82, 2);
-		expect(middle(d) - middle(c)).toBeCloseTo(11.82, 2);
+		expect(middle(a) - middle(b)).toBeCloseTo(12.75, 9);
+		expect(middle(d) - middle(c)).toBeCloseTo(12.75, 9);
 	});
 
 	test("is labelled by name and site above each row holding part of its site, on a leader from the row's top", () => {
@@ -292,7 +302,7 @@ describe("a primer's mismatch", () => {
 		const arrows = polygons(scene, PRIMER);
 		for (const [i, mark] of marks.entries()) {
 			expect(mark.y + mark.height / 2).toBeCloseTo(middle(arrows[i]), 9);
-			expect(mark.height).toBeCloseTo(6.13, 2);
+			expect(mark.height).toBe(8);
 		}
 	});
 });

@@ -32,6 +32,12 @@ const ZIGZAG = 4;
 export const PRIMER_BAND = 4;
 export const PRIMER_GAP = 2;
 
+/** An arrow's head: how far along the band it runs, and how far beyond the band it reaches. */
+export interface Head {
+	readonly length: number;
+	readonly reach: number;
+}
+
 /** One segment's arrow along the line. */
 export interface Arrow {
 	readonly start: number;
@@ -169,10 +175,10 @@ export function isUnder(place: Place): place is { under: number } {
 	return typeof place === "object" && place !== null && "under" in place;
 }
 
-/** An arrow's band less its heads, as where it starts and ends. */
-function body(arrow: Arrow): [number, number] {
+/** An arrow's band less its heads, each `length` long, as where it starts and ends. */
+function body(arrow: Arrow, length = HEAD): [number, number] {
 	const heads = Number(arrow.headStart) + Number(arrow.headEnd);
-	const head = heads ? Math.min(HEAD, (arrow.end - arrow.start) / heads) : 0;
+	const head = heads ? Math.min(length, (arrow.end - arrow.start) / heads) : 0;
 	return [
 		arrow.headStart ? arrow.start + head : arrow.start,
 		arrow.headEnd ? arrow.end - head : arrow.end,
@@ -272,16 +278,18 @@ export function places(
 
 /**
  * The outline of `arrow` about the height `middle`: its band `band` thick, a head at each end it
- * has, and with `zigzag` a zigzag edge at each end where it is cut, if its band has room.
+ * has, a feature's in proportion unless `head` is given, and with `zigzag` a zigzag edge at each
+ * end where it is cut, if its band has room.
  */
 export function outline(
 	arrow: Arrow,
 	middle: number,
 	band = BAND,
 	zigzag = false,
+	head: Head = { length: HEAD, reach: overhang(band) },
 ): [number, number][] {
-	const [first, last] = body(arrow);
-	const reach = overhang(band);
+	const [first, last] = body(arrow, head.length);
+	const { reach } = head;
 	const top = middle - band / 2;
 	const bottom = middle + band / 2;
 	const quarter = band / 4;
