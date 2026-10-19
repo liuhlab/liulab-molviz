@@ -1,11 +1,10 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { draw, openRecord } from "../../src/viewer/draw";
+import { draw } from "../../src/viewer/draw";
 import { svg } from "../../src/viewer/drawing";
 import { displayScale, type Frame } from "../../src/viewer/frame";
-import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
 import ap1File from "../records/ap1-product.json";
+import { input, opened } from "./live";
 
 /** AP-1 with every enzyme it holds on, so its circle hides six cut sites. */
 const ap1 = [
@@ -53,18 +52,6 @@ const record = {
 	],
 };
 
-/** `record` in a frame with `options`, its switches added, as `draw` opens it. */
-function opened(input: unknown, options: unknown = {}): Frame {
-	const element = document.createElement("div");
-	document.body.append(element);
-	const checked = check(input);
-	return openRecord(
-		element,
-		checked,
-		checkOptions(options, checked, { page: true }),
-	);
-}
-
 /** Each switch in the fieldset `name` as the reader sees it: its text, and a tick if on. */
 function ticks(frame: Frame, name: string): string[] {
 	const set = frame.bar.querySelector(`fieldset[aria-label="${name}"]`);
@@ -73,14 +60,6 @@ function ticks(frame: Frame, name: string): string[] {
 		const input = label.querySelector("input");
 		return `${input?.checked ? "x" : " "} ${label.textContent}`;
 	});
-}
-
-function input(frame: Frame, value: string): HTMLInputElement {
-	const found = frame.bar.querySelector<HTMLInputElement>(
-		`input[value="${value}"]`,
-	);
-	if (!found) throw new Error(`no ${value} in the bar`);
-	return found;
 }
 
 /** Each text the map draws, without its hover. */

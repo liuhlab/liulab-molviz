@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { draw, drawGel, drawPlate } from "../../src/viewer/draw";
 import { FormatError } from "../../src/viewer/format";
 import { families, fontFaceCss } from "../../src/viewer/text";
+import { hoverBoxOf, spot } from "./live";
 
 const record = {
 	name: "pTest 中",
@@ -36,12 +37,6 @@ function drawnMap(): Element | null {
 	const element = document.createElement("div");
 	draw(element, record, {});
 	return element.querySelector(".map > svg");
-}
-
-function spot(): HTMLElement {
-	const element = document.createElement("div");
-	document.body.append(element);
-	return element;
 }
 
 afterEach(() => {
@@ -112,7 +107,7 @@ describe("draw", () => {
 		expect(map?.querySelectorAll("title")).toHaveLength(0);
 		const arrow = map?.querySelector("path[fill='#77aadd']");
 		arrow?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
-		const box = document.querySelector("body > div:not(:has(svg))");
+		const box = hoverBoxOf();
 		expect(box?.hasAttribute("hidden")).toBe(false);
 		expect([...(box?.children ?? [])].map((line) => line.textContent)).toEqual([
 			"lacZ",

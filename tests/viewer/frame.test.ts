@@ -1,46 +1,25 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { draw, openRecord } from "../../src/viewer/draw";
+import { draw } from "../../src/viewer/draw";
 import {
 	anchored,
 	beforePaint,
 	displayScale,
+	type Frame,
 	openFrame,
 } from "../../src/viewer/frame";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
-
-const linear = {
-	name: "pTest",
-	circular: false,
-	bases: "ACGT".repeat(25),
-	features: [
-		{
-			name: "lacZ",
-			type: "CDS",
-			strand: 1,
-			segments: [{ start: 10, end: 60 }],
-		},
-	],
-};
-
-const circular = { ...linear, name: "pRing", circular: true };
-
-function spot(): HTMLElement {
-	const element = document.createElement("div");
-	document.body.append(element);
-	return element;
-}
-
-/** `record` opened in a frame with `options`, as `draw` opens it. */
-function opened(record: unknown, options: unknown = {}) {
-	const checked = check(record);
-	return openRecord(
-		spot(),
-		checked,
-		checkOptions(options, checked, { page: true }),
-	);
-}
+import {
+	circular,
+	hoverBoxOf,
+	input,
+	linear,
+	nextPaint,
+	opened,
+	rest,
+	spot,
+} from "./live";
 
 /** The map's drawing `draw` puts in a fresh frame for `record` and `options`. */
 function mapOf(record: unknown, options: unknown = {}): string {
@@ -51,23 +30,12 @@ function mapOf(record: unknown, options: unknown = {}): string {
 	return svg.outerHTML;
 }
 
-function input(frame: { bar: HTMLElement }, value: string): HTMLInputElement {
-	const found = frame.bar.querySelector<HTMLInputElement>(
-		`input[value="${value}"]`,
-	);
-	if (!found) throw new Error(`no ${value} in the bar`);
-	return found;
-}
-
 /** The value of each input in the bar's views, as the reader sees them in order. */
-function views(frame: { bar: HTMLElement }): string[] {
+function views(frame: Frame): string[] {
 	return [...frame.bar.querySelectorAll<HTMLInputElement>(".views input")].map(
 		(one) => one.value,
 	);
 }
-
-const nextPaint = () =>
-	new Promise<void>((done) => requestAnimationFrame(() => done()));
 
 afterEach(() => {
 	document.head.replaceChildren();
@@ -206,11 +174,8 @@ describe("flipping the map", () => {
 		expect(frame.box.querySelectorAll("title")).toHaveLength(0);
 		const arrow = frame.box.querySelector("path[fill='#77aadd']");
 		arrow?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
-		const box = document.querySelector<HTMLElement>(
-			"body > div:not(:has(svg))",
-		);
-		expect(box?.hidden).toBe(false);
-		expect(box?.firstElementChild?.textContent).toBe("lacZ");
+		expect(hoverBoxOf()?.hidden).toBe(false);
+		expect(hoverBoxOf()?.firstElementChild?.textContent).toBe("lacZ");
 	});
 });
 
@@ -261,10 +226,8 @@ describe("printing", () => {
 	test("hides the bar, and the hover box were it showing", () => {
 		const frame = opened(circular);
 		expect(printRules().get(".molviz .bar")?.display).toBe("none");
-		frame.box
-			.querySelector("[data-molviz-hover]")
-			?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
-		const shown = document.querySelector("body > div:not(:has(svg))");
+		rest(frame);
+		const shown = hoverBoxOf();
 		expect(shown).not.toBeNull();
 		const hidden = [...printRules()].filter(
 			([selector, style]) =>

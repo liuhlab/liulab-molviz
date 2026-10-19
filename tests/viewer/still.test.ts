@@ -50,23 +50,15 @@ function drawnOf(file: string): { root: string; children: string[] } {
 	};
 }
 
-/** `element` without its hover, written as a file writes it. */
-function withoutHover(element: string): string {
-	return element
-		.replace(/<title>.*?<\/title>/s, "")
-		.replace(/^(<\w+[^>]*)><\/\w+>$/, "$1/>");
-}
-
 /**
- * A copy of `element` but for its hovers, which a live map shows in the page's box and a still
- * drawing as `<title>`s.
+ * `markup` without its hovers, as a file writes it: no `<title>`, which a still drawing holds, and
+ * no hover a live map holds for the page's box. An element left empty closes itself.
  */
-function unhovered<T>(element: T): T {
-	const copy = (element as unknown as Element).cloneNode(true) as Element;
-	for (const title of [...copy.querySelectorAll("title")]) title.remove();
-	const shapes = [copy, ...copy.querySelectorAll("[data-molviz-hover]")];
-	for (const shape of shapes) shape.removeAttribute("data-molviz-hover");
-	return copy as unknown as T;
+function withoutHovers(markup: string): string {
+	return markup
+		.replace(/<title>.*?<\/title>/gs, "")
+		.replace(/ data-molviz-hover="[^"]*"/g, "")
+		.replace(/^(<\w+[^>]*)><\/\w+>$/, "$1/>");
 }
 
 // A record with its sequence view draws live as two SVGs, compared in the block for it below.
@@ -139,7 +131,9 @@ test.each(
 		held.children[0].removeAttribute("xmlns");
 		const [ours, theirs] = [held.children[0], drawn.querySelectorAll("svg")[0]];
 		if (theirs.querySelector("[data-molviz-hover]")) {
-			expect(unhovered(ours).isEqualNode(unhovered(theirs))).toBe(true);
+			expect(withoutHovers(ours.outerHTML)).toBe(
+				withoutHovers(theirs.outerHTML),
+			);
 		} else {
 			expect(ours.isEqualNode(theirs)).toBe(true);
 		}
@@ -162,7 +156,7 @@ describe.each(drawings)("the still SVG of $input", ({ still, file, scene }) => {
 				expect(theirs.children[i]).toMatch(
 					/^<g (?:transform="[^"]*" )?fill="[^"]*"(?:\/>|>(?:<use [^>]*\/>)*<\/g>)$/,
 				);
-			else expect(withoutHover(element)).toBe(theirs.children[i]);
+			else expect(withoutHovers(element)).toBe(theirs.children[i]);
 		});
 	});
 
@@ -231,7 +225,9 @@ describe("the still SVG of a record with its sequence view", () => {
 		expect(ground.tagName.toLowerCase()).toBe("rect");
 		expect(still).toHaveLength(mapShapes.length + viewShapes.length);
 		mapShapes.forEach((shape, i) => {
-			expect(unhovered(still[i]).isEqualNode(unhovered(shape))).toBe(true);
+			expect(withoutHovers(still[i].outerHTML)).toBe(
+				withoutHovers(shape.outerHTML),
+			);
 		});
 		viewShapes.forEach((shape, i) => {
 			const ours = still[mapShapes.length + i];

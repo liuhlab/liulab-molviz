@@ -1,15 +1,18 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
 import { aroundBoxes } from "../../src/viewer/bounds";
-import { openRecord } from "../../src/viewer/draw";
 import { layoutMap } from "../../src/viewer/drawing";
 import type { Frame } from "../../src/viewer/frame";
-import { hoverBox } from "../../src/viewer/hover";
-import type { MapScene } from "../../src/viewer/labels";
-import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
-import { toElement } from "../../src/viewer/svg";
 import { turnBy } from "../../src/viewer/turn";
+import {
+	hoverBoxOf,
+	input,
+	laidOut,
+	nextPaint,
+	opened,
+	rest,
+	wheel,
+} from "./live";
 
 const ring = {
 	name: "pRing",
@@ -25,39 +28,8 @@ const ring = {
 	],
 };
 
-function opened(record: unknown, options: unknown = {}): Frame {
-	const element = document.createElement("div");
-	document.body.append(element);
-	const checked = check(record);
-	return openRecord(
-		element,
-		checked,
-		checkOptions(options, checked, { page: true }),
-	);
-}
-
-/** A wheel over `frame`'s map, and whether the frame kept the browser from scrolling. */
-function wheel(frame: Frame, init: WheelEventInit): boolean {
-	const event = new WheelEvent("wheel", { cancelable: true, ...init });
-	// happy-dom's WheelEvent is no MouseEvent, as a browser's is.
-	Object.defineProperty(event, "ctrlKey", { value: init.ctrlKey ?? false });
-	Object.defineProperty(event, "metaKey", { value: false });
-	frame.box.dispatchEvent(event);
-	return event.defaultPrevented;
-}
-
-/** `scene` as a frame shows it. */
-function shown(scene: MapScene): string {
-	const svg = toElement(scene, document);
-	hoverBox(svg);
-	return svg.outerHTML;
-}
-
-const nextPaint = () =>
-	new Promise<void>((done) => requestAnimationFrame(() => done()));
-
 function flip(frame: Frame, map: "circle" | "line"): void {
-	frame.bar.querySelector<HTMLInputElement>(`input[value="${map}"]`)?.click();
+	input(frame, map).click();
 }
 
 afterEach(() => {
@@ -88,7 +60,7 @@ describe("the wheel over the circle", () => {
 		const turned = layoutMap(frame.record, frame.state.options, { turn: -180 });
 		const { extent } = frame.drawn();
 		expect(aroundBoxes([extent, before, turned.extent])).toEqual(extent);
-		expect(frame.box.innerHTML).toBe(shown({ ...turned, extent }));
+		expect(frame.box.innerHTML).toBe(laidOut(frame, { turn: -180 }, extent));
 	});
 
 	test("holds the box and its scale from the first notch on, so the page under it stays put", async () => {
@@ -138,22 +110,16 @@ describe("the wheel over the circle", () => {
 
 test("a turn or a zoom under a still pointer hides the hover box, its item gone", async () => {
 	const frame = opened(ring);
-	const floating = () =>
-		document.querySelector<HTMLElement>("body > div:not(:has(svg))");
-	const rest = () =>
-		frame.box
-			.querySelector("[data-molviz-hover]")
-			?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
-	rest();
-	expect(floating()?.hidden).toBe(false);
+	rest(frame);
+	expect(hoverBoxOf()?.hidden).toBe(false);
 	wheel(frame, { deltaY: 100 });
 	await nextPaint();
-	expect(floating()?.hidden).toBe(true);
-	rest();
-	expect(floating()?.hidden).toBe(false);
+	expect(hoverBoxOf()?.hidden).toBe(true);
+	rest(frame);
+	expect(hoverBoxOf()?.hidden).toBe(false);
 	wheel(frame, { deltaY: -100, ctrlKey: true });
 	await nextPaint();
-	expect(floating()?.hidden).toBe(true);
+	expect(hoverBoxOf()?.hidden).toBe(true);
 });
 
 test("the turn survives a flip to the line and back", async () => {
@@ -165,6 +131,5 @@ test("the turn survives a flip to the line and back", async () => {
 	await nextPaint();
 	flip(frame, "circle");
 	expect(frame.state.maps.circle.turn).toBeCloseTo(36, 9);
-	const turned = layoutMap(frame.record, frame.state.options, { turn: 36 });
-	expect(frame.box.innerHTML).toBe(shown(turned));
+	expect(frame.box.innerHTML).toBe(laidOut(frame, { turn: 36 }));
 });

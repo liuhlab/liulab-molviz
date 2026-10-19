@@ -1,74 +1,16 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { openRecord } from "../../src/viewer/draw";
-import { layoutMap } from "../../src/viewer/drawing";
 import type { Frame } from "../../src/viewer/frame";
-import { hoverBox } from "../../src/viewer/hover";
-import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
-import { toElement } from "../../src/viewer/svg";
 import { zoomBy } from "../../src/viewer/zoom";
-
-const linear = {
-	name: "pTest",
-	circular: false,
-	bases: "ACGT".repeat(25),
-	features: [
-		{
-			name: "lacZ",
-			type: "CDS",
-			strand: 1,
-			segments: [{ start: 10, end: 60 }],
-		},
-	],
-};
-
-const circular = { ...linear, name: "pRing", circular: true };
-
-/** `record` opened in a frame with `options`, as `draw` opens it. */
-function opened(record: unknown, options: unknown = {}): Frame {
-	const element = document.createElement("div");
-	document.body.append(element);
-	const checked = check(record);
-	return openRecord(
-		element,
-		checked,
-		checkOptions(options, checked, { page: true }),
-	);
-}
-
-/** The map `frame` shows, as a fresh layout at `view` would draw it. */
-function laidOut(frame: Frame, view: { zoom?: number; turn?: number }): string {
-	const svg = toElement(
-		layoutMap(frame.record, frame.state.options, view),
-		document,
-	);
-	hoverBox(svg);
-	return svg.outerHTML;
-}
-
-/** A wheel over `frame`'s map, and whether the frame kept the browser from scrolling. */
-function wheel(frame: Frame, init: WheelEventInit): boolean {
-	const event = new WheelEvent("wheel", { cancelable: true, ...init });
-	// happy-dom's WheelEvent is no MouseEvent, as a browser's is.
-	const mouse = { ctrlKey: false, metaKey: false, clientX: 0, clientY: 0 };
-	for (const [key, value] of Object.entries({ ...mouse, ...init })) {
-		if (key in mouse) Object.defineProperty(event, key, { value });
-	}
-	frame.box.dispatchEvent(event);
-	return event.defaultPrevented;
-}
-
-const nextPaint = () =>
-	new Promise<void>((done) => requestAnimationFrame(() => done()));
-
-function input(frame: Frame, value: string): HTMLInputElement {
-	const found = frame.bar.querySelector<HTMLInputElement>(
-		`input[value="${value}"]`,
-	);
-	if (!found) throw new Error(`no ${value} in the bar`);
-	return found;
-}
+import {
+	circular,
+	input,
+	laidOut,
+	linear,
+	nextPaint,
+	opened,
+	wheel,
+} from "./live";
 
 function zoom(frame: Frame): HTMLFieldSetElement {
 	const found = frame.bar.querySelector<HTMLFieldSetElement>(".zoom");
