@@ -21,6 +21,7 @@ import {
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
+import { type LineGeometry, lineX } from "./geometry";
 import {
 	GAP,
 	hiddenOf,
@@ -116,17 +117,23 @@ const SHELVES: readonly ((along: Along) => LineMarks)[] = [
 	cuts,
 ];
 
+/** The line laid out, and where it sets the bases. */
+export interface LineScene extends MapScene {
+	readonly geometry: LineGeometry;
+}
+
 /** Lay out `record` as a line `width` long, drawn as `options` say. */
 export function layoutLine(
 	record: Record,
 	options: Options,
 	width = WIDTH,
-): MapScene {
+): LineScene {
 	const { span } = options;
 	const { start, end } = span;
 	const bounds = recordBounds(record);
 	const { length } = bounds;
-	const at = (position: number) => ((position - start) * width) / (end - start);
+	const axis = { span, width };
+	const at = (position: number) => lineX(axis, position);
 	const backboneTop = -BACKBONE / 2;
 	const along: Along = { record, options, bounds, at, backboneTop };
 	const drawn = SHELVES.map((shelf) => shelf(along));
@@ -150,8 +157,9 @@ export function layoutLine(
 	);
 	shapes.push(...above.shapes);
 	const bottom = Math.max(rulerBottom(), ...drawn.map((one) => one.bottom));
+	const covers = drawn.flatMap((one) => one.covers ?? []);
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
-	const boxes = [...above.boxes, ...drawn.flatMap((one) => one.covers ?? [])];
+	const boxes = [...above.boxes, ...covers];
 	const covered = extent(shapes, width, boxes);
 	shapes.push(
 		...noticeShapes(
@@ -164,6 +172,12 @@ export function layoutLine(
 		extent: extent(shapes, width, boxes),
 		shapes,
 		hidden: above.hidden.map(hiddenOf),
+		geometry: {
+			map: "line",
+			...axis,
+			top: Math.min(top, ...covers.map((box) => box.y)),
+			bottom: Math.max(bottom, ...covers.map((box) => box.y + box.height)),
+		},
 	};
 }
 

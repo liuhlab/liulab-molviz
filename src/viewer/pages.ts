@@ -2,7 +2,6 @@
 
 import { boxOf } from "./bounds";
 import { type Box, moved, type Scene, type Shape } from "./scene";
-import type { SequenceScene } from "./sequence";
 
 /** `under` set below `top`, the narrower centred on the wider, their extents touching. */
 export function stacked(top: Scene, under: Scene): Scene {
@@ -23,7 +22,9 @@ export function stacked(top: Scene, under: Scene): Scene {
  * fit in √2 times that width with the view's margin around them. A row taller than that stands
  * alone.
  */
-export function rowPages(view: SequenceScene): Scene[] {
+export function rowPages(
+	view: Scene & { readonly rows: readonly Box[] },
+): Scene[] {
 	const { extent, rows } = view;
 	const margin = rows[0].y - extent.y;
 	const tall = extent.width * Math.SQRT2;

@@ -16,6 +16,7 @@ import {
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
 import { columns, type Point, REACH, type Unplaced } from "./columns";
+import { angleOf, type CircleGeometry, pointAt } from "./geometry";
 import {
 	hiddenOf,
 	hidingOrder,
@@ -115,12 +116,11 @@ interface Outside {
 }
 
 /** Everything a part of the circle is laid out against. */
-interface Circle {
-	readonly length: number;
-	/** The backbone's radius. */
-	readonly radius: number;
-	/** The angle of the origin, in radians clockwise from the top. */
-	readonly turn: number;
+type Circle = Pick<CircleGeometry, "length" | "radius" | "turn">;
+
+/** The circle laid out, and where it sets the bases. */
+export interface CircleScene extends MapScene {
+	readonly geometry: CircleGeometry;
 }
 
 /**
@@ -132,7 +132,7 @@ export function layoutCircle(
 	options: Options,
 	rotation = 0,
 	zoom = 1,
-): MapScene {
+): CircleScene {
 	const circle: Circle = {
 		length: record.bases.length,
 		radius: RADIUS * zoom,
@@ -210,12 +210,24 @@ export function layoutCircle(
 	);
 	shapes.push(...notice);
 	const below = notice.flatMap((s) => boxOf(s) ?? []);
+	const arrows = drawnBars.flatMap((bar) => bar.arrows);
 	return {
 		extent: below.length
 			? aroundBoxes([covered, aroundBoxes(below, MARGIN)])
 			: covered,
 		shapes,
 		hidden: left.map(hiddenOf),
+		geometry: {
+			map: "circle",
+			...circle,
+			inner: Math.min(
+				numbersInside(circle),
+				...arrows.map((a) => a.radius - a.width / 2 - overhang(a.width)),
+			),
+			outer: drawnMarks.length
+				? Math.max(drawing, backboneEdge + INSERTION_REACH)
+				: drawing,
+		},
 	};
 }
 
@@ -260,16 +272,6 @@ function marks(
 	});
 }
 
-/** The angle of `position`, in radians clockwise from the top. */
-function angleOf(position: number, { length, turn }: Circle): number {
-	return (2 * Math.PI * position) / length + turn;
-}
-
-/** The point `radius` from the centre at `angle`. */
-function pointAt(radius: number, angle: number): [number, number] {
-	return [radius * Math.sin(angle), -radius * Math.cos(angle)];
-}
-
 function xy(radius: number, angle: number): Point {
 	const [x, y] = pointAt(radius, angle);
 	return { x, y };
@@ -301,13 +303,7 @@ function bars(
 	const hulls = shown.map(({ feature }) => hullOf(feature, circle.length));
 	const onRing = rings(hulls, circle);
 	const count = Math.max(0, ...onRing) + 1;
-	const outer =
-		inside(circle) -
-		TICK -
-		2 * PAD_Y -
-		height("sans", SMALL_SIZE) -
-		OVERHANG -
-		SHAFT / 2;
+	const outer = numbersInside(circle) - OVERHANG - SHAFT / 2;
 	// The innermost shaft and its heads reach in this many steps past its middle.
 	const half = (SHAFT / 2 + OVERHANG) / RING_STEP;
 	// A name wider than the circle's room would leave a step below 0.
@@ -548,6 +544,11 @@ function outline(arrow: Arrow): PathCommand[] {
 /** Where the backbone's inner strand ends, inside it. */
 function inside({ radius }: Circle): number {
 	return radius - STRANDS_APART - BACKBONE / 2;
+}
+
+/** Where the ruler's numbers end, inside the backbone, with room under them. */
+function numbersInside(circle: Circle): number {
+	return inside(circle) - TICK - 2 * PAD_Y - height("sans", SMALL_SIZE);
 }
 
 /** `degrees` as an angle from -180 up to 180. */
