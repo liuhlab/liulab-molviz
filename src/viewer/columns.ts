@@ -16,6 +16,7 @@
  * column is spread again. A label in no such crowd never hides.
  */
 
+import { SPACING } from "./labels";
 import type { Box } from "./scene";
 
 /** How far above or below the centre a box may reach, by default, before labels hide. */
@@ -23,8 +24,6 @@ export const REACH = 390;
 
 /** How far beyond the circle the ellipse starts. */
 const GAP = 14;
-/** The least room between two boxes in a column. */
-const SPACING = 2;
 /** The least room between a box and the vertical line through the centre. */
 const MARGIN = 3;
 /** How much the ellipse grows each time a column does not fit or a leader enters the circle. */

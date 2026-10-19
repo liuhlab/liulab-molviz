@@ -54,11 +54,11 @@ import { baseline, type Face, height, measure } from "./text";
 const WIDTH = 720;
 
 /** How far an insertion's bar reaches past the backbone either side. */
-const INSERTION_REACH = 1.5;
+export const INSERTION_REACH = 1.5;
 
 // The backbone: each strand's line, and how far apart they are.
-const BACKBONE = 2.6;
-const STRANDS_APART = 3.8;
+export const BACKBONE = 2.6;
+export const STRANDS_APART = 3.8;
 
 // The dots at an end: where the first sits beyond the line, how far apart they are, and their size.
 const DOT_START = 7;
@@ -67,15 +67,16 @@ const DOT = 1.8;
 
 // The ruler's ticks under the backbone, and how far a number keeps from another and from the
 // origin's tick.
-const TICK = 6;
-const TICK_WIDTH = 1.2;
-const ORIGIN_TICK = 12;
-const ORIGIN_TICK_WIDTH = 2.4;
-const CLEAR = 10;
+export const TICK = 6;
+export const TICK_WIDTH = 1.2;
+export const ORIGIN_TICK = 12;
+export const ORIGIN_TICK_WIDTH = 2.4;
+export const CLEAR = 10;
 /** The most numbers the ruler gives along each `WIDTH` points of the line. */
 const NUMBERS = 10;
 
-const NAME_SIZE = 13.5;
+/** The size of the record's name. */
+export const NAME_SIZE = 13.5;
 
 /** The room left around everything a record's drawing covers. */
 export const MARGIN = 16;

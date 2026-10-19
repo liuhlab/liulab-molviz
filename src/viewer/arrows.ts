@@ -21,7 +21,7 @@ import { baseline, height, measure } from "./text";
 // between two bars in a tier, and between tiers.
 export const BAND = 15;
 export const OVERHANG = 4;
-const HEAD = 12;
+export const HEAD = 12;
 const BAR_GAP = 3;
 export const TIER_GAP = 4;
 

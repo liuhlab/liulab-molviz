@@ -3,6 +3,7 @@
  * right and y down. A position's angle runs clockwise from the top.
  */
 
+import { BAND, HEAD, OVERHANG, PRIMER_BAND, PRIMER_GAP } from "./arrows";
 import { boxOf } from "./bounds";
 import { type Anchored, columns, type Point, REACH } from "./columns";
 import { cutSites } from "./cuts";
@@ -20,14 +21,29 @@ import {
 	PAD_Y,
 	SMALL_SIZE,
 } from "./labels";
-import { tickStep } from "./line";
+import {
+	BACKBONE,
+	CLEAR,
+	INSERTION_REACH,
+	MARGIN,
+	NAME_SIZE,
+	ORIGIN_TICK,
+	ORIGIN_TICK_WIDTH,
+	STRANDS_APART,
+	TICK,
+	TICK_WIDTH,
+	tickStep,
+} from "./line";
 import type { Options } from "./options";
 import {
 	CONNECTOR,
+	CONNECTOR_WIDTH,
 	colorOf,
 	INK,
 	INSERTION,
+	INSERTION_WIDTH,
 	LEADER,
+	LEADER_WIDTH,
 	OUTLINE_WIDTH,
 	PRIMER,
 	painted,
@@ -35,55 +51,22 @@ import {
 	textColor,
 } from "./paint";
 import { pointText, spanText } from "./pieces";
-import type { Record, Span } from "./record";
+import type { Feature, Record, Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
 import { baseline, type Face, height, measure, wrap } from "./text";
 
 /** The backbone's radius at a zoom of 1. */
 const RADIUS = 220;
 
-// The backbone: each strand's line, and how far apart they are.
-const BACKBONE = 2.6;
-const STRANDS_APART = 3.8;
-
-// The ruler's ticks inside the backbone, and how far a number keeps from the origin's tick.
-const TICK = 6;
-const TICK_WIDTH = 1.2;
-const ORIGIN_TICK = 12;
-const ORIGIN_TICK_WIDTH = 2.4;
-const CLEAR = 10;
-
-// A ring of features: the band's thickness, how far a head reaches beyond the band and along it,
-// the most room from one ring to the next, and the least room between two arrows on one ring.
-const BAND = 15;
-const OVERHANG = 4;
-const HEAD = 12;
+// A ring of features: the most room from one ring to the next, and the least room between two
+// arrows on one ring.
 const RING_STEP = 25;
 const RING_PADDING = 3;
 /** How far in the innermost ring's middle may come, as a share of the backbone's radius. */
 const CENTRE = 0.4;
 
-const CONNECTOR_WIDTH = 1.5;
-
-/** The size of the record's name in the centre. */
-const NAME_SIZE = 13.5;
-
-// An insertion's bar: how far it reaches past the backbone either side, and how thick it is.
-const INSERTION_REACH = 1.5;
-const INSERTION_WIDTH = 2;
-
-// A primer's arrow outside the backbone: its band's thickness, and the room either side of it.
-const PRIMER_BAND = 4;
-const PRIMER_GAP = 2;
-
 /** How far beyond the drawing a label's leader starts. */
 const ANCHOR = 4;
-const LEADER_WIDTH = 0.8;
-
-/** The room left around everything the drawing covers. */
-const MARGIN = 16;
-
-type Feature = Record["features"][number];
 
 /** One segment of a feature, drawn as a band round the centre with a head at either end. */
 interface Arrow {

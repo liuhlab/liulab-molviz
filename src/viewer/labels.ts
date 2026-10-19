@@ -16,6 +16,9 @@ export const PAD_Y = 1;
 /** The room between a drawing and what is set beside it: its labels, title and notice. */
 export const GAP = 10;
 
+/** The least room between two labels' boxes. */
+export const SPACING = 2;
+
 /** Each kind a record holds, by its list's key in the record. */
 export const KINDS = ["features", "primers", "cuts", "insertions"] as const;
 
