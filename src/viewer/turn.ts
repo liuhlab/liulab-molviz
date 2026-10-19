@@ -1,7 +1,12 @@
 /** Turning a frame's circle with the wheel, as SeqViz turns its own. */
 
-import type { Frame } from "./frame";
-import { eachFrame, pixels, redrawKeeping, type Wheel } from "./zoom";
+import {
+	beforePaint,
+	type Frame,
+	pixels,
+	redrawKeeping,
+	type Wheel,
+} from "./frame";
 
 /** How far the circle turns for each CSS pixel the wheel moves, in degrees. */
 const RATE = 0.072;
@@ -21,7 +26,7 @@ export function turnBy(wheel: Wheel, height: number): number {
 export function addTurn(frame: Frame): void {
 	const { box } = frame;
 	let by = 0;
-	const soon = eachFrame(box.ownerDocument.defaultView, () => {
+	const soon = beforePaint(box.ownerDocument.defaultView, () => {
 		const turned = by;
 		by = 0;
 		if (frame.state.options.map !== "circle") return;

@@ -2,13 +2,15 @@
 
 import { prepareGel, preparePlate } from "./drawing";
 import { prepareFigure } from "./figure";
-import { openFrame } from "./frame";
-import { checkOptions } from "./options";
-import { check } from "./record";
+import { type Frame, openFrame } from "./frame";
+import { checkOptions, type Options } from "./options";
+import { check, type Record } from "./record";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { switches } from "./switches";
 import { fontFaceCss } from "./text";
+import { addTurn } from "./turn";
+import { addZoom } from "./zoom";
 
 /** The style element declaring the viewer's faces, shared by every drawing on a page. */
 const FONTS = "molviz-fonts";
@@ -33,9 +35,23 @@ export function draw(
 	const checked = check(record);
 	const drawn = checkOptions(options, checked, { page: true });
 	declareFaces(element.ownerDocument);
-	const frame = openFrame(element, checked, drawn);
+	return { destroy: openRecord(element, checked, drawn).destroy };
+}
+
+/**
+ * Open `record` with `options` in a frame added at the end of `element`, with its controls: the
+ * switches, the zoom and the turn.
+ */
+export function openRecord(
+	element: Element,
+	record: Record,
+	options: Options,
+): Frame {
+	const frame = openFrame(element, record, options);
 	switches(frame);
-	return { destroy: frame.destroy };
+	addZoom(frame);
+	addTurn(frame);
+	return frame;
 }
 
 /**

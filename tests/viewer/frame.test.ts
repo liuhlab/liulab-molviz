@@ -1,7 +1,12 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { draw } from "../../src/viewer/draw";
-import { displayScale, openFrame } from "../../src/viewer/frame";
+import { draw, openRecord } from "../../src/viewer/draw";
+import {
+	anchored,
+	beforePaint,
+	displayScale,
+	openFrame,
+} from "../../src/viewer/frame";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 
@@ -30,7 +35,7 @@ function spot(): HTMLElement {
 /** `record` opened in a frame with `options`, as `draw` opens it. */
 function opened(record: unknown, options: unknown = {}) {
 	const checked = check(record);
-	return openFrame(
+	return openRecord(
 		spot(),
 		checked,
 		checkOptions(options, checked, { page: true }),
@@ -61,6 +66,9 @@ function views(frame: { bar: HTMLElement }): string[] {
 	);
 }
 
+const nextPaint = () =>
+	new Promise<void>((done) => requestAnimationFrame(() => done()));
+
 afterEach(() => {
 	document.head.replaceChildren();
 	document.body.replaceChildren();
@@ -77,6 +85,46 @@ describe("displayScale", () => {
 
 	test("keeps the size when the room is unknown", () => {
 		expect(displayScale(800, 0)).toBe(1);
+	});
+});
+
+describe("anchored", () => {
+	test("keeps the point at the pointer in place on a line zoomed along its length", () => {
+		const scroll = anchored(
+			"line",
+			{ x: -16, y: -100, width: 752, height: 200 },
+			{ x: -16, y: -120, width: 1472, height: 220 },
+			{ scale: 1, at: { x: 100, y: 50 }, left: 0, top: 0, by: 2 },
+		);
+		expect(scroll).toEqual({ left: 84, top: 20 });
+	});
+
+	test("keeps the point at the pointer in place on a circle zoomed about its centre", () => {
+		const scroll = anchored(
+			"circle",
+			{ x: -300, y: -300, width: 600, height: 600 },
+			{ x: -520, y: -520, width: 1040, height: 1040 },
+			{ scale: 0.5, at: { x: 150, y: 50 }, left: 50, top: 50, by: 2 },
+		);
+		expect(scroll).toEqual({ left: 210, top: 110 });
+	});
+
+	test("keeps it in place when the scale the map shows at changes too", () => {
+		const scroll = anchored(
+			"circle",
+			{ x: -300, y: -300, width: 600, height: 600 },
+			{ x: -520, y: -520, width: 1040, height: 1040 },
+			{
+				scale: 0.5,
+				rescaled: 0.4,
+				at: { x: 150, y: 50 },
+				left: 50,
+				top: 50,
+				by: 2,
+			},
+		);
+		expect(scroll.left).toBeCloseTo(138, 9);
+		expect(scroll.top).toBeCloseTo(78, 9);
 	});
 });
 
@@ -273,4 +321,18 @@ test("destroy removes the frame and leaves the styles for another", () => {
 	expect(element.children).toHaveLength(0);
 	expect(document.querySelectorAll(".molviz")).toHaveLength(1);
 	expect(document.querySelectorAll("#molviz-frame")).toHaveLength(1);
+});
+
+test("beforePaint runs once before the next paint, however often asked", async () => {
+	let runs = 0;
+	const ask = beforePaint(window, () => runs++);
+	ask();
+	ask();
+	ask();
+	expect(runs).toBe(0);
+	await nextPaint();
+	expect(runs).toBe(1);
+	ask();
+	await nextPaint();
+	expect(runs).toBe(2);
 });

@@ -4,6 +4,7 @@
  */
 
 import { units } from "./faces";
+import { GROUND } from "./paint";
 import {
 	leftEdge,
 	type PathCommand,
@@ -21,7 +22,6 @@ import {
 	weights,
 } from "./text";
 
-const GROUND = "#ffffff";
 const NAMESPACE = "http://www.w3.org/2000/svg";
 // A use names its glyph by `xlink:href`, not SVG 2's `href`, which SVG 1.1 readers such as
 // Illustrator skip.

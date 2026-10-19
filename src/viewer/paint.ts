@@ -55,6 +55,9 @@ export const INSERTION_WIDTH = 2;
 /** The one grey every paint of an item a highlight leaves unlit takes. */
 export const DIM = "#dddddd";
 
+/** What a drawing, and a frame's bar, are drawn on. */
+export const GROUND = "#ffffff";
+
 /** The backbone, the ruler and the title. */
 export const INK = "#252525";
 

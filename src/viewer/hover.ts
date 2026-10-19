@@ -1,6 +1,6 @@
 /** The hover box: a drawing's hovers shown at once beside the pointer, in place of `<title>`. */
 
-import { INK } from "./paint";
+import { GROUND, INK, LEADER } from "./paint";
 import { families } from "./text";
 
 /** The attribute that holds, on a shape, what the box shows over it. */
@@ -15,9 +15,9 @@ const STYLE = [
 	"pointer-events:none",
 	"max-width:320px",
 	"padding:5px 8px",
-	"border:1px solid #7f7f7f",
+	`border:1px solid ${LEADER}`,
 	"border-radius:3px",
-	"background:#ffffff",
+	`background:${GROUND}`,
 	"box-shadow:0 1px 4px rgb(0 0 0 / 20%)",
 	`color:${INK}`,
 	`font:12px/1.4 "${families.sans}", sans-serif`,

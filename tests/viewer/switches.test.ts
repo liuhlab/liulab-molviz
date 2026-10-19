@@ -1,11 +1,10 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { draw } from "../../src/viewer/draw";
+import { draw, openRecord } from "../../src/viewer/draw";
 import { svg } from "../../src/viewer/drawing";
-import { displayScale, type Frame, openFrame } from "../../src/viewer/frame";
+import { displayScale, type Frame } from "../../src/viewer/frame";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
-import { switches } from "../../src/viewer/switches";
 import ap1File from "../records/ap1-product.json";
 
 /** AP-1 with every enzyme it holds on, so its circle hides six cut sites. */
@@ -59,13 +58,11 @@ function opened(input: unknown, options: unknown = {}): Frame {
 	const element = document.createElement("div");
 	document.body.append(element);
 	const checked = check(input);
-	const frame = openFrame(
+	return openRecord(
 		element,
 		checked,
 		checkOptions(options, checked, { page: true }),
 	);
-	switches(frame);
-	return frame;
 }
 
 /** Each switch in the fieldset `name` as the reader sees it: its text, and a tick if on. */

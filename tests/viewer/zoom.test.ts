@@ -1,12 +1,13 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
+import { openRecord } from "../../src/viewer/draw";
 import { layoutMap } from "../../src/viewer/drawing";
-import { type Frame, openFrame } from "../../src/viewer/frame";
+import type { Frame } from "../../src/viewer/frame";
 import { hoverBox } from "../../src/viewer/hover";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { toElement } from "../../src/viewer/svg";
-import { anchored, eachFrame, zoomBy } from "../../src/viewer/zoom";
+import { zoomBy } from "../../src/viewer/zoom";
 
 const linear = {
 	name: "pTest",
@@ -29,7 +30,7 @@ function opened(record: unknown, options: unknown = {}): Frame {
 	const element = document.createElement("div");
 	document.body.append(element);
 	const checked = check(record);
-	return openFrame(
+	return openRecord(
 		element,
 		checked,
 		checkOptions(options, checked, { page: true }),
@@ -94,46 +95,6 @@ describe("zoomBy", () => {
 	test("counts a line as 16 pixels and a page as the box's height", () => {
 		expect(zoomBy({ deltaY: -1, deltaMode: 1 }, 0)).toBeCloseTo(0.2308, 4);
 		expect(zoomBy({ deltaY: -1, deltaMode: 2 }, 20)).toBeCloseTo(0.2885, 4);
-	});
-});
-
-describe("anchored", () => {
-	test("keeps the point at the pointer in place on a line zoomed along its length", () => {
-		const scroll = anchored(
-			"line",
-			{ x: -16, y: -100, width: 752, height: 200 },
-			{ x: -16, y: -120, width: 1472, height: 220 },
-			{ scale: 1, at: { x: 100, y: 50 }, left: 0, top: 0, by: 2 },
-		);
-		expect(scroll).toEqual({ left: 84, top: 20 });
-	});
-
-	test("keeps the point at the pointer in place on a circle zoomed about its centre", () => {
-		const scroll = anchored(
-			"circle",
-			{ x: -300, y: -300, width: 600, height: 600 },
-			{ x: -520, y: -520, width: 1040, height: 1040 },
-			{ scale: 0.5, at: { x: 150, y: 50 }, left: 50, top: 50, by: 2 },
-		);
-		expect(scroll).toEqual({ left: 210, top: 110 });
-	});
-
-	test("keeps it in place when the scale the map shows at changes too", () => {
-		const scroll = anchored(
-			"circle",
-			{ x: -300, y: -300, width: 600, height: 600 },
-			{ x: -520, y: -520, width: 1040, height: 1040 },
-			{
-				scale: 0.5,
-				rescaled: 0.4,
-				at: { x: 150, y: 50 },
-				left: 50,
-				top: 50,
-				by: 2,
-			},
-		);
-		expect(scroll.left).toBeCloseTo(138, 9);
-		expect(scroll.top).toBeCloseTo(78, 9);
 	});
 });
 
@@ -237,18 +198,4 @@ test("Reset returns the map to 1×, its origin at the top, and its box to the st
 	expect(frame.shown()).toEqual({ zoom: 1, turn: 0, left: 0, top: 0 });
 	expect([frame.box.scrollLeft, frame.box.scrollTop]).toEqual([0, 0]);
 	expect(frame.box.innerHTML).toBe(laidOut(frame, {}));
-});
-
-test("eachFrame runs once in the next frame, however often asked", async () => {
-	let runs = 0;
-	const ask = eachFrame(window, () => runs++);
-	ask();
-	ask();
-	ask();
-	expect(runs).toBe(0);
-	await nextPaint();
-	expect(runs).toBe(1);
-	ask();
-	await nextPaint();
-	expect(runs).toBe(2);
 });

@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
 import { aroundBoxes } from "../../src/viewer/bounds";
+import { openRecord } from "../../src/viewer/draw";
 import { layoutMap } from "../../src/viewer/drawing";
-import { type Frame, openFrame } from "../../src/viewer/frame";
+import type { Frame } from "../../src/viewer/frame";
 import { hoverBox } from "../../src/viewer/hover";
 import type { MapScene } from "../../src/viewer/labels";
 import { checkOptions } from "../../src/viewer/options";
@@ -28,7 +29,7 @@ function opened(record: unknown, options: unknown = {}): Frame {
 	const element = document.createElement("div");
 	document.body.append(element);
 	const checked = check(record);
-	return openFrame(
+	return openRecord(
 		element,
 		checked,
 		checkOptions(options, checked, { page: true }),
