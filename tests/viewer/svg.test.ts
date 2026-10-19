@@ -357,6 +357,30 @@ describe("toElement", () => {
 	});
 });
 
+test("a live drawing shows a shape's tip in place of its hover; a still one, its hover; a file, neither", () => {
+	const tipped: Scene = {
+		extent: { x: 0, y: 0, width: 10, height: 10 },
+		shapes: [
+			{
+				shape: "circle",
+				cx: 5,
+				cy: 5,
+				r: 1,
+				fill: "#000000",
+				hover: "ins · 12^13",
+				tip: "ins\ninsertion\n12^13\n6 bp",
+			},
+		],
+	};
+	const live = toElement(tipped, document).querySelectorAll("title");
+	expect([...live].map((title) => title.textContent)).toEqual([
+		"ins\ninsertion\n12^13\n6 bp",
+	]);
+	expect(toStill(tipped)).toContain("<title>ins · 12^13</title>");
+	expect(toStill(tipped)).not.toContain("insertion");
+	expect(toSvg(tipped)).not.toContain("<title");
+});
+
 test.each([
 	{ writer: "toSvg", write: toSvg },
 	{ writer: "toStill", write: toStill },

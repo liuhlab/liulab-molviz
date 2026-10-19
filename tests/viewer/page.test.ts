@@ -151,6 +151,19 @@ describe("flipping the map", () => {
 		input(page, "line").click();
 		expect([page.box.scrollLeft, page.box.scrollTop]).toEqual([50, 0]);
 	});
+
+	test("shows the hovers of the map flipped to in the page's box, with no title", () => {
+		const page = opened(circular);
+		input(page, "line").click();
+		expect(page.box.querySelectorAll("title")).toHaveLength(0);
+		const arrow = page.box.querySelector("path[fill='#77aadd']");
+		arrow?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
+		const box = document.querySelector<HTMLElement>(
+			"body > div:not(:has(svg))",
+		);
+		expect(box?.hidden).toBe(false);
+		expect(box?.firstElementChild?.textContent).toBe("lacZ");
+	});
 });
 
 describe("the sequence view's switch", () => {

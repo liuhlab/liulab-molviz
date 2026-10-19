@@ -6,6 +6,7 @@ import { openPage } from "./page";
 import { check } from "./record";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
+import { switches } from "./switches";
 import { fontFaceCss } from "./text";
 
 /** The style element declaring the viewer's faces, shared by every drawing on a page. */
@@ -32,6 +33,7 @@ export function draw(
 	const drawn = checkOptions(options, checked, { page: true });
 	declareFaces(element.ownerDocument);
 	const page = openPage(element, checked, drawn);
+	switches(page);
 	return { destroy: page.destroy };
 }
 

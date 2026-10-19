@@ -22,6 +22,7 @@ function label(
 		color: "#dddddd",
 		dim,
 		fewestCuts,
+		tip: name,
 	};
 }
 
@@ -111,6 +112,15 @@ describe("labelsAbove", () => {
 		const twice = label("the longest name, first to hide");
 		const { hidden } = labelsAbove(at(100, [twice, ...many(41), twice]), 0);
 		expect(hidden).toEqual([twice]);
+	});
+
+	test("never lists a label that hides from the stack but shows in place", () => {
+		const shown = label("the longest name, first to hide");
+		const { shapes, hidden } = labelsAbove(at(100, [shown, ...many(41)]), 0, {
+			inPlace: [shown],
+		});
+		expect(boxes(shapes)).toHaveLength(41);
+		expect(hidden).toEqual([]);
 	});
 
 	test("hides only from the stack too tall, never a label beside it", () => {

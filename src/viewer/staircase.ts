@@ -7,6 +7,7 @@ import {
 	labelShapes,
 	labelSize,
 	SPACING,
+	tipped,
 } from "./labels";
 import { LEADER, LEADER_WIDTH } from "./paint";
 import type { Box, Shape } from "./scene";
@@ -31,13 +32,18 @@ export interface Anchored {
 /**
  * The shapes that set `anchored` above `top` with their leaders, no box reaching more than
  * `rise` above it; the box each label shown takes; and the labels left out to keep them there,
- * each once, in the order they hid. A label anchored more than once is left out only when it
- * shows nowhere.
+ * each once, in the order they hid. A label is listed only when it shows nowhere: at none of its
+ * anchors, nor in `inPlace`, the labels shown on what they name. With `tips`, a label's shapes
+ * and leader carry its tip.
  */
 export function labelsAbove(
 	anchored: readonly Anchored[],
 	top: number,
-	rise = RISE,
+	{
+		rise = RISE,
+		inPlace = [],
+		tips = false,
+	}: { rise?: number; inPlace?: readonly Label[]; tips?: boolean } = {},
 ): { shapes: Shape[]; boxes: Box[]; hidden: Label[] } {
 	const sized = anchored.map(({ label, x }) => ({ ...labelSize(label), x }));
 	const base = top - GAP;
@@ -54,7 +60,7 @@ export function labelsAbove(
 	const shapes: Shape[] = [];
 	for (const [i, { label, x, foot }] of shown.entries()) {
 		const box = placed[i];
-		shapes.push(
+		const drawn: Shape[] = [
 			{
 				shape: "line",
 				x1: x,
@@ -65,9 +71,10 @@ export function labelsAbove(
 				strokeWidth: LEADER_WIDTH,
 			},
 			...labelShapes(label, box),
-		);
+		];
+		shapes.push(...(tips ? tipped(drawn, label) : drawn));
 	}
-	const somewhere = new Set(shown.map(({ label }) => label));
+	const somewhere = new Set([...inPlace, ...shown.map(({ label }) => label)]);
 	const hidden = [...new Set(gone.map((i) => anchored[i].label))].filter(
 		(label) => !somewhere.has(label),
 	);

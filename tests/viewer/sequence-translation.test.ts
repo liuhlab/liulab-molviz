@@ -220,6 +220,45 @@ describe("chips", () => {
 		]);
 	});
 
+	test.each([
+		[1, ["K", "A", "M"]],
+		[-1, ["K", "M", "A"]],
+	])(
+		"follow a feature on strand %i off a linear record's end and on from its start",
+		(strand, read) => {
+			// Codon K is 23, 2, 3 forward, and 3, 2, 23 reverse: its middle base is in the first row.
+			const scene = lay(
+				{
+					features: [
+						cds(
+							"MKA",
+							[
+								[20, 24],
+								[2, 7],
+							],
+							{ strand },
+						),
+					],
+				},
+				{ bases_per_row: 10 },
+			);
+			const reverse = strand === -1;
+			expect(chipsOf(scene).map(shape)).toEqual([
+				chevron(22, 44, reverse),
+				chevron(44, 77, reverse),
+				chevron(0, 33, reverse),
+				chevron(33, 44, reverse),
+			]);
+			const letters = lettersOf(scene);
+			expect(letters.map((t) => [t.text, t.x])).toEqual([
+				[read[0], 33],
+				[read[1], 60.5],
+				[read[2], 16.5],
+			]);
+			expect(letters[2].y).toBeGreaterThan(scene.rows[2].y);
+		},
+	);
+
 	test("dim to one grey with their feature, under a highlight that leaves it unlit", () => {
 		const scene = lay(
 			{

@@ -73,15 +73,38 @@ export type Label = Hidden & {
 	readonly dim: boolean;
 	/** For a cut site, the fewest times one of its enzymes cuts the record; else 0. */
 	readonly fewestCuts: number;
+	/** What a live page's hover box says of the item. */
+	readonly tip: string;
 };
 
+/** An item's tip: its name, type and span, then its length in bases if it has one. */
+export function tipOf(
+	name: string,
+	type: string,
+	span: string,
+	length?: number,
+): string {
+	return [
+		name,
+		type,
+		span,
+		...(length === undefined ? [] : [`${length} bp`]),
+	].join("\n");
+}
+
+/** `shapes`, each carrying the tip of `label`, the item they draw. */
+export function tipped(shapes: readonly Shape[], { tip }: Label): Shape[] {
+	return shapes.map((shape) => ({ ...shape, tip }));
+}
+
 /**
- * The label of `item` that says `runs` in `color`, dimmed to one grey when `highlight` names
- * something but none of `names`. Only a cut site's label passes `fewestCuts`.
+ * The label of `item` that says `runs` in `color`, with the item's `tip`, dimmed to one grey when
+ * `highlight` names something but none of `names`. Only a cut site's label passes `fewestCuts`.
  */
 export function labelOf(
 	item: Hidden,
 	runs: readonly Run[],
+	tip: string,
 	color: string,
 	highlight: readonly string[],
 	{
@@ -90,7 +113,7 @@ export function labelOf(
 	}: { names?: readonly string[]; fewestCuts?: number } = {},
 ): Label {
 	const dim = unlit(highlight, names);
-	return { ...item, runs, color: painted(color, dim), dim, fewestCuts };
+	return { ...item, runs, color: painted(color, dim), dim, fewestCuts, tip };
 }
 
 /** The label of a primer named `name` at the site `span`: its name and the bases it spans. */
@@ -100,9 +123,11 @@ export function primerLabel(
 	length: number,
 	highlight: readonly string[],
 ): Label {
+	const span = spanText({ start, end }, length);
 	return labelOf(
 		{ kind: "primers", name, spans: [{ start, end }] },
-		[{ text: `${name} (${spanText({ start, end }, length)})`, face: "sans" }],
+		[{ text: `${name} (${span})`, face: "sans" }],
+		tipOf(name, "primer", span, end - start),
 		PRIMER,
 		highlight,
 	);
@@ -118,6 +143,7 @@ export function insertionLabel(
 	const label = labelOf(
 		{ kind: "insertions", name, at },
 		[{ text: `+${insertion.length} bp`, face: "sans" }],
+		tipOf(name, "insertion", pointText(at, bounds), insertion.length),
 		insertion.color?.toLowerCase() ?? INSERTION,
 		highlight,
 	);
@@ -244,7 +270,8 @@ export function notice(hidden: readonly { readonly kind: Kind }[]): string {
 
 /**
  * The notice set `GAP` under the corner (`right`, `bottom`) of what a drawing covers, ending at
- * `right`, with each hidden label on a line of its hover; nothing when none hid.
+ * `right`, with each hidden label on a line of its hover, and of its tip under the notice itself;
+ * nothing when none hid.
  */
 export function noticeShapes(
 	hidden: readonly Label[],
@@ -265,6 +292,7 @@ export function noticeShapes(
 			anchor: "start",
 			fill: INK,
 			hover: hidden.map(textOf).join("\n"),
+			tip: [text, ...hidden.map(textOf)].join("\n"),
 		},
 	];
 }

@@ -5,6 +5,7 @@
 
 import { aroundBoxes } from "./bounds";
 import { layoutMap } from "./drawing";
+import { hoverBox } from "./hover";
 import type { MapScene } from "./labels";
 import { LIMIT, type Options } from "./options";
 import type { Record } from "./record";
@@ -137,6 +138,7 @@ export function openPage(
 				: laid;
 		if (map.zoom === 1) sizes.set(name, scene.extent);
 		const svg = toElement(scene, document);
+		hoverBox(svg);
 		if (shown === null) box.append(svg);
 		else shown.svg.replaceWith(svg);
 		shown = { name, zoom: map.zoom, extent: scene.extent, svg };
@@ -283,6 +285,8 @@ function css(): string {
 	display: inline-flex; align-items: center; gap: 4px; margin: 0; white-space: nowrap;
 }
 .molviz .bar input { margin: 0; }
+.molviz .bar fieldset:disabled { color: #7f7f7f; }
+.molviz .bar summary { cursor: pointer; }
 .molviz .bar .views { gap: 0; margin-left: auto; }
 .molviz .bar .views label {
 	position: relative; padding: 2px 10px; border: 1px solid #7f7f7f; cursor: pointer;

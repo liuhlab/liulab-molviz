@@ -105,6 +105,23 @@ describe("draw", () => {
 		expect(element.children).toHaveLength(0);
 	});
 
+	test("shows the map's hovers in a box at once, with no title left in it", () => {
+		const element = spot();
+		draw(element, record, {});
+		const map = element.querySelector(".map > svg");
+		expect(map?.querySelectorAll("title")).toHaveLength(0);
+		const arrow = map?.querySelector("path[fill='#77aadd']");
+		arrow?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
+		const box = document.querySelector("body > div:not(:has(svg))");
+		expect(box?.hasAttribute("hidden")).toBe(false);
+		expect([...(box?.children ?? [])].map((line) => line.textContent)).toEqual([
+			"lacZ",
+			"CDS",
+			"11 .. 60",
+			"50 bp",
+		]);
+	});
+
 	test("leaves the sequence view out past 100,000 bases, with no error", () => {
 		const long = { ...record, bases: "ACGT".repeat(25_001) };
 		const element = spot();

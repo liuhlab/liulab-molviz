@@ -1,6 +1,6 @@
 /** Where an item lies along a span, counted as the span counts, and as a reader reads it. */
 
-import type { Bounds, Span } from "./record";
+import { type Bounds, runsOnFromStart, type Span } from "./record";
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
 export interface Piece {
@@ -19,7 +19,8 @@ export interface Piece {
 
 /**
  * What of `segments`, a feature's or a primer site's, lies in the span, in order along it. On a
- * circular record they may lie in the span a turn before or after where they are counted.
+ * circular record they may lie in the span a turn before or after where they are counted. Where
+ * a feature runs off a linear record's end, its gap runs to that end and on from the start.
  */
 export function pieces(
 	segments: readonly (Span & { readonly color: string })[],
@@ -29,7 +30,12 @@ export function pieces(
 	const runs: [number, number, string | null][] = [];
 	for (const [i, segment] of segments.entries()) {
 		const before = segments[i - 1];
-		if (before && segment.start > before.end) {
+		if (before && runsOnFromStart(before, segment, bounds)) {
+			if (before.end < bounds.length) {
+				runs.push([before.end, bounds.length, null]);
+			}
+			if (segment.start > 0) runs.push([0, segment.start, null]);
+		} else if (before && segment.start > before.end) {
 			runs.push([before.end, segment.start, null]);
 		}
 		runs.push([segment.start, segment.end, segment.color]);
@@ -94,4 +100,15 @@ export function pointText(at: number, { length, circular }: Bounds): string {
 /** `span` as a reader reads it, 1-based and inclusive, across the origin as `2684 .. 3`. */
 export function spanText({ start, end }: Span, length: number): string {
 	return `${(start % length) + 1} .. ${((end - 1) % length) + 1}`;
+}
+
+/** `spans` as `spanText` reads each, joined by ", ", a span read on with the one it starts at. */
+export function spansText(spans: readonly Span[], length: number): string {
+	const runs: Span[] = [];
+	for (const { start, end } of spans) {
+		const last = runs.at(-1);
+		if (last?.end === start) runs[runs.length - 1] = { start: last.start, end };
+		else runs.push({ start, end });
+	}
+	return runs.map((run) => spanText(run, length)).join(", ");
 }
