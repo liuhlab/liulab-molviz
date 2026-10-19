@@ -1,0 +1,20 @@
+{
+ "records": [
+  "ap1-round-2",
+  "ap1-product"
+ ],
+ "options": {
+  "map": "line",
+  "span": {
+   "start": 1225,
+   "end": 1506
+  },
+  "enzymes": [
+   "BbsI",
+   "BsaI"
+  ],
+  "highlight": [
+   "C_JUN"
+  ]
+ }
+}
