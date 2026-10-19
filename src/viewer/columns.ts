@@ -12,13 +12,13 @@
  * none; a leader meets its box nearer halfway up only where it crosses no other box either.
  *
  * A crowd is a run of labels a column packs against one another. While a crowd reaches past
- * `REACH` above or below the centre, the first of its labels in the caller's order hides and the
+ * the reach above or below the centre, the first of its labels in the caller's order hides and the
  * column is spread again. A label in no such crowd never hides.
  */
 
 import type { Box } from "./scene";
 
-/** How far above or below the centre a box may reach before labels hide. */
+/** How far above or below the centre a box may reach, by default, before labels hide. */
 export const REACH = 390;
 
 /** How far beyond the circle the ellipse starts. */
@@ -60,7 +60,8 @@ export interface Columns {
 }
 
 /**
- * Place `labels` in two columns round the circle of `radius`.
+ * Place `labels` in two columns round the circle of `radius`, hiding labels while a crowd
+ * reaches past `reach` above or below the centre.
  *
  * Each anchor lies outside the circle and less than 14 points beyond it. `order` holds every
  * label's index once, the first to hide first.
@@ -69,8 +70,9 @@ export function columns(
 	labels: readonly Anchored[],
 	order: readonly number[],
 	radius: number,
+	reach = REACH,
 ): Columns {
-	const hidden = hide(labels, order, radius);
+	const hidden = hide(labels, order, radius, reach);
 	const gone = new Set(hidden);
 	const shown = labels.flatMap((_, i) => (gone.has(i) ? [] : [i]));
 	const places = place(
@@ -84,11 +86,12 @@ export function columns(
 	return { placed, hidden };
 }
 
-/** The labels to hide so the rest lie within `REACH`, in `order`. */
+/** The labels to hide so the rest lie within `reach`, in `order`. */
 function hide(
 	labels: readonly Anchored[],
 	order: readonly number[],
 	radius: number,
+	reach: number,
 ): number[] {
 	const rank: number[] = [];
 	order.forEach((i, position) => {
@@ -105,7 +108,7 @@ function hide(
 			});
 			const over = crowds
 				.filter((crowd) =>
-					crowd.some((j) => Math.abs(at[j]) + labels[j].height / 2 > REACH),
+					crowd.some((j) => Math.abs(at[j]) + labels[j].height / 2 > reach),
 				)
 				.flat();
 			if (over.length === 0) break;

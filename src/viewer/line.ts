@@ -613,7 +613,7 @@ function ruler(
  * The least of 1, 2 or 5 times a power of ten that gives at most `NUMBERS` numbers along each
  * `WIDTH` points of a line `width` long drawing `bases`.
  */
-function tickStep(bases: number, width: number): number {
+export function tickStep(bases: number, width = WIDTH): number {
 	for (let power = 1; ; power *= 10) {
 		for (const factor of [1, 2, 5]) {
 			if (factor * power * NUMBERS * width >= bases * WIDTH) {
@@ -627,7 +627,7 @@ function tickStep(bases: number, width: number): number {
  * The record's name in bold over its length, or over the span drawn, from the height `top`,
  * centred on a line `width` long.
  */
-function title(
+export function title(
 	name: string,
 	length: number,
 	span: Span,
