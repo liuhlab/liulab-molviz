@@ -170,7 +170,7 @@ export function isUnder(place: Place): place is { under: number } {
 }
 
 /** An arrow's band less its heads, as where it starts and ends. */
-export function body(arrow: Arrow): [number, number] {
+function body(arrow: Arrow): [number, number] {
 	const heads = Number(arrow.headStart) + Number(arrow.headEnd);
 	const head = heads ? Math.min(HEAD, (arrow.end - arrow.start) / heads) : 0;
 	return [
@@ -179,25 +179,51 @@ export function body(arrow: Arrow): [number, number] {
 	];
 }
 
-export function middleOf([first, last]: [number, number]): number {
+function middleOf([first, last]: [number, number]): number {
 	return (first + last) / 2;
 }
 
-function room(arrow: Arrow): number {
+/**
+ * Whether `outline`, given `zigzag`, cuts a zigzag edge into the start of `arrow`, and into its
+ * end, the band left by its heads running from `first` to `last`.
+ */
+function teeth(
+	arrow: Arrow,
+	first: number,
+	last: number,
+	zigzag: boolean,
+): [start: boolean, end: boolean] {
+	// Teeth need room on the band, which a head may fill.
+	const fit = zigzag && last - first >= 2 * ZIGZAG;
+	return [
+		fit && arrow.cutStart && !arrow.headStart,
+		fit && arrow.cutEnd && !arrow.headEnd,
+	];
+}
+
+/** An arrow's band less its heads and less the teeth of any zigzag edge `zigzag` gives it. */
+function clear(arrow: Arrow, zigzag: boolean): [number, number] {
 	const [first, last] = body(arrow);
+	const [start, end] = teeth(arrow, first, last, zigzag);
+	return [start ? first + ZIGZAG : first, end ? last - ZIGZAG : last];
+}
+
+function room(arrow: Arrow, zigzag: boolean): number {
+	const [first, last] = clear(arrow, zigzag);
 	return last - first;
 }
 
 /**
- * Where each bar's name goes. Inside the arrow with most room, when it fits there. Otherwise
- * under the bar, centred, and kept from 0 to `width` if given and it fits, when it meets no other
- * bar in its tier and no name already set under one there. Otherwise in a box. A bar with no
- * arrows takes no name.
+ * Where each bar's name goes. Inside the arrow with most room, when it fits there clear of any
+ * zigzag edge `zigzag` gives it. Otherwise under the bar, centred, and kept from 0 to `width` if
+ * given and it fits, when it meets no other bar in its tier and no name already set under one
+ * there. Otherwise in a box. A bar with no arrows takes no name.
  */
 export function places(
 	bars: readonly Bar[],
 	tiers: readonly number[],
 	width?: number,
+	zigzag = false,
 ): Place[] {
 	const placed: Place[] = bars.map(() => "boxed");
 	const lineHeight = height("sans", LABEL_SIZE);
@@ -218,8 +244,10 @@ export function places(
 				continue;
 			}
 			const wide = measure(name, "sans", LABEL_SIZE);
-			const roomiest = bar.arrows.reduce((a, b) => (room(b) > room(a) ? b : a));
-			if (wide + 2 * PAD_X <= room(roomiest) && lineHeight <= BAND) {
+			const roomiest = bar.arrows.reduce((a, b) =>
+				room(b, zigzag) > room(a, zigzag) ? b : a,
+			);
+			if (wide + 2 * PAD_X <= room(roomiest, zigzag) && lineHeight <= BAND) {
 				placed[i] = { inside: roomiest };
 				continue;
 			}
@@ -257,8 +285,7 @@ export function outline(
 	const top = middle - band / 2;
 	const bottom = middle + band / 2;
 	const quarter = band / 4;
-	// Teeth need room on the band, which a head may fill.
-	const teeth = zigzag && last - first >= 2 * ZIGZAG;
+	const [startTeeth, endTeeth] = teeth(arrow, first, last, zigzag);
 	const points: [number, number][] = [];
 	if (arrow.headStart) {
 		points.push([arrow.start, middle], [first, top - reach]);
@@ -270,7 +297,7 @@ export function outline(
 			[arrow.end, middle],
 			[last, bottom + reach],
 		);
-	} else if (teeth && arrow.cutEnd) {
+	} else if (endTeeth) {
 		points.push(
 			[last - ZIGZAG, middle - quarter],
 			[last, middle],
@@ -279,7 +306,7 @@ export function outline(
 	}
 	points.push([last, bottom], [first, bottom]);
 	if (arrow.headStart) points.push([first, bottom + reach]);
-	else if (teeth && arrow.cutStart) {
+	else if (startTeeth) {
 		points.push(
 			[first + ZIGZAG, middle + quarter],
 			[first, middle],
@@ -325,7 +352,11 @@ export function barShapes(
 	const lineHeight = height("sans", LABEL_SIZE);
 	const [x, fill, textMiddle] =
 		"inside" in place
-			? [middleOf(body(place.inside)), textColor(place.inside.color), middle]
+			? [
+					middleOf(clear(place.inside, zigzag)),
+					textColor(place.inside.color),
+					middle,
+				]
 			: [
 					place.under + measure(name, "sans", LABEL_SIZE) / 2,
 					painted(INK, dim),

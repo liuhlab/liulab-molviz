@@ -310,6 +310,31 @@ describe("feature names", () => {
 		expect(scene.shapes.filter((s) => s.shape === "rect")).toHaveLength(1);
 	});
 
+	test("keep clear of a zigzag edge's teeth inside a bar, else go under it", () => {
+		// The row cuts the bar's end at 110, its teeth 4 deep; a name keeps 3 from either side.
+		const wide = (name: string) => measure(name, "sans", 11.5);
+		let fits = "";
+		while (wide(`${fits}i`) + 6 <= 106) fits += "i";
+		const tight = `${fits}i`;
+		expect(wide(tight) + 6).toBeLessThanOrEqual(110);
+		const scene = lay(
+			{ bases_per_row: 10 },
+			{
+				bases: "ACGT".repeat(10),
+				features: features([
+					{ name: fits, strand: 0, segments: [[0, 15]], color: "#00000a" },
+					{ name: tight, strand: 0, segments: [[20, 35]], color: "#00000b" },
+				]),
+			},
+		);
+		const [inside] = texts(scene, "sans").filter((t) => t.text === fits);
+		expect(inside.x).toBeCloseTo(106 / 2, 9);
+		expect(inside.x + wide(fits) / 2 + 3).toBeLessThanOrEqual(106);
+		const [under] = texts(scene, "sans").filter((t) => t.text === tight);
+		const [bar] = arrows(scene, "#00000b");
+		expect(under.y).toBeGreaterThan(Math.max(...bar.points.map(([, y]) => y)));
+	});
+
 	test("never hide, however many crowd into boxes", () => {
 		const names = Array.from({ length: 60 }, (_, i) => `feature ${i}`);
 		const made = names.map((name, i): Made => {

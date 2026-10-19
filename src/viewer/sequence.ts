@@ -237,7 +237,7 @@ function featureBars(
 	);
 	const bars = found.map(({ bar }) => bar);
 	const tiers = pack(bars);
-	const placed = places(bars, tiers, options.bases_per_row * CELL);
+	const placed = places(bars, tiers, options.bases_per_row * CELL, true);
 	const lineHeight = height("sans", LABEL_SIZE);
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
