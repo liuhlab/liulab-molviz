@@ -89,6 +89,35 @@ describe("svg", () => {
 			9,
 		);
 	});
+
+	test("counts a label placed twice as hidden only when neither placement shows", () => {
+		// A primer across the origin of a whole circle is labelled at both ends: once in a stack
+		// one label too tall, where it hides first, and once alone.
+		const record = {
+			...good,
+			circular: true,
+			bases: "ACGT".repeat(250),
+			primers: [
+				{
+					name: "across",
+					bases: "A".repeat(10),
+					sites: [{ start: 995, end: 1005, strand: 1 }],
+				},
+			],
+			insertions: Array.from({ length: 41 }, () => ({
+				name: "",
+				at: 990,
+				length: 3,
+			})),
+		};
+		const drawn = svg(record);
+		expect(drawn.hidden).toEqual([]);
+		expect(drawn.notice).toBe("");
+		const said = prepare(record, {}).shapes.filter(
+			(s) => s.shape === "text" && s.text === "across (996 .. 5)",
+		);
+		expect(said).toHaveLength(1);
+	});
 });
 
 describe("gelSvg", () => {

@@ -28,7 +28,8 @@ export interface Anchored {
 /**
  * The shapes that set `anchored` above `top` with their leaders, no box reaching more than
  * `RISE` above it; the box each label shown takes; and the labels left out to keep them there,
- * each once, in the order they hid.
+ * each once, in the order they hid. A label anchored more than once is left out only when it
+ * shows nowhere.
  */
 export function labelsAbove(
 	anchored: readonly Anchored[],
@@ -62,7 +63,10 @@ export function labelsAbove(
 			...labelShapes(label, box),
 		);
 	}
-	const hidden = [...new Set(gone.map((i) => anchored[i].label))];
+	const somewhere = new Set(shown.map(({ label }) => label));
+	const hidden = [...new Set(gone.map((i) => anchored[i].label))].filter(
+		(label) => !somewhere.has(label),
+	);
 	return { shapes, boxes: placed, hidden };
 }
 
