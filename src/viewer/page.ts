@@ -21,6 +21,9 @@ const STYLE = "molviz-page";
 
 type MapName = Options["map"];
 
+/** How far apart, in degrees, the turns are that a turning circle's box is sized from. */
+const TURN_STEP = 10;
+
 /** How a page shows one map. Each map keeps its own, so flipping back finds it as it was. */
 export interface MapState {
 	/** How many times its opening size the map is laid out. */
@@ -52,8 +55,9 @@ export interface Page {
 	drawn(): { readonly extent: Scene["extent"]; readonly scale: number };
 	/**
 	 * Lay out again what the state changed and swap it in, returning the map. The map flipped
-	 * from keeps its scroll, and the one flipped to gets its own back. With `hold`, the map's box
-	 * takes in the one shown, so a circle turning stays in place.
+	 * from keeps its scroll, and the one flipped to gets its own back. With `hold`, as a circle
+	 * turns, the map keeps one box, and the scale it shows at, sized at the first turn to take in
+	 * a full turn; any other redraw lets it go.
 	 */
 	redraw(hold?: boolean): MapScene;
 	/** Remove the page, leaving the styles for any other. Calling it again does nothing. */
@@ -105,6 +109,8 @@ export function openPage(
 		svg: SVGSVGElement;
 	} | null = null;
 	let sequenceDrawn: string | null = null;
+	/** The box a turning circle keeps, until a redraw without `hold`. */
+	let held: Scene["extent"] | null = null;
 
 	/** The scale a map shows at: its size at 1× fitted to the room. */
 	const scaleOf = ({ name, extent }: NonNullable<typeof shown>) =>
@@ -132,10 +138,14 @@ export function openPage(
 			state.maps[shown.name].top = box.scrollTop;
 		}
 		const laid = layoutMap(record, state.options, map);
-		const scene =
-			hold && shown !== null && !flipped
-				? { ...laid, extent: aroundBoxes([shown.extent, laid.extent]) }
-				: laid;
+		if (!hold || shown === null || flipped) held = null;
+		else
+			held ??= aroundBoxes([
+				shown.extent,
+				laid.extent,
+				...restOfTurn(record, state.options, map),
+			]);
+		const scene = held === null ? laid : { ...laid, extent: held };
 		if (map.zoom === 1) sizes.set(name, scene.extent);
 		const svg = toElement(scene, document);
 		hoverBox(svg);
@@ -208,6 +218,24 @@ export function openPage(
 	addZoom(page);
 	addTurn(page);
 	return page;
+}
+
+/**
+ * The boxes of the circle `map` shows laid out turned on from it every `TURN_STEP` degrees, short
+ * of a full turn.
+ */
+function restOfTurn(
+	record: Record,
+	options: Options,
+	{ zoom, turn }: MapState,
+): Scene["extent"][] {
+	const turns = Array.from(
+		{ length: 360 / TURN_STEP - 1 },
+		(_, i) => turn + (i + 1) * TURN_STEP,
+	);
+	return turns.map(
+		(one) => layoutMap(record, options, { zoom, turn: one }).extent,
+	);
 }
 
 /** The state a map opens on: at its size, its origin at the top, unscrolled. */

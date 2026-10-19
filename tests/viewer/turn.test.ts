@@ -77,7 +77,7 @@ describe("turnBy", () => {
 });
 
 describe("the wheel over the circle", () => {
-	test("turns it, once a frame, its box taking in the one before so the ring stays put", async () => {
+	test("turns it, once a frame, over a box that takes in the ring before and after", async () => {
 		const page = opened(ring);
 		const before = page.drawn().extent;
 		expect(wheel(page, { deltaY: 1000 })).toBe(true);
@@ -85,12 +85,25 @@ describe("the wheel over the circle", () => {
 		await frame();
 		expect(page.state.maps.circle.turn).toBeCloseTo(-180, 9);
 		const turned = layoutMap(page.record, page.state.options, { turn: -180 });
-		const held = {
-			...turned,
-			extent: aroundBoxes([before, turned.extent]),
-		};
-		expect(held.extent).not.toEqual(turned.extent);
-		expect(page.box.innerHTML).toBe(shown(held));
+		const { extent } = page.drawn();
+		expect(aroundBoxes([extent, before, turned.extent])).toEqual(extent);
+		expect(page.box.innerHTML).toBe(shown({ ...turned, extent }));
+	});
+
+	test("holds the box and its scale from the first notch on, so the page under it stays put", async () => {
+		const page = opened(ring);
+		const room = page.box.parentElement as HTMLElement;
+		Object.defineProperty(room, "clientWidth", { value: 300 });
+		wheel(page, { deltaY: 100 });
+		await frame();
+		const held = page.drawn();
+		expect(held.scale).toBeLessThan(1);
+		// Two full turns, a notch of 7.2° a frame.
+		for (let notch = 0; notch < 100; notch++) {
+			wheel(page, { deltaY: 100 });
+			await frame();
+			expect(page.drawn()).toEqual(held);
+		}
 	});
 
 	test("keeps the ring in place on a zoomed circle", async () => {
