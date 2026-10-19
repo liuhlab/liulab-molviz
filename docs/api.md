@@ -36,6 +36,8 @@ Two things about that marker are easy to get backwards:
 
 ::: molviz.draw
 
+::: molviz.draw_figure
+
 ::: molviz.draw_gel
 
 ::: molviz.draw_plate
@@ -46,8 +48,9 @@ Two things about that marker are easy to get backwards:
 
 ## Options
 
-`draw` takes these options by name. Each says what the drawing starts with. An option it
-does not know is an error, and one left out takes its default.
+`draw` takes these options by name, and so does `draw_figure`, for every record it stacks.
+Each says what the drawing starts with. An option it does not know is an error, and one left
+out takes its default.
 
 | Option | What it does | Default |
 | --- | --- | --- |
@@ -74,8 +77,8 @@ A page can show a drawing in two ways.
 A page that does both needs no font rules, since `draw` adds them. Written anyway, they cost
 their size twice.
 
-molviz's own pages work the same way. A record's page draws it live. A gel's or a plate's
-page holds its still drawing.
+molviz's own pages work the same way. A record's page draws it live. A gel's, a plate's or a
+figure's page holds its still drawing.
 
 ```python
 import molviz

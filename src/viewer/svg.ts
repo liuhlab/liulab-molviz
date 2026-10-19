@@ -58,13 +58,16 @@ export function toSvg(scene: Scene): string {
 /**
  * `scene` as an `<svg>` element of `document`, the same as `toSvg` writes but for its letters,
  * which are `<text>` in the viewer's faces, and each shape's tip or else its hover text, a
- * `<title>` in it. The page must declare the faces.
+ * `<title>` in it. Without `tips`, its hover text only, as `toStill` writes. The page must
+ * declare the faces.
  */
-export function toElement(scene: Scene, document: Document): SVGSVGElement {
-	const { root, children } = tags(
-		scene,
-		undefined,
-		(shape) => shape.tip ?? shape.hover,
+export function toElement(
+	scene: Scene,
+	document: Document,
+	{ tips = true }: { readonly tips?: boolean } = {},
+): SVGSVGElement {
+	const { root, children } = tags(scene, undefined, (shape) =>
+		tips ? (shape.tip ?? shape.hover) : shape.hover,
 	);
 	const svg = document.createElementNS(NAMESPACE, "svg");
 	for (const [name, value] of root) svg.setAttribute(name, value);

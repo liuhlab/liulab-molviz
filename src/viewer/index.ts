@@ -1,23 +1,34 @@
 /** The viewer. The build exposes each export here on the global `molviz`. */
 
-import { draw, drawGel, drawPlate } from "./draw";
+import { draw, drawFigure, drawGel, drawPlate } from "./draw";
 import { gelSvg, plateSvg, svg } from "./drawing";
+import { checkFigure, figureSvg } from "./figure";
 import { checkGel } from "./gel";
 import { LIMIT } from "./options";
 import { checkPlate } from "./plate";
 import { check } from "./record";
-import { fontRules, gelStillSvg, plateStillSvg, stillSvg } from "./still";
+import {
+	figureStillSvg,
+	fontRules,
+	gelStillSvg,
+	plateStillSvg,
+	stillSvg,
+} from "./still";
 
 /** The most bases of a span the sequence view draws. */
 export const SEQUENCE_VIEW_LIMIT = LIMIT;
 
 const exported = {
 	check,
+	checkFigure,
 	checkGel,
 	checkPlate,
 	draw,
+	drawFigure,
 	drawGel,
 	drawPlate,
+	figureStillSvg,
+	figureSvg,
 	fontRules,
 	gelStillSvg,
 	gelSvg,
@@ -29,11 +40,15 @@ const exported = {
 
 export {
 	check,
+	checkFigure,
 	checkGel,
 	checkPlate,
 	draw,
+	drawFigure,
 	drawGel,
 	drawPlate,
+	figureStillSvg,
+	figureSvg,
 	fontRules,
 	gelStillSvg,
 	gelSvg,
@@ -64,6 +79,12 @@ export const calls = {
 		draw: "drawPlate",
 		svg: "plateSvg",
 		still: "plateStillSvg",
+	},
+	figure: {
+		check: "checkFigure",
+		draw: "drawFigure",
+		svg: "figureSvg",
+		still: "figureStillSvg",
 	},
 } as const satisfies {
 	readonly [name: string]: {

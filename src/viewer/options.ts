@@ -10,8 +10,10 @@ import {
 	folded,
 	list,
 	oneOf,
+	orThrow,
+	type Parsed,
 	PositiveInteger,
-	parse,
+	parsed,
 	Text,
 } from "./format";
 import { KINDS } from "./labels";
@@ -22,9 +24,16 @@ const OnOff = v.boolean("must be true or false");
 /** The most bases of a span the sequence view draws. */
 export const LIMIT = 100_000;
 
-function optionsSchema(record: Record, page: boolean) {
+/** Where a record is drawn: on a `page` or else in a file, among the records drawn `together`. */
+interface Where {
+	readonly page: boolean;
+	readonly together: readonly Record[];
+}
+
+function optionsSchema(record: Record, { page, together }: Where) {
 	const bounds = { length: record.bases.length, circular: record.circular };
-	const names = answersTo(record);
+	const names = new Set(together.flatMap((one) => [...answersTo(one)]));
+	const searched = together.length > 1 ? "any record" : "the record";
 	const whole = ({ start, end }: Span) => start === 0 && end === bounds.length;
 	const given = exact({
 		/** Draw only this stretch, as a line numbered as the record. The whole record by default. */
@@ -51,14 +60,17 @@ function optionsSchema(record: Record, page: boolean) {
 		 * matches whatever its case; one with no cut in the record is ignored.
 		 */
 		enzymes: v.optional(list(Text), () => uniqueCutters(record)),
-		/** The names lit; everything else is dimmed. Each must be one `answersTo` gives. */
+		/**
+		 * The names lit; everything else is dimmed. Each must be one `answersTo` gives for a
+		 * record drawn.
+		 */
 		highlight: v.optional(
 			list(
 				v.pipe(
 					Text,
 					v.check(
 						(name) => names.has(folded(name)),
-						"names nothing in the record",
+						`names nothing in ${searched}`,
 					),
 				),
 			),
@@ -113,15 +125,27 @@ function grouped(n: number): string {
 export type Options = v.InferOutput<ReturnType<typeof optionsSchema>>;
 
 /**
- * Return `input` as options for drawing `record`, on a `page` or else in a file, or throw one
- * FormatError naming every problem by its path from `options`. An unknown option is a problem.
+ * Return `input` as options for drawing `record`, one of the records drawn `together`, on a
+ * `page` or else in a file, or throw one FormatError naming every problem by its path from
+ * `options`. An unknown option is a problem.
  */
 export function checkOptions(
 	input: unknown,
 	record: Record,
-	{ page = false }: { page?: boolean } = {},
+	where: Partial<Where> = {},
 ): Options {
-	return parse(optionsSchema(record, page), input, { prefix: "options" });
+	return orThrow(parsedOptions(input, record, where));
+}
+
+/** `checkOptions`, returning each problem rather than throwing. */
+export function parsedOptions(
+	input: unknown,
+	record: Record,
+	{ page = false, together = [record] }: Partial<Where> = {},
+): Parsed<Options> {
+	return parsed(optionsSchema(record, { page, together }), input, {
+		prefix: "options",
+	});
 }
 
 /**

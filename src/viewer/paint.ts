@@ -58,6 +58,9 @@ export const DIM = "#dddddd";
 /** The backbone, the ruler and the title. */
 export const INK = "#252525";
 
+/** Muted text: a gel's ladder sizes and a stacked record's name. */
+export const MUTED = "#5c626b";
+
 /** The thin line across the gap between two segments of a feature, and its thickness. */
 export const CONNECTOR = "#666666";
 export const CONNECTOR_WIDTH = 1.5;

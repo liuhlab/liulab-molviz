@@ -1,16 +1,17 @@
-"""Write mbio's example records, gels and plates into ``tests/``, in the viewer's formats.
+"""Write mbio's example inputs into ``tests/``, in the viewer's formats.
 
-The records go to ``tests/records/``, and from mbio's protocol JSON the gels to ``tests/gels/``
-and the plates to ``tests/plates/``. It runs in mbio's environment, and
-``tests/records/README.md`` has the command. Each input is read at `REVISION` through
-``git show``, so mbio's files on disk do not matter, but the mbio code it imports must match
-that commit. Every record carries the cuts of all of mbio's enzymes. An input that repeats one
-already written, such as a plate two protocols declare alike, is written once. The hand-made
-records in ``tests/records/`` are not written here.
+The records go to ``tests/records/``, and from mbio's protocol JSON the figures to
+``tests/figures/``, the gels to ``tests/gels/`` and the plates to ``tests/plates/``. It runs in
+mbio's environment, and ``tests/records/README.md`` has the command. Each input is read at
+`REVISION` through ``git show``, so mbio's files on disk do not matter, but the mbio code it
+imports must match that commit. Every record carries the cuts of all of mbio's enzymes. An
+input that repeats one already written, such as a plate two protocols declare alike, is written
+once. The hand-made records in ``tests/records/`` are not written here.
 """
 
 import inspect
 import json
+import posixpath
 import re
 import subprocess
 import sys
@@ -38,14 +39,31 @@ RECORDS = {
     "puc19-backbone-amplicon": "docs/examples/pUC19-GFP/puc19-backbone-amplicon.dna",
     "gfp-amplicon": "docs/examples/pUC19-GFP/gfp-amplicon.dna",
     "ap1-product": "docs/examples/ap1-library/product.dna",
+    "ap1-block-vector-1": "docs/examples/ap1-library/block-vector-1.dna",
+    "ap1-round-1": "docs/examples/ap1-library/round-1.dna",
+    "ap1-round-2": "docs/examples/ap1-library/round-2.dna",
     "colour-test": "tests/data/colour-test-snapgene.gbk",
     "primer-test": "tests/data/primer-test.dna",
+}
+
+_AP1 = "docs/examples/ap1-library/protocol/project.json"
+
+#: Each figure's file name in ``tests/figures/``, and the protocol or project in mbio and the
+#: key of the step that holds it. A figure's records must be in `RECORDS`.
+FIGURES = {
+    "ap1-round-1": (_AP1, "round-1-ligate"),
+    "ap1-round-2": (_AP1, "round-2-ligate"),
+    "ap1-round-3": (_AP1, "round-3-ligate"),
+    "ap1-barcode": (_AP1, "barcode-wells"),
+    "ap1-stuffer": (_AP1, "assemble-cargo"),
+    "ap1-cargo": (_AP1, "assemble-into-working-vector"),
+    "puc19-gfp-assembly": ("docs/examples/pUC19-GFP/protocol.json", "run-assembly"),
 }
 
 #: Each protocol or project in mbio whose steps hold gels, by the short name that starts each
 #: gel's file name in ``tests/gels/``. The gel's title ends it.
 GELS = {
-    "ap1": "docs/examples/ap1-library/protocol/project.json",
+    "ap1": _AP1,
     "gateway": "docs/examples/gateway/protocol.json",
     "gibson": "docs/examples/pUC19-GFP/gibson/protocol.json",
     "golden-gate": "docs/examples/pUC19-GFP/protocol.json",
@@ -56,7 +74,7 @@ GELS = {
 #: Each protocol or project in mbio that declares plates, by the short name that starts each
 #: plate's file name in ``tests/plates/``. The plate's name, or a stamp's title, ends it.
 PLATES = {
-    "ap1": "docs/examples/ap1-library/protocol/project.json",
+    "ap1": _AP1,
     "ap1-readback": "docs/examples/ap1-readback/protocol.json",
 }
 
@@ -148,6 +166,43 @@ def convert(record: Any) -> dict[str, Any]:
         if values:
             out[key] = values
     return out
+
+
+def convert_figure(figure: dict[str, Any], folder: str) -> dict[str, Any]:
+    """Return a figure from mbio's protocol JSON as its records' names and its options.
+
+    Each record path resolves against `folder`, the protocol's folder in mbio, to a name in
+    `RECORDS`; any other record stops the script. ``linear`` becomes ``"map": "line"``. An
+    option at mbio's default is left out, and the caption and citation stay mbio's.
+    """
+    names = {path: name for name, path in RECORDS.items()}
+    records = []
+    for path in figure["records"]:
+        if (resolved := posixpath.normpath(posixpath.join(folder, path))) not in names:
+            sys.exit(f"a figure draws {resolved}, which is not in RECORDS")
+        records.append(names[resolved])
+    options: dict[str, Any] = {"map": "line"} if figure.get("linear") else {}
+    if (span := figure.get("span")) is not None:
+        options["span"] = {"start": span[0], "end": span[1]}
+    if figure.get("sequence_view"):
+        options["sequence_view"] = True
+    if (enzymes := figure.get("enzymes")) is not None:
+        options["enzymes"] = enzymes
+    if highlight := figure.get("highlight"):
+        options["highlight"] = highlight
+    return {"records": records, "options": options}
+
+
+def _figure(data: dict[str, Any], key: str) -> dict[str, Any]:
+    """Return the one figure of the step with ``key`` in a protocol, or in a project's protocols."""
+    protocols = data.get("protocols", [data])
+    steps = [step for protocol in protocols for step in protocol.get("steps", [])]
+    found = [
+        figure for step in steps if step.get("key") == key for figure in step.get("figures", [])
+    ]
+    if len(found) != 1:
+        sys.exit(f"step {key!r} holds {len(found)} figures, not one")
+    return found[0]
 
 
 def convert_gel(gel: dict[str, Any]) -> dict[str, Any]:
@@ -263,7 +318,7 @@ def _show(repo: Path, path: str, scratch: Path) -> Path:
 
 
 def main() -> None:
-    """Write the records in `RECORDS`, and the gels and plates in `GELS` and `PLATES`."""
+    """Write the records in `RECORDS`, and the inputs in `FIGURES`, `GELS` and `PLATES`."""
     imported = Path(inspect.getfile(mbio)).resolve().parent
     repo = Path(_git(imported, "rev-parse", "--show-toplevel").decode().strip())
     changed = _git(repo, "diff", "--name-only", REVISION, "--", "src")
@@ -279,6 +334,11 @@ def main() -> None:
             if _write(tests / "records" / f"{name}.json", data, written):
                 counts = ", ".join(f"{len(v)} {k}" for k, v in data.items() if isinstance(v, list))
                 print(f"{name}: {len(data['bases'])} bp, {counts}")
+        for name, (path, key) in FIGURES.items():
+            protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
+            figure = convert_figure(_figure(protocol, key), posixpath.dirname(path))
+            if _write(tests / "figures" / f"{name}.json", figure, written):
+                print(f"{name}: {', '.join(figure['records'])}")
         for short, path in GELS.items():
             protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
             for gel in _gels(protocol):

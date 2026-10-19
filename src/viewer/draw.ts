@@ -1,6 +1,7 @@
 /** An input drawn live into an element of a page. */
 
 import { prepareGel, preparePlate } from "./drawing";
+import { prepareFigure } from "./figure";
 import { checkOptions } from "./options";
 import { openPage } from "./page";
 import { check } from "./record";
@@ -38,6 +39,20 @@ export function draw(
 }
 
 /**
+ * Draw `records` stacked, each with `options`, into `element`, after what it holds, its letters
+ * as real text. A still drawing, with no switches. A span past the sequence view's limit leaves
+ * the view out. Throws one FormatError naming every problem in the records, or else in the
+ * options.
+ */
+export function drawFigure(
+	element: Element,
+	records: unknown,
+	options: unknown = {},
+): LiveDrawing {
+	return drawScene(element, prepareFigure(records, options, { page: true }));
+}
+
+/**
  * Draw `gel` into `element`, after what it holds, its letters as real text. Throws one
  * FormatError naming every problem in the gel.
  */
@@ -53,11 +68,14 @@ export function drawPlate(element: Element, plate: unknown): LiveDrawing {
 	return drawScene(element, preparePlate(plate));
 }
 
-/** Draw `scene` into `element`, after what it holds, declaring the faces if no drawing has. */
+/**
+ * Draw `scene` into `element`, after what it holds, as its still drawing draws, declaring the
+ * faces if no drawing has.
+ */
 function drawScene(element: Element, scene: Scene): LiveDrawing {
 	const document = element.ownerDocument;
 	declareFaces(document);
-	const svg = toElement(scene, document);
+	const svg = toElement(scene, document, { tips: false });
 	element.append(svg);
 	return { destroy: () => svg.remove() };
 }

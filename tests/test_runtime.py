@@ -17,6 +17,12 @@ def test_calls_name_each_inputs_calls_on_the_global() -> None:
             "svg": "plateSvg",
             "still": "plateStillSvg",
         },
+        "figure": {
+            "check": "checkFigure",
+            "draw": "drawFigure",
+            "svg": "figureSvg",
+            "still": "figureStillSvg",
+        },
     }
 
 
@@ -61,11 +67,13 @@ def no_outlines(monkeypatch):
 def test_checking_and_still_drawing_need_no_outline_script() -> None:
     assert call("record", "check", GOOD)["name"] == "pUC19"
     assert "<text " in call("record", "still", GOOD, {})["svg"]
+    assert "<text " in call("figure", "still", [GOOD], {})["svg"]
     assert "@font-face" in font_rules()
     assert calls()["record"]["svg"] == "svg"
 
 
 @pytest.mark.usefixtures("no_outlines")
-def test_writing_a_file_needs_the_outline_script() -> None:
+@pytest.mark.parametrize(("name", "data"), [("record", GOOD), ("figure", [GOOD])])
+def test_writing_a_file_needs_the_outline_script(name, data) -> None:
     with pytest.raises(FileNotFoundError, match=r"outlines\.js"):
-        call("record", "svg", GOOD, {})
+        call(name, "svg", data, {})
