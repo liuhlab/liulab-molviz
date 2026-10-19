@@ -1,14 +1,11 @@
 import { readdirSync, readFileSync } from "node:fs";
-import {
-	type Font,
-	type PathCommand,
-	parse,
-} from "opentype.js/dist/opentype.mjs";
+import type { Font, PathCommand } from "opentype.js/dist/opentype.mjs";
 import { expect, test, vi } from "vitest";
-import { type Place, places } from "../../src/viewer/faces";
+import { readFace } from "../../scripts/font-tables";
+import { FACES, type Face, type Place, places } from "../../src/viewer/faces";
 import { twoDecimals } from "../../src/viewer/scene";
 import { gelStillSvg, plateStillSvg, stillSvg } from "../../src/viewer/still";
-import { type Face, outlineOf } from "../../src/viewer/text";
+import { outlineOf } from "../../src/viewer/text";
 
 const recorded = vi.hoisted(() => ({
 	advances: new Map<string, [string, Face, number, number]>(),
@@ -54,10 +51,7 @@ for (const gel of inputs("gels")) gelStillSvg(gel);
 for (const plate of inputs("plates")) plateStillSvg(plate);
 
 const fonts = Object.fromEntries(
-	(["sans", "sans-bold", "mono"] as const).map((face) => {
-		const bytes = readFileSync(`src/viewer/fonts/${face}.ttf`);
-		return [face, parse(new Uint8Array(bytes).buffer)];
-	}),
+	FACES.map((face) => [face, readFace(face)]),
 ) as Record<Face, Font>;
 const kerned = { script: "latn" };
 

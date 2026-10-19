@@ -1,15 +1,15 @@
 /// <reference types="vite/client" />
 /** Text in the faces the viewer carries: measured, and outlined as SVG paths. */
 
+import { OUTLINES_GLOBAL } from "virtual:molviz-fonts";
 import type { Outlines } from "virtual:molviz-outlines";
-import { advance, has, places, units } from "./faces";
+import { advance, FACES, type Face, has, places, units } from "./faces";
 import monoUrl from "./fonts/mono.woff2?inline";
 import sansUrl from "./fonts/sans.woff2?inline";
 import sansBoldUrl from "./fonts/sans-bold.woff2?inline";
 import { twoDecimals } from "./scene";
 
-/** A face the viewer carries: DejaVu Sans, its bold, or DejaVu Sans Mono. */
-export type Face = "sans" | "sans-bold" | "mono";
+export type { Face } from "./faces";
 
 /** The family a page declares each face under. No installed font has one, so none stands in. */
 export const families: Record<Face, string> = {
@@ -160,8 +160,9 @@ const outlines: Partial<Record<Face, Map<number, string>>> = {};
  * as a space. Throws unless the outline script has run.
  */
 export function outlineOf(face: Face, index: number): string {
-	const outlineTable = (globalThis as { molvizOutlines?: Outlines })
-		.molvizOutlines;
+	const outlineTable = (globalThis as Record<string, unknown>)[
+		OUTLINES_GLOBAL
+	] as Outlines | undefined;
 	if (outlineTable === undefined)
 		throw new Error("molviz: a file's outlines need the outline script");
 	outlines[face] ??= new Map();
@@ -178,11 +179,9 @@ export function outlineOf(face: Face, index: number): string {
 
 /** CSS `@font-face` rules declaring each face in its family, by weight, as a data URL. */
 export function fontFaceCss(): string {
-	return (Object.keys(urls) as Face[])
-		.map(
-			(face) =>
-				`@font-face{font-family:"${families[face]}";font-weight:${weights[face]};` +
-				`src:url(${urls[face]}) format("woff2")}`,
-		)
-		.join("\n");
+	return FACES.map(
+		(face) =>
+			`@font-face{font-family:"${families[face]}";font-weight:${weights[face]};` +
+			`src:url(${urls[face]}) format("woff2")}`,
+	).join("\n");
 }

@@ -24,7 +24,10 @@ declare module "virtual:molviz-fonts" {
 		readonly values: readonly (readonly number[])[];
 	}
 
-	const tables: Readonly<Record<"sans" | "sans-bold" | "mono", FaceTable>>;
+	/** The global the outline script sets, holding what `virtual:molviz-outlines` holds. */
+	export const OUTLINES_GLOBAL: string;
+
+	const tables: Readonly<Record<import("./faces").Face, FaceTable>>;
 	export default tables;
 }
 
@@ -34,7 +37,7 @@ declare module "virtual:molviz-outlines" {
 	 * each number as JavaScript writes it. A glyph with no ink is absent.
 	 */
 	export type Outlines = Readonly<
-		Record<"sans" | "sans-bold" | "mono", Readonly<Record<number, string>>>
+		Record<import("./faces").Face, Readonly<Record<number, string>>>
 	>;
 	const outlines: Outlines;
 	export default outlines;

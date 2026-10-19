@@ -3,7 +3,7 @@
  * so the viewer measures and outlines text as opentype.js does without carrying it.
  */
 
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import type { FaceTable, Kerning } from "virtual:molviz-fonts";
 import {
 	type Font,
@@ -13,17 +13,33 @@ import {
 import type { Plugin } from "vite";
 
 const FOLDER = "src/viewer/fonts";
-const FACES = ["sans", "sans-bold", "mono"] as const;
-type Face = (typeof FACES)[number];
 
 const FONTS = "virtual:molviz-fonts";
 const OUTLINES = "virtual:molviz-outlines";
 
+// The global the outline script sets; `virtual:molviz-fonts` names it to the viewer.
+const OUTLINES_GLOBAL = "molvizOutlines";
+
 // The script the viewer kerns under: DejaVu files its kerning there.
 const KERN_SCRIPT = "latn";
 
-function font(face: Face): Font {
+/** The faces the build reads: one per TTF subset in the fonts folder, named as its file. */
+function faces(): string[] {
+	return readdirSync(FOLDER)
+		.filter((name) => name.endsWith(".ttf"))
+		.map((name) => name.slice(0, -".ttf".length))
+		.sort();
+}
+
+/** `face`'s TTF subset, read by opentype.js. */
+export function readFace(face: string): Font {
 	return parse(new Uint8Array(readFileSync(`${FOLDER}/${face}.ttf`)).buffer);
+}
+
+/** A comment a minifier keeps, holding the fonts' licence, then each of `sections`. */
+export function licenceComment(sections: string[] = []): string {
+	const fonts = `DejaVu fonts\n\n${readFileSync(`${FOLDER}/LICENSE`, "utf8")}`;
+	return `/*!\n${[fonts, ...sections].join("\n\n").replaceAll("*/", "* /")}\n*/`;
 }
 
 function table(font: Font): FaceTable {
@@ -99,13 +115,9 @@ function pathData(commands: readonly PathCommand[]): string {
 	return d;
 }
 
-/** The outline script: a comment holding the fonts' licence, then the global it sets. */
+/** The outline script: the fonts' licence, then the global it sets. */
 function outlineScript(outlines: string): string {
-	const licence = readFileSync(`${FOLDER}/LICENSE`, "utf8").replaceAll(
-		"*/",
-		"* /",
-	);
-	return `/*!\nDejaVu fonts\n\n${licence}\n*/\nglobalThis.molvizOutlines=${outlines};\n`;
+	return `${licenceComment()}\nglobalThis.${OUTLINES_GLOBAL}=${outlines};\n`;
 }
 
 /**
@@ -117,7 +129,7 @@ export function fontTables(): Plugin {
 	let built: { fonts: string; outlines: string } | undefined;
 	const modules = () => {
 		if (built) return built;
-		const fonts = FACES.map((face) => [face, font(face)] as const);
+		const fonts = faces().map((face) => [face, readFace(face)] as const);
 		built = {
 			fonts: JSON.stringify(
 				Object.fromEntries(fonts.map(([face, f]) => [face, table(f)])),
@@ -132,7 +144,8 @@ export function fontTables(): Plugin {
 		name: "molviz-font-tables",
 		resolveId: (id) => (id === FONTS || id === OUTLINES ? `\0${id}` : null),
 		load(id) {
-			if (id === `\0${FONTS}`) return `export default ${modules().fonts};`;
+			if (id === `\0${FONTS}`)
+				return `export default ${modules().fonts};\nexport const OUTLINES_GLOBAL = ${JSON.stringify(OUTLINES_GLOBAL)};`;
 			if (id === `\0${OUTLINES}`)
 				return `export default ${modules().outlines};`;
 			return null;

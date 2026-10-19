@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { defineConfig } from "vitest/config";
-import { fontTables } from "./scripts/font-tables.ts";
+import { fontTables, licenceComment } from "./scripts/font-tables.ts";
 
 /**
  * A comment holding the licence of each package bundled from `modules`, and of the fonts.
@@ -14,9 +14,7 @@ function notices(modules: string[]): string {
 		const folder = id.match(/^(.*\/node_modules\/(?:@[^/]+\/)?[^/]+)\//)?.[1];
 		if (folder) folders.add(folder);
 	}
-	const sections = [
-		`DejaVu fonts\n\n${readFileSync("src/viewer/fonts/LICENSE", "utf8")}`,
-	];
+	const sections: string[] = [];
 	for (const folder of [...folders].sort()) {
 		const name = folder.slice(
 			folder.lastIndexOf("/node_modules/") + "/node_modules/".length,
@@ -28,7 +26,7 @@ function notices(modules: string[]): string {
 			);
 		sections.push(`${name}\n\n${readFileSync(`${folder}/${file}`, "utf8")}`);
 	}
-	return `/*!\n${sections.join("\n\n").replaceAll("*/", "* /")}\n*/`;
+	return licenceComment(sections);
 }
 
 export default defineConfig({

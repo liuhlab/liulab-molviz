@@ -5,7 +5,12 @@
  */
 
 import tables, { type FaceTable } from "virtual:molviz-fonts";
-import type { Face } from "./text";
+
+/** The faces the viewer carries: DejaVu Sans, its bold, and DejaVu Sans Mono. */
+export const FACES = ["sans", "sans-bold", "mono"] as const;
+
+/** A face the viewer carries. */
+export type Face = (typeof FACES)[number];
 
 /** One glyph of a text, in its face's units. */
 export interface Place {
