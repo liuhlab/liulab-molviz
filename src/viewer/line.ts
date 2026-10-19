@@ -21,7 +21,9 @@ import {
 	CONNECTOR,
 	colorOf,
 	INK,
+	INSERTION,
 	OUTLINE_WIDTH,
+	PRIMER,
 	shaded,
 	textColor,
 } from "./paint";
@@ -40,6 +42,14 @@ const OVERHANG = 4;
 const HEAD = 12;
 const BAR_GAP = 3;
 const TIER_GAP = 4;
+
+// A primer's arrow above the backbone: its band's thickness, and the room either side of it.
+const PRIMER_BAND = 4;
+const PRIMER_GAP = 2;
+
+// An insertion's bar: how far it reaches past the backbone either side, and how thick it is.
+const INSERTION_REACH = 1.5;
+const INSERTION_WIDTH = 2;
 
 // The backbone: each strand's line, and how far apart they are.
 const BACKBONE = 2.6;
@@ -98,8 +108,8 @@ const NOTHING: Drawn = {
 
 /** How the line draws each kind. Kinds draw in `KINDS` order, and one switched off is skipped. */
 const DRAWS: { readonly [K in Kind]: (along: Along) => Drawn } = {
-	primers: () => NOTHING,
-	insertions: () => NOTHING,
+	primers,
+	insertions,
 	features,
 	cuts: () => NOTHING,
 };
@@ -212,7 +222,11 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 	const bars: Bar[] = [];
 	for (const feature of record.features) {
 		if (off.has(feature.type)) continue;
-		const found = pieces(feature, options.span, bounds);
+		const colored = feature.segments.map((segment) => ({
+			...segment,
+			color: colorOf(feature, segment),
+		}));
+		const found = pieces(colored, options.span, bounds);
 		bars.push(...barsOf(feature, found, at));
 	}
 	const tiers = pack(bars);
@@ -278,6 +292,146 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 			: [],
 	);
 	return { shapes, labels, top: Number.POSITIVE_INFINITY, bottom: y };
+}
+
+/**
+ * Each primer site as a thin arrow above the backbone, its head at the 3' end, in rows packed
+ * by start, labelled by the primer's name and the bases the site spans.
+ */
+function primers({ record, options, bounds, at }: Along): Drawn {
+	const reach = overhang(PRIMER_BAND);
+	const step = PRIMER_BAND + 2 * reach + PRIMER_GAP;
+	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_BAND / 2;
+	const drawn: { arrow: Arrow; label: Label }[] = [];
+	for (const { name, sites } of record.primers) {
+		for (const site of sites) {
+			const { start, end } = site;
+			const label: Label = {
+				kind: "primers",
+				name,
+				spans: [{ start, end }],
+				runs: [
+					{ text: `${name} (${spanText(site, bounds.length)})`, face: "sans" },
+				],
+				color: PRIMER,
+				dim: false,
+				cuts: 0,
+			};
+			const colored = [{ start, end, color: PRIMER }];
+			for (const piece of pieces(colored, options.span, bounds)) {
+				const arrow: Arrow = {
+					start: at(piece.start),
+					end: at(piece.end),
+					color: PRIMER,
+					headStart: piece.starts && site.strand === -1,
+					headEnd: piece.ends && site.strand === 1,
+				};
+				drawn.push({ arrow, label });
+			}
+		}
+	}
+	const middles = pack(drawn.map(({ arrow }) => arrow)).map(
+		(row) => first - row * step,
+	);
+	const tops = middles.map((middle) => middle - PRIMER_BAND / 2 - reach);
+	const shapes: Shape[] = drawn.map(({ arrow }, i) => ({
+		shape: "polygon",
+		points: outline(arrow, middles[i], PRIMER_BAND),
+		fill: PRIMER,
+		stroke: shaded(PRIMER),
+		strokeWidth: OUTLINE_WIDTH,
+	}));
+	const labels = drawn.map(({ arrow, label }, i) => ({
+		label,
+		x: (arrow.start + arrow.end) / 2,
+		foot: tops[i],
+	}));
+	return {
+		shapes,
+		labels,
+		top: Math.min(...tops),
+		bottom: Number.NEGATIVE_INFINITY,
+	};
+}
+
+/**
+ * Each insertion as a bar across both strands at its point, labelled with what it adds, its
+ * name and point on hover.
+ */
+function insertions({
+	record,
+	options,
+	bounds,
+	at,
+	backboneTop,
+}: Along): Drawn {
+	const shapes: Shape[] = [];
+	const labels: Anchored[] = [];
+	for (const insertion of record.insertions) {
+		const point = insertion.at;
+		const color = insertion.color?.toLowerCase() ?? INSERTION;
+		const hover = [insertion.name.trim(), pointText(point, bounds)]
+			.filter(Boolean)
+			.join(" · ");
+		const label: Label = {
+			kind: "insertions",
+			name: insertion.name,
+			spans: [{ start: point, end: point }],
+			runs: [{ text: `+${insertion.length} bp`, face: "sans" }],
+			color,
+			dim: false,
+			cuts: 0,
+		};
+		for (const x of points(point, options.span, bounds).map(at)) {
+			shapes.push({
+				shape: "line",
+				x1: x,
+				y1: backboneTop - INSERTION_REACH,
+				x2: x,
+				y2: STRANDS_APART + BACKBONE / 2 + INSERTION_REACH,
+				stroke: color,
+				strokeWidth: INSERTION_WIDTH,
+				hover,
+			});
+			labels.push({ label, x, foot: backboneTop });
+		}
+	}
+	return {
+		shapes,
+		labels,
+		top: Number.POSITIVE_INFINITY,
+		bottom: Number.NEGATIVE_INFINITY,
+	};
+}
+
+/**
+ * Where the point `at` lies in the span, counted as the span counts: either end of the span
+ * included, but the two ends of a circle opened whole are one point, its end.
+ */
+function points(
+	at: number,
+	{ start, end }: Span,
+	{ length, circular }: Bounds,
+): number[] {
+	const whole = circular && end - start === length;
+	return (circular ? [-length, 0, length] : [0])
+		.map((shift) => at + shift)
+		.filter((p) => start <= p && p <= end && !(whole && p === start));
+}
+
+/**
+ * The point `at` as a reader reads it, GenBank's `before^after`. At a circle's origin the last
+ * base is before the first; a linear record's ends read `0^1` and `length^length+1`.
+ */
+function pointText(at: number, { length, circular }: Bounds): string {
+	return circular
+		? `${((at - 1 + length) % length) + 1}^${(at % length) + 1}`
+		: `${at}^${at + 1}`;
+}
+
+/** `span` as a reader reads it, 1-based and inclusive, across the origin as `2684 .. 3`. */
+function spanText({ start, end }: Span, length: number): string {
+	return `${(start % length) + 1} .. ${((end - 1) % length) + 1}`;
 }
 
 function isUnder(place: Place): place is { under: number } {
@@ -475,14 +629,12 @@ function title(
 ): Shape[] {
 	const bases = span.end - span.start;
 	const whole = span.start === 0 && span.end === length;
-	const first = (span.start % length) + 1;
-	const last = ((span.end - 1) % length) + 1;
 	const lines: [string, Face, number][] = [
 		...(name.trim()
 			? [[name, "sans-bold", NAME_SIZE] as [string, Face, number]]
 			: []),
 		[
-			whole ? `${length} bp` : `${first} .. ${last} (${bases} bp)`,
+			whole ? `${length} bp` : `${spanText(span, length)} (${bases} bp)`,
 			"sans",
 			SMALL_SIZE,
 		],
@@ -535,22 +687,21 @@ function ends(left: boolean, right: boolean, width: number): Shape[] {
 }
 
 /**
- * What of `feature` lies in the span, in order along it. On a circular record a feature may lie
- * in the span a turn before or after where its segments count it.
+ * What of `segments`, a feature's or a primer site's, lies in the span, in order along it. On a
+ * circular record they may lie in the span a turn before or after where they are counted.
  */
 function pieces(
-	feature: Feature,
+	segments: readonly (Span & { readonly color: string })[],
 	{ start, end }: Span,
 	{ length, circular }: Bounds,
 ): Piece[] {
-	const { segments } = feature;
 	const runs: [number, number, string | null][] = [];
 	for (const [i, segment] of segments.entries()) {
 		const before = segments[i - 1];
 		if (before && segment.start > before.end) {
 			runs.push([before.end, segment.start, null]);
 		}
-		runs.push([segment.start, segment.end, colorOf(feature, segment)]);
+		runs.push([segment.start, segment.end, segment.color]);
 	}
 	const first = segments[0].start;
 	const last = segments[segments.length - 1].end;
@@ -630,7 +781,9 @@ function barsOf(
  * The tier of each bar, from 0: the first whose last bar ends `BAR_GAP` or more before it
  * starts, taking bars by earliest start.
  */
-function pack(bars: readonly Bar[]): number[] {
+function pack(
+	bars: readonly { readonly start: number; readonly end: number }[],
+): number[] {
 	const ends: number[] = [];
 	const tiers = new Array<number>(bars.length).fill(0);
 	const order = [...bars.keys()].sort(
@@ -645,24 +798,37 @@ function pack(bars: readonly Bar[]): number[] {
 	return tiers;
 }
 
-/** The outline of `arrow` about the height `middle`: its band, and a head at each end it has. */
-function outline(arrow: Arrow, middle: number): [number, number][] {
+/**
+ * The outline of `arrow` about the height `middle`: its band `band` thick, and a head at each end
+ * it has.
+ */
+function outline(
+	arrow: Arrow,
+	middle: number,
+	band = BAND,
+): [number, number][] {
 	const [first, last] = body(arrow);
-	const top = middle - BAND / 2;
-	const bottom = middle + BAND / 2;
+	const reach = overhang(band);
+	const top = middle - band / 2;
+	const bottom = middle + band / 2;
 	const points: [number, number][] = [];
 	if (arrow.headStart) {
-		points.push([arrow.start, middle], [first, top - OVERHANG]);
+		points.push([arrow.start, middle], [first, top - reach]);
 	}
 	points.push([first, top], [last, top]);
 	if (arrow.headEnd) {
 		points.push(
-			[last, top - OVERHANG],
+			[last, top - reach],
 			[arrow.end, middle],
-			[last, bottom + OVERHANG],
+			[last, bottom + reach],
 		);
 	}
 	points.push([last, bottom], [first, bottom]);
-	if (arrow.headStart) points.push([first, bottom + OVERHANG]);
+	if (arrow.headStart) points.push([first, bottom + reach]);
 	return points;
+}
+
+/** How far the heads of an arrow `band` thick reach beyond it, as a feature's do in proportion. */
+function overhang(band: number): number {
+	return (band * OVERHANG) / BAND;
 }
