@@ -186,13 +186,19 @@ function segments(bounds: Bounds) {
 				const runsOn = runsOnFromStart(segments[i - 1], segments[i], bounds);
 				if (runsOn && !crossed) {
 					crossed = true;
+				} else if (runsOn) {
+					yield [
+						[i, "start"],
+						"must be greater than the previous segment's start: a feature runs off a linear record's end once",
+					];
 				} else if (start <= previous) {
 					yield [
 						[i, "start"],
-						`must be greater than the previous segment's start${runsOn ? ": a feature runs off a linear record's end once" : ""}`,
+						"must be greater than the previous segment's start",
 					];
 				}
-				// Ends need not ascend, so each is held to where the first segment starts.
+				// Ends need not ascend, so each is held to the first start: at most it on a linear
+				// record once the feature has run off the end, within one turn past it on a circle.
 				if (crossed && end > first) {
 					yield [
 						[i, "end"],
