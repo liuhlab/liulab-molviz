@@ -233,6 +233,24 @@ describe("an insertion", () => {
 			xs.map((x) => [x, hover]),
 		);
 	});
+
+	test("at the line's start, takes its bar's width into the extent", () => {
+		const scene = lay({ insertions: [{ name: "ins", at: 0, length: 3 }] });
+		// mbio's: half the bar's 2 points, then the 16-point margin.
+		expect(scene.extent.x).toBeCloseTo(-17, 9);
+	});
+
+	test("labelled at a cut site's point, sets its label under the site's", () => {
+		const scene = lay({
+			insertions: [{ name: "ins", at: 500, length: 8 }],
+			cuts: [{ enzyme: "EcoRI", start: 500, end: 506, at: 500, stagger: 0 }],
+		});
+		const [cut, insertion] = ["EcoRI", "+8 bp"].map(
+			(text) => texts(scene).filter((t) => t.text === text)[0].y,
+		);
+		// mbio's boxes rise 17.39 points apart: the insertion's lower.
+		expect(insertion - cut).toBeCloseTo(17.39, 2);
+	});
 });
 
 describe("kinds_off", () => {

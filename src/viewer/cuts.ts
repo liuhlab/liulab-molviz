@@ -2,7 +2,7 @@
 
 import { folded } from "./format";
 import type { Label, Run } from "./labels";
-import { ENZYME } from "./paint";
+import { ENZYME, painted, unlit } from "./paint";
 import type { Record } from "./record";
 import type { Face } from "./text";
 
@@ -31,10 +31,14 @@ export interface CutSite {
 
 const SEPARATOR = " - ";
 
-/** The cut sites of the enzymes `enzymes` names, whatever their case, in order of position. */
+/**
+ * The cut sites of the enzymes `enzymes` names, whatever their case, in order of position. A
+ * site is dimmed when `highlight` names something, but none of its enzymes.
+ */
 export function cutSites(
 	record: Record,
 	enzymes: readonly string[],
+	highlight: readonly string[] = [],
 ): CutSite[] {
 	const on = new Set(enzymes.map(folded));
 	const named = new Map<number, Set<string>>();
@@ -48,7 +52,7 @@ export function cutSites(
 		.sort(([a], [b]) => a - b)
 		.map(([at, names]) => ({
 			at,
-			label: siteLabel(record, at, [...names].sort(byName), counts),
+			label: siteLabel(record, at, [...names].sort(byName), counts, highlight),
 		}));
 }
 
@@ -61,6 +65,7 @@ function siteLabel(
 	at: number,
 	enzymes: readonly string[],
 	counts: ReadonlyMap<string, number>,
+	highlight: readonly string[],
 ): Label {
 	const runs: Run[] = [];
 	const add = (text: string, face: Face) => {
@@ -75,13 +80,14 @@ function siteLabel(
 	}
 	// On a circle, a cut at the origin follows the last base.
 	add(` (${record.circular && at === 0 ? record.bases.length : at})`, "sans");
+	const dim = unlit(highlight, enzymes);
 	return {
 		kind: "cuts",
 		name: enzymes.join(SEPARATOR),
 		spans: [{ start: at, end: at }],
 		runs,
-		color: ENZYME,
-		dim: false,
+		color: painted(ENZYME, dim),
+		dim,
 		cuts: Math.min(...enzymes.map((enzyme) => counts.get(enzyme) ?? 0)),
 	};
 }

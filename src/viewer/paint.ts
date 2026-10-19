@@ -1,5 +1,6 @@
 /** The colours a map paints, which the line and the circle share. Each is written `#rrggbb`. */
 
+import { folded } from "./format";
 import type { Record } from "./record";
 
 /** The colour of each group of feature types, by the types it holds. */
@@ -76,6 +77,24 @@ export function colorOf(
 	const color =
 		segment.color ?? feature.color ?? DEFAULTS.get(feature.type) ?? OTHER;
 	return color.toLowerCase();
+}
+
+/**
+ * Whether `highlight` leaves unlit an item that answers to `names`: it names none of them,
+ * whatever their case. Nothing is unlit when it names nothing.
+ */
+export function unlit(
+	highlight: readonly string[],
+	names: readonly string[],
+): boolean {
+	if (highlight.length === 0) return false;
+	const lit = new Set(highlight.map(folded));
+	return !names.some((name) => lit.has(folded(name)));
+}
+
+/** `color`, or `DIM` for an item a highlight leaves unlit. */
+export function painted(color: string, dim: boolean): string {
+	return dim ? DIM : color;
 }
 
 /** `color` darkened, so even a white arrow's outline shows on a white ground. */

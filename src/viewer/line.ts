@@ -7,7 +7,6 @@ import { cutSites } from "./cuts";
 import {
 	GAP,
 	hiddenOf,
-	KINDS,
 	type Kind,
 	LABEL_SIZE,
 	type Label,
@@ -25,8 +24,10 @@ import {
 	INSERTION,
 	OUTLINE_WIDTH,
 	PRIMER,
+	painted,
 	shaded,
 	textColor,
+	unlit,
 } from "./paint";
 import type { Bounds, Record, Span } from "./record";
 import { type Box, leftEdge, type Shape } from "./scene";
@@ -98,6 +99,8 @@ export interface Drawn {
 	/** How high its marks reach, which the labels clear, and how low, which the title clears. */
 	readonly top: number;
 	readonly bottom: number;
+	/** What its marks cover that their shapes' boxes leave out, such as a bar's stroke. */
+	readonly covers?: readonly Box[];
 }
 
 const NOTHING: Drawn = {
@@ -107,13 +110,16 @@ const NOTHING: Drawn = {
 	bottom: Number.NEGATIVE_INFINITY,
 };
 
-/** How the line draws each kind. Kinds draw in `KINDS` order, and one switched off is skipped. */
+/** How the line draws each kind. One switched off is skipped. */
 const DRAWS: { readonly [K in Kind]: (along: Along) => Drawn } = {
+	features,
 	primers,
 	insertions,
-	features,
 	cuts,
 };
+
+/** The order kinds draw in and their labels gather in, where the first sits lowest at one x. */
+const ORDER: readonly Kind[] = ["features", "primers", "insertions", "cuts"];
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
 interface Piece {
@@ -171,7 +177,7 @@ export function layout(
 	const backboneTop = -BACKBONE / 2;
 	const along: Along = { record, options, bounds, at, backboneTop };
 	const off = new Set(options.kinds_off);
-	const drawn = KINDS.filter((kind) => !off.has(kind)).map((kind) =>
+	const drawn = ORDER.filter((kind) => !off.has(kind)).map((kind) =>
 		DRAWS[kind](along),
 	);
 	const shapes: Shape[] = [
@@ -192,7 +198,8 @@ export function layout(
 	shapes.push(...above.shapes);
 	const bottom = Math.max(ruled(), ...drawn.map((one) => one.bottom));
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
-	const covered = extent(shapes, width, above.boxes);
+	const boxes = [...above.boxes, ...drawn.flatMap((one) => one.covers ?? [])];
+	const covered = extent(shapes, width, boxes);
 	shapes.push(
 		...noticeShapes(
 			above.hidden,
@@ -201,7 +208,7 @@ export function layout(
 		),
 	);
 	return {
-		extent: extent(shapes, width, above.boxes),
+		extent: extent(shapes, width, boxes),
 		shapes,
 		hidden: above.hidden.map(hiddenOf),
 	};
@@ -223,12 +230,13 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 	const bars: Bar[] = [];
 	for (const feature of record.features) {
 		if (off.has(feature.type)) continue;
+		const dim = unlit(options.highlight, [feature.name]);
 		const colored = feature.segments.map((segment) => ({
 			...segment,
-			color: colorOf(feature, segment),
+			color: painted(colorOf(feature, segment), dim),
 		}));
 		const found = pieces(colored, options.span, bounds);
-		bars.push(...barsOf(feature, found, at));
+		bars.push(...barsOf(feature, dim, found, at));
 	}
 	const tiers = pack(bars);
 	const placed = places(bars, tiers);
@@ -245,6 +253,7 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 	const shapes: Shape[] = [];
 	for (const [i, bar] of bars.entries()) {
 		const middle = middles[tiers[i]];
+		const { dim } = bar.label;
 		for (const [x1, x2] of bar.gaps) {
 			shapes.push({
 				shape: "line",
@@ -252,7 +261,7 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 				y1: middle,
 				x2,
 				y2: middle,
-				stroke: CONNECTOR,
+				stroke: painted(CONNECTOR, dim),
 				strokeWidth: CONNECTOR_WIDTH,
 			});
 		}
@@ -273,7 +282,7 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 				? [middleOf(body(place.inside)), textColor(place.inside.color), middle]
 				: [
 						place.under + measure(name, "sans", LABEL_SIZE) / 2,
-						INK,
+						painted(INK, dim),
 						middle + BAND / 2 + OVERHANG + PAD_Y + lineHeight / 2,
 					];
 		shapes.push({
@@ -297,7 +306,8 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 
 /** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
 function cuts({ record, options, bounds, at, backboneTop }: Along): Drawn {
-	const labels = cutSites(record, options.enzymes).flatMap((site) =>
+	const sites = cutSites(record, options.enzymes, options.highlight);
+	const labels = sites.flatMap((site) =>
 		points(site.at, options.span, bounds).map((point) => ({
 			label: site.label,
 			x: at(point),
@@ -317,6 +327,8 @@ function primers({ record, options, bounds, at }: Along): Drawn {
 	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_BAND / 2;
 	const drawn: { arrow: Arrow; label: Label }[] = [];
 	for (const { name, sites } of record.primers) {
+		const dim = unlit(options.highlight, [name]);
+		const color = painted(PRIMER, dim);
 		for (const site of sites) {
 			const { start, end } = site;
 			const label: Label = {
@@ -326,16 +338,16 @@ function primers({ record, options, bounds, at }: Along): Drawn {
 				runs: [
 					{ text: `${name} (${spanText(site, bounds.length)})`, face: "sans" },
 				],
-				color: PRIMER,
-				dim: false,
+				color,
+				dim,
 				cuts: 0,
 			};
-			const colored = [{ start, end, color: PRIMER }];
+			const colored = [{ start, end, color }];
 			for (const piece of pieces(colored, options.span, bounds)) {
 				const arrow: Arrow = {
 					start: at(piece.start),
 					end: at(piece.end),
-					color: PRIMER,
+					color,
 					headStart: piece.starts && site.strand === -1,
 					headEnd: piece.ends && site.strand === 1,
 				};
@@ -350,8 +362,8 @@ function primers({ record, options, bounds, at }: Along): Drawn {
 	const shapes: Shape[] = drawn.map(({ arrow }, i) => ({
 		shape: "polygon",
 		points: outline(arrow, middles[i], PRIMER_BAND),
-		fill: PRIMER,
-		stroke: shaded(PRIMER),
+		fill: arrow.color,
+		stroke: shaded(arrow.color),
 		strokeWidth: OUTLINE_WIDTH,
 	}));
 	const labels = drawn.map(({ arrow, label }, i) => ({
@@ -380,9 +392,15 @@ function insertions({
 }: Along): Drawn {
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
+	const covers: Box[] = [];
+	const [y1, y2] = [
+		backboneTop - INSERTION_REACH,
+		STRANDS_APART + BACKBONE / 2 + INSERTION_REACH,
+	];
 	for (const insertion of record.insertions) {
 		const point = insertion.at;
-		const color = insertion.color?.toLowerCase() ?? INSERTION;
+		const dim = unlit(options.highlight, [insertion.name]);
+		const color = painted(insertion.color?.toLowerCase() ?? INSERTION, dim);
 		const hover = [insertion.name.trim(), pointText(point, bounds)]
 			.filter(Boolean)
 			.join(" · ");
@@ -392,19 +410,25 @@ function insertions({
 			spans: [{ start: point, end: point }],
 			runs: [{ text: `+${insertion.length} bp`, face: "sans" }],
 			color,
-			dim: false,
+			dim,
 			cuts: 0,
 		};
 		for (const x of points(point, options.span, bounds).map(at)) {
 			shapes.push({
 				shape: "line",
 				x1: x,
-				y1: backboneTop - INSERTION_REACH,
+				y1,
 				x2: x,
-				y2: STRANDS_APART + BACKBONE / 2 + INSERTION_REACH,
+				y2,
 				stroke: color,
 				strokeWidth: INSERTION_WIDTH,
 				hover,
+			});
+			covers.push({
+				x: x - INSERTION_WIDTH / 2,
+				y: y1,
+				width: INSERTION_WIDTH,
+				height: y2 - y1,
 			});
 			labels.push({ label, x, foot: backboneTop });
 		}
@@ -414,6 +438,7 @@ function insertions({
 		labels,
 		top: Number.POSITIVE_INFINITY,
 		bottom: Number.NEGATIVE_INFINITY,
+		covers,
 	};
 }
 
@@ -548,16 +573,16 @@ function bounds(shape: Shape): Box | null {
 	}
 }
 
-/** What `shapes`, a backbone `width` long and the labels' `boxes` cover, and `MARGIN` beyond. */
+/** What `shapes`, a backbone `width` long and the boxes `more` cover, and `MARGIN` beyond. */
 function extent(
 	shapes: readonly Shape[],
 	width: number,
-	labels: readonly Box[],
+	more: readonly Box[],
 ): Box {
 	const boxes = [
 		{ x: 0, y: -BACKBONE / 2, width, height: STRANDS_APART + BACKBONE },
 		...shapes.flatMap((shape) => bounds(shape) ?? []),
-		...labels,
+		...more,
 	];
 	const left = Math.min(...boxes.map((b) => b.x)) - MARGIN;
 	const top = Math.min(...boxes.map((b) => b.y)) - MARGIN;
@@ -741,9 +766,10 @@ function pieces(
 	return found.sort((a, b) => a.start - b.start || a.end - b.end);
 }
 
-/** The bars `found` draws: each run of pieces that follow on from one another. */
+/** The bars `found` draws, each run of pieces that follow on from one another, dimmed if `dim`. */
 function barsOf(
 	feature: Feature,
+	dim: boolean,
 	found: readonly Piece[],
 	at: (position: number) => number,
 ): Bar[] {
@@ -752,8 +778,8 @@ function barsOf(
 		name: feature.name,
 		spans: feature.segments.map(({ start, end }) => ({ start, end })),
 		runs: [{ text: feature.name, face: "sans" }],
-		color: colorOf(feature, feature.segments[0]),
-		dim: false,
+		color: painted(colorOf(feature, feature.segments[0]), dim),
+		dim,
 		cuts: 0,
 	};
 	const groups: Piece[][] = [];
