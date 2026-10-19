@@ -204,7 +204,7 @@ export function layout(
 		top,
 	);
 	shapes.push(...above.shapes);
-	const bottom = Math.max(ruled(), ...drawn.map((one) => one.bottom));
+	const bottom = Math.max(rulerBottom(), ...drawn.map((one) => one.bottom));
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
 	const boxes = [...above.boxes, ...drawn.flatMap((one) => one.covers ?? [])];
 	const covered = extent(shapes, width, boxes);
@@ -223,7 +223,7 @@ export function layout(
 }
 
 /** Where the ruler's numbers end, under the backbone. */
-function ruled(): number {
+function rulerBottom(): number {
 	return (
 		STRANDS_APART + BACKBONE / 2 + TICK + 2 * PAD_Y + height("sans", SMALL_SIZE)
 	);
@@ -259,7 +259,7 @@ function features({ record, options, bounds, at, backboneTop }: Along): Drawn {
 	const placed = places(bars, tiers);
 	const named = new Set(tiers.filter((_, i) => isUnder(placed[i])));
 	const lineHeight = height("sans", LABEL_SIZE);
-	let y = ruled();
+	let y = rulerBottom();
 	const middles: number[] = [];
 	for (let tier = 0; tier <= Math.max(-1, ...tiers); tier++) {
 		y += TIER_GAP;

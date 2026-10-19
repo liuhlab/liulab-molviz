@@ -113,7 +113,7 @@ describe("cutSites", () => {
 			kind: "cuts",
 			name: "BsmBI - Esp3I",
 			spans: [{ start: 3, end: 3 }],
-			cuts: 2,
+			fewestCuts: 2,
 		});
 	});
 });

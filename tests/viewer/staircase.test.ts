@@ -8,9 +8,9 @@ function label(
 	name: string,
 	{
 		kind = "features",
-		cuts = 0,
+		fewestCuts = 0,
 		dim = false,
-	}: { kind?: Kind; cuts?: number; dim?: boolean } = {},
+	}: { kind?: Kind; fewestCuts?: number; dim?: boolean } = {},
 ): Label {
 	return {
 		kind,
@@ -19,7 +19,7 @@ function label(
 		runs: [{ text: name, face: "sans" }],
 		color: "#dddddd",
 		dim,
-		cuts,
+		fewestCuts,
 	};
 }
 
@@ -62,8 +62,8 @@ describe("labelsAbove", () => {
 	);
 
 	test("hides in the hiding order, and lists them in the order they hid", () => {
-		const site = (name: string, cuts: number) =>
-			label(name, { kind: "cuts", cuts });
+		const site = (name: string, fewestCuts: number) =>
+			label(name, { kind: "cuts", fewestCuts });
 		const fillers = Array.from({ length: 41 }, (_, i) =>
 			site(`E${10 + i} (1)`, 1),
 		);
@@ -86,9 +86,9 @@ describe("labelsAbove", () => {
 
 	test("hides a lit label last", () => {
 		const dimmed = Array.from({ length: 41 }, (_, i) =>
-			label(`n${i}`, { kind: "cuts", cuts: 1, dim: true }),
+			label(`n${i}`, { kind: "cuts", fewestCuts: 1, dim: true }),
 		);
-		const lit = label("cut most", { kind: "cuts", cuts: 5 });
+		const lit = label("cut most", { kind: "cuts", fewestCuts: 5 });
 		const { hidden } = labelsAbove(at(100, [lit, ...dimmed]), 0);
 		expect(names(hidden)).toEqual(["n10"]);
 	});
@@ -114,8 +114,8 @@ describe("labelsAbove", () => {
 	test("hides only from the stack too tall, never a label beside it", () => {
 		// A stack at 100 must hide 4. A wide label first to hide reaches from it to labels at 400,
 		// some next to hide, that fit; nothing in the stack rests on it.
-		const site = (name: string, cuts: number) =>
-			label(name, { kind: "cuts", cuts });
+		const site = (name: string, fewestCuts: number) =>
+			label(name, { kind: "cuts", fewestCuts });
 		const left = Array.from({ length: 45 }, (_, i) =>
 			site(`A${String(i + 1).padStart(2, "0")}`, 2),
 		);
@@ -133,8 +133,8 @@ describe("labelsAbove", () => {
 	test("counts a box as resting on the one nearest its leader, where two hold it as high", () => {
 		// The wide box rests on "short" under its leader and on the far site, both on the lowest
 		// row; the stack at 100 must hide 1.
-		const site = (name: string, cuts: number) =>
-			label(name, { kind: "cuts", cuts });
+		const site = (name: string, fewestCuts: number) =>
+			label(name, { kind: "cuts", fewestCuts });
 		const far = site("far (9)", 9);
 		const stack = [
 			label("short"),

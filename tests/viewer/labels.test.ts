@@ -18,7 +18,7 @@ function hid(kind: Kind, name = "x") {
 function label(
 	kind: Kind,
 	text: string,
-	{ cuts = 0, dim = false } = {},
+	{ fewestCuts = 0, dim = false } = {},
 ): Label {
 	return {
 		kind,
@@ -27,7 +27,7 @@ function label(
 		runs: [{ text, face: "sans" }],
 		color: "#000000",
 		dim,
-		cuts,
+		fewestCuts,
 	};
 }
 
@@ -39,9 +39,9 @@ describe("hidingOrder", () => {
 	// mbio's `layers.hiding` example.
 	test("hides the sites of the enzyme that cuts most first, then the longer label", () => {
 		const sites = [
-			label("cuts", "EcoRI (396)", { cuts: 1 }),
-			label("cuts", "BsmBI (3)", { cuts: 2 }),
-			label("cuts", "BsmBI (45)", { cuts: 2 }),
+			label("cuts", "EcoRI (396)", { fewestCuts: 1 }),
+			label("cuts", "BsmBI (3)", { fewestCuts: 2 }),
+			label("cuts", "BsmBI (45)", { fewestCuts: 2 }),
 		];
 		expect(said(sites.sort(hidingOrder))).toEqual([
 			"BsmBI (45)",
@@ -55,7 +55,7 @@ describe("hidingOrder", () => {
 			label("insertions", "+25 bp"),
 			label("features", "lacZ"),
 			label("primers", "M13 fwd (1 .. 17)"),
-			label("cuts", "EcoRI (396)", { cuts: 1 }),
+			label("cuts", "EcoRI (396)", { fewestCuts: 1 }),
 			label("insertions", "+3 bp", { dim: true }),
 		];
 		expect(said(labels.sort(hidingOrder))).toEqual([
@@ -75,7 +75,7 @@ describe("noticeShapes", () => {
 
 	test("sets the notice under the bottom right corner, listing each hidden label on hover", () => {
 		const hidden = [
-			label("cuts", "EcoRI (396)", { cuts: 1 }),
+			label("cuts", "EcoRI (396)", { fewestCuts: 1 }),
 			label("primers", "M13 fwd (1 .. 17)"),
 		];
 		const shapes = noticeShapes(hidden, 700, 100);

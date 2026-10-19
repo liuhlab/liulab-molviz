@@ -91,7 +91,7 @@ function siteLabel(
 		highlight,
 		{
 			names: enzymes,
-			cuts: Math.min(...enzymes.map((enzyme) => counts.get(enzyme) ?? 0)),
+			fewestCuts: Math.min(...enzymes.map((enzyme) => counts.get(enzyme) ?? 0)),
 		},
 	);
 }

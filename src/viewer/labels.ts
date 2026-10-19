@@ -52,12 +52,12 @@ export interface Label extends Hidden {
 	/** Whether a highlight leaves it unlit. */
 	readonly dim: boolean;
 	/** For a cut site, the fewest times one of its enzymes cuts the record; else 0. */
-	readonly cuts: number;
+	readonly fewestCuts: number;
 }
 
 /**
  * The label of `item` that says `runs` in `color`, dimmed to one grey when `highlight` names
- * something but none of `names`. Only a cut site's label passes `cuts`.
+ * something but none of `names`. Only a cut site's label passes `fewestCuts`.
  */
 export function labelOf(
 	item: Hidden,
@@ -66,11 +66,11 @@ export function labelOf(
 	highlight: readonly string[],
 	{
 		names = [item.name],
-		cuts = 0,
-	}: { names?: readonly string[]; cuts?: number } = {},
+		fewestCuts = 0,
+	}: { names?: readonly string[]; fewestCuts?: number } = {},
 ): Label {
 	const dim = unlit(highlight, names);
-	return { ...item, runs, color: painted(color, dim), dim, cuts };
+	return { ...item, runs, color: painted(color, dim), dim, fewestCuts };
 }
 
 /** The radius of a box's corners. */
@@ -148,7 +148,7 @@ export function hidingOrder(a: Label, b: Label): number {
 	const key = (label: Label) => [
 		label.dim ? 0 : 1,
 		HIDING[label.kind],
-		-label.cuts,
+		-label.fewestCuts,
 		-textOf(label).length,
 	];
 	const [first, second] = [key(a), key(b)];
