@@ -1,4 +1,4 @@
-/** Checks on a drawing round a circle centred on (0, 0), shared by the circle's tests. */
+/** Checks on boxes and segments, and on a drawing round a circle centred on (0, 0). */
 
 import type { Box } from "../../src/viewer/scene";
 

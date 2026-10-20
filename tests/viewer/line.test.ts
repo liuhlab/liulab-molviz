@@ -7,6 +7,13 @@ import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
 import backboneFile from "../records/puc19-backbone-amplicon.json";
+import {
+	crossing,
+	enzymesOf,
+	onTheDrawing,
+	overlapping,
+	RECORDS,
+} from "./apart";
 
 const colourTest = check(colourTestFile);
 const backbone = check(backboneFile);
@@ -772,5 +779,24 @@ describe("the extent", () => {
 		const { extent } = scene;
 		expect(extent.x + extent.width).toBeCloseTo(text.right + 3 + 16, 9);
 		expect(extent.y).toBeCloseTo(text.top - 1 - 16, 9);
+	});
+});
+
+describe.each(RECORDS)("%s drawn whole", (_, file) => {
+	describe.each([
+		["the unique cutters", {}],
+		["every enzyme", { enzymes: enzymesOf(file) }],
+	])("with %s", (__, given) => {
+		const record = check(file);
+		const scene = layoutLine(record, checkOptions(given, record));
+
+		test("no two labels overlap, and none overlaps the drawing", () => {
+			expect(overlapping(scene)).toEqual([]);
+			expect(onTheDrawing(scene)).toEqual([]);
+		});
+
+		test("no leader crosses another label", () => {
+			expect(crossing(scene)).toEqual([]);
+		});
 	});
 });

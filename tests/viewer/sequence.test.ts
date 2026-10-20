@@ -4,6 +4,13 @@ import { check } from "../../src/viewer/record";
 import type { Shape } from "../../src/viewer/scene";
 import { layoutSequence, type SequenceScene } from "../../src/viewer/sequence";
 import { measure } from "../../src/viewer/text";
+import {
+	crossing,
+	enzymesOf,
+	onTheDrawing,
+	overlapping,
+	RECORDS,
+} from "./apart";
 
 /** 25 bases on a linear record, unless `record` says otherwise. */
 const BASES = "ACGTACGTACGTACGTACGTACGTA";
@@ -421,5 +428,27 @@ describe("features", () => {
 		expect(new Set(texts(lit, "mono").map((t) => t.fill))).toEqual(
 			new Set(["#252525"]),
 		);
+	});
+});
+
+describe.each(RECORDS)("%s drawn whole", (_, file) => {
+	describe.each([
+		["the unique cutters", {}],
+		["every enzyme", { enzymes: enzymesOf(file) }],
+	])("with %s", (__, given) => {
+		const record = check(file);
+		const scene = layoutSequence(
+			record,
+			checkOptions({ sequence_view: true, ...given }, record),
+		);
+
+		test("no two labels overlap, and none overlaps the drawing", () => {
+			expect(overlapping(scene)).toEqual([]);
+			expect(onTheDrawing(scene)).toEqual([]);
+		});
+
+		test("no leader crosses another label", () => {
+			expect(crossing(scene)).toEqual([]);
+		});
 	});
 });
