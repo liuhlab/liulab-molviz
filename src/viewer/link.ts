@@ -158,11 +158,17 @@ export function addLinks(frame: Frame): void {
 	frame.onChange(redrawn);
 	redrawn();
 
-	/** The pane in sight, in client pixels, from its bar's foot to its own; null before layout. */
+	/**
+	 * The pane in sight, in client pixels, from its bar's foot to its own, within the window; null
+	 * before layout.
+	 */
 	const sight = (): { top: number; bottom: number } | null => {
 		const { top } = pane.getBoundingClientRect();
-		const bottom = top + pane.clientHeight;
-		const under = Math.max(top, paneBar.getBoundingClientRect().bottom);
+		const bottom = Math.min(
+			top + pane.clientHeight,
+			window?.innerHeight ?? Number.POSITIVE_INFINITY,
+		);
+		const under = Math.max(top, paneBar.getBoundingClientRect().bottom, 0);
 		return bottom > under ? { top: under, bottom } : null;
 	};
 

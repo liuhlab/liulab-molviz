@@ -106,21 +106,21 @@ function onBases(
 }
 
 /**
- * Lay `frame`'s pane out as a browser would: `height` CSS pixels tall at the window's top, its
- * bar `bar` of them, the view's points one pixel each from the bar's foot down, scrolled by the
- * pane. Returns the client y of a point of the view.
+ * Lay `frame`'s pane out as a browser would: `height` CSS pixels tall with its top at the client
+ * y `at`, its bar `bar` of them, the view's points one pixel each from the bar's foot down,
+ * scrolled by the pane. Returns the client y of a point of the view.
  */
 function laidOutPane(
 	frame: Frame,
-	{ height = 200, bar = 30 } = {},
+	{ height = 200, bar = 30, at = 0 } = {},
 ): (y: number) => number {
 	const { pane, paneBar } = frame;
 	const svg = viewSvg(frame);
 	const top = Number(svg.getAttribute("viewBox")?.split(" ")[1]);
 	Object.defineProperty(pane, "clientHeight", { value: height });
-	pane.getBoundingClientRect = () => new DOMRect(0, 0, 800, height);
-	paneBar.getBoundingClientRect = () => new DOMRect(0, 0, 800, bar);
-	const client = (y: number) => bar + y - top - pane.scrollTop;
+	pane.getBoundingClientRect = () => new DOMRect(0, at, 800, height);
+	paneBar.getBoundingClientRect = () => new DOMRect(0, at, 800, bar);
+	const client = (y: number) => at + bar + y - top - pane.scrollTop;
 	svg.getScreenCTM = () => new DOMMatrix([1, 0, 0, 1, 0, client(0)]);
 	return client;
 }
@@ -436,6 +436,41 @@ describe("a drag across bases past the pane's edge", () => {
 		const left = pane.scrollTop;
 		vi.advanceTimersByTime(500);
 		expect(pane.scrollTop).toBe(left);
+	});
+
+	test("scrolls once the pointer is past the window's foot or top, where the pane runs past the window", () => {
+		vi.useFakeTimers({
+			toFake: ["requestAnimationFrame", "cancelAnimationFrame", "performance"],
+		});
+		const tall = window.innerHeight;
+		window.innerHeight = 150;
+		try {
+			const long = { ...linear, bases: "ACGT".repeat(250) };
+			const frame = opened(long, { sequence_view: true });
+			const { pane } = frame;
+			const client = laidOutPane(frame, { height: 400, at: -100 });
+			const svg = viewSvg(frame);
+			const [x, y] = onBases(frame, [20])[0];
+			svg.dispatchEvent(pointer("pointerdown", x, client(y)));
+			svg.dispatchEvent(pointer("pointermove", x, 160));
+			vi.advanceTimersByTime(500);
+			const down = pane.scrollTop;
+			expect(down).toBeGreaterThan(90);
+			expect(down).toBeLessThanOrEqual(100);
+			const rows = frame.sequence()?.rows ?? [];
+			const [{ end }] = spansOf(frame);
+			const foot = rows.findLast((row) => client(row.strands.top[0]) <= 150);
+			expect(rowHolding(rows, end - 1)).toBe(foot);
+			svg.dispatchEvent(pointer("pointermove", x, 100));
+			vi.advanceTimersByTime(500);
+			expect(pane.scrollTop).toBe(down);
+			svg.dispatchEvent(pointer("pointermove", x, -10));
+			vi.advanceTimersByTime(500);
+			expect(pane.scrollTop).toBeLessThan(down - 90);
+			svg.dispatchEvent(pointer("pointerup", x, -10));
+		} finally {
+			window.innerHeight = tall;
+		}
 	});
 });
 
