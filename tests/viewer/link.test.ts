@@ -576,13 +576,21 @@ describe("hovering the sequence view", () => {
 	});
 });
 
-/** What `frame` says of its selection, and where: its caption, Copy, and the set holding both. */
+/** Whether `element` shows, as against hidden with its room kept. */
+function visible(element: Element): boolean {
+	return getComputedStyle(element).visibility !== "hidden";
+}
+
+/**
+ * What `frame` says of its selection, and where: its caption, null while hidden, Copy, the set
+ * holding both, and the caption's element.
+ */
 function said(frame: Frame) {
 	const output = frame.box.parentElement?.querySelector("output");
 	const set = output?.closest("fieldset");
 	const copy = set?.querySelector("button");
 	if (!output || !set || !copy) throw new Error("no caption");
-	return { set, text: set.hidden ? null : output.textContent, copy };
+	return { set, text: visible(set) ? output.textContent : null, copy, output };
 }
 
 /** A copy by the keys or the Edit menu, and what it put on the clipboard, if anything. */
@@ -612,12 +620,11 @@ describe("the caption", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { paneBar } = frame;
 		expect(said(frame).text).toBeNull();
-		expect(getComputedStyle(said(frame).set).display).toBe("none");
 		const ground = viewSvg(frame).firstElementChild as Element;
 		drag(ground, onBases(frame, [150, 200, 275]));
 		const { set, text, copy } = said(frame);
 		expect(text).toBe("151 .. 276 (126 bp)");
-		expect(copy.hidden).toBe(false);
+		expect(visible(copy)).toBe(true);
 		expect([...paneBar.children]).toEqual([
 			input(frame, "both").closest("label"),
 			set,
@@ -628,8 +635,36 @@ describe("the caption", () => {
 		const frame = opened(insertionsFile, { sequence_view: true });
 		click(itemIn(mapSvg(frame), keyNamed(mapSvg(frame), "barcode")));
 		expect(said(frame).text).toBe("45^46");
-		expect(said(frame).copy.hidden).toBe(true);
+		expect(visible(said(frame).copy)).toBe(false);
 		expect(copyKeys()).toBeNull();
+	});
+
+	test("keeps its room in either bar, selected or not, so no press or clear moves a drawing", () => {
+		for (const sequence_view of [true, false]) {
+			const frame = opened(insertionsFile, { sequence_view });
+			const map = mapSvg(frame);
+			const { set, copy, output } = said(frame);
+			const home = set.parentElement;
+			const presses = [
+				() => click(itemIn(map, keyNamed(map, "lac operator"))),
+				() => click(itemIn(map, keyNamed(map, "barcode"))),
+				() => click(map.firstElementChild as Element),
+			];
+			for (const press of [() => {}, ...presses]) {
+				press();
+				expect(set.parentElement).toBe(home);
+				for (const element of [set, copy]) {
+					expect(element.hidden).toBe(false);
+					expect(getComputedStyle(element).display).not.toBe("none");
+				}
+				// No caption is wider than its room, kept in characters as wide as a digit.
+				expect(output.style.minWidth).toMatch(/^\d+ch$/);
+				expect(output.textContent?.length).toBeLessThanOrEqual(
+					Number.parseInt(output.style.minWidth, 10),
+				);
+			}
+			expect(said(frame).text).toBeNull();
+		}
 	});
 
 	test("joins the frame's bar after Reset with the view off or absent", () => {

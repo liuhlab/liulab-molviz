@@ -638,6 +638,7 @@ function css(): string {
 	gap: 6px 24px; margin-left: auto;
 }
 .molviz .bar .zoom, .molviz .bar .selection { align-items: center; gap: 10px; }
+.molviz .bar .selection output { white-space: nowrap; }
 .molviz .bar .zoom input { width: 96px; }
 .molviz .bar .zoom button, .molviz .bar .selection button {
 	padding: 2px 10px; border: 1px solid ${LEADER}; background: ${GROUND};

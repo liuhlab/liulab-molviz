@@ -18,6 +18,7 @@ import { type Bounds, recordBounds, type Span } from "./record";
 import type { Shape } from "./scene";
 import {
 	caption,
+	captionRoom,
 	clicked,
 	copied,
 	type Drag,
@@ -78,13 +79,20 @@ export function addLinks(frame: Frame): void {
 	const copy = document.createElement("button");
 	copy.type = "button";
 	copy.textContent = "Copy";
+	output.style.minWidth = `${captionRoom(record)}ch`;
 	const said = fieldset(document, "Selection", [output, copy], "selection");
-	/** Say the selection, in the pane's bar while the view shows, else in the frame's. */
+	/**
+	 * Say the selection, in the pane's bar while the view shows, else in the frame's. What says
+	 * nothing hides with its room kept, so that nothing moves.
+	 */
 	const say = () => {
 		const { selection } = state;
-		said.hidden = selection === null;
+		const room = (element: HTMLElement, shown: unknown) => {
+			element.style.visibility = shown ? "" : "hidden";
+		};
+		room(said, selection);
 		output.textContent = selection ? caption(selection, bounds) : "";
-		copy.hidden = !(selection && "spans" in selection);
+		room(copy, selection && "spans" in selection);
 		const home = frame.sequence()
 			? paneBar
 			: (bar.querySelector(".end") ?? bar);

@@ -161,6 +161,21 @@ export function copied(selection: Selection, bases: string): string {
 		.join("");
 }
 
+/**
+ * How many characters the longest caption a selection in `record` can have holds: its numbers
+ * as long as the record's length, and as many spans as a feature across a linear end selects.
+ */
+export function captionRoom(record: Record): number {
+	const bounds = recordBounds(record);
+	const number = "0".repeat(String(bounds.length).length);
+	const parts = record.features.map(
+		({ segments }) => hulls(segments, bounds).length,
+	);
+	const span = `${number} .. ${number}`;
+	const spans = Array.from({ length: Math.max(1, ...parts) }, () => span);
+	return `${spans.join(", ")} (${number} bp)`.length;
+}
+
 /** `selection` as its caption says it: `151 .. 276 (126 bp)`. */
 export function caption(selection: Selection, bounds: Bounds): string {
 	if (!("spans" in selection)) return pointText(selection.at, bounds);
