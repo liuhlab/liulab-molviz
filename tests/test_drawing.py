@@ -305,6 +305,12 @@ def test_a_page_loads_nothing_over_the_network(tmp_path, draw, data, page_title)
     assert not NETWORK.search(written)
 
 
+@pytest.mark.parametrize(("draw", "data", "page_title"), DRAWS)
+def test_a_page_declares_a_light_colour_scheme(tmp_path, draw, data, page_title) -> None:
+    written = page(draw(data), tmp_path)
+    assert '<meta name="color-scheme" content="light">' in written
+
+
 def test_the_font_rules_load_each_face_from_the_rules_themselves() -> None:
     rules = font_rules()
     sources = re.findall(r"url\(([^)]*)\)", rules)
