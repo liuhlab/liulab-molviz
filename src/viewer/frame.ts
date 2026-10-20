@@ -86,7 +86,10 @@ export interface Frame {
 	sequence(): SequenceShown | null;
 	/** The base of the sequence view at `at`, or with `near` the nearest; null off its strands. */
 	sequenceBase(at: ClientPoint, near?: boolean): number | null;
-	/** Show both strands of the sequence view, or the top one alone, as the options say. */
+	/**
+	 * Show both strands of the sequence view, or the top one alone, as the options say, laying
+	 * nothing out again, then call the listeners.
+	 */
 	showStrands(): void;
 	/**
 	 * Lay out again what the state changed and swap it in, returning the map. The map flipped
