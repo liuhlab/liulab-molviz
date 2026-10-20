@@ -425,8 +425,8 @@ describe("a drag across bases past the pane's edge", () => {
 		// The last base selected is in the row at the pane's foot, where the pointer is held.
 		const foot = rows.findLast((row) => client(row.y) <= 200);
 		expect(rowHolding(rows, end - 1)).toBe(foot);
-		// Back inside, the pane holds still.
-		svg.dispatchEvent(pointer("pointermove", x, 100));
+		// Back inside, even near its foot, the pane holds still.
+		svg.dispatchEvent(pointer("pointermove", x, 190));
 		const still = pane.scrollTop;
 		vi.advanceTimersByTime(500);
 		expect(pane.scrollTop).toBe(still);
@@ -440,7 +440,7 @@ describe("a drag across bases past the pane's edge", () => {
 		expect(pane.scrollTop).toBe(left);
 	});
 
-	test("scrolls once the pointer is past the window's foot or top, where the pane runs past the window", () => {
+	test("scrolls once the pointer is near the window's foot or top, where the pane runs past the window", () => {
 		vi.useFakeTimers({
 			toFake: ["requestAnimationFrame", "cancelAnimationFrame", "performance"],
 		});
@@ -454,7 +454,7 @@ describe("a drag across bases past the pane's edge", () => {
 			const svg = sequenceSvg(frame);
 			const [x, y] = onBases(frame, [20])[0];
 			svg.dispatchEvent(pointer("pointerdown", x, client(y)));
-			svg.dispatchEvent(pointer("pointermove", x, 160));
+			svg.dispatchEvent(pointer("pointermove", x, 140));
 			vi.advanceTimersByTime(500);
 			const down = pane.scrollTop;
 			expect(down).toBeGreaterThan(90);
@@ -466,10 +466,10 @@ describe("a drag across bases past the pane's edge", () => {
 			svg.dispatchEvent(pointer("pointermove", x, 100));
 			vi.advanceTimersByTime(500);
 			expect(pane.scrollTop).toBe(down);
-			svg.dispatchEvent(pointer("pointermove", x, -10));
+			svg.dispatchEvent(pointer("pointermove", x, 10));
 			vi.advanceTimersByTime(500);
 			expect(pane.scrollTop).toBeLessThan(down - 90);
-			svg.dispatchEvent(pointer("pointerup", x, -10));
+			svg.dispatchEvent(pointer("pointerup", x, 10));
 		} finally {
 			window.innerHeight = tall;
 		}

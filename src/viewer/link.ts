@@ -26,6 +26,9 @@ const CLICK = 4;
 /** Each second, a pointer past the pane's top or foot scrolls it this many times as far. */
 const PACE = 20;
 
+/** How near, in CSS pixels, the window's top or foot a pointer counts as past it. */
+const WINDOW_EDGE = 20;
+
 /** Each drawing's layer of shading, after its ground and behind everything it draws. */
 const layers = new WeakMap<SVGSVGElement, SVGGElement>();
 
@@ -69,17 +72,29 @@ export function addLinks(frame: Frame): void {
 	show(frame, bounds);
 
 	/**
-	 * The pane in sight, in client pixels, from its bar's foot to its own, within the window; null
-	 * before layout.
+	 * The pane in sight, in client pixels, from its bar's foot to its own, within the window, and
+	 * where a pointer starts it scrolling: past its edge, or near the window's where that is its
+	 * edge, as a window filling the screen can go no farther. Null before layout.
 	 */
-	const sight = (): { top: number; bottom: number } | null => {
+	const sight = (): {
+		top: number;
+		bottom: number;
+		from: number;
+		to: number;
+	} | null => {
 		const { top } = pane.getBoundingClientRect();
-		const bottom = Math.min(
-			top + pane.clientHeight,
-			window?.innerHeight ?? Number.POSITIVE_INFINITY,
-		);
-		const under = Math.max(top, paneBar.getBoundingClientRect().bottom, 0);
-		return bottom > under ? { top: under, bottom } : null;
+		const foot = top + pane.clientHeight;
+		const height = window?.innerHeight ?? Number.POSITIVE_INFINITY;
+		const bottom = Math.min(foot, height);
+		const under = Math.max(top, paneBar.getBoundingClientRect().bottom);
+		const upper = Math.max(under, 0);
+		if (bottom <= upper) return null;
+		return {
+			top: upper,
+			bottom,
+			from: under <= 0 ? Math.min(WINDOW_EDGE, bottom) : upper,
+			to: foot >= height ? Math.max(height - WINDOW_EDGE, upper) : bottom,
+		};
 	};
 
 	/** Where the pointer was last in a drag across bases, and the frame scrolling the pane. */
@@ -109,7 +124,7 @@ export function addLinks(frame: Frame): void {
 				const seen = sight();
 				if (pointer === null || seen === null) return;
 				const y = pointer.clientY;
-				const past = y < seen.top ? y - seen.top : Math.max(y - seen.bottom, 0);
+				const past = y < seen.from ? y - seen.from : Math.max(y - seen.to, 0);
 				// Whole pixels, the rest owed, so that a slow scroll is not lost to rounding.
 				const due = past ? owed + (past * PACE * (now - then)) / 1000 : 0;
 				const step = Math.trunc(due);
