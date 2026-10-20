@@ -388,6 +388,28 @@ test("a live drawing shows a shape's tip in place of its hover; a still one, its
 	expect(toSvg(tipped)).not.toContain("<title");
 });
 
+test("a live drawing marks a shape with its item's key; a figure on a page, a still one and a file never do", () => {
+	const item = '{"kind":"insertions","name":"ins","at":12}';
+	const keyed: Scene = {
+		extent: { x: 0, y: 0, width: 10, height: 10 },
+		shapes: [
+			{ shape: "circle", cx: 5, cy: 5, r: 1, fill: "#000000", item },
+			{ shape: "circle", cx: 2, cy: 2, r: 1, fill: "#000000" },
+		],
+	};
+	const marked = (svg: SVGSVGElement) =>
+		[...svg.querySelectorAll("circle")].map((one) =>
+			one.getAttribute("data-molviz-item"),
+		);
+	expect(marked(toElement(keyed, document))).toEqual([item, null]);
+	expect(marked(toElement(keyed, document, { tips: false }))).toEqual([
+		null,
+		null,
+	]);
+	expect(toStill(keyed)).not.toContain("data-molviz");
+	expect(toSvg(keyed)).not.toContain("data-molviz");
+});
+
 test.each([
 	{ writer: "toSvg", write: toSvg },
 	{ writer: "toStill", write: toStill },

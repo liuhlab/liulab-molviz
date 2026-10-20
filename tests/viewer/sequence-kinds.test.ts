@@ -420,6 +420,15 @@ describe("a cut site", () => {
 		expect(named.map((t) => t.text)).toEqual([" (40)", " (1)"]);
 	});
 
+	test("shares one box with another site over the same recognition span, as SmaI's and XmaI's", () => {
+		const scene = lay({
+			cuts: [cut("SmaI", 10, 16, 13, 0), cut("XmaI", 10, 16, 11, 4)],
+		});
+		expect(rects(scene, "none").map((r) => [r.x, r.width])).toEqual([
+			[110, 66],
+		]);
+	});
+
 	test("with one strand, is boxed and cut through the top strand down to the rail, and no further", () => {
 		const scene = lay(
 			{ cuts: [cut("EcoRI", 10, 16, 11, 4)] },

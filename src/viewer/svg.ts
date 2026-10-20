@@ -58,17 +58,15 @@ export function toSvg(scene: Scene): string {
 /**
  * `scene` as an `<svg>` element of `document`, the same as `toSvg` writes but for its letters,
  * which are `<text>` in the viewer's faces, and each shape's tip or else its title, a
- * `<title>` in it. Without `tips`, its title only, as `toStill` writes. The page must
- * declare the faces.
+ * `<title>` in it, and its item's key as `data-molviz-item`. Without `tips`, its title only,
+ * as `toStill` writes. The page must declare the faces.
  */
 export function toElement(
 	scene: Scene,
 	document: Document,
 	{ tips = true }: { readonly tips?: boolean } = {},
 ): SVGSVGElement {
-	const { root, children } = tags(scene, undefined, (shape) =>
-		tips ? (shape.tip ?? shape.title) : shape.title,
-	);
+	const { root, children } = tags(scene, undefined, tips);
 	const svg = document.createElementNS(NAMESPACE, "svg");
 	for (const [name, value] of root) svg.setAttribute(name, value);
 	svg.append(...children.map((tag) => element(tag, document)));
@@ -87,12 +85,13 @@ export function toStill(scene: Scene): string {
 
 /**
  * The root's attributes, and the elements inside it: the glyphs `defined`, if letters are
- * outlines, then the ground, then each shape in order with the `<title>` text `titleOf` gives it.
+ * outlines, then the ground, then each shape in order with its title, or on a `live` page its
+ * tip if it has one and its item's key.
  */
 function tags(
 	scene: Scene,
 	defined?: Defined,
-	titleOf = (shape: Shape) => shape.title,
+	live = false,
 ): { root: Attributes; children: Tag[] } {
 	const { x, y, width, height } = scene.extent;
 	const size = [
@@ -108,10 +107,18 @@ function tags(
 			["fill", GROUND],
 		],
 	};
-	const shapes = scene.shapes.map((shape) => ({
-		...tag(shape, defined),
-		title: titleOf(shape),
-	}));
+	const shapes = scene.shapes.map((shape): Tag => {
+		const drawn = tag(shape, defined);
+		if (!live) return { ...drawn, title: shape.title };
+		const { item } = shape;
+		return {
+			...drawn,
+			attributes: item
+				? [...drawn.attributes, ["data-molviz-item", item]]
+				: drawn.attributes,
+			title: shape.tip ?? shape.title,
+		};
+	});
 	const defs: Tag[] = defined?.size
 		? [
 				{

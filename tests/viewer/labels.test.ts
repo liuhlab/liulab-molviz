@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { prepare } from "../../src/viewer/drawing";
+import { prepare, prepareViews } from "../../src/viewer/drawing";
 import {
 	disagreementLabel,
 	type Hidden,
@@ -13,7 +13,7 @@ import {
 	readLabel,
 } from "../../src/viewer/labels";
 import { check } from "../../src/viewer/record";
-import { leftEdge } from "../../src/viewer/scene";
+import { leftEdge, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import backbone from "../records/puc19-backbone-amplicon.json";
 
@@ -139,6 +139,24 @@ function holding(items: object): object {
 	return { name: "test", circular: true, bases: "ACGT".repeat(250), ...items };
 }
 
+/** The options that draw the sequence view, whose shapes `drawnShapes` gives. */
+const VIEW = { sequence_view: true };
+
+/** The shapes of the map `options` name, or of the sequence view they draw. */
+function drawnShapes(record: object, options: object): readonly Shape[] {
+	const { map, sequence } = prepareViews(record, options);
+	return (options === VIEW ? sequence : map)?.shapes ?? [];
+}
+
+/** An item of `kind` over `spans`, as its key lists it. */
+function spanned(kind: string, name: string, ...spans: [number, number][]) {
+	return { kind, name, spans: spans.map(([start, end]) => ({ start, end })) };
+}
+
+function features(name: string, ...spans: [number, number][]) {
+	return spanned("features", name, ...spans);
+}
+
 function feature(name: string, segments: [number, number][]): object {
 	return {
 		features: [
@@ -154,11 +172,12 @@ function feature(name: string, segments: [number, number][]): object {
 
 describe("an item's tip", () => {
 	// mbio's hover rows: the name, then the type, the span 1-based and the length.
-	test.each<[string, object, string]>([
+	test.each<[string, object, string, object]>([
 		[
 			"a feature",
 			feature("lacZ", [[145, 469]]),
 			"lacZ\nCDS\n146 .. 469\n324 bp",
+			features("lacZ", [145, 469]),
 		],
 		[
 			"a joined feature, each segment's span",
@@ -168,6 +187,7 @@ describe("an item's tip", () => {
 				[300, 360],
 			]),
 			"split\nCDS\n101 .. 160, 201 .. 260, 301 .. 360\n180 bp",
+			features("split", [100, 160], [200, 260], [300, 360]),
 		],
 		[
 			"a feature whose segments touch, as one span",
@@ -176,24 +196,43 @@ describe("an item's tip", () => {
 				[160, 200],
 			]),
 			"AmpR\nCDS\n101 .. 200\n100 bp",
+			features("AmpR", [100, 160], [160, 200]),
+		],
+		[
+			"a translated feature, its chips with it",
+			{
+				features: [
+					{
+						name: "orf",
+						type: "CDS",
+						strand: 1,
+						segments: [{ start: 100, end: 106 }],
+						translation: "MK",
+					},
+				],
+			},
+			"orf\nCDS\n101 .. 106\n6 bp",
+			features("orf", [100, 106]),
 		],
 		[
 			"a feature across the origin",
 			feature("ori", [[950, 1050]]),
 			"ori\nCDS\n951 .. 50\n100 bp",
+			features("ori", [950, 1050]),
 		],
 		[
-			"a primer site",
+			"a primer site, its tail and its mismatch with it",
 			{
 				primers: [
 					{
 						name: "M13 fwd",
-						bases: "A".repeat(17),
-						sites: [{ start: 378, end: 395, strand: 1 }],
+						bases: "A".repeat(20),
+						sites: [{ start: 378, end: 395, strand: 1, mismatches: [380] }],
 					},
 				],
 			},
 			"M13 fwd\nprimer\n379 .. 395\n17 bp",
+			spanned("primers", "M13 fwd", [378, 395]),
 		],
 		[
 			"a cut site, its enzymes joined",
@@ -207,16 +246,19 @@ describe("an item's tip", () => {
 				})),
 			},
 			"BanII - SacI\ncut site\n406",
+			{ kind: "cuts", name: "BanII - SacI", at: 406 },
 		],
 		[
 			"an insertion",
 			{ insertions: [{ name: "ins", at: 12, length: 6 }] },
 			"ins\ninsertion\n12^13\n6 bp",
+			{ kind: "insertions", name: "ins", at: 12 },
 		],
 		[
 			"a read",
 			{ reads: [{ name: "r1", start: 90, end: 110, strand: 1 }] },
 			"r1\nread\n91 .. 110\n20 bp",
+			spanned("reads", "r1", [90, 110]),
 		],
 		[
 			"a disagreement over a span",
@@ -226,17 +268,23 @@ describe("an item's tip", () => {
 				],
 			},
 			"96 A>G\ndisagreement\n96 .. 96\n1 bp",
+			spanned("disagreements", "96 A>G", [95, 96]),
 		],
 	])(
-		"of %s is on every shape it draws, on the line and the circle",
-		(_, items, tip) => {
-			for (const map of ["line", "circle"]) {
-				const bare = prepare(holding({}), { map });
-				const scene = prepare(holding(items), { map });
-				const tipped = scene.shapes.filter((shape) => shape.tip !== undefined);
+		"of %s is on every shape it draws, with its key, one in the line, the circle and the sequence view",
+		(_, items, tip, item) => {
+			const keys = new Set<string | undefined>();
+			for (const drawn of [{ map: "line" }, { map: "circle" }, VIEW]) {
+				const bare = drawnShapes(holding({}), drawn);
+				const shapes = drawnShapes(holding(items), drawn);
+				const tipped = shapes.filter((shape) => shape.tip !== undefined);
 				expect(tipped.map((shape) => shape.tip)).toEqual(tipped.map(() => tip));
-				expect(scene.shapes.length - tipped.length).toBe(bare.shapes.length);
+				expect(shapes.length - tipped.length).toBe(bare.length);
+				for (const shape of tipped) keys.add(shape.item);
 			}
+			expect(keys.size).toBe(1);
+			const [key] = keys;
+			expect(JSON.parse(key ?? "null")).toEqual(item);
 		},
 	);
 

@@ -52,12 +52,12 @@ function drawnOf(file: string): { root: string; children: string[] } {
 
 /**
  * `markup` without its hovers, as a file writes it: no `<title>`, which a still drawing holds, and
- * no hover a live map holds for the page's box. An element left empty closes itself.
+ * no hover or item key a live view holds for the page. An element left empty closes itself.
  */
 function withoutHovers(markup: string): string {
 	return markup
 		.replace(/<title>.*?<\/title>/gs, "")
-		.replace(/ data-molviz-hover="[^"]*"/g, "")
+		.replace(/ data-molviz-(hover|item)="[^"]*"/g, "")
 		.replace(/^(<\w+[^>]*)><\/\w+>$/, "$1/>");
 }
 
@@ -233,9 +233,13 @@ describe("the still SVG of a record with its sequence view", () => {
 			const ours = still[mapShapes.length + i];
 			expect(ours.tagName).toBe(shape.tagName);
 			expect(ours.textContent).toBe(shape.textContent);
+			// A live view's hover and item key are the page's alone.
 			const unplaced = (element: Parsed) =>
 				Array.from(element.attributes)
-					.filter(({ name }) => !PLACES.includes(name))
+					.filter(
+						({ name }) =>
+							!PLACES.includes(name) && !name.startsWith("data-molviz-"),
+					)
 					.map(({ name, value }) => [name, value]);
 			expect(unplaced(ours)).toEqual(unplaced(shape));
 		});

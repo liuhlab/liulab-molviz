@@ -112,6 +112,8 @@ export type Shape = (
 	 * item's name, type, span and length. A still drawing and a file leave it out.
 	 */
 	readonly tip?: string;
+	/** The key of the item the shape draws, the same in every view; only a live page writes it. */
+	readonly item?: string;
 };
 
 /** A drawing laid out: its shapes in the order they are drawn. */
