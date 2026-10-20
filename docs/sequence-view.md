@@ -1,9 +1,10 @@
 # The sequence view
 
 This page draws each test record with its sequence view, in your browser, when the page opens.
-The map comes first, and the sequence view sits under it. A circular record's map is the
-circle. The page uses the same viewer the Python package carries, so what you see here is what
-a page written by the package shows.
+The sequence view sits beside the map when the window has room for both at full size, and under
+it when it does not. If its rows are too wide, they hold half as many bases. A circular
+record's map is the circle. The page uses the same viewer the Python package carries, so what
+you see here is what a page written by the package shows.
 
 The sequence view sets the bases in rows of 60. The top strand runs over the bottom strand,
 with a rail of ticks between them, one tick for each base. A number stands over every tenth
@@ -13,6 +14,18 @@ sites and insertions cross them. Nothing in the sequence view is hidden.
 
 The records are the files in `tests/records/` in the repo. The note under each one says what
 it holds. If a record cannot be drawn, its place on the page says why.
+
+## Select and copy bases
+
+Click a feature, a primer or a cut site, in either view, to select its bases. They are shaded
+blue in both views. The sequence view scrolls to them, and so does a zoomed map. Click it
+again, or click an empty place, to clear it. To select a stretch, drag across the map, or
+across the bases in the sequence view. A drag on the circle can run across the origin.
+
+The bar at the top of the sequence view says what you selected, such as `151 .. 276 (126 bp)`.
+Copy puts the selected bases of the top strand on the clipboard, and so do the copy keys. Rest
+the pointer on a base to see its position. Untick Both strands to hide the bottom strand. The
+rows keep its room, so nothing moves.
 
 ## puc19-gfp-product
 
