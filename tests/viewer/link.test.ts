@@ -200,6 +200,19 @@ describe("a click on an item", () => {
 		expect(shaded(mapSvg(frame))).toEqual([[72, 432]]);
 	});
 
+	test("by a pen selects it, and by a touch, which scrolls, does not", () => {
+		const frame = opened(linear, { sequence_view: true });
+		const lacZ = itemIn(mapSvg(frame), LACZ);
+		const press = (pointerType: string) => {
+			lacZ.dispatchEvent(pointer("pointerdown", 0, 0, { pointerType }));
+			lacZ.dispatchEvent(pointer("pointerup", 0, 0, { pointerType }));
+		};
+		press("touch");
+		expect(frame.state.selection).toBeNull();
+		press("pen");
+		expect(frame.state.selection?.item).toBe(LACZ);
+	});
+
 	test("on the item selected, or on empty space in either view, clears", () => {
 		const frame = opened(linear, { sequence_view: true });
 		const clear = [

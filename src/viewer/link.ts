@@ -44,6 +44,9 @@ const PACE = 20;
 /** Each drawing's layer of shading, after its ground and behind everything it draws. */
 const layers = new WeakMap<SVGSVGElement, SVGGElement>();
 
+/** The item each drawing outlines, once it has outlined one or none. */
+const outlines = new WeakMap<SVGSVGElement, string | null>();
+
 /**
  * For each page, the frame selected in last, whose bases a copy by the keys takes, and whether its
  * Copy button is copying.
@@ -269,7 +272,8 @@ export function addLinks(frame: Frame): void {
 				map: onMap === null ? null : { base: onMap, drag: null },
 				bases: onBase === null ? null : dragFrom(onBase),
 			};
-			if (press.map || press.bases) svg.setPointerCapture(event.pointerId);
+			// The drawing hears the rest of the press, wherever the pointer goes.
+			svg.setPointerCapture(event.pointerId);
 			if (press.bases) {
 				svg.ownerDocument.getSelection()?.removeAllRanges();
 				select(dragged(press.bases, bounds));
@@ -303,8 +307,7 @@ export function addLinks(frame: Frame): void {
 			press = null;
 			stop();
 			if (ended === null) return;
-			const dragged = ended.bases || ended.map?.drag;
-			if (!dragged) {
+			if (!ended.bases && !ended.map?.drag) {
 				if (moved(ended, event)) return;
 				const { item } = ended;
 				const picked =
@@ -350,8 +353,8 @@ function inPoints(
 
 /**
  * Let a copy by the keys or the Edit menu on `document` take the bases of the frame selected in
- * last, unless the page has text selected and its Copy button is not copying. Returns whom it
- * asks.
+ * last, unless the page has text selected and its Copy button is not copying. Returns what the
+ * copy reads, for each frame to set.
  */
 function copyKeys(document: Document): {
 	frame: Frame | null;
@@ -491,6 +494,8 @@ function shade(svg: SVGSVGElement, shapes: readonly Shape[]): void {
 
 /** Outline the shapes of `svg` drawing the item `key`, and no other. */
 function outline(svg: SVGSVGElement, key: string | null): void {
+	if (outlines.has(svg) && outlines.get(svg) === key) return;
+	outlines.set(svg, key);
 	for (const shape of svg.querySelectorAll(`[${ITEM}]`)) {
 		shape.toggleAttribute(SELECTED, shape.getAttribute(ITEM) === key);
 	}
