@@ -8,7 +8,9 @@ import {
 	rowHolding,
 	rowX,
 } from "../../src/viewer/geometry";
+import { WIDTH } from "../../src/viewer/line";
 import type { Span } from "../../src/viewer/record";
+import { CELL } from "../../src/viewer/sequence";
 import insertionsFile from "../records/both-strands-and-insertions.json";
 import backboneFile from "../records/puc19-backbone-amplicon.json";
 import { circular, hoverBoxOf, input, linear, opened } from "./live";
@@ -187,9 +189,9 @@ describe("a click on an item", () => {
 		for (const svg of [mapSvg(frame), viewSvg(frame)]) {
 			expect(outlined(svg)).toEqual(new Set([LACZ]));
 		}
-		// 7.2 points a base on the line, 11 in the view's 60-base rows.
-		expect(shaded(mapSvg(frame))).toEqual([[72, 432]]);
-		expect(shaded(viewSvg(frame))).toEqual([[110, 660]]);
+		const onLine = (base: number) => (base * WIDTH) / linear.bases.length;
+		expect(shaded(mapSvg(frame))).toEqual([[onLine(10), onLine(60)]]);
+		expect(shaded(viewSvg(frame))).toEqual([[10 * CELL, 60 * CELL]]);
 	});
 
 	test("in the sequence view selects it as on the map", () => {
@@ -520,9 +522,12 @@ describe("the other view scrolls to the selection", () => {
 		frame.shown().zoom = 4;
 		frame.redraw();
 		click(lacZ());
-		// 2.88 points a base at 4×: lacZ lies from 1440 to 1612.8.
+		const middle = (530 * 4 * WIDTH) / long.bases.length;
 		const { extent } = frame.drawn();
-		expect(box.scrollLeft).toBeCloseTo(1526.4 - extent.x - 150, 6);
+		expect(box.scrollLeft).toBeCloseTo(
+			middle - extent.x - box.clientWidth / 2,
+			6,
+		);
 		expect(box.scrollTop).toBe(0);
 		// In sight, it stays.
 		box.scrollLeft -= 50;

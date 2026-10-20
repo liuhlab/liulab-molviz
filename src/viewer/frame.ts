@@ -31,7 +31,7 @@ export const GAP = 24;
 /** The class of a frame showing the sequence view beside its map. */
 const BESIDE = "beside";
 
-/** How a frame prints, and opens before its page is laid out: the view under, full rows, 1×. */
+/** How a frame prints, and opens before its page is laid out. */
 const UNDER: Arrangement = { place: "under", rows: "full", scale: 1 };
 
 type MapName = Options["map"];

@@ -6,6 +6,7 @@ import { join } from "node:path";
 import vm from "node:vm";
 import { OUTLINES_GLOBAL } from "virtual:molviz-fonts";
 import { expect, test, vi } from "vitest";
+import { WIDTH } from "../src/viewer/line";
 
 const record = {
 	name: "pTest",
@@ -87,9 +88,11 @@ test("a drag across the map of a page the Python package writes selects the base
 		open(written("draw", record, { sequence_view: true }));
 		const map = document.querySelector("#drawing .map svg");
 		if (!map?.firstElementChild) throw new Error("no map drawn");
-		// A page with no layout sets a drawing's points one to a client pixel; the line is 7.2
-		// points a base.
-		const at = (base: number) => ({ clientX: 7.2 * base + 3.6, clientY: 0 });
+		// A page with no layout sets a drawing's points one to a client pixel.
+		const at = (base: number) => ({
+			clientX: ((base + 0.5) * WIDTH) / record.bases.length,
+			clientY: 0,
+		});
 		const press = { bubbles: true, pointerId: 1, pointerType: "mouse" };
 		map.firstElementChild.dispatchEvent(
 			new PointerEvent("pointerdown", { ...press, ...at(10) }),

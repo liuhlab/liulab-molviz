@@ -286,21 +286,23 @@ describe("a selection", () => {
 	const bounds = recordBounds(colourTest);
 
 	test("shades the line from its start to its end, edged at each end the span shows", () => {
-		// 150 bases over 1500 points: 10 points a base from 2600.
+		const width = 1500;
+		const { start, end } = ACROSS.span;
+		const x = (base: number) => ((base - start) * width) / (end - start);
 		const { geometry } = layoutLine(
 			colourTest,
 			checkOptions(ACROSS, colourTest),
-			1500,
+			width,
 		);
 		const { top, bottom } = geometry;
 		expect(lineShading(geometry, bounds, { start: 2680, end: 2696 })).toEqual([
-			shade(800, 960, top, bottom),
-			edge(800, top, bottom),
-			edge(960, top, bottom),
+			shade(x(2680), x(2696), top, bottom),
+			edge(x(2680), top, bottom),
+			edge(x(2696), top, bottom),
 		]);
 		expect(lineShading(geometry, bounds, { start: 2550, end: 2610 })).toEqual([
-			shade(0, 100, top, bottom),
-			edge(100, top, bottom),
+			shade(0, x(2610), top, bottom),
+			edge(x(2610), top, bottom),
 		]);
 	});
 

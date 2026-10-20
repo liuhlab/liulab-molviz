@@ -286,7 +286,6 @@ export function addLinks(frame: Frame): void {
 				map: onMap === null ? null : { base: onMap, drag: null },
 				bases: onBase === null ? null : dragFrom(onBase),
 			};
-			// The drawing hears the rest of the press, wherever the pointer goes.
 			svg.setPointerCapture(event.pointerId);
 			if (press.bases) {
 				svg.ownerDocument.getSelection()?.removeAllRanges();
