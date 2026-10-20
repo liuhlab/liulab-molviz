@@ -3,6 +3,7 @@
  * SVG or DOM in it.
  */
 
+import type { ItemKey } from "./selection";
 import type { Face } from "./text";
 
 /** A rectangle: its top-left corner, width and height. */
@@ -113,7 +114,7 @@ export type Shape = (
 	 */
 	readonly tip?: string;
 	/** The key of the item the shape draws, the same in every view; only a live page writes it. */
-	readonly item?: string;
+	readonly item?: ItemKey;
 	/**
 	 * The sequence view's rail, under which the shape draws the bottom strand: a live page hides
 	 * the shape with that strand, and draws in its place the part of a line or rect above the

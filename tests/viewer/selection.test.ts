@@ -172,6 +172,14 @@ describe("a click on an item", () => {
 	});
 });
 
+describe("an item's key", () => {
+	test("that names no item is refused", () => {
+		for (const key of ["lacZ", '{"kind":"features","name":"lacZ"}']) {
+			expect(() => itemSelection(key, product, [])).toThrow("names no item");
+		}
+	});
+});
+
 describe("clicked", () => {
 	const [lacZ, ampR] = ["lacZα", "AmpR"].map((name) =>
 		itemSelection(itemKey(featureLabel(product, name)), product, []),

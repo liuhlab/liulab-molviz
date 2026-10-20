@@ -25,13 +25,13 @@ import { type LineGeometry, lineX } from "./geometry";
 import {
 	GAP,
 	hiddenOf,
+	itemShapes,
 	LABEL_SIZE,
 	type Label,
 	type MapScene,
 	noticeShapes,
 	PAD_Y,
 	SMALL_SIZE,
-	tipped,
 } from "./labels";
 import type { Options } from "./options";
 import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
@@ -215,7 +215,7 @@ function bars({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
 	const shapes = laid.flatMap((bar, i) =>
-		tipped(barShapes(bar, middles[tiers[i]], placed[i], false), bar.label),
+		itemShapes(barShapes(bar, middles[tiers[i]], placed[i], false), bar.label),
 	);
 	const labels = laid.flatMap((bar, i) =>
 		placed[i] === "boxed"
@@ -271,7 +271,7 @@ function sites({ record, options, bounds, at }: Along): LineMarks {
 	);
 	const tops = middles.map((middle) => middle - PRIMER_SHAFT / 2 - reach);
 	const shapes = drawn.flatMap(({ arrow, label }, i) =>
-		tipped(
+		itemShapes(
 			[
 				{
 					shape: "polygon",
@@ -309,7 +309,7 @@ function marks({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 		const { color } = label;
 		for (const x of points(point, options.span, bounds).map(at)) {
 			shapes.push(
-				...tipped(
+				...itemShapes(
 					[
 						{
 							shape: "line",

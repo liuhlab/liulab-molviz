@@ -3,11 +3,11 @@
 import {
 	GAP,
 	hidingOrder,
+	itemShapes,
 	type Label,
 	labelShapes,
 	labelSize,
 	SPACING,
-	tipped,
 } from "./labels";
 import { LEADER, LEADER_WIDTH } from "./paint";
 import type { Box, Shape } from "./scene";
@@ -72,7 +72,7 @@ export function labelsAbove(
 			},
 			...labelShapes(label, box),
 		];
-		shapes.push(...(tips ? tipped(drawn, label) : drawn));
+		shapes.push(...(tips ? itemShapes(drawn, label) : drawn));
 	}
 	const somewhere = new Set([...inPlace, ...shown.map(({ label }) => label)]);
 	const hidden = [...new Set(gone.map((i) => anchored[i].label))].filter(

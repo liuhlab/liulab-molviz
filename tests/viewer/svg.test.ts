@@ -3,6 +3,7 @@ import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
 import { units } from "../../src/viewer/faces";
 import type { Scene, Shape } from "../../src/viewer/scene";
+import { itemKey } from "../../src/viewer/selection";
 import { toElement, toStill, toSvg } from "../../src/viewer/svg";
 import { type Face, glyphs, measure, outlineOf } from "../../src/viewer/text";
 
@@ -389,7 +390,7 @@ test("a live drawing shows a shape's tip in place of its hover; a still one, its
 });
 
 test("a live drawing marks a shape with its item's key; a figure on a page, a still one and a file never do", () => {
-	const item = '{"kind":"insertions","name":"ins","at":12}';
+	const item = itemKey({ kind: "insertions", name: "ins", at: 12 });
 	const keyed: Scene = {
 		extent: { x: 0, y: 0, width: 10, height: 10 },
 		shapes: [

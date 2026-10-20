@@ -1,20 +1,43 @@
 /** What a page has selected, as data: from a click on an item or a drag, and what it says. */
 
+import * as v from "valibot";
 import { folded } from "./format";
 import type { Hidden } from "./labels";
 import { hulls, pointText, spansText, turns } from "./pieces";
 import { type Bounds, type Record, recordBounds, type Span } from "./record";
+
+/** An item a reader may select, as its label lists it once it hides. */
+export type Item = Hidden;
+
+declare const KEY: unique symbol;
+
+/** The key an item is known by in every view: the item as text, as `itemKey` writes it. */
+export type ItemKey = string & { readonly [KEY]: true };
+
+/** What an item's key holds, read back. */
+const ITEM_SCHEMA = v.union([
+	v.strictObject({
+		kind: v.picklist(["features", "primers", "reads", "disagreements"]),
+		name: v.string(),
+		spans: v.array(v.strictObject({ start: v.number(), end: v.number() })),
+	}),
+	v.strictObject({
+		kind: v.picklist(["cuts", "insertions", "disagreements"]),
+		name: v.string(),
+		at: v.number(),
+	}),
+]);
 
 /**
  * Bases selected, as spans in reading order, each in the record's counting; or an item's point
  * between two bases. `item` is the key of the item clicked, or null for a drag.
  */
 export type Selection =
-	| { readonly spans: readonly Span[]; readonly item: string | null }
-	| { readonly at: number; readonly item: string };
+	| { readonly spans: readonly Span[]; readonly item: ItemKey | null }
+	| { readonly at: number; readonly item: ItemKey };
 
-/** The key an item is known by in every view: what its label lists once it hides. */
-export function itemKey(item: Hidden): string {
+/** The key `item` is known by in every view. */
+export function itemKey(item: Item): ItemKey {
 	const { kind, name } = item;
 	return JSON.stringify(
 		"at" in item
@@ -24,24 +47,40 @@ export function itemKey(item: Hidden): string {
 					name,
 					spans: item.spans.map(({ start, end }) => ({ start, end })),
 				},
-	);
+	) as ItemKey;
 }
 
-/** What a click on the item `key` names selects in `record`, with `enzymes` on. */
+/** The item `key` names; throws if it names none. */
+function itemOf(key: string): Item {
+	let read: unknown;
+	try {
+		read = JSON.parse(key);
+	} catch {
+		read = undefined;
+	}
+	if (!v.is(ITEM_SCHEMA, read)) throw new Error(`${key} names no item`);
+	return read;
+}
+
+/**
+ * What a click on the item `key` names selects in `record`, with `enzymes` on. Throws if `key`
+ * names no item.
+ */
 export function itemSelection(
 	key: string,
 	record: Record,
 	enzymes: readonly string[],
 ): Selection {
-	const item = JSON.parse(key) as Hidden;
+	const item = itemOf(key);
+	const keyed = itemKey(item);
 	const bounds = recordBounds(record);
-	if ("spans" in item) return { spans: hulls(item.spans, bounds), item: key };
-	if (item.kind !== "cuts") return { at: item.at, item: key };
+	if ("spans" in item) return { spans: hulls(item.spans, bounds), item: keyed };
+	if (item.kind !== "cuts") return { at: item.at, item: keyed };
 	const on = new Set(enzymes.map(folded));
 	const made = record.cuts.filter(
 		(cut) => cut.at === item.at && on.has(folded(cut.enzyme)),
 	);
-	return { spans: [recognised(made, bounds)], item: key };
+	return { spans: [recognised(made, bounds)], item: keyed };
 }
 
 /**

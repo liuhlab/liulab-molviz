@@ -15,7 +15,13 @@ import {
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
-import { LABEL_SIZE, type Label, PAD_Y, SMALL_SIZE, tipped } from "./labels";
+import {
+	itemShapes,
+	LABEL_SIZE,
+	type Label,
+	PAD_Y,
+	SMALL_SIZE,
+} from "./labels";
 import { MARGIN } from "./line";
 import type { Options } from "./options";
 import { INK, RAIL } from "./paint";
@@ -280,7 +286,7 @@ function bars(
 		for (const [i, { bar, feature }] of found.entries()) {
 			if (tiers[i] !== tier) continue;
 			const over = chips(feature, bar, row, y);
-			shapes.push(...tipped(over.shapes, bar.label));
+			shapes.push(...itemShapes(over.shapes, bar.label));
 			labels.push(...over.labels);
 			chipped = Math.max(chipped, over.bottom);
 		}
@@ -295,7 +301,10 @@ function bars(
 	for (const [i, bar] of bars.entries()) {
 		if (bar.end === at(end)) after.set(bar.label, tiers[i]);
 		shapes.push(
-			...tipped(barShapes(bar, middles[tiers[i]], placed[i], true), bar.label),
+			...itemShapes(
+				barShapes(bar, middles[tiers[i]], placed[i], true),
+				bar.label,
+			),
 		);
 		if (placed[i] === "boxed") {
 			labels.push({ label: bar.label, x: (bar.start + bar.end) / 2, foot: 0 });

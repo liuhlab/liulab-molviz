@@ -12,7 +12,7 @@ import {
 	pack,
 } from "./arrows";
 import { folded } from "./format";
-import { tipped } from "./labels";
+import { itemShapes } from "./labels";
 import {
 	BASE_MARK,
 	CUT_BOX,
@@ -143,7 +143,7 @@ export function sites(
 				strokeWidth: 0,
 			});
 		}
-		shapes.push(...tipped(drawn, label));
+		shapes.push(...itemShapes(drawn, label));
 	}
 	const labels = found.flatMap(({ aligned: { label }, arrow }) =>
 		arrow ? [{ label, x: (arrow.start + arrow.end) / 2, foot: ROW_TOP }] : [],
@@ -268,7 +268,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 		const { dim } = label;
 		const add = (shape: Shape) => {
 			const key = JSON.stringify(shape);
-			if (!shapes.has(key)) shapes.set(key, tipped([shape], label)[0]);
+			if (!shapes.has(key)) shapes.set(key, itemShapes([shape], label)[0]);
 		};
 		const line = (
 			x1: number,
@@ -356,7 +356,7 @@ function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
 			if (!holds(row, p, true)) continue;
 			const x = at(p);
 			shapes.push(
-				...tipped(
+				...itemShapes(
 					[
 						{
 							shape: "line",

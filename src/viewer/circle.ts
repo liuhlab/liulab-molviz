@@ -20,6 +20,7 @@ import { angleOf, arc, type CircleGeometry, pointAt } from "./geometry";
 import {
 	hiddenOf,
 	hidingOrder,
+	itemShapes,
 	LABEL_SIZE,
 	type Label,
 	labelShapes,
@@ -29,7 +30,6 @@ import {
 	PAD_X,
 	PAD_Y,
 	SMALL_SIZE,
-	tipped,
 } from "./labels";
 import {
 	BACKBONE,
@@ -182,11 +182,11 @@ export function layoutCircle(
 	const shapes: Shape[] = [
 		...backbone(circle),
 		...ruler(circle),
-		...drawnBars.flatMap((bar) => tipped(barShapes(bar), bar.label)),
+		...drawnBars.flatMap((bar) => itemShapes(barShapes(bar), bar.label)),
 		...drawnSites.flatMap(({ arrow, label }) =>
-			tipped([arrowShape(arrow)], label),
+			itemShapes([arrowShape(arrow)], label),
 		),
-		...drawnMarks.flatMap(({ bar, label }) => tipped([bar], label)),
+		...drawnMarks.flatMap(({ bar, label }) => itemShapes([bar], label)),
 	];
 	const boxes: Box[] = [];
 	for (const [i, one] of placed.entries()) {
@@ -195,7 +195,9 @@ export function layoutCircle(
 		const [from, to] = one.leader;
 		const leaders = [leader(from, to)];
 		if (inward) leaders.unshift(leader(xy(backboneEdge, angle), from));
-		shapes.push(...tipped([...leaders, ...labelShapes(label, one.box)], label));
+		shapes.push(
+			...itemShapes([...leaders, ...labelShapes(label, one.box)], label),
+		);
 		boxes.push(one.box);
 	}
 	shapes.push(...middle.shapes);

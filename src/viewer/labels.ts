@@ -108,7 +108,7 @@ export function tipOf(
 }
 
 /** `shapes`, each carrying the tip and the key of `label`, the item they draw. */
-export function tipped(shapes: readonly Shape[], label: Label): Shape[] {
+export function itemShapes(shapes: readonly Shape[], label: Label): Shape[] {
 	const { tip } = label;
 	const item = itemKey(label);
 	return shapes.map((shape) => ({ ...shape, tip, item }));
