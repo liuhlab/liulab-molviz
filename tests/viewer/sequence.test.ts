@@ -4,13 +4,8 @@ import { check } from "../../src/viewer/record";
 import type { Shape } from "../../src/viewer/scene";
 import { layoutSequence, type SequenceScene } from "../../src/viewer/sequence";
 import { measure } from "../../src/viewer/text";
-import {
-	crossing,
-	enzymesOf,
-	onTheDrawing,
-	overlapping,
-	RECORDS,
-} from "./apart";
+import { keepsApart } from "./apart";
+import { RECORDS } from "./records";
 
 /** 25 bases on a linear record, unless `record` says otherwise. */
 const BASES = "ACGTACGTACGTACGTACGTACGTA";
@@ -431,24 +426,16 @@ describe("features", () => {
 	});
 });
 
-describe.each(RECORDS)("%s drawn whole", (_, file) => {
-	describe.each([
-		["the unique cutters", {}],
-		["every enzyme", { enzymes: enzymesOf(file) }],
-	])("with %s", (__, given) => {
-		const record = check(file);
-		const scene = layoutSequence(
-			record,
-			checkOptions({ sequence_view: true, ...given }, record),
-		);
+keepsApart("%s drawn whole", RECORDS, (record, given) =>
+	layoutSequence(
+		record,
+		checkOptions({ sequence_view: true, ...given }, record),
+	),
+);
 
-		test("no two labels overlap, and none overlaps the drawing", () => {
-			expect(overlapping(scene)).toEqual([]);
-			expect(onTheDrawing(scene)).toEqual([]);
-		});
-
-		test("no leader crosses another label", () => {
-			expect(crossing(scene)).toEqual([]);
-		});
-	});
-});
+keepsApart("%s drawn whole at 30 bases a row", RECORDS, (record, given) =>
+	layoutSequence(
+		record,
+		checkOptions({ sequence_view: true, bases_per_row: 30, ...given }, record),
+	),
+);

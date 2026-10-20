@@ -1,19 +1,14 @@
 import { describe, expect, test } from "vitest";
 import type { MapScene } from "../../src/viewer/labels";
-import { layoutLine } from "../../src/viewer/line";
+import { layoutLine, WIDTH } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
 import backboneFile from "../records/puc19-backbone-amplicon.json";
-import {
-	crossing,
-	enzymesOf,
-	onTheDrawing,
-	overlapping,
-	RECORDS,
-} from "./apart";
+import { keepsApart, leaders } from "./apart";
+import { RECORDS } from "./records";
 
 const colourTest = check(colourTestFile);
 const backbone = check(backboneFile);
@@ -535,7 +530,7 @@ describe("a feature's name", () => {
 		expect(boxed.y + boxed.height).toBeLessThan(-1.3);
 		const name = label(scene, "second long name");
 		expect(overlap(box(name), edges(boxed))).toBe(true);
-		const [leader] = lines(scene, "#7f7f7f");
+		const [leader] = leaders(scene);
 		expect(leader.x1).toBeCloseTo(97.2, 9);
 		expect(leader).toMatchObject({
 			x2: leader.x1,
@@ -559,7 +554,7 @@ describe("a feature's name", () => {
 				expect(overlap(edges(a), edges(b))).toBe(false);
 			}
 		}
-		for (const leader of lines(scene, "#7f7f7f")) {
+		for (const leader of leaders(scene)) {
 			const span = {
 				left: leader.x1,
 				right: leader.x1,
@@ -782,21 +777,17 @@ describe("the extent", () => {
 	});
 });
 
-describe.each(RECORDS)("%s drawn whole", (_, file) => {
-	describe.each([
-		["the unique cutters", {}],
-		["every enzyme", { enzymes: enzymesOf(file) }],
-	])("with %s", (__, given) => {
-		const record = check(file);
-		const scene = layoutLine(record, checkOptions(given, record));
+keepsApart("%s drawn whole", RECORDS, (record, given) =>
+	layoutLine(record, checkOptions(given, record)),
+);
 
-		test("no two labels overlap, and none overlaps the drawing", () => {
-			expect(overlapping(scene)).toEqual([]);
-			expect(onTheDrawing(scene)).toEqual([]);
-		});
+keepsApart("%s drawn whole at zoom 4", RECORDS, (record, given) =>
+	layoutLine(record, checkOptions(given, record), WIDTH * 4),
+);
 
-		test("no leader crosses another label", () => {
-			expect(crossing(scene)).toEqual([]);
-		});
-	});
-});
+keepsApart(
+	"%s over the span across its origin",
+	RECORDS.filter(([name]) => name === "colour-test"),
+	(record, given) =>
+		layoutLine(record, checkOptions({ ...ACROSS, ...given }, record)),
+);

@@ -1,43 +1,25 @@
-/// <reference types="vite/client" />
-/** A drawing's labels read back from its shapes, and the boxes of the rest, for the views' tests. */
+/** A drawing's labels read back from its shapes, and the checks that they keep apart. */
 
+import { describe, expect, test } from "vitest";
 import { boxOf } from "../../src/viewer/bounds";
-import type { check } from "../../src/viewer/record";
+import { check, type Record } from "../../src/viewer/record";
 import type { Box, Scene, Shape } from "../../src/viewer/scene";
 import { baseline, height, measure } from "../../src/viewer/text";
-import { crosses, overlap, TOUCH } from "./round";
+import { enzymeChoices, type RecordFile } from "./records";
+import { crosses, overlap, segment, TOUCH } from "./round";
 
 type Line = Extract<Shape, { shape: "line" }>;
 type Rect = Extract<Shape, { shape: "rect" }>;
 type Text = Extract<Shape, { shape: "text" }>;
 
-export type RecordFile = Parameters<typeof check>[0] & {
-	readonly circular: boolean;
-	readonly cuts?: readonly { enzyme: string }[];
-};
-
-/** Each test record, by its file's name. */
-export const RECORDS = Object.entries(
-	import.meta.glob("../records/*.json", {
-		eager: true,
-		import: "default",
-	}) as { [path: string]: RecordFile },
-).map(([path, file]) => [path.slice("../records/".length, -5), file] as const);
-
-/** Every enzyme that cuts `file`. */
-export function enzymesOf(file: {
-	cuts?: readonly { enzyme: string }[];
-}): string[] {
-	return [...new Set((file.cuts ?? []).map(({ enzyme }) => enzyme))];
-}
-
 /** A label set on a leader: its box, its leader, and the leader's part carried on to the backbone. */
-export interface Outside {
+export interface LabelOnLeader {
 	readonly box: Box;
 	readonly leader: Line;
-	readonly inward: Line | null;
+	readonly toBackbone: Line | null;
 }
 
+/** Whether `shape` is a line from a label to what it names. */
 function isLeader(shape: Shape): shape is Line {
 	return (
 		shape.shape === "line" &&
@@ -46,12 +28,19 @@ function isLeader(shape: Shape): shape is Line {
 	);
 }
 
+/** The lines from a label to what it names. */
+export function leaders(scene: Scene): Line[] {
+	return scene.shapes.filter(isLeader);
+}
+
 function isLabelText(shape: Shape): shape is Text {
 	return shape.shape === "text" && shape.size === 11.5 && !shape.rotate;
 }
 
-/** The shapes of each label on a leader, in the order drawn: its leaders, then its box or text. */
-function chains(scene: Scene): { lines: Line[]; parts: (Rect | Text)[] }[] {
+/** Each label on a leader as the shapes that draw it: its leader's lines, then its box or text. */
+function labelShapes(
+	scene: Scene,
+): { lines: Line[]; parts: (Rect | Text)[] }[] {
 	const found: { lines: Line[]; parts: (Rect | Text)[] }[] = [];
 	let open = false;
 	for (const shape of scene.shapes) {
@@ -68,15 +57,14 @@ function chains(scene: Scene): { lines: Line[]; parts: (Rect | Text)[] }[] {
 }
 
 /** Each label on a leader, read from the shapes that draw it. */
-export function labelsOf(scene: Scene): Outside[] {
-	return chains(scene).map(({ lines, parts }) => ({
+export function labelsOf(scene: Scene): LabelOnLeader[] {
+	return labelShapes(scene).map(({ lines, parts }) => ({
 		box: labelBox(parts),
 		leader: lines[lines.length - 1],
-		inward: lines.length > 1 ? lines[0] : null,
+		toBackbone: lines.length > 1 ? lines[0] : null,
 	}));
 }
 
-/** A label's box: its rectangle, or its text with 3 points either side and 1 above and below. */
 function labelBox(parts: readonly (Rect | Text)[]): Box {
 	const [first] = parts;
 	if (first.shape === "rect") return first;
@@ -93,16 +81,16 @@ function labelBox(parts: readonly (Rect | Text)[]): Box {
 }
 
 /**
- * What a line or a row of bases draws: each label on a leader; the box of each name set on or
- * under what it names; and the box of every other shape but a leader, a line's stroke included.
+ * A drawing's shapes by role: each label on a leader; the box of each name set on or under what
+ * it names; and the box of every other shape but a leader, a stroke's box as wide as the stroke.
  */
-function apart(scene: Scene): {
-	labels: Outside[];
+function byRole(scene: Scene): {
+	labels: LabelOnLeader[];
 	names: Box[];
 	drawing: Box[];
 } {
 	const used = new Set<Shape>(
-		chains(scene).flatMap(({ lines, parts }) => [...lines, ...parts]),
+		labelShapes(scene).flatMap(({ lines, parts }) => [...lines, ...parts]),
 	);
 	const rest = scene.shapes.filter((s) => !used.has(s) && !isLeader(s));
 	return {
@@ -116,7 +104,7 @@ function apart(scene: Scene): {
 
 /** Each two labels or names in `scene` that overlap. */
 export function overlapping(scene: Scene): [Box, Box][] {
-	const { labels, names } = apart(scene);
+	const { labels, names } = byRole(scene);
 	const boxes = [...labels.map(({ box }) => box), ...names];
 	return boxes.flatMap((one, k) =>
 		boxes
@@ -131,7 +119,7 @@ export function overlapping(scene: Scene): [Box, Box][] {
  * shape, the arrow it names.
  */
 export function onTheDrawing(scene: Scene): [Box, Box[]][] {
-	const { labels, names, drawing } = apart(scene);
+	const { labels, names, drawing } = byRole(scene);
 	const met = (box: Box) => drawing.filter((shape) => overlap(box, shape));
 	return [
 		...labels.map(({ box }): [Box, Box[]] => [box, met(box)]),
@@ -144,27 +132,42 @@ export function onTheDrawing(scene: Scene): [Box, Box[]][] {
 
 /** Each leader in `scene` with the labels and names it crosses but its own. */
 export function crossing(scene: Scene): [Line, Box[]][] {
-	const { labels, names } = apart(scene);
+	const { labels, names } = byRole(scene);
 	const boxes = [...labels.map(({ box }) => box), ...names];
 	return labels
 		.map(({ box, leader }): [Line, Box[]] => [
 			leader,
-			boxes.filter(
-				(other) =>
-					other !== box &&
-					crosses(
-						[
-							{ x: leader.x1, y: leader.y1 },
-							{ x: leader.x2, y: leader.y2 },
-						],
-						other,
-					),
-			),
+			boxes.filter((other) => other !== box && crosses(segment(leader), other)),
 		])
 		.filter(([, crossed]) => crossed.length);
 }
 
-/** The box a straight line's stroke covers, its ends cut square. */
+/**
+ * Pins, for each record in `files` that `lay` draws with each choice of enzymes, that no two
+ * labels overlap, none overlaps the drawing, and no leader crosses another label.
+ */
+export function keepsApart(
+	title: string,
+	files: readonly (readonly [string, RecordFile])[],
+	lay: (record: Record, given: { enzymes?: string[] }) => Scene,
+): void {
+	describe.each(files)(title, (_, file) => {
+		describe.each(enzymeChoices(file))("with %s", (__, given) => {
+			const scene = lay(check(file), given);
+
+			test("no two labels overlap, and none overlaps the drawing", () => {
+				expect(overlapping(scene)).toEqual([]);
+				expect(onTheDrawing(scene)).toEqual([]);
+			});
+
+			test("no leader crosses another label", () => {
+				expect(crossing(scene)).toEqual([]);
+			});
+		});
+	});
+}
+
+/** The box a straight stroke covers, its ends cut square. */
 function stroked({ x1, y1, x2, y2, strokeWidth }: Line): Box {
 	const half = strokeWidth / 2;
 	const padX = y1 === y2 ? 0 : half;
