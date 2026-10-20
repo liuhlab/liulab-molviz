@@ -48,12 +48,12 @@ export function opened(record: unknown, options: unknown = {}): Frame {
 	);
 }
 
-/** The input in `frame`'s bar holding `value`. */
+/** The input in `frame`'s bar, or its pane's, holding `value`. */
 export function input(frame: Frame, value: string): HTMLInputElement {
-	const found = frame.bar.querySelector<HTMLInputElement>(
-		`input[value="${value}"]`,
+	const found = frame.box.parentElement?.querySelector<HTMLInputElement>(
+		`.bar input[value="${value}"]`,
 	);
-	if (!found) throw new Error(`no ${value} in the bar`);
+	if (!found) throw new Error(`no ${value} in the bars`);
 	return found;
 }
 

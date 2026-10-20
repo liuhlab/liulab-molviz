@@ -3,6 +3,7 @@
  * SVG or DOM in it.
  */
 
+import type { ItemKey } from "./selection";
 import type { Face } from "./text";
 
 /** A rectangle: its top-left corner, width and height. */
@@ -112,6 +113,14 @@ export type Shape = (
 	 * item's name, type, span and length. A still drawing and a file leave it out.
 	 */
 	readonly tip?: string;
+	/** The key of the item the shape draws, the same in every view; only a live page writes it. */
+	readonly item?: ItemKey;
+	/**
+	 * The sequence view's rail, under which the shape draws the bottom strand: a live page hides
+	 * the shape with that strand, and draws in its place the part of a line or rect above the
+	 * rail. A still drawing and a file leave it out.
+	 */
+	readonly rail?: number;
 };
 
 /** A drawing laid out: its shapes in the order they are drawn. */
@@ -137,6 +146,11 @@ export function twoDecimals(value: number): string {
 
 /** `shape` moved `dx` right and `dy` down. */
 export function moved(shape: Shape, dx: number, dy: number): Shape {
+	const out = shifted(shape, dx, dy);
+	return shape.rail === undefined ? out : { ...out, rail: shape.rail + dy };
+}
+
+function shifted(shape: Shape, dx: number, dy: number): Shape {
 	switch (shape.shape) {
 		case "line":
 			return {

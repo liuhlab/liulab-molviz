@@ -52,12 +52,12 @@ function drawnOf(file: string): { root: string; children: string[] } {
 
 /**
  * `markup` without its hovers, as a file writes it: no `<title>`, which a still drawing holds, and
- * no hover a live map holds for the page's box. An element left empty closes itself.
+ * no hover or item key a live view holds for the page. An element left empty closes itself.
  */
 function withoutHovers(markup: string): string {
 	return markup
 		.replace(/<title>.*?<\/title>/gs, "")
-		.replace(/ data-molviz-hover="[^"]*"/g, "")
+		.replace(/ data-molviz-(hover|item)="[^"]*"/g, "")
 		.replace(/^(<\w+[^>]*)><\/\w+>$/, "$1/>");
 }
 
@@ -228,30 +228,39 @@ describe("the still SVG of a record with its sequence view", () => {
 	held.innerHTML = stillSvg(primers, view).svg;
 	const [ground, ...still] = [...held.children[0].children];
 	const [, ...mapShapes] = [...map.children];
-	const [, ...viewShapes] = [...sequence.children];
+	// What a live view draws in place of a shape while the bottom strand hides is the page's alone.
+	const sequenceShapes = [...sequence.children]
+		.slice(1)
+		.filter((shape) => !shape.classList.contains("molviz-top"));
 
 	test("is the live map, then the live sequence view moved under it", () => {
 		expect(ground.tagName.toLowerCase()).toBe("rect");
-		expect(still).toHaveLength(mapShapes.length + viewShapes.length);
+		expect(still).toHaveLength(mapShapes.length + sequenceShapes.length);
 		mapShapes.forEach((shape, i) => {
 			expect(withoutHovers(still[i].outerHTML)).toBe(
 				withoutHovers(shape.outerHTML),
 			);
 		});
-		viewShapes.forEach((shape, i) => {
+		sequenceShapes.forEach((shape, i) => {
 			const ours = still[mapShapes.length + i];
 			expect(ours.tagName).toBe(shape.tagName);
 			expect(ours.textContent).toBe(shape.textContent);
+			// A live view's hover, item key and strands are the page's alone.
 			const unplaced = (element: Parsed) =>
 				Array.from(element.attributes)
-					.filter(({ name }) => !PLACES.includes(name))
+					.filter(
+						({ name }) =>
+							!PLACES.includes(name) &&
+							!name.startsWith("data-molviz-") &&
+							name !== "class",
+					)
 					.map(({ name, value }) => [name, value]);
 			expect(unplaced(ours)).toEqual(unplaced(shape));
 		});
 	});
 
 	test("sets its letters as the live view does, every text moved by one step", () => {
-		const texts = viewShapes.flatMap((shape, i) =>
+		const texts = sequenceShapes.flatMap((shape, i) =>
 			shape.tagName.toLowerCase() === "text"
 				? [[still[mapShapes.length + i], shape] as const]
 				: [],

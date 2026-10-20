@@ -74,6 +74,27 @@ test("a still slot holds its input's still drawing, and the page holds the font 
 	]);
 });
 
+test("a drag across a slot's map selects the bases and says them", () => {
+	const [drawn] = open([
+		slot(null, "record", record, { options: { sequence_view: true } }),
+	]);
+	const map = drawn.querySelector(".map svg");
+	if (!map?.firstElementChild) throw new Error("no map drawn");
+	// A page with no layout sets a drawing's points one to a client pixel; the line is 7.2 points
+	// a base.
+	const at = (base: number) => ({ clientX: 7.2 * base + 3.6, clientY: 0 });
+	const press = { bubbles: true, pointerId: 1, pointerType: "mouse" };
+	map.firstElementChild.dispatchEvent(
+		new PointerEvent("pointerdown", { ...press, ...at(20) }),
+	);
+	map.dispatchEvent(new PointerEvent("pointermove", { ...press, ...at(29) }));
+	map.dispatchEvent(new PointerEvent("pointerup", { ...press, ...at(29) }));
+	const said = drawn.querySelector(".sequence > .bar output");
+	expect(said?.textContent).toBe("21 .. 30 (10 bp)");
+	const view = drawn.querySelector(".sequence svg");
+	expect(view?.querySelectorAll("rect[fill='#bbddf5']")).toHaveLength(1);
+});
+
 /** The viewer's calls this file uses, as `viewer.js` sets them on the global. */
 interface Viewer {
 	stillSvg(record: unknown, options?: unknown): { svg: string };

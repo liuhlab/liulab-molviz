@@ -420,6 +420,15 @@ describe("a cut site", () => {
 		expect(named.map((t) => t.text)).toEqual([" (40)", " (1)"]);
 	});
 
+	test("shares one box with another site over the same recognition span, as SmaI's and XmaI's", () => {
+		const scene = lay({
+			cuts: [cut("SmaI", 10, 16, 13, 0), cut("XmaI", 10, 16, 11, 4)],
+		});
+		expect(rects(scene, "none").map((r) => [r.x, r.width])).toEqual([
+			[110, 66],
+		]);
+	});
+
 	test("with one strand, is boxed and cut through the top strand down to the rail, and no further", () => {
 		const scene = lay(
 			{ cuts: [cut("EcoRI", 10, 16, 11, 4)] },
@@ -429,6 +438,29 @@ describe("a cut site", () => {
 		const [box] = rects(scene, "none");
 		expect([box.y, box.y + box.height]).toEqual([top[0], rail]);
 		expect(strokes(scene, INK)).toEqual([[121, top[0], 121, rail]]);
+	});
+});
+
+describe("the bottom strand", () => {
+	test("is what holds its row's rail: the complement, a cut site's box, its lines along and under the rail, and an insertion's line; with one strand, nothing", () => {
+		const record = {
+			cuts: [cut("EcoRI", 10, 16, 11, 4)],
+			insertions: [{ name: "a", at: 30, length: 8 }],
+		};
+		const railed = (options: object) =>
+			lay(record, { bases_per_row: 20, ...options }).shapes.flatMap((s) =>
+				s.rail === undefined ? [] : [[s.shape, s.rail]],
+			);
+		const [one, two] = strands(lay(record, { bases_per_row: 20 }));
+		expect(railed({})).toEqual([
+			["text", one.rail],
+			["rect", one.rail],
+			["line", one.rail],
+			["line", one.rail],
+			["text", two.rail],
+			["line", two.rail],
+		]);
+		expect(railed({ bottom_strand: false })).toEqual([]);
 	});
 });
 

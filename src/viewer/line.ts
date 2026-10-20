@@ -21,16 +21,17 @@ import {
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
+import { type LineGeometry, lineX } from "./geometry";
 import {
 	GAP,
 	hiddenOf,
+	itemShapes,
 	LABEL_SIZE,
 	type Label,
 	type MapScene,
 	noticeShapes,
 	PAD_Y,
 	SMALL_SIZE,
-	tipped,
 } from "./labels";
 import type { Options } from "./options";
 import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
@@ -117,17 +118,23 @@ const SHELVES: readonly ((along: Along) => LineMarks)[] = [
 	cuts,
 ];
 
+/** The line laid out, and where it sets the bases. */
+export interface LineScene extends MapScene {
+	readonly geometry: LineGeometry;
+}
+
 /** Lay out `record` as a line `width` long, drawn as `options` say. */
 export function layoutLine(
 	record: Record,
 	options: Options,
 	width = WIDTH,
-): MapScene {
+): LineScene {
 	const { span } = options;
 	const { start, end } = span;
 	const bounds = recordBounds(record);
 	const { length } = bounds;
-	const at = (position: number) => ((position - start) * width) / (end - start);
+	const axis = { span, width };
+	const at = (position: number) => lineX(axis, position);
 	const backboneTop = -BACKBONE / 2;
 	const along: Along = { record, options, bounds, at, backboneTop };
 	const drawn = SHELVES.map((shelf) => shelf(along));
@@ -152,8 +159,9 @@ export function layoutLine(
 	);
 	shapes.push(...above.shapes);
 	const bottom = Math.max(rulerBottom(), ...drawn.map((one) => one.bottom));
+	const covers = drawn.flatMap((one) => one.covers ?? []);
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
-	const boxes = [...above.boxes, ...drawn.flatMap((one) => one.covers ?? [])];
+	const boxes = [...above.boxes, ...covers];
 	const covered = extent(shapes, width, boxes);
 	shapes.push(
 		...noticeShapes(
@@ -166,6 +174,12 @@ export function layoutLine(
 		extent: extent(shapes, width, boxes),
 		shapes,
 		hidden: above.hidden.map(hiddenOf),
+		geometry: {
+			map: "line",
+			...axis,
+			top: Math.min(top, ...covers.map((box) => box.y)),
+			bottom: Math.max(bottom, ...covers.map((box) => box.y + box.height)),
+		},
 	};
 }
 
@@ -201,7 +215,7 @@ function bars({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 		if (named.has(tier)) y += PAD_Y + lineHeight;
 	}
 	const shapes = laid.flatMap((bar, i) =>
-		tipped(barShapes(bar, middles[tiers[i]], placed[i], false), bar.label),
+		itemShapes(barShapes(bar, middles[tiers[i]], placed[i], false), bar.label),
 	);
 	const labels = laid.flatMap((bar, i) =>
 		placed[i] === "boxed"
@@ -257,7 +271,7 @@ function sites({ record, options, bounds, at }: Along): LineMarks {
 	);
 	const tops = middles.map((middle) => middle - PRIMER_SHAFT / 2 - reach);
 	const shapes = drawn.flatMap(({ arrow, label }, i) =>
-		tipped(
+		itemShapes(
 			[
 				{
 					shape: "polygon",
@@ -295,7 +309,7 @@ function marks({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 		const { color } = label;
 		for (const x of points(point, options.span, bounds).map(at)) {
 			shapes.push(
-				...tipped(
+				...itemShapes(
 					[
 						{
 							shape: "line",

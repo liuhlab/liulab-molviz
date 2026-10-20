@@ -16,9 +16,11 @@ import {
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
 import { columns, type Point, REACH, type Unplaced } from "./columns";
+import { angleOf, arc, type CircleGeometry, pointAt } from "./geometry";
 import {
 	hiddenOf,
 	hidingOrder,
+	itemShapes,
 	LABEL_SIZE,
 	type Label,
 	labelShapes,
@@ -28,7 +30,6 @@ import {
 	PAD_X,
 	PAD_Y,
 	SMALL_SIZE,
-	tipped,
 } from "./labels";
 import {
 	BACKBONE,
@@ -58,7 +59,8 @@ import {
 	shaded,
 	textColor,
 } from "./paint";
-import type { Feature, Record, Span } from "./record";
+import { hull } from "./pieces";
+import type { Record, Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
 import {
 	type Aligned,
@@ -116,12 +118,11 @@ interface Outside {
 }
 
 /** Everything a part of the circle is laid out against. */
-interface Circle {
-	readonly length: number;
-	/** The backbone's radius. */
-	readonly radius: number;
-	/** The angle of the origin, in radians clockwise from the top. */
-	readonly turn: number;
+type Circle = Pick<CircleGeometry, "length" | "radius" | "turn">;
+
+/** The circle laid out, and where it sets the bases. */
+export interface CircleScene extends MapScene {
+	readonly geometry: CircleGeometry;
 }
 
 /**
@@ -133,7 +134,7 @@ export function layoutCircle(
 	options: Options,
 	rotation = 0,
 	zoom = 1,
-): MapScene {
+): CircleScene {
 	const circle: Circle = {
 		length: record.bases.length,
 		radius: RADIUS * zoom,
@@ -181,11 +182,11 @@ export function layoutCircle(
 	const shapes: Shape[] = [
 		...backbone(circle),
 		...ruler(circle),
-		...drawnBars.flatMap((bar) => tipped(barShapes(bar), bar.label)),
+		...drawnBars.flatMap((bar) => itemShapes(barShapes(bar), bar.label)),
 		...drawnSites.flatMap(({ arrow, label }) =>
-			tipped([arrowShape(arrow)], label),
+			itemShapes([arrowShape(arrow)], label),
 		),
-		...drawnMarks.flatMap(({ bar, label }) => tipped([bar], label)),
+		...drawnMarks.flatMap(({ bar, label }) => itemShapes([bar], label)),
 	];
 	const boxes: Box[] = [];
 	for (const [i, one] of placed.entries()) {
@@ -194,7 +195,9 @@ export function layoutCircle(
 		const [from, to] = one.leader;
 		const leaders = [leader(from, to)];
 		if (inward) leaders.unshift(leader(xy(backboneEdge, angle), from));
-		shapes.push(...tipped([...leaders, ...labelShapes(label, one.box)], label));
+		shapes.push(
+			...itemShapes([...leaders, ...labelShapes(label, one.box)], label),
+		);
 		boxes.push(one.box);
 	}
 	shapes.push(...middle.shapes);
@@ -214,12 +217,24 @@ export function layoutCircle(
 	);
 	shapes.push(...notice);
 	const below = notice.flatMap((s) => boxOf(s) ?? []);
+	const arrows = drawnBars.flatMap((bar) => bar.arrows);
 	return {
 		extent: below.length
 			? aroundBoxes([covered, aroundBoxes(below, MARGIN)])
 			: covered,
 		shapes,
 		hidden: left.map(hiddenOf),
+		geometry: {
+			map: "circle",
+			...circle,
+			inner: Math.min(
+				numbersInside(circle),
+				...arrows.map((a) => a.radius - a.width / 2 - overhang(a.width)),
+			),
+			outer: drawnMarks.length
+				? Math.max(drawing, backboneEdge + INSERTION_REACH)
+				: drawing,
+		},
 	};
 }
 
@@ -264,33 +279,9 @@ function marks(
 	});
 }
 
-/** The angle of `position`, in radians clockwise from the top. */
-function angleOf(position: number, { length, turn }: Circle): number {
-	return (2 * Math.PI * position) / length + turn;
-}
-
-/** The point `radius` from the centre at `angle`. */
-function pointAt(radius: number, angle: number): [number, number] {
-	return [radius * Math.sin(angle), -radius * Math.cos(angle)];
-}
-
 function xy(radius: number, angle: number): Point {
 	const [x, y] = pointAt(radius, angle);
 	return { x, y };
-}
-
-/**
- * An arc on `radius` from `start` to `end`, in pieces of less than a half turn, from the point
- * at `start`, which the path is already at.
- */
-function arc(radius: number, start: number, end: number): PathCommand[] {
-	if (end === start) return [];
-	const pieces = Math.ceil(Math.abs(end - start) / Math.PI + 1e-9);
-	const sweep = end > start ? 1 : 0;
-	return Array.from({ length: pieces }, (_, i) => {
-		const [x, y] = pointAt(radius, start + ((end - start) * (i + 1)) / pieces);
-		return ["A", radius, 0, sweep, x, y] as const;
-	});
 }
 
 /**
@@ -302,16 +293,12 @@ function bars(
 	circle: Circle,
 	clear: number,
 ): CircleBar[] {
-	const hulls = shown.map(({ feature }) => hullOf(feature, circle.length));
+	const hulls = shown.map(({ feature }) =>
+		hull(feature.segments, circle.length),
+	);
 	const onRing = rings(hulls, circle);
 	const count = Math.max(0, ...onRing) + 1;
-	const outer =
-		inside(circle) -
-		TICK -
-		2 * PAD_Y -
-		height("sans", SMALL_SIZE) -
-		OVERHANG -
-		SHAFT / 2;
+	const outer = numbersInside(circle) - OVERHANG - SHAFT / 2;
 	// The innermost shaft and its heads reach in this many steps past its middle.
 	const half = (SHAFT / 2 + OVERHANG) / RING_STEP;
 	// A name wider than the circle's room would leave a step below 0.
@@ -411,15 +398,6 @@ function nameOn(name: string, arrow: Arrow): Shape | null {
 		size: LABEL_SIZE,
 		fill: textColor(arrow.color),
 		places,
-	};
-}
-
-/** Where a feature's first segment starts and its last ends, one turn at most. */
-function hullOf({ segments }: Feature, length: number): Span {
-	const start = segments[0].start;
-	return {
-		start,
-		end: Math.min(segments[segments.length - 1].end, start + length),
 	};
 }
 
@@ -552,6 +530,11 @@ function outline(arrow: Arrow): PathCommand[] {
 /** Where the backbone's inner strand ends, inside it. */
 function inside({ radius }: Circle): number {
 	return radius - STRANDS_APART - BACKBONE / 2;
+}
+
+/** Where the ruler's numbers end, inside the backbone, with room under them. */
+function numbersInside(circle: Circle): number {
+	return inside(circle) - TICK - 2 * PAD_Y - height("sans", SMALL_SIZE);
 }
 
 /** `degrees` as an angle from -180 up to 180. */

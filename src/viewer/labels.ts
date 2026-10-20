@@ -15,6 +15,7 @@ import {
 import { pointText, spanText } from "./pieces";
 import type { Bounds, Disagreement, Insertion, Read, Span } from "./record";
 import type { Box, Scene, Shape } from "./scene";
+import { itemKey } from "./selection";
 import { baseline, type Face, height, measure } from "./text";
 
 /** A label's size of text, and the small text of a map's ruler, title and notice. */
@@ -106,9 +107,11 @@ export function tipOf(
 	].join("\n");
 }
 
-/** `shapes`, each carrying the tip of `label`, the item they draw. */
-export function tipped(shapes: readonly Shape[], { tip }: Label): Shape[] {
-	return shapes.map((shape) => ({ ...shape, tip }));
+/** `shapes`, each carrying the tip and the key of `label`, the item they draw. */
+export function itemShapes(shapes: readonly Shape[], label: Label): Shape[] {
+	const { tip } = label;
+	const item = itemKey(label);
+	return shapes.map((shape) => ({ ...shape, tip, item }));
 }
 
 /**

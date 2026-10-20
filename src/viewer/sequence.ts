@@ -15,7 +15,13 @@ import {
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
-import { LABEL_SIZE, type Label, PAD_Y, SMALL_SIZE } from "./labels";
+import {
+	itemShapes,
+	LABEL_SIZE,
+	type Label,
+	PAD_Y,
+	SMALL_SIZE,
+} from "./labels";
 import { MARGIN } from "./line";
 import type { Options } from "./options";
 import { INK, RAIL } from "./paint";
@@ -36,7 +42,7 @@ import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, height, measure } from "./text";
 
 /** How wide a base's cell is, and the size its letter is set at. */
-const CELL = 11;
+export const CELL = 11;
 const BASE_SIZE = 11;
 
 // The room under the numbers and either side of the rail, how far a tick reaches either side of
@@ -52,9 +58,16 @@ const TICK_WIDTH = 1;
 
 const ROW_GAP = 16;
 
-/** The sequence view laid out, and the box each row takes, top to bottom. */
+/** The sequence view laid out, and its rows, top to bottom. */
 export interface SequenceScene extends Scene {
-	readonly rows: readonly Box[];
+	readonly rows: readonly RowBox[];
+}
+
+/** The box a row takes, the bases it holds, counted as the span counts, and its strands. */
+export interface RowBox extends Box {
+	readonly start: number;
+	readonly end: number;
+	readonly strands: Strands;
 }
 
 /** One row of the view: what it is drawn against, and the bases it holds. */
@@ -117,7 +130,7 @@ export function layoutSequence(
 	const shown = shownBars(record, options);
 	const sampled = sampledRows(record, options);
 	const shapes: Shape[] = [];
-	const rows: Box[] = [];
+	const rows: RowBox[] = [];
 	let before: RunOn = new Map();
 	let top = 0;
 	for (const [i, start] of starts.entries()) {
@@ -133,7 +146,20 @@ export function layoutSequence(
 		const laid = layoutRow(row, shown, sampled[i], before, lasts[i], right);
 		const shift = top - laid.box.y;
 		shapes.push(...laid.shapes.map((shape) => moved(shape, 0, shift)));
-		rows.push({ ...laid.box, y: top });
+		const { top: upper, rail, bottom } = laid.strands;
+		const down = ([a, b]: readonly [number, number]) =>
+			[a + shift, b + shift] as const;
+		rows.push({
+			...laid.box,
+			y: top,
+			start,
+			end,
+			strands: {
+				top: down(upper),
+				rail: rail + shift,
+				bottom: bottom && down(bottom),
+			},
+		});
 		top += laid.box.height + ROW_GAP;
 		before = laid.after;
 	}
@@ -163,7 +189,7 @@ function layoutRow(
 	before: RunOn,
 	last: string,
 	right: number,
-): { shapes: Shape[]; box: Box; after: RunOn } {
+): { shapes: Shape[]; box: Box; strands: Strands; after: RunOn } {
 	const { record, start, end } = row;
 	const forward = sites(row, 0, 1, before);
 	let y = forward.bottom;
@@ -179,7 +205,7 @@ function layoutRow(
 	let bottomStrand: readonly [number, number] | null = null;
 	if (row.options.bottom_strand) {
 		bottomStrand = [y + RAIL_GAP, y + RAIL_GAP + height("mono", BASE_SIZE)];
-		shapes.push(strandText(complement(bases), bottomStrand[0]));
+		shapes.push({ ...strandText(complement(bases), bottomStrand[0]), rail });
 		y = bottomStrand[1];
 	}
 	shapes.push({
@@ -194,11 +220,8 @@ function layoutRow(
 	});
 	const reverse = sites(row, y, -1, before);
 	const barred = bars(row, shown, before, reverse.bottom);
-	const across = acrossStrands(row, {
-		top: topStrand,
-		rail,
-		bottom: bottomStrand,
-	});
+	const strands: Strands = { top: topStrand, rail, bottom: bottomStrand };
+	const across = acrossStrands(row, strands);
 	const drawn = [
 		barred,
 		forward,
@@ -210,9 +233,7 @@ function layoutRow(
 	const above = labelsAbove(
 		drawn.flatMap((one) => one.labels),
 		0,
-		{
-			rise: Number.POSITIVE_INFINITY,
-		},
+		{ rise: Number.POSITIVE_INFINITY, tips: true },
 	);
 	shapes.push(...above.shapes);
 	const box = aroundBoxes([
@@ -222,7 +243,7 @@ function layoutRow(
 		...drawn.flatMap((one) => one.covers ?? []),
 	]);
 	const after = new Map([...barred.after, ...forward.after, ...reverse.after]);
-	return { shapes, box, after };
+	return { shapes, box, strands, after };
 }
 
 /**
@@ -265,7 +286,7 @@ function bars(
 		for (const [i, { bar, feature }] of found.entries()) {
 			if (tiers[i] !== tier) continue;
 			const over = chips(feature, bar, row, y);
-			shapes.push(...over.shapes);
+			shapes.push(...itemShapes(over.shapes, bar.label));
 			labels.push(...over.labels);
 			chipped = Math.max(chipped, over.bottom);
 		}
@@ -279,7 +300,12 @@ function bars(
 	const after: RunOn = new Map();
 	for (const [i, bar] of bars.entries()) {
 		if (bar.end === at(end)) after.set(bar.label, tiers[i]);
-		shapes.push(...barShapes(bar, middles[tiers[i]], placed[i], true));
+		shapes.push(
+			...itemShapes(
+				barShapes(bar, middles[tiers[i]], placed[i], true),
+				bar.label,
+			),
+		);
 		if (placed[i] === "boxed") {
 			labels.push({ label: bar.label, x: (bar.start + bar.end) / 2, foot: 0 });
 		}

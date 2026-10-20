@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
 import { draw } from "../../src/viewer/draw";
+import { layoutMap } from "../../src/viewer/drawing";
 import {
 	anchored,
 	beforePaint,
@@ -8,8 +9,11 @@ import {
 	type Frame,
 	openFrame,
 } from "../../src/viewer/frame";
+import { rowHolding } from "../../src/viewer/geometry";
 import { checkOptions } from "../../src/viewer/options";
+import { VIEWS_APART } from "../../src/viewer/pane";
 import { check } from "../../src/viewer/record";
+import { layoutSequence } from "../../src/viewer/sequence";
 import {
 	circular,
 	hoverBoxOf,
@@ -123,12 +127,13 @@ describe("a record's frame", () => {
 		]);
 	});
 
-	test("offers no sequence view past 100,000 bases", () => {
+	test("offers no sequence view past 100,000 bases, nor its strands", () => {
 		const long = { ...circular, bases: "ACGT".repeat(25_001) };
-		expect(views(opened(long, { sequence_view: true }))).toEqual([
-			"circle",
-			"line",
-		]);
+		const frame = opened(long, { sequence_view: true });
+		expect(views(frame)).toEqual(["circle", "line"]);
+		expect(
+			frame.box.parentElement?.querySelector('[name="strands"]'),
+		).toBeNull();
 	});
 
 	test("ticks the map and the sequence view the options open on", () => {
@@ -197,11 +202,203 @@ describe("the sequence view's switch", () => {
 
 	test("leaves the view as it is drawn when only the map changes", () => {
 		const frame = opened(circular, { sequence_view: true });
-		const view = frame.box.nextElementSibling?.firstElementChild;
+		const sequence = frame.pane.querySelector("svg");
+		expect(sequence).not.toBeNull();
 		input(frame, "line").click();
 		frame.shown().zoom = 2;
 		frame.redraw();
-		expect(frame.box.nextElementSibling?.firstElementChild).toBe(view);
+		expect(frame.pane.querySelector("svg")).toBe(sequence);
+	});
+});
+
+describe("the sequence view's hovers", () => {
+	test("show in the page's box with no title, each on an item keyed as on the map", () => {
+		const frame = opened(linear, { sequence_view: true });
+		const pane = frame.box.nextElementSibling as HTMLElement;
+		expect(pane.querySelectorAll("title")).toHaveLength(0);
+		const hovers = [...pane.querySelectorAll("[data-molviz-hover]")];
+		const keys = (within: Element) =>
+			new Set(
+				[...within.querySelectorAll("[data-molviz-item]")].map((shape) =>
+					shape.getAttribute("data-molviz-item"),
+				),
+			);
+		expect(hovers).toEqual([...pane.querySelectorAll("[data-molviz-item]")]);
+		expect(keys(pane)).toEqual(
+			new Set([
+				'{"kind":"features","name":"lacZ","spans":[{"start":10,"end":60}]}',
+			]),
+		);
+		expect(keys(frame.box)).toEqual(keys(pane));
+		hovers[0].dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
+		expect(hoverBoxOf()?.hidden).toBe(false);
+		expect(hoverBoxOf()?.firstElementChild?.textContent).toBe("lacZ");
+	});
+});
+
+/** Give `frame` a room `width` CSS pixels wide, as a window resized to it does. */
+function resized(frame: Frame, width: number): void {
+	const root = frame.box.parentElement as HTMLElement;
+	Object.defineProperty(root, "clientWidth", {
+		configurable: true,
+		value: width,
+	});
+	window.dispatchEvent(new Event("resize"));
+}
+
+/** How wide `record`'s map at 1× and its sequence view with full and half rows lay out. */
+function widthsOf(record: unknown, options: unknown = {}) {
+	const checked = check(record);
+	const all = checkOptions(
+		{ sequence_view: true, ...(options as object) },
+		checked,
+		{
+			page: true,
+		},
+	);
+	const sequence = (perRow: number) =>
+		layoutSequence(checked, { ...all, bases_per_row: perRow }).extent.width;
+	return {
+		map: layoutMap(checked, all).extent.width,
+		full: sequence(all.bases_per_row),
+		half: sequence(Math.ceil(all.bases_per_row / 2)),
+	};
+}
+
+/** How far `frame`'s pane scrolls to show the row holding `base` at its top, at `scale`. */
+function scrollFor(frame: Frame, base: number, scale = 1): number {
+	const sequence = frame.sequence();
+	const row = sequence && rowHolding(sequence.rows, base);
+	if (!sequence || !row) throw new Error(`no row holds ${base}`);
+	const [, top] = (sequence.svg.getAttribute("viewBox") ?? "").split(" ");
+	return (row.y - Number(top)) * scale;
+}
+
+/** Scroll `frame`'s pane to `top`, as a reader does. */
+function scrolled(frame: Frame, top: number): void {
+	frame.pane.scrollTop = top;
+	frame.pane.dispatchEvent(new Event("scroll"));
+}
+
+/** Press and let go on `target` with the mouse's main button, without moving. */
+function click(target: Element): void {
+	for (const type of ["pointerdown", "pointerup"]) {
+		target.dispatchEvent(
+			new PointerEvent(type, {
+				bubbles: true,
+				pointerId: 1,
+				pointerType: "mouse",
+				button: 0,
+			}),
+		);
+	}
+}
+
+/** Whether `frame` shows the sequence view beside its map, and how many bases its rows hold. */
+function arrangement(frame: Frame): { beside: boolean; perRow: number } {
+	const rows = frame.sequence()?.rows ?? [];
+	return {
+		beside: frame.box.parentElement?.classList.contains("beside") ?? false,
+		perRow: rows.length ? rows[0].end - rows[0].start : 0,
+	};
+}
+
+/** A linear record of 600 bases, ten rows of 60. */
+const long = { ...linear, bases: "ACGT".repeat(150) };
+
+describe("where the sequence view sits", () => {
+	test("beside the map with full rows when both fit at full size, else beside with half rows", () => {
+		const frame = opened(long, { sequence_view: true });
+		const { map, full, half } = widthsOf(long);
+		resized(frame, map + VIEWS_APART + full);
+		expect(arrangement(frame)).toEqual({ beside: true, perRow: 60 });
+		resized(frame, map + VIEWS_APART + full - 1);
+		expect(arrangement(frame)).toEqual({ beside: true, perRow: 30 });
+		resized(frame, map + VIEWS_APART + half);
+		expect(arrangement(frame)).toEqual({ beside: true, perRow: 30 });
+	});
+
+	test("under the map with full rows once half rows do not fit beside, else with half rows", () => {
+		const frame = opened(long, { sequence_view: true });
+		const { map, full, half } = widthsOf(long);
+		resized(frame, map + VIEWS_APART + half - 1);
+		expect(arrangement(frame)).toEqual({ beside: false, perRow: 60 });
+		resized(frame, full);
+		expect(arrangement(frame)).toEqual({ beside: false, perRow: 60 });
+		resized(frame, full - 1);
+		expect(arrangement(frame)).toEqual({ beside: false, perRow: 30 });
+		resized(frame, half);
+		expect(arrangement(frame)).toEqual({ beside: false, perRow: 30 });
+		const svg = frame.pane.querySelector("svg");
+		expect([svg?.style.width, svg?.style.height]).toEqual(["", ""]);
+	});
+
+	test("under with half rows scaled down to the room once they do not fit it", () => {
+		const frame = opened(long, { sequence_view: true });
+		const { half } = widthsOf(long);
+		resized(frame, half / 2);
+		expect(arrangement(frame)).toEqual({ beside: false, perRow: 30 });
+		const svg = frame.pane.querySelector("svg");
+		const [, , , height] = (svg?.getAttribute("viewBox") ?? "").split(" ");
+		expect(parseFloat(svg?.style.width ?? "")).toBeCloseTo(half / 2, 6);
+		expect(parseFloat(svg?.style.height ?? "")).toBeCloseTo(
+			Number(height) / 2,
+			2,
+		);
+	});
+
+	test("keeping the first base of the pane's top row at its top, across full rows and half", () => {
+		const options = { sequence_view: true, bases_per_row: 61 };
+		const frame = opened(long, options);
+		const { map, full, half } = widthsOf(long, options);
+		resized(frame, map + VIEWS_APART + full);
+		scrolled(frame, scrollFor(frame, 122) + 5);
+		resized(frame, map + VIEWS_APART + half);
+		expect(arrangement(frame).perRow).toBe(31);
+		// The half row holding 122 starts at 93; full rows come back to 122's, not 93's.
+		expect(frame.pane.scrollTop).toBe(scrollFor(frame, 122));
+		frame.pane.dispatchEvent(new Event("scroll"));
+		resized(frame, map + VIEWS_APART + full);
+		expect(frame.pane.scrollTop).toBe(scrollFor(frame, 122));
+		resized(frame, half / 2);
+		expect(frame.pane.scrollTop).toBeCloseTo(scrollFor(frame, 122, 0.5), 6);
+		resized(frame, half / 4);
+		expect(frame.pane.scrollTop).toBeCloseTo(scrollFor(frame, 122, 0.25), 6);
+	});
+
+	test("keeping the selection across full rows and half, in the drawing shown", () => {
+		const frame = opened(long, { sequence_view: true });
+		const { map, full, half } = widthsOf(long);
+		resized(frame, map + VIEWS_APART + full);
+		const lacZ = frame.box.querySelector("[data-molviz-item]");
+		if (!lacZ) throw new Error("no item on the map");
+		click(lacZ);
+		const shaded = () =>
+			frame.sequence()?.svg.querySelectorAll("rect[fill='#bbddf5']").length;
+		expect(shaded()).toBe(1);
+		resized(frame, map + VIEWS_APART + half);
+		const svg = frame.pane.querySelector("svg");
+		expect(frame.sequence()?.svg).toBe(svg);
+		expect(shaded()).toBe(2);
+		expect(
+			svg?.querySelectorAll("[data-molviz-selected]").length,
+		).toBeGreaterThan(0);
+		expect(frame.paneBar.querySelector("output")?.textContent).toBe(
+			"11 .. 60 (50 bp)",
+		);
+	});
+
+	test("again after a redraw, as a flip changes the map's width", () => {
+		const frame = opened({ ...long, circular: true }, { sequence_view: true });
+		const circle = widthsOf({ ...long, circular: true });
+		const line = widthsOf({ ...long, circular: true }, { map: "line" });
+		expect(line.map).toBeGreaterThan(circle.map);
+		resized(frame, circle.map + VIEWS_APART + circle.full);
+		expect(arrangement(frame)).toEqual({ beside: true, perRow: 60 });
+		input(frame, "line").click();
+		expect(arrangement(frame)).toEqual({ beside: true, perRow: 30 });
+		input(frame, "sequence").click();
+		expect(arrangement(frame)).toEqual({ beside: false, perRow: 0 });
 	});
 });
 
@@ -223,9 +420,14 @@ function printRules(): Map<string, CSSStyleDeclaration> {
 }
 
 describe("printing", () => {
-	test("hides the bar, and the hover box were it showing", () => {
-		const frame = opened(circular);
-		expect(printRules().get(".molviz .bar")?.display).toBe("none");
+	test("hides both bars, and the hover box were it showing", () => {
+		const frame = opened(circular, { sequence_view: true });
+		const bars = [...printRules()].filter(
+			([selector, style]) =>
+				[frame.bar, frame.paneBar].every((bar) => bar.matches(selector)) &&
+				style.display === "none",
+		);
+		expect(bars).toHaveLength(1);
 		rest(frame);
 		const shown = hoverBoxOf();
 		expect(shown).not.toBeNull();
@@ -262,12 +464,38 @@ describe("printing", () => {
 		expect(frame.box.firstElementChild).toBe(svg);
 	});
 
-	test("shows the whole map, its box neither scrolling nor keeping its size", () => {
+	test("shows the whole map and view, their boxes neither scrolling nor keeping a size", () => {
 		opened(circular);
 		const box = printRules().get(".molviz .map, .molviz .sequence");
 		expect(box?.overflow).toBe("visible");
+		expect(box?.maxHeight).toBe("none");
 		expect([box?.width, box?.height]).toEqual(["auto", "auto"]);
 		expect(box?.getPropertyPriority("width")).toBe("important");
+	});
+
+	test("lays the view out under the map, with full rows at full size and the selection, then back", () => {
+		const frame = opened(long, { sequence_view: true });
+		const { map, half } = widthsOf(long);
+		resized(frame, map + VIEWS_APART + half);
+		const lacZ = frame.box.querySelector("[data-molviz-item]");
+		if (!lacZ) throw new Error("no item on the map");
+		click(lacZ);
+		const shaded = () =>
+			frame.sequence()?.svg.querySelectorAll("rect[fill='#bbddf5']").length;
+		window.dispatchEvent(new Event("beforeprint"));
+		expect(arrangement(frame)).toEqual({ beside: false, perRow: 60 });
+		expect(shaded()).toBe(1);
+		window.dispatchEvent(new Event("afterprint"));
+		expect(arrangement(frame)).toEqual({ beside: true, perRow: 30 });
+		expect(shaded()).toBe(2);
+		resized(frame, half / 2);
+		window.dispatchEvent(new Event("beforeprint"));
+		expect(frame.sequence()?.svg.style.width).toBe("");
+		window.dispatchEvent(new Event("afterprint"));
+		expect(parseFloat(frame.sequence()?.svg.style.width ?? "")).toBeCloseTo(
+			half / 2,
+			6,
+		);
 	});
 });
 

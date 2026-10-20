@@ -1,6 +1,6 @@
 /**
  * A record's switches in its frame's bar: each kind it holds, each feature type and each enzyme,
- * the flip between the circle and the line, and the sequence view's switch.
+ * the flip between the circle and the line, the sequence view's switch and its strands'.
  */
 
 import { byName, cutCounts } from "./cuts";
@@ -36,7 +36,8 @@ const CHANGES = new Map<
 /**
  * Add `frame`'s switches to its bar, each ticked as the frame's options start: at the left the
  * kinds the record holds, its feature types, and its enzymes folded in a list; at the right the
- * views. A change sets the options and lays the frame out again.
+ * views. A change sets the options and lays the frame out again. Where the sequence view may
+ * show, Both strands goes first in its pane's bar.
  */
 export function switches(frame: Frame): void {
 	const { record, bar } = frame;
@@ -80,6 +81,11 @@ export function switches(frame: Frame): void {
 	folding.className = "enzymes";
 	folding.append(summary, list);
 
+	const views = viewSwitches(frame);
+	if (views?.querySelector('[name="sequence"]')) {
+		frame.paneBar.prepend(strandSwitch(frame));
+	}
+
 	const refresh = () => {
 		const { kinds_off, sequence_view } = frame.state.options;
 		const count = list.querySelectorAll("input:checked").length;
@@ -95,7 +101,6 @@ export function switches(frame: Frame): void {
 		...[kinds, types].filter((set) => set.elements.length),
 		...(counts.size ? [folding] : []),
 	);
-	const views = viewSwitches(frame);
 	if (views !== null) bar.append(views);
 
 	bar.addEventListener("change", (event) => {
@@ -143,6 +148,31 @@ function viewSwitches({
 		);
 	}
 	return labels.length ? fieldset(document, "Views", labels, "views") : null;
+}
+
+/**
+ * The Both strands switch for `frame`'s sequence view, ticked as its options start. A change
+ * sets the options and shows or hides the bottom strand, laying nothing out again.
+ */
+function strandSwitch(frame: Frame): HTMLLabelElement {
+	const { bar, state } = frame;
+	const label = labelled(
+		bar.ownerDocument,
+		"checkbox",
+		"strands",
+		"both",
+		state.options.bottom_strand,
+		"Both strands",
+	);
+	const input = label.querySelector("input") as HTMLInputElement;
+	input.addEventListener("change", () => {
+		frame.state.options = {
+			...frame.state.options,
+			bottom_strand: input.checked,
+		};
+		frame.showStrands();
+	});
+	return label;
 }
 
 /** What a label holds beside its input. */

@@ -12,6 +12,7 @@ import {
 	pack,
 } from "./arrows";
 import { folded } from "./format";
+import { itemShapes } from "./labels";
 import {
 	BASE_MARK,
 	CUT_BOX,
@@ -116,11 +117,12 @@ export function sites(
 			strand === 1
 				? top + (count - 1 - tiers[i]) * TIER + AWAY
 				: top + tiers[i] * TIER + PRIMER_GAP + NEAR;
+		const drawn: Shape[] = [];
 		if (tail) {
-			shapes.push(tailShape(tail, bends, middle, -strand, label.color));
+			drawn.push(tailShape(tail, bends, middle, -strand, label.color));
 		}
 		if (arrow) {
-			shapes.push({
+			drawn.push({
 				shape: "polygon",
 				points: outline(arrow, middle, PRIMER_SHAFT, false, HEAD),
 				fill: arrow.color,
@@ -129,7 +131,7 @@ export function sites(
 			});
 		}
 		for (const [x, end] of cells) {
-			shapes.push({
+			drawn.push({
 				shape: "rect",
 				x: x + MARK_INSET,
 				y: middle - NEAR,
@@ -141,6 +143,7 @@ export function sites(
 				strokeWidth: 0,
 			});
 		}
+		shapes.push(...itemShapes(drawn, label));
 	}
 	const labels = found.flatMap(({ aligned: { label }, arrow }) =>
 		arrow ? [{ label, x: (arrow.start + arrow.end) / 2, foot: ROW_TOP }] : [],
@@ -256,22 +259,34 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
 	const on = new Set(options.enzymes.map(folded));
 	const floor = bottom ? bottom[1] : rail;
-	// Enzymes cutting at one point draw the same lines, and often the same box: each once.
+	const under = bottom ? { rail } : {};
+	// Enzymes cutting at one point draw the same lines, and often the same box, and two sites may
+	// share a box: each once, with the first site's tip.
 	const shapes = new Map<string, Shape>();
-	const add = (shape: Shape) => shapes.set(JSON.stringify(shape), shape);
-	const line = (x1: number, y1: number, x2: number, y2: number, dim: boolean) =>
-		add({
-			shape: "line",
-			x1,
-			y1,
-			x2,
-			y2,
-			stroke: painted(INK, dim),
-			strokeWidth: CUT_WIDTH,
-		});
 	const labels: Anchored[] = [];
 	for (const { at: point, label } of shownCuts(record, options)) {
 		const { dim } = label;
+		const add = (shape: Shape) => {
+			const key = JSON.stringify(shape);
+			if (!shapes.has(key)) shapes.set(key, itemShapes([shape], label)[0]);
+		};
+		const line = (
+			x1: number,
+			y1: number,
+			x2: number,
+			y2: number,
+			below: typeof under = {},
+		) =>
+			add({
+				shape: "line",
+				x1,
+				y1,
+				x2,
+				y2,
+				stroke: painted(INK, dim),
+				strokeWidth: CUT_WIDTH,
+				...below,
+			});
 		const made = record.cuts.filter(
 			(one) => one.at === point && on.has(folded(one.enzyme)),
 		);
@@ -291,6 +306,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 					fill: "none",
 					stroke: painted(CUT_BOX, dim),
 					strokeWidth: CUT_BOX_WIDTH,
+					...under,
 				});
 			}
 		}
@@ -301,7 +317,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 			const p = point + shift;
 			const held = holds(row, p, after);
 			if (held) {
-				line(at(p), top[0], at(p), rail, dim);
+				line(at(p), top[0], at(p), rail);
 				labels.push({ label, x: at(p), foot: ROW_TOP });
 			}
 			if (!bottom) continue;
@@ -312,9 +328,9 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 					Math.min(Math.max(p, q), row.end),
 				];
 				if (!held && low >= high) continue;
-				if (low < high) line(at(low), rail, at(high), rail, dim);
+				if (low < high) line(at(low), rail, at(high), rail, under);
 				if (row.start <= q && q <= row.end) {
-					line(at(q), rail, at(q), bottom[1], dim);
+					line(at(q), rail, at(q), bottom[1], under);
 				}
 			}
 		}
@@ -330,6 +346,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
 	const [y1, y2] = [top[0], bottom ? bottom[1] : rail];
+	const under = bottom ? { rail } : {};
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
@@ -338,16 +355,24 @@ function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
 			const p = point + shift;
 			if (!holds(row, p, true)) continue;
 			const x = at(p);
-			shapes.push({
-				shape: "line",
-				x1: x,
-				y1,
-				x2: x,
-				y2,
-				stroke: label.color,
-				strokeWidth: INSERTION_WIDTH,
-				title: hover,
-			});
+			shapes.push(
+				...itemShapes(
+					[
+						{
+							shape: "line",
+							x1: x,
+							y1,
+							x2: x,
+							y2,
+							stroke: label.color,
+							strokeWidth: INSERTION_WIDTH,
+							title: hover,
+							...under,
+						},
+					],
+					label,
+				),
+			);
 			covers.push({
 				x: x - INSERTION_WIDTH / 2,
 				y: y1,

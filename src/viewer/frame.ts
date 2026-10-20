@@ -1,18 +1,34 @@
 /**
  * A record's frame on a page: a bar of controls, the map's box under it and the sequence view's
- * under that. A control changes the frame's state, then calls `redraw`.
+ * pane under that. A control changes the frame's state, then calls `redraw`, or `changed` for a
+ * change that lays nothing out.
  */
 
 import { aroundBoxes } from "./bounds";
 import { layoutMap } from "./drawing";
+import type { MapGeometry } from "./geometry";
 import { hoverBox } from "./hover";
 import type { MapScene } from "./labels";
 import type { Options } from "./options";
-import { GROUND, INK, LEADER } from "./paint";
+import {
+	GROUND,
+	INK,
+	LEADER,
+	SELECTED_OUTLINE,
+	SELECTED_OUTLINE_WIDTH,
+} from "./paint";
+import {
+	BESIDE,
+	type ClientPoint,
+	ONE_STRAND,
+	openPane,
+	type SequenceShown,
+	VIEWS_APART,
+} from "./pane";
 import type { Record } from "./record";
 import type { Box, Scene } from "./scene";
-import { layoutSequence } from "./sequence";
-import { toElement } from "./svg";
+import type { Selection } from "./selection";
+import { BOTH_STRANDS, ITEM, SELECTED, TOP_STRAND, toElement } from "./svg";
 import { families } from "./text";
 
 /** The style element holding the frames' rules, shared by every frame on a page. */
@@ -38,6 +54,14 @@ export interface MapState {
 export interface FrameState {
 	options: Options;
 	readonly maps: { readonly [M in MapName]: MapState };
+	/** What the reader has selected, drawn in every view; nothing at first. */
+	selection: Selection | null;
+}
+
+/** A map as a frame shows it: its drawing on the page, and where it sets the bases. */
+export interface MapShown {
+	readonly svg: SVGSVGElement;
+	readonly geometry: MapGeometry;
 }
 
 /** A record drawn in a frame on a page, for its controls to change. */
@@ -48,10 +72,25 @@ export interface Frame {
 	readonly bar: HTMLFormElement;
 	/** The map's box, which keeps its size at 1× and scrolls when the map is zoomed. */
 	readonly box: HTMLElement;
+	/** The sequence view's pane, no taller than the window, scrolling the view under its bar. */
+	readonly pane: HTMLElement;
+	/** The pane's bar, stuck at its top: the bottom strand's switch first, then the selection. */
+	readonly paneBar: HTMLFormElement;
 	/** The state of the map the options name. */
 	shown(): MapState;
 	/** The box the map shown is laid out over, and how many CSS pixels a point shows as. */
 	drawn(): { readonly extent: Scene["extent"]; readonly scale: number };
+	/** The map shown: its drawing on the page, and where it sets the bases. */
+	map(): MapShown;
+	/** The sequence view as shown, or null while it is off or absent. */
+	sequence(): SequenceShown | null;
+	/** The base of the sequence view at `at`, or with `near` the nearest; null off its strands. */
+	sequenceBase(at: ClientPoint, near?: boolean): number | null;
+	/**
+	 * Show both strands of the sequence view, or the top one alone, as the options say, laying
+	 * nothing out again, then call the listeners.
+	 */
+	showStrands(): void;
 	/**
 	 * Lay out again what the state changed and swap it in, returning the map. The map flipped
 	 * from keeps its scroll, and the one flipped to gets its own back. With `hold`, as a circle
@@ -61,6 +100,10 @@ export interface Frame {
 	redraw(hold?: boolean): MapScene;
 	/** Lay the map shown out as it opens, at 1× with its origin at the top, its box unscrolled. */
 	reset(): void;
+	/** Call `listener` after each redraw, and each time `changed` is called. */
+	onChange(listener: () => void): void;
+	/** Say the state changed in a way that lays nothing out, such as the selection. */
+	changed(): void;
 	/** Remove the frame, leaving the styles for any other. Calling it again does nothing. */
 	destroy(): void;
 }
@@ -207,13 +250,19 @@ export function openFrame(
 	const bar = make("form", "bar");
 	bar.autocomplete = "off";
 	const box = make("div", "map");
-	const pane = make("div", "sequence");
-	root.append(bar, box, pane);
+	root.append(bar, box);
 	element.append(root);
 
 	const state: FrameState = {
 		options,
 		maps: { circle: opening(), line: opening() },
+		selection: null,
+	};
+	const pane = openPane(root, record, () => state.options);
+	root.append(pane.element);
+	const listeners: (() => void)[] = [];
+	const changed = () => {
+		for (const listener of listeners) listener();
 	};
 	/**
 	 * Each map's size laid out at 1×, which its box keeps while zoomed, and the options and turn
@@ -225,14 +274,31 @@ export function openFrame(
 		zoom: number;
 		extent: Scene["extent"];
 		svg: SVGSVGElement;
+		geometry: MapGeometry;
 	} | null = null;
-	let sequenceDrawn: string | null = null;
 	/** The box a turning circle keeps, until a redraw without `hold`. */
 	let held: Scene["extent"] | null = null;
+	let printing = false;
 
-	/** The scale a map shows at: its size at 1× fitted to the room. */
+	/** The scale a map shows at: its size at 1× fitted to its room. */
 	const scaleOf = ({ name, extent }: NonNullable<typeof shown>) =>
-		displayScale((sizes.get(name)?.extent ?? extent).width, root.clientWidth);
+		displayScale((sizes.get(name)?.extent ?? extent).width, pane.mapRoom());
+
+	/**
+	 * Show the sequence view beside the map shown or under it, as the room allows or a page
+	 * prints. With `still`, as a circle turns, it stays where it sits. Returns whether it was
+	 * drawn anew.
+	 */
+	const arrangeViews = (still = false): boolean => {
+		if (shown === null) return false;
+		const map = (sizes.get(shown.name)?.extent ?? shown.extent).width;
+		return pane.arrange(map, { still, printing });
+	};
+	/** Arrange the views again for the room, as the window's size changes. */
+	const rearrange = () => {
+		if (arrangeViews()) changed();
+		sizeToRoom();
+	};
 
 	const sizeToRoom = () => {
 		if (shown === null) return;
@@ -275,27 +341,37 @@ export function openFrame(
 		if (shown === null) box.append(svg);
 		else shown.svg.replaceWith(svg);
 		hoverBox(svg);
-		shown = { name, zoom: map.zoom, extent: scene.extent, svg };
+		shown = {
+			name,
+			zoom: map.zoom,
+			extent: scene.extent,
+			svg,
+			geometry: scene.geometry,
+		};
+		arrangeViews(held !== null);
 		sizeToRoom();
 		if (flipped) {
 			box.scrollLeft = map.left;
 			box.scrollTop = map.top;
 		}
-		sequenceDrawn = redrawSequence(record, state.options, pane, sequenceDrawn);
+		changed();
 		return scene;
 	};
 
-	// A zoomed map prints at 1×, then gets its zoom and scroll back.
+	// A print shows the sequence view under the map with full rows, and a zoomed map at 1×; after it the
+	// map gets its zoom and scroll back.
 	let printed: { zoom: number; left: number; top: number } | null = null;
 	const beforePrint = () => {
+		printing = true;
 		const map = state.maps[state.options.map];
-		if (map.zoom === 1) return;
+		if (map.zoom === 1) return rearrange();
 		printed = { zoom: map.zoom, left: box.scrollLeft, top: box.scrollTop };
 		map.zoom = 1;
 		redraw();
 	};
 	const afterPrint = () => {
-		if (printed === null) return;
+		printing = false;
+		if (printed === null) return rearrange();
 		const { zoom, left, top } = printed;
 		printed = null;
 		state.maps[state.options.map].zoom = zoom;
@@ -304,7 +380,7 @@ export function openFrame(
 		box.scrollTop = top;
 	};
 	const { defaultView } = document;
-	defaultView?.addEventListener("resize", sizeToRoom);
+	defaultView?.addEventListener("resize", rearrange);
 	defaultView?.addEventListener("beforeprint", beforePrint);
 	defaultView?.addEventListener("afterprint", afterPrint);
 	redraw();
@@ -314,10 +390,22 @@ export function openFrame(
 		state,
 		bar,
 		box,
+		pane: pane.element,
+		paneBar: pane.bar,
 		shown: () => state.maps[state.options.map],
 		drawn: () => {
 			if (shown === null) throw new Error("the frame has drawn no map");
 			return { extent: shown.extent, scale: scaleOf(shown) };
+		},
+		map: () => {
+			if (shown === null) throw new Error("the frame has drawn no map");
+			return { svg: shown.svg, geometry: shown.geometry };
+		},
+		sequence: pane.shown,
+		sequenceBase: pane.sequenceBase,
+		showStrands: () => {
+			pane.showStrands();
+			changed();
 		},
 		redraw,
 		reset: () => {
@@ -326,8 +414,12 @@ export function openFrame(
 			box.scrollLeft = 0;
 			box.scrollTop = 0;
 		},
+		onChange: (listener) => {
+			listeners.push(listener);
+		},
+		changed,
 		destroy: () => {
-			defaultView?.removeEventListener("resize", sizeToRoom);
+			defaultView?.removeEventListener("resize", rearrange);
 			defaultView?.removeEventListener("beforeprint", beforePrint);
 			defaultView?.removeEventListener("afterprint", afterPrint);
 			root.remove();
@@ -357,25 +449,6 @@ function restOfTurn(
 /** The state a map opens on: at its size, its origin at the top, unscrolled. */
 function opening(): MapState {
 	return { zoom: 1, turn: 0, left: 0, top: 0 };
-}
-
-/**
- * Show or hide the sequence view in `pane` as `options` say, laying it out again only if the
- * options it reads changed since it was `drawn`. Returns what it is drawn for now.
- */
-function redrawSequence(
-	record: Record,
-	options: Options,
-	pane: HTMLElement,
-	drawn: string | null,
-): string | null {
-	pane.hidden = !options.sequence_view;
-	if (!options.sequence_view) return drawn;
-	const reads = JSON.stringify({ ...options, map: null, sequence_view: null });
-	if (reads === drawn) return drawn;
-	const svg = toElement(layoutSequence(record, options), pane.ownerDocument);
-	pane.replaceChildren(svg);
-	return reads;
 }
 
 /** Add the frames' rules to `document`, unless a frame already has. */
@@ -431,19 +504,34 @@ function css(): string {
 	display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center;
 	gap: 6px 24px; margin-left: auto;
 }
-.molviz .bar .zoom { align-items: center; gap: 10px; }
+.molviz .bar .zoom, .molviz .bar .selection { align-items: center; gap: 10px; }
+.molviz .bar .selection output { white-space: nowrap; }
 .molviz .bar .zoom input { width: 96px; }
-.molviz .bar .zoom button {
+.molviz .bar .zoom button, .molviz .bar .selection button {
 	padding: 2px 10px; border: 1px solid ${LEADER}; background: ${GROUND};
 	color: inherit; font: inherit; cursor: pointer;
 }
+.molviz.${BESIDE} {
+	display: grid; grid-template-columns: max-content max-content; column-gap: ${VIEWS_APART}px;
+	align-items: start;
+}
+.molviz.${BESIDE} > .bar { grid-column: 1 / -1; }
 .molviz .map { max-width: 100%; overflow: auto; }
-.molviz .sequence { overflow-x: auto; }
+.molviz [hidden] { display: none !important; }
+.molviz .sequence { overflow: auto; max-height: 100vh; scrollbar-gutter: stable; }
+.molviz .sequence > .bar { position: sticky; top: 0; left: 0; z-index: 1; margin: 0; }
+.molviz .sequence:not(.${ONE_STRAND}) .${TOP_STRAND},
+.molviz .${ONE_STRAND} .${BOTH_STRANDS} { display: none; }
 .molviz svg { display: block; max-width: none; }
+.molviz [${ITEM}] { cursor: pointer; }
+.molviz path[${SELECTED}], .molviz rect[${SELECTED}], .molviz line[${SELECTED}] {
+	stroke: ${SELECTED_OUTLINE}; stroke-width: ${SELECTED_OUTLINE_WIDTH}px;
+}
 @media print {
+	.molviz.${BESIDE} { display: block; }
 	.molviz .bar { display: none; }
 	.molviz .map, .molviz .sequence {
-		overflow: visible; width: auto !important; height: auto !important;
+		overflow: visible; max-height: none; width: auto !important; height: auto !important;
 	}
 	.molviz svg { max-width: 100%; height: auto !important; }
 	.molviz-hover { display: none !important; }

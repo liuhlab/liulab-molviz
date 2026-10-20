@@ -83,6 +83,17 @@ sets one.
   The wheel turns the circle. Reset goes back to 1×, with the origin at the top. Resting the
   pointer on an item shows its name, type, span and length at once. A print leaves out the
   bar and prints the map at 1×, with the switches and the turn as they are.
+- On a record's page, and with `molviz.draw`, the map and the sequence view are linked. Click a
+  feature, a primer or a cut site in either view to select its bases. They are shaded in both
+  views, and the sequence view scrolls to them, as does a zoomed map. A drag across the map or
+  across the bases selects a stretch, and a drag on the circle may cross the origin. The
+  sequence view's bar says what is selected, and its Copy button puts the top strand's selected
+  bases on the clipboard, as the copy keys do. Resting the pointer on an item in the sequence
+  view shows the same box as on the map, and on a base its position. Both strands hides the
+  bottom strand, and the rows keep its room. The sequence view sits beside the map when the
+  window has room for both at full size, and under it otherwise, with rows half as long when
+  full ones do not fit. A print shows it under the map with full rows, and the selection as it
+  is.
 
 - The package carries a second script, the outline script, beside the viewer. It holds the
   shape of each letter, which a file draws.
