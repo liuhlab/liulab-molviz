@@ -7,6 +7,8 @@ sets one.
 
 ## [Unreleased]
 
+## [2026.10.0] - 2026-10-20
+
 ### Added
 
 - The viewer: a JavaScript file built from TypeScript and shipped inside the package.
