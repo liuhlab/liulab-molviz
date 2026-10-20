@@ -1,15 +1,19 @@
 /** A frame's views linked: what the reader selects in either is drawn in both. */
 
+import { aroundBoxes, boxOf } from "./bounds";
 import type { Frame } from "./frame";
 import {
 	circleBase,
 	circleShading,
 	lineBase,
 	lineShading,
+	type MapGeometry,
 	rowBase,
+	rowHolding,
 	rowShading,
 } from "./geometry";
-import { type Bounds, recordBounds } from "./record";
+import { turns } from "./pieces";
+import { type Bounds, recordBounds, type Span } from "./record";
 import type { Shape } from "./scene";
 import {
 	clicked,
@@ -21,6 +25,7 @@ import {
 	type Selection,
 	turnTo,
 } from "./selection";
+import type { RowBox } from "./sequence";
 import { shapeElements } from "./svg";
 
 /** The attribute naming the item a shape draws, and the one outlining a selected item's shapes. */
@@ -134,6 +139,56 @@ export function addLinks(frame: Frame): void {
 		pointer = null;
 		window?.cancelAnimationFrame(gliding);
 	};
+	/** Scroll the pane so the row holding the selection's start sits at its top, under its bar. */
+	const toRow = () => {
+		const view = frame.sequence();
+		const { selection } = state;
+		const row = view && selection && rowOf(view.rows, selection, bounds);
+		const ctm = view?.svg.getScreenCTM();
+		if (!row || !ctm) return;
+		const top = ctm.b * row.x + ctm.d * row.y + ctm.f;
+		const under = Math.max(
+			pane.getBoundingClientRect().top,
+			paneBar.getBoundingClientRect().bottom,
+		);
+		pane.scrollTop += top - under;
+	};
+
+	/** Scroll a zoomed map's box to centre the selection, if it is out of sight. */
+	const toMap = () => {
+		const { selection } = state;
+		if (selection === null || frame.shown().zoom === 1) return;
+		// A point shows as the base before it, or the first.
+		const spans =
+			"spans" in selection
+				? selection.spans
+				: [
+						{
+							start: Math.max(selection.at - 1, 0),
+							end: Math.max(selection.at, 1),
+						},
+					];
+		const { geometry } = frame.map();
+		const boxes = spans
+			.flatMap((span) => mapShading(geometry, bounds, span))
+			.flatMap((shape) => boxOf(shape) ?? []);
+		if (!boxes.length) return;
+		const area = aroundBoxes(boxes);
+		const { extent, scale } = frame.drawn();
+		box.scrollLeft = inSight(
+			box.scrollLeft,
+			box.clientWidth,
+			(area.x - extent.x) * scale,
+			area.width * scale,
+		);
+		box.scrollTop = inSight(
+			box.scrollTop,
+			box.clientHeight,
+			(area.y - extent.y) * scale,
+			area.height * scale,
+		);
+	};
+
 	// A scroll under a pointer held still moves the bases under it too.
 	pane.addEventListener("scroll", extend);
 
@@ -184,14 +239,19 @@ export function addLinks(frame: Frame): void {
 			const ended = press;
 			press = null;
 			stop();
-			if (ended === null || ended.bases || ended.map?.drag) return;
-			if (moved(ended, event)) return;
-			const { item } = ended;
-			const picked =
-				item === null
-					? null
-					: itemSelection(item, record, state.options.enzymes);
-			select(clicked(state.selection, picked));
+			if (ended === null) return;
+			const dragged = ended.bases || ended.map?.drag;
+			if (!dragged) {
+				if (moved(ended, event)) return;
+				const { item } = ended;
+				const picked =
+					item === null
+						? null
+						: itemSelection(item, record, state.options.enzymes);
+				select(clicked(state.selection, picked));
+			}
+			if (view === box) toRow();
+			else toMap();
 		});
 		view.addEventListener("pointercancel", () => {
 			press = null;
@@ -251,14 +311,9 @@ function show(frame: Frame, bounds: Bounds): void {
 	const spans = selection && "spans" in selection ? selection.spans : [];
 	const item = selection?.item ?? null;
 	const map = frame.map();
-	const { geometry } = map;
 	shade(
 		map.svg,
-		spans.flatMap((span) =>
-			geometry.map === "line"
-				? lineShading(geometry, bounds, span)
-				: circleShading(geometry, span),
-		),
+		spans.flatMap((span) => mapShading(map.geometry, bounds, span)),
 	);
 	outline(map.svg, item);
 	const view = frame.sequence();
@@ -270,6 +325,60 @@ function show(frame: Frame, bounds: Bounds): void {
 		),
 	);
 	outline(view.svg, item);
+}
+
+/** `span` shaded on the map that `geometry` sets the bases of. */
+function mapShading(
+	geometry: MapGeometry,
+	bounds: Bounds,
+	span: Span,
+): Shape[] {
+	return geometry.map === "line"
+		? lineShading(geometry, bounds, span)
+		: circleShading(geometry, span);
+}
+
+/**
+ * The row of `rows` holding where `selection` starts, a turn either way, or else the first it
+ * lies in; null if none.
+ */
+function rowOf(
+	rows: readonly RowBox[],
+	selection: Selection,
+	bounds: Bounds,
+): RowBox | null {
+	const spans =
+		"spans" in selection
+			? selection.spans
+			: [{ start: selection.at - 1, end: selection.at + 1 }];
+	const first = "spans" in selection ? spans[0].start : selection.at;
+	const shifts = turns(bounds);
+	for (const shift of shifts) {
+		const row = rowHolding(rows, first + shift);
+		if (row) return row;
+	}
+	const lies = (row: RowBox) =>
+		spans.some(({ start, end }) =>
+			shifts.some(
+				(shift) => row.start < end + shift && start + shift < row.end,
+			),
+		);
+	return rows.find(lies) ?? null;
+}
+
+/**
+ * Where to scroll a box `sight` long, scrolled to `at`, to show a stretch from `from` and
+ * `length` long: where it is if the stretch shows, else with the stretch in the middle.
+ */
+function inSight(
+	at: number,
+	sight: number,
+	from: number,
+	length: number,
+): number {
+	return from < at || from + length > at + sight
+		? from + length / 2 - sight / 2
+		: at;
 }
 
 /** Put `shapes` in `svg`'s layer of shading, in place of what it held; with none, no layer. */

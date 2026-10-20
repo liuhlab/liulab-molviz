@@ -420,3 +420,71 @@ describe("a drag across bases past the pane's edge", () => {
 		expect(pane.scrollTop).toBe(left);
 	});
 });
+
+/** A linear record of 1,000 bases with one feature, `lacZ`, at 500 .. 560. */
+const long = {
+	...linear,
+	bases: "ACGT".repeat(250),
+	features: [{ ...linear.features[0], segments: [{ start: 500, end: 560 }] }],
+};
+
+/** The key `long`'s feature is known by. */
+const LONG_LACZ = LACZ.replace('"start":10,"end":60', '"start":500,"end":560');
+
+describe("the other view scrolls to the selection", () => {
+	test("from the map, the pane bringing the row holding its start to its top, under its bar", () => {
+		const frame = opened(long, { sequence_view: true });
+		const client = laidOutPane(frame);
+		const rows = frame.sequence()?.rows ?? [];
+		const row = rowHolding(rows, 500);
+		if (!row) throw new Error("no row holds 500");
+		const lacZ = itemIn(mapSvg(frame), LONG_LACZ);
+		click(lacZ);
+		expect(client(row.y)).toBe(30);
+		frame.pane.scrollTop = 2000;
+		click(lacZ);
+		click(lacZ);
+		expect(client(row.y)).toBe(30);
+		// A drag, once it ends.
+		const later = rowHolding(rows, 800);
+		if (!later) throw new Error("no row holds 800");
+		drag(
+			mapSvg(frame).firstElementChild as Element,
+			alongLine(frame, [800, 900]),
+		);
+		expect(client(later.y)).toBe(30);
+	});
+
+	test("from the sequence view, the map's box only when zoomed, centring it there if out of sight", () => {
+		const frame = opened(long, { sequence_view: true });
+		const { box } = frame;
+		Object.defineProperty(box, "clientWidth", { value: 300 });
+		Object.defineProperty(box, "clientHeight", { value: 2000 });
+		const lacZ = () => itemIn(viewSvg(frame), LONG_LACZ);
+		click(lacZ());
+		expect([box.scrollLeft, box.scrollTop]).toEqual([0, 0]);
+		click(lacZ());
+		frame.shown().zoom = 4;
+		frame.redraw();
+		click(lacZ());
+		// 2.88 points a base at 4×: lacZ lies from 1440 to 1612.8.
+		const { extent } = frame.drawn();
+		expect(box.scrollLeft).toBeCloseTo(1526.4 - extent.x - 150, 6);
+		expect(box.scrollTop).toBe(0);
+		// In sight, it stays.
+		box.scrollLeft -= 50;
+		const kept = box.scrollLeft;
+		click(lacZ());
+		click(lacZ());
+		expect(box.scrollLeft).toBe(kept);
+	});
+
+	test("from the sequence view, never turning the circle", () => {
+		const frame = opened(circular, { sequence_view: true });
+		frame.shown().zoom = 2;
+		frame.redraw();
+		click(itemIn(viewSvg(frame), LACZ));
+		expect(frame.state.selection?.item).toBe(LACZ);
+		expect(frame.shown().turn).toBe(0);
+	});
+});
