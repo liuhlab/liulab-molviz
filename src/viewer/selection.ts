@@ -1,6 +1,5 @@
 /** What a page has selected, as data: from a click on an item or a drag, and what it says. */
 
-import * as v from "valibot";
 import { folded } from "./format";
 import type { Hidden } from "./labels";
 import { hulls, pointText, spansText, turns } from "./pieces";
@@ -14,19 +13,27 @@ declare const KEY: unique symbol;
 /** The key an item is known by in every view: the item as text, as `itemKey` writes it. */
 export type ItemKey = string & { readonly [KEY]: true };
 
-/** What an item's key holds, read back. */
-const ITEM_SCHEMA = v.union([
-	v.strictObject({
-		kind: v.picklist(["features", "primers", "reads", "disagreements"]),
-		name: v.string(),
-		spans: v.array(v.strictObject({ start: v.number(), end: v.number() })),
-	}),
-	v.strictObject({
-		kind: v.picklist(["cuts", "insertions", "disagreements"]),
-		name: v.string(),
-		at: v.number(),
-	}),
-]);
+/** The kinds of item over spans, and at a point. */
+const OVER_SPANS = new Set(["features", "primers", "reads", "disagreements"]);
+const AT_POINT = new Set(["cuts", "insertions", "disagreements"]);
+
+/** Whether `read` is an item, as its key holds one. */
+function isItem(read: unknown): read is Item {
+	if (typeof read !== "object" || read === null) return false;
+	const { kind, name, spans, at, ...rest } = read as { [key: string]: unknown };
+	if (typeof kind !== "string" || typeof name !== "string") return false;
+	if (Object.keys(rest).length) return false;
+	if (spans === undefined) return AT_POINT.has(kind) && typeof at === "number";
+	return (
+		at === undefined &&
+		OVER_SPANS.has(kind) &&
+		Array.isArray(spans) &&
+		spans.every(
+			(span) =>
+				typeof span?.start === "number" && typeof span?.end === "number",
+		)
+	);
+}
 
 /**
  * Bases selected, as spans in reading order, each in the record's counting; or an item's point
@@ -58,7 +65,7 @@ function itemOf(key: string): Item {
 	} catch {
 		read = undefined;
 	}
-	if (!v.is(ITEM_SCHEMA, read)) throw new Error(`${key} names no item`);
+	if (!isItem(read)) throw new Error(`${key} names no item`);
 	return read;
 }
 
