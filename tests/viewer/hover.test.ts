@@ -83,6 +83,30 @@ describe("hoverBox", () => {
 		]);
 	});
 
+	test("shows what a drawing's resolver says over no hover, as one plain line, and a hover under the pointer first", () => {
+		const svg = drawn("lacZ\nCDS");
+		const base = document.createElementNS(NAMESPACE, "text");
+		svg.append(base);
+		hoverBox(svg, (event) =>
+			event.clientX > 0 ? `position ${event.clientX}` : null,
+		);
+		move(base, 151, 20);
+		expect(shown()).toEqual([["position 151", false]]);
+		move(base, 152, 20);
+		expect(shown()).toEqual([["position 152", false]]);
+		move(svg.children[0], 151, 20);
+		expect(shown()).toEqual([
+			["lacZ", true],
+			["CDS", false],
+		]);
+		move(base, 0, 20);
+		expect(shown()).toBeNull();
+		const other = drawn();
+		hoverBox(other);
+		move(other, 151, 20);
+		expect(shown()).toBeNull();
+	});
+
 	test("keeps one box on a page, however many drawings show their hovers in it", () => {
 		const first = drawn("lacZ");
 		const second = drawn("AmpR");

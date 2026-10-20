@@ -360,8 +360,9 @@ function opening(): MapState {
 }
 
 /**
- * Show or hide the sequence view in `pane` as `options` say, laying it out again only if the
- * options it reads changed since it was `drawn`. Returns what it is drawn for now.
+ * Show or hide the sequence view in `pane` as `options` say, its hovers in the page's box,
+ * laying it out again only if the options it reads changed since it was `drawn`. Returns what it
+ * is drawn for now.
  */
 function redrawSequence(
 	record: Record,
@@ -375,6 +376,7 @@ function redrawSequence(
 	if (reads === drawn) return drawn;
 	const svg = toElement(layoutSequence(record, options), pane.ownerDocument);
 	pane.replaceChildren(svg);
+	hoverBox(svg);
 	return reads;
 }
 

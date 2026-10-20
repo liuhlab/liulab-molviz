@@ -205,6 +205,31 @@ describe("the sequence view's switch", () => {
 	});
 });
 
+describe("the sequence view's hovers", () => {
+	test("show in the page's box with no title, each on an item keyed as on the map", () => {
+		const frame = opened(linear, { sequence_view: true });
+		const pane = frame.box.nextElementSibling as HTMLElement;
+		expect(pane.querySelectorAll("title")).toHaveLength(0);
+		const hovers = [...pane.querySelectorAll("[data-molviz-hover]")];
+		const keys = (within: Element) =>
+			new Set(
+				[...within.querySelectorAll("[data-molviz-item]")].map((shape) =>
+					shape.getAttribute("data-molviz-item"),
+				),
+			);
+		expect(hovers).toEqual([...pane.querySelectorAll("[data-molviz-item]")]);
+		expect(keys(pane)).toEqual(
+			new Set([
+				'{"kind":"features","name":"lacZ","spans":[{"start":10,"end":60}]}',
+			]),
+		);
+		expect(keys(frame.box)).toEqual(keys(pane));
+		hovers[0].dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
+		expect(hoverBoxOf()?.hidden).toBe(false);
+		expect(hoverBoxOf()?.firstElementChild?.textContent).toBe("lacZ");
+	});
+});
+
 /** The rules the frames' style holds for print, by their selector. */
 function printRules(): Map<string, CSSStyleDeclaration> {
 	const style = document.getElementById("molviz-frame") as HTMLStyleElement;
