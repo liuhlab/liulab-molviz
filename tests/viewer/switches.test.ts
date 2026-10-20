@@ -221,6 +221,70 @@ describe("a change", () => {
 	});
 });
 
+describe("Both strands", () => {
+	/**
+	 * The sequence view's drawing in `frame`, and whether what it draws with both strands and
+	 * what it draws with the top one alone shows.
+	 */
+	const view = (frame: Frame) => {
+		// happy-dom keeps an element's computed style when an ancestor's class changes; a copy's
+		// is fresh.
+		const copy = frame.pane.cloneNode(true) as HTMLElement;
+		frame.pane.after(copy);
+		const seen = (selector: string) =>
+			new Set(
+				[...copy.querySelectorAll(selector)].map((one) =>
+					getComputedStyle(one).display === "none" ? "hidden" : "shown",
+				),
+			);
+		const strands = { both: seen(".molviz-both"), top: seen(".molviz-top") };
+		copy.remove();
+		return { svg: frame.pane.querySelector("svg"), ...strands };
+	};
+	const one = { both: new Set(["hidden"]), top: new Set(["shown"]) };
+	const two = { both: new Set(["shown"]), top: new Set(["hidden"]) };
+
+	test("starts from the options, the view laid out with both strands and the bottom one hidden", () => {
+		const frame = opened(record, { sequence_view: true, bottom_strand: false });
+		expect(frame.state.options.bottom_strand).toBe(false);
+		expect(input(frame, "both").checked).toBe(false);
+		expect(view(frame)).toMatchObject(one);
+	});
+
+	test("shows and hides the bottom strand, laying nothing out again", () => {
+		const frame = opened(record, { sequence_view: true });
+		const before = view(frame);
+		const map = frame.box.querySelector("svg");
+		expect(before).toMatchObject(two);
+		input(frame, "both").click();
+		expect(frame.state.options.bottom_strand).toBe(false);
+		expect(view(frame)).toMatchObject({ ...one, svg: before.svg });
+		expect(frame.box.querySelector("svg")).toBe(map);
+		input(frame, "both").click();
+		expect(frame.state.options.bottom_strand).toBe(true);
+		expect(view(frame)).toMatchObject(two);
+	});
+
+	test("is left out of what lays the view out again, which keeps it", () => {
+		const frame = opened(record, { sequence_view: true });
+		const before = view(frame).svg;
+		input(frame, "both").click();
+		input(frame, "line").click();
+		expect(view(frame).svg).toBe(before);
+		input(frame, "features").click();
+		expect(view(frame).svg).not.toBe(before);
+		expect(view(frame)).toMatchObject(one);
+	});
+
+	test("shows only with the sequence view", () => {
+		const frame = opened(record);
+		const both = input(frame, "both").closest("fieldset");
+		expect(both?.hidden).toBe(true);
+		input(frame, "sequence").click();
+		expect(both?.hidden).toBe(false);
+	});
+});
+
 describe("a frame", () => {
 	/** The name of each set of controls in the bar, in order. */
 	const sets = (bar: Element) =>
@@ -242,7 +306,13 @@ describe("a frame", () => {
 		draw(element, record);
 		const bar = element.querySelector(".bar");
 		if (!bar) throw new Error("no bar");
-		expect(sets(bar)).toEqual(["Kinds", "Feature types", "Enzymes", "Views"]);
+		expect(sets(bar)).toEqual([
+			"Kinds",
+			"Feature types",
+			"Enzymes",
+			"Strands",
+			"Views",
+		]);
 	});
 
 	test("offers no switch for what the record lacks", () => {
@@ -250,9 +320,10 @@ describe("a frame", () => {
 		expect(sets(opened(uncut).bar)).toEqual([
 			"Kinds",
 			"Feature types",
+			"Strands",
 			"Views",
 		]);
 		const bare = { name: "bare", circular: false, bases: "ACGT" };
-		expect(sets(opened(bare).bar)).toEqual(["Views"]);
+		expect(sets(opened(bare).bar)).toEqual(["Strands", "Views"]);
 	});
 });

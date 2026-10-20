@@ -12,11 +12,14 @@ import { GROUND, INK, LEADER } from "./paint";
 import type { Record } from "./record";
 import type { Box, Scene } from "./scene";
 import { layoutSequence } from "./sequence";
-import { toElement } from "./svg";
+import { BOTH_STRANDS, TOP_STRAND, toElement } from "./svg";
 import { families } from "./text";
 
 /** The style element holding the frames' rules, shared by every frame on a page. */
 const STYLE_ID = "molviz-frame";
+
+/** The class of a pane showing the top strand alone. */
+const ONE_STRAND = "one-strand";
 
 type MapName = Options["map"];
 
@@ -48,6 +51,8 @@ export interface Frame {
 	readonly bar: HTMLFormElement;
 	/** The map's box, which keeps its size at 1× and scrolls when the map is zoomed. */
 	readonly box: HTMLElement;
+	/** The sequence view's pane, hidden while the view is off. */
+	readonly pane: HTMLElement;
 	/** The state of the map the options name. */
 	shown(): MapState;
 	/** The box the map shown is laid out over, and how many CSS pixels a point shows as. */
@@ -314,6 +319,7 @@ export function openFrame(
 		state,
 		bar,
 		box,
+		pane,
 		shown: () => state.maps[state.options.map],
 		drawn: () => {
 			if (shown === null) throw new Error("the frame has drawn no map");
@@ -360,9 +366,17 @@ function opening(): MapState {
 }
 
 /**
- * Show or hide the sequence view in `pane` as `options` say, its hovers in the page's box,
- * laying it out again only if the options it reads changed since it was `drawn`. Returns what it
- * is drawn for now.
+ * Show both strands of the sequence view in a frame's `pane`, or the top one alone, as `options`
+ * say. The view is laid out with both, so this lays nothing out again and nothing moves.
+ */
+export function showStrands(pane: HTMLElement, options: Options): void {
+	pane.classList.toggle(ONE_STRAND, !options.bottom_strand);
+}
+
+/**
+ * Show or hide the sequence view in `pane` as `options` say, with both strands or the top one,
+ * its hovers in the page's box, laying it out again only if the options it reads changed since
+ * it was `drawn`. Returns what it is drawn for now.
  */
 function redrawSequence(
 	record: Record,
@@ -371,10 +385,12 @@ function redrawSequence(
 	drawn: string | null,
 ): string | null {
 	pane.hidden = !options.sequence_view;
+	showStrands(pane, options);
 	if (!options.sequence_view) return drawn;
-	const reads = JSON.stringify({ ...options, map: null, sequence_view: null });
+	const both = { ...options, bottom_strand: true };
+	const reads = JSON.stringify({ ...both, map: null, sequence_view: null });
 	if (reads === drawn) return drawn;
-	const svg = toElement(layoutSequence(record, options), pane.ownerDocument);
+	const svg = toElement(layoutSequence(record, both), pane.ownerDocument);
 	pane.replaceChildren(svg);
 	hoverBox(svg);
 	return reads;
@@ -441,6 +457,8 @@ function css(): string {
 }
 .molviz .map { max-width: 100%; overflow: auto; }
 .molviz .sequence { overflow-x: auto; }
+.molviz .sequence:not(.${ONE_STRAND}) .${TOP_STRAND},
+.molviz .${ONE_STRAND} .${BOTH_STRANDS} { display: none; }
 .molviz svg { display: block; max-width: none; }
 @media print {
 	.molviz .bar { display: none; }

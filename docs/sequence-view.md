@@ -250,7 +250,7 @@ Only the bases from 2600 to 2750. That stretch runs across the origin, so the nu
 
 ## primer-test, top strand only
 
-The same record with the bottom strand left out, so each row is shorter.
+The same record with the bottom strand hidden. Tick Both strands to show it. The rows keep its room, so nothing moves.
 
 <div data-molviz>
 <script type="application/json" data-record>

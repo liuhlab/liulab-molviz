@@ -199,7 +199,7 @@ function layoutRow(
 	let bottomStrand: readonly [number, number] | null = null;
 	if (row.options.bottom_strand) {
 		bottomStrand = [y + RAIL_GAP, y + RAIL_GAP + height("mono", BASE_SIZE)];
-		shapes.push(strandText(complement(bases), bottomStrand[0]));
+		shapes.push({ ...strandText(complement(bases), bottomStrand[0]), rail });
 		y = bottomStrand[1];
 	}
 	shapes.push({

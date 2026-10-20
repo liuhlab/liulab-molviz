@@ -219,7 +219,10 @@ describe("the still SVG of a record with its sequence view", () => {
 	held.innerHTML = stillSvg(primers, view).svg;
 	const [ground, ...still] = [...held.children[0].children];
 	const [, ...mapShapes] = [...map.children];
-	const [, ...viewShapes] = [...sequence.children];
+	// What a live view draws in place of a shape while the bottom strand hides is the page's alone.
+	const viewShapes = [...sequence.children]
+		.slice(1)
+		.filter((shape) => !shape.classList.contains("molviz-top"));
 
 	test("is the live map, then the live sequence view moved under it", () => {
 		expect(ground.tagName.toLowerCase()).toBe("rect");
@@ -233,12 +236,14 @@ describe("the still SVG of a record with its sequence view", () => {
 			const ours = still[mapShapes.length + i];
 			expect(ours.tagName).toBe(shape.tagName);
 			expect(ours.textContent).toBe(shape.textContent);
-			// A live view's hover and item key are the page's alone.
+			// A live view's hover, item key and strands are the page's alone.
 			const unplaced = (element: Parsed) =>
 				Array.from(element.attributes)
 					.filter(
 						({ name }) =>
-							!PLACES.includes(name) && !name.startsWith("data-molviz-"),
+							!PLACES.includes(name) &&
+							!name.startsWith("data-molviz-") &&
+							name !== "class",
 					)
 					.map(({ name, value }) => [name, value]);
 			expect(unplaced(ours)).toEqual(unplaced(shape));
