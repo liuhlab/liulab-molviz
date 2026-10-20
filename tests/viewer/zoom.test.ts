@@ -44,9 +44,11 @@ describe("a frame's zoom", () => {
 	test("sits at the bar's right after the views: a slider from 1× to 8×, and Reset", () => {
 		const frame = opened(circular);
 		const end = frame.bar.lastElementChild;
+		// The selection's caption follows while the sequence view is off.
 		expect([...(end?.children ?? [])].map((one) => one.className)).toEqual([
 			"views",
 			"zoom",
+			"selection",
 		]);
 		const slider = zoom(frame).querySelector("input");
 		expect([slider?.type, slider?.min, slider?.max, slider?.value]).toEqual([

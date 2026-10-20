@@ -509,13 +509,14 @@ function css(): string {
 	display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center;
 	gap: 6px 24px; margin-left: auto;
 }
-.molviz .bar .zoom { align-items: center; gap: 10px; }
+.molviz .bar .zoom, .molviz .bar .selection { align-items: center; gap: 10px; }
 .molviz .bar .zoom input { width: 96px; }
-.molviz .bar .zoom button {
+.molviz .bar .zoom button, .molviz .bar .selection button {
 	padding: 2px 10px; border: 1px solid ${LEADER}; background: ${GROUND};
 	color: inherit; font: inherit; cursor: pointer;
 }
 .molviz .map { max-width: 100%; overflow: auto; }
+.molviz [hidden] { display: none !important; }
 .molviz .sequence { overflow: auto; max-height: 100vh; }
 .molviz .sequence > .bar { position: sticky; top: 0; left: 0; z-index: 1; margin: 0; }
 .molviz .sequence:not(.${ONE_STRAND}) .${TOP_STRAND},

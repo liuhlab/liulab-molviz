@@ -1,7 +1,7 @@
 /** A frame's views linked: what the reader selects in either is drawn in both. */
 
 import { aroundBoxes, boxOf } from "./bounds";
-import type { Frame } from "./frame";
+import { type Frame, fieldset } from "./frame";
 import {
 	circleBase,
 	circleShading,
@@ -12,11 +12,14 @@ import {
 	rowHolding,
 	rowShading,
 } from "./geometry";
+import { hoverBox } from "./hover";
 import { turns } from "./pieces";
 import { type Bounds, recordBounds, type Span } from "./record";
 import type { Shape } from "./scene";
 import {
+	caption,
 	clicked,
+	copied,
 	type Drag,
 	dragFrom,
 	dragged,
@@ -42,20 +45,62 @@ const PACE = 20;
 const layers = new WeakMap<SVGSVGElement, SVGGElement>();
 
 /**
+ * For each page, the frame selected in last, whose bases a copy by the keys takes, and whether its
+ * Copy button is copying.
+ */
+const copying = new WeakMap<
+	Document,
+	{ frame: Frame | null; button: boolean }
+>();
+
+/**
  * Select in `frame`'s views: an item by clicking it in either, bases by dragging across the map or
- * across the bases.
+ * across the bases. The selection is said in a caption with Copy, in the pane's bar, or in the
+ * frame's bar after Reset while the view does not show.
  */
 export function addLinks(frame: Frame): void {
-	const { record, state, box, pane, paneBar } = frame;
+	const { record, state, bar, box, pane, paneBar } = frame;
 	const bounds = recordBounds(record);
-	const window = pane.ownerDocument.defaultView;
-	frame.onChange(() => show(frame, bounds));
-	show(frame, bounds);
+	const document = pane.ownerDocument;
+	const window = document.defaultView;
+	const copier = copyKeys(document);
 	const select = (selection: Selection | null) => {
 		if (JSON.stringify(selection) === JSON.stringify(state.selection)) return;
 		state.selection = selection;
+		if (selection) copier.frame = frame;
 		frame.changed();
 	};
+
+	const output = document.createElement("output");
+	const copy = document.createElement("button");
+	copy.type = "button";
+	copy.textContent = "Copy";
+	const said = fieldset(document, "Selection", [output, copy], "selection");
+	/** Say the selection, in the pane's bar while the view shows, else in the frame's. */
+	const say = () => {
+		const { selection } = state;
+		said.hidden = selection === null;
+		output.textContent = selection ? caption(selection, bounds) : "";
+		copy.hidden = !(selection && "spans" in selection);
+		const home = frame.sequence()
+			? paneBar
+			: (bar.querySelector(".end") ?? bar);
+		if (said.parentElement !== home) home.append(said);
+	};
+	copy.addEventListener("click", () => {
+		const text = state.selection ? copied(state.selection, record.bases) : "";
+		if (!text) return;
+		copier.frame = frame;
+		// Without the clipboard, as on a page not served securely, the copy event takes it.
+		const byEvent = () => {
+			copier.button = true;
+			document.execCommand?.("copy");
+			copier.button = false;
+		};
+		const clipboard = window?.navigator.clipboard;
+		if (clipboard) clipboard.writeText(text).catch(byEvent);
+		else byEvent();
+	});
 
 	/**
 	 * The press under way: where it began, on what item, and the drag it became on the map, or
@@ -91,6 +136,24 @@ export function addLinks(frame: Frame): void {
 		const bottom = state.options.bottom_strand;
 		return rowBase(view.rows, point[0], point[1], { near, bottom });
 	};
+
+	/** What the hover box says over a base of the view: its position. */
+	const resolve = (event: PointerEvent) => {
+		const base = viewBase(event);
+		return base === null ? null : `position ${(base % bounds.length) + 1}`;
+	};
+	let resolved: SVGSVGElement | null = null;
+	const redrawn = () => {
+		show(frame, bounds);
+		say();
+		const view = frame.sequence();
+		if (view && view.svg !== resolved) {
+			hoverBox(view.svg, resolve);
+			resolved = view.svg;
+		}
+	};
+	frame.onChange(redrawn);
+	redrawn();
 
 	/** The pane in sight, in client pixels, from its bar's foot to its own; null before layout. */
 	const sight = (): { top: number; bottom: number } | null => {
@@ -283,6 +346,31 @@ function inPoints(
 		m.a * clientX + m.c * clientY + m.e,
 		m.b * clientX + m.d * clientY + m.f,
 	];
+}
+
+/**
+ * Let a copy by the keys or the Edit menu on `document` take the bases of the frame selected in
+ * last, unless the page has text selected and its Copy button is not copying. Returns whom it
+ * asks.
+ */
+function copyKeys(document: Document): {
+	frame: Frame | null;
+	button: boolean;
+} {
+	const kept = copying.get(document);
+	if (kept) return kept;
+	const copier = { frame: null as Frame | null, button: false };
+	copying.set(document, copier);
+	document.addEventListener("copy", (event) => {
+		const { frame, button } = copier;
+		const selection = frame?.box.isConnected ? frame.state.selection : null;
+		const text = selection ? copied(selection, frame?.record.bases ?? "") : "";
+		if (!text) return;
+		if (!button && document.getSelection()?.isCollapsed === false) return;
+		event.clipboardData?.setData("text/plain", text);
+		event.preventDefault();
+	});
+	return copier;
 }
 
 /** Whether `event` is a press, or a move, of a mouse's main button or a pen; a touch scrolls. */

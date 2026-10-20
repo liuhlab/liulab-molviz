@@ -9,7 +9,9 @@ import {
 	rowX,
 } from "../../src/viewer/geometry";
 import type { Span } from "../../src/viewer/record";
-import { circular, input, linear, opened } from "./live";
+import insertionsFile from "../records/both-strands-and-insertions.json";
+import backboneFile from "../records/puc19-backbone-amplicon.json";
+import { circular, hoverBoxOf, input, linear, opened } from "./live";
 
 /** The key `linear`'s one feature is known by in every view. */
 const LACZ =
@@ -489,5 +491,177 @@ describe("the other view scrolls to the selection", () => {
 		click(itemIn(viewSvg(frame), LACZ));
 		expect(frame.state.selection?.item).toBe(LACZ);
 		expect(frame.shown().turn).toBe(0);
+	});
+});
+
+describe("hovering the sequence view", () => {
+	test("over a base says its position, an item under the pointer first", () => {
+		const frame = opened(long, { sequence_view: true });
+		const svg = viewSvg(frame);
+		const ground = svg.firstElementChild as Element;
+		const say = (on: Element, [x, y]: readonly [number, number]) => {
+			on.dispatchEvent(pointer("pointermove", x, y));
+			const box = hoverBoxOf();
+			return box?.hidden === false ? box.textContent : null;
+		};
+		expect(say(ground, onBases(frame, [150])[0])).toBe("position 151");
+		expect(say(ground, onBases(frame, [150], "bottom")[0])).toBe(
+			"position 151",
+		);
+		expect(say(itemIn(svg, LONG_LACZ), onBases(frame, [520])[0])).toMatch(
+			/^lacZ/,
+		);
+		expect(say(ground, [-5, -5])).toBeNull();
+		input(frame, "both").click();
+		expect(say(ground, onBases(frame, [150], "bottom")[0])).toBeNull();
+	});
+
+	test("counts a base past a circle's origin from the origin", () => {
+		const frame = opened(circular, {
+			sequence_view: true,
+			span: { start: 90, end: 110 },
+		});
+		const ground = viewSvg(frame).firstElementChild as Element;
+		const [x, y] = onBases(frame, [104])[0];
+		ground.dispatchEvent(pointer("pointermove", x, y));
+		expect(hoverBoxOf()?.textContent).toBe("position 5");
+	});
+});
+
+/** What `frame` says of its selection, and where: its caption, Copy, and the set holding both. */
+function said(frame: Frame) {
+	const output = frame.box.parentElement?.querySelector("output");
+	const set = output?.closest("fieldset");
+	const copy = set?.querySelector("button");
+	if (!output || !set || !copy) throw new Error("no caption");
+	return { set, text: set.hidden ? null : output.textContent, copy };
+}
+
+/** A copy by the keys or the Edit menu, and what it put on the clipboard, if anything. */
+function copyKeys(): string | null {
+	const event = new ClipboardEvent("copy", {
+		bubbles: true,
+		cancelable: true,
+		clipboardData: new DataTransfer(),
+	});
+	document.body.dispatchEvent(event);
+	return event.defaultPrevented
+		? (event.clipboardData?.getData("text/plain") ?? null)
+		: null;
+}
+
+/** The key of the item named `name` in `svg`. */
+function keyNamed(svg: Element, name: string): string {
+	const found = [...svg.querySelectorAll("[data-molviz-item]")]
+		.map((shape) => shape.getAttribute("data-molviz-item") ?? "")
+		.find((key) => JSON.parse(key).name === name);
+	if (!found) throw new Error(`no ${name} drawn`);
+	return found;
+}
+
+describe("the caption", () => {
+	test("says the selection, with Copy, in the pane's bar after Both strands", () => {
+		const frame = opened(long, { sequence_view: true });
+		const { paneBar } = frame;
+		expect(said(frame).text).toBeNull();
+		expect(getComputedStyle(said(frame).set).display).toBe("none");
+		const ground = viewSvg(frame).firstElementChild as Element;
+		drag(ground, onBases(frame, [150, 200, 275]));
+		const { set, text, copy } = said(frame);
+		expect(text).toBe("151 .. 276 (126 bp)");
+		expect(copy.hidden).toBe(false);
+		expect([...paneBar.children]).toEqual([
+			input(frame, "both").closest("label"),
+			set,
+		]);
+	});
+
+	test("says an insertion's point, with nothing to copy", () => {
+		const frame = opened(insertionsFile, { sequence_view: true });
+		click(itemIn(mapSvg(frame), keyNamed(mapSvg(frame), "barcode")));
+		expect(said(frame).text).toBe("45^46");
+		expect(said(frame).copy.hidden).toBe(true);
+		expect(copyKeys()).toBeNull();
+	});
+
+	test("joins the frame's bar after Reset with the view off or absent", () => {
+		const frame = opened(linear);
+		click(itemIn(mapSvg(frame), LACZ));
+		const end = () => frame.bar.querySelector(".end");
+		const after = () => said(frame).set.previousElementSibling;
+		expect(said(frame).set.parentElement).toBe(end());
+		expect(after()?.contains(frame.bar.querySelector("button"))).toBe(true);
+		expect(said(frame).text).toBe("11 .. 60 (50 bp)");
+		input(frame, "sequence").click();
+		expect(said(frame).set.parentElement).toBe(frame.paneBar);
+		input(frame, "sequence").click();
+		expect(said(frame).set.parentElement).toBe(end());
+		const huge = { ...circular, bases: "ACGT".repeat(25_001) };
+		const absent = opened(huge, { sequence_view: true });
+		click(itemIn(mapSvg(absent), LACZ));
+		expect(said(absent).set.parentElement).toBe(
+			absent.bar.querySelector(".end"),
+		);
+	});
+});
+
+describe("copying", () => {
+	test("by Copy puts the top strand's bases on the clipboard, in reading order across an origin", async () => {
+		const frame = opened(circular, { sequence_view: true });
+		drag(
+			mapSvg(frame).firstElementChild as Element,
+			aroundCircle(frame, [95, 4]),
+		);
+		said(frame).copy.click();
+		await Promise.resolve();
+		expect(await navigator.clipboard.readText()).toBe(
+			circular.bases.slice(95) + circular.bases.slice(0, 5),
+		);
+	});
+
+	test("by Copy takes a feature across a linear end in its order, without the joins", async () => {
+		const frame = opened(backboneFile, { sequence_view: true });
+		click(itemIn(mapSvg(frame), keyNamed(mapSvg(frame), "lacZα")));
+		expect(said(frame).text).toBe("2395 .. 2644, 15 .. 32 (268 bp)");
+		said(frame).copy.click();
+		await Promise.resolve();
+		const { bases } = backboneFile;
+		expect(await navigator.clipboard.readText()).toBe(
+			bases.slice(2394, 2644) + bases.slice(14, 32),
+		);
+	});
+
+	test("by the keys takes the bases of the frame selected in last, unless the page has text selected", () => {
+		const first = opened(linear, { sequence_view: true });
+		const second = opened(long, { sequence_view: true });
+		expect(copyKeys()).toBeNull();
+		drag(
+			viewSvg(second).firstElementChild as Element,
+			onBases(second, [150, 155]),
+		);
+		click(itemIn(mapSvg(first), LACZ));
+		expect(copyKeys()).toBe(linear.bases.slice(10, 60));
+		const range = document.createRange();
+		range.selectNodeContents(first.bar);
+		document.getSelection()?.addRange(range);
+		expect(copyKeys()).toBeNull();
+	});
+});
+
+describe("the pane", () => {
+	test("is a box no taller than the window, scrolling the view under its bar, stuck at its top", () => {
+		opened(linear, { sequence_view: true });
+		const style = document.getElementById("molviz-frame") as HTMLStyleElement;
+		const rules = new Map<string, CSSStyleDeclaration>();
+		for (const rule of style.sheet?.cssRules ?? []) {
+			if (rule instanceof CSSStyleRule)
+				rules.set(rule.selectorText, rule.style);
+		}
+		const pane = rules.get(".molviz .sequence");
+		expect(pane?.getPropertyValue("overflow")).toBe("auto");
+		expect(pane?.getPropertyValue("max-height")).toBe("100vh");
+		const bar = rules.get(".molviz .sequence > .bar");
+		expect(bar?.getPropertyValue("position")).toBe("sticky");
+		expect(bar?.getPropertyValue("top")).toBe("0px");
 	});
 });
