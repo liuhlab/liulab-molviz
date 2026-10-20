@@ -1,6 +1,6 @@
-/** Checks on a drawing round a circle centred on (0, 0), shared by the circle's tests. */
+/** Checks on boxes and segments, and on a drawing round a circle centred on (0, 0). */
 
-import type { Box } from "../../src/viewer/scene";
+import type { Box, Shape } from "../../src/viewer/scene";
 
 /** How far two shapes may reach into each other and still count as touching. */
 export const TOUCH = 1e-6;
@@ -10,6 +10,19 @@ export type Segment = readonly [
 	{ readonly x: number; readonly y: number },
 	{ readonly x: number; readonly y: number },
 ];
+
+/** `line` as a segment from one end to the other. */
+export function segment({
+	x1,
+	y1,
+	x2,
+	y2,
+}: Extract<Shape, { shape: "line" }>): Segment {
+	return [
+		{ x: x1, y: y1 },
+		{ x: x2, y: y2 },
+	];
+}
 
 export function overlap(one: Box, other: Box): boolean {
 	return (
