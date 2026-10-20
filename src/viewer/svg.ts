@@ -32,6 +32,10 @@ type Defined = Map<string, string>;
 
 type Attributes = readonly (readonly [name: string, value: string])[];
 
+/** The classes of what a live page draws only with both strands, and only with the top one. */
+export const BOTH_STRANDS = "molviz-both";
+export const TOP_STRAND = "molviz-top";
+
 /**
  * One SVG element: its tag, its attributes in the order they are written, its text or the
  * elements inside it, and the text of its `<title>`.
@@ -58,8 +62,9 @@ export function toSvg(scene: Scene): string {
 /**
  * `scene` as an `<svg>` element of `document`, the same as `toSvg` writes but for its letters,
  * which are `<text>` in the viewer's faces, and each shape's tip or else its title, a
- * `<title>` in it, and its item's key as `data-molviz-item`. Without `tips`, its title only,
- * as `toStill` writes. The page must declare the faces.
+ * `<title>` in it, its item's key as `data-molviz-item`, and a class for the strands it shows
+ * with if it holds a rail. Without `tips`, its title only, as `toStill` writes. The page must
+ * declare the faces.
  */
 export function toElement(
 	scene: Scene,
@@ -94,7 +99,7 @@ export function toStill(scene: Scene): string {
 /**
  * The root's attributes, and the elements inside it: the glyphs `defined`, if letters are
  * outlines, then the ground, then each shape in order with its title, or on a `live` page its
- * tip if it has one and its item's key.
+ * tip if it has one, its item's key and its strands.
  */
 function tags(
 	scene: Scene,
@@ -115,17 +120,21 @@ function tags(
 			["fill", GROUND],
 		],
 	};
-	const shapes = scene.shapes.map((shape): Tag => {
-		const drawn = tag(shape, defined);
-		if (!live) return { ...drawn, title: shape.title };
+	const shapes = scene.shapes.flatMap((shape): Tag[] => {
+		if (!live) return [{ ...tag(shape, defined), title: shape.title }];
 		const { item } = shape;
-		return {
-			...drawn,
-			attributes: item
-				? [...drawn.attributes, ["data-molviz-item", item]]
-				: drawn.attributes,
-			title: shape.tip ?? shape.title,
-		};
+		return byStrands(shape).map(([part, strands]) => {
+			const drawn = tag(part, defined);
+			return {
+				...drawn,
+				attributes: [
+					...drawn.attributes,
+					...(item ? [["data-molviz-item", item] as const] : []),
+					...(strands ? [["class", strands] as const] : []),
+				],
+				title: shape.tip ?? shape.title,
+			};
+		});
 	});
 	const defs: Tag[] = defined?.size
 		? [
@@ -152,6 +161,40 @@ function tags(
 		],
 		children: [...defs, ground, ...shapes],
 	};
+}
+
+/**
+ * `shape` as a live page draws it, each part with the class of the strands it shows with, or
+ * null for either. A shape holding a rail shows whole with both strands; a line or rect across
+ * the rail adds its part above it, which shows with the top strand alone.
+ */
+function byStrands(shape: Shape): (readonly [Shape, string | null])[] {
+	const { rail } = shape;
+	if (rail === undefined) return [[shape, null]];
+	const cut = above(shape, rail);
+	return [[shape, BOTH_STRANDS], ...(cut ? [[cut, TOP_STRAND] as const] : [])];
+}
+
+/** The part above the height `rail` of a line or rect across it; null for any other shape. */
+function above(shape: Shape, rail: number): Shape | null {
+	switch (shape.shape) {
+		case "line": {
+			const { x1, y1, x2, y2 } = shape;
+			if (!(Math.min(y1, y2) < rail && rail < Math.max(y1, y2))) return null;
+			const x = x1 + ((rail - y1) / (y2 - y1)) * (x2 - x1);
+			return y1 < y2
+				? { ...shape, x2: x, y2: rail }
+				: { ...shape, x1: x, y1: rail };
+		}
+		case "rect": {
+			const { y, height } = shape;
+			return y < rail && rail < y + height
+				? { ...shape, height: rail - y }
+				: null;
+		}
+		default:
+			return null;
+	}
 }
 
 /** `shape` as SVG, its letters as uses of the glyphs it adds to `defined`, or else as text. */

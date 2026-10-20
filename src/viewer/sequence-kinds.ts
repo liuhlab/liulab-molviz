@@ -259,6 +259,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
 	const on = new Set(options.enzymes.map(folded));
 	const floor = bottom ? bottom[1] : rail;
+	const under = bottom ? { rail } : {};
 	// Enzymes cutting at one point draw the same lines, and often the same box, and two sites may
 	// share a box: each once, with the first site's tip.
 	const shapes = new Map<string, Shape>();
@@ -269,7 +270,13 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 			const key = JSON.stringify(shape);
 			if (!shapes.has(key)) shapes.set(key, tipped([shape], label)[0]);
 		};
-		const line = (x1: number, y1: number, x2: number, y2: number) =>
+		const line = (
+			x1: number,
+			y1: number,
+			x2: number,
+			y2: number,
+			below: typeof under = {},
+		) =>
 			add({
 				shape: "line",
 				x1,
@@ -278,6 +285,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 				y2,
 				stroke: painted(INK, dim),
 				strokeWidth: CUT_WIDTH,
+				...below,
 			});
 		const made = record.cuts.filter(
 			(one) => one.at === point && on.has(folded(one.enzyme)),
@@ -298,6 +306,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 					fill: "none",
 					stroke: painted(CUT_BOX, dim),
 					strokeWidth: CUT_BOX_WIDTH,
+					...under,
 				});
 			}
 		}
@@ -319,9 +328,9 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 					Math.min(Math.max(p, q), row.end),
 				];
 				if (!held && low >= high) continue;
-				if (low < high) line(at(low), rail, at(high), rail);
+				if (low < high) line(at(low), rail, at(high), rail, under);
 				if (row.start <= q && q <= row.end) {
-					line(at(q), rail, at(q), bottom[1]);
+					line(at(q), rail, at(q), bottom[1], under);
 				}
 			}
 		}
@@ -337,6 +346,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
 function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
 	const { record, options, bounds, at } = row;
 	const [y1, y2] = [top[0], bottom ? bottom[1] : rail];
+	const under = bottom ? { rail } : {};
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
@@ -357,6 +367,7 @@ function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
 							stroke: label.color,
 							strokeWidth: INSERTION_WIDTH,
 							title: hover,
+							...under,
 						},
 					],
 					label,

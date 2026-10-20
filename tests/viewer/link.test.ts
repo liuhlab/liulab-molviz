@@ -370,16 +370,19 @@ describe("a drag across bases", () => {
 	test("with the bottom strand hidden, finds no base under the rail and shades down to it", () => {
 		const frame = opened(linear, { sequence_view: true });
 		const ground = viewSvg(frame).firstElementChild as Element;
-		frame.state.options = { ...frame.state.options, bottom_strand: false };
-		frame.changed();
+		const [row] = frame.sequence()?.rows ?? [];
+		const foot = () => {
+			const band = viewSvg(frame).querySelector("rect[fill='#bbddf5']");
+			return (
+				Number(band?.getAttribute("y")) + Number(band?.getAttribute("height"))
+			);
+		};
+		drag(ground, onBases(frame, [20, 29]));
+		expect(foot()).toBeCloseTo(row.strands.bottom?.[1] ?? NaN, 1);
+		input(frame, "both").click();
+		expect(foot()).toBeCloseTo(row.strands.rail, 1);
 		click(ground, ...onBases(frame, [20], "bottom")[0]);
 		expect(frame.state.selection).toBeNull();
-		drag(ground, onBases(frame, [20, 29]));
-		const [row] = frame.sequence()?.rows ?? [];
-		const band = viewSvg(frame).querySelector("rect[fill='#bbddf5']");
-		const foot =
-			Number(band?.getAttribute("y")) + Number(band?.getAttribute("height"));
-		expect(foot).toBeCloseTo(row.strands.rail, 1);
 	});
 });
 

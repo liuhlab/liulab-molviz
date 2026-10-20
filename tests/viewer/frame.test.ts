@@ -123,12 +123,13 @@ describe("a record's frame", () => {
 		]);
 	});
 
-	test("offers no sequence view past 100,000 bases", () => {
+	test("offers no sequence view past 100,000 bases, nor its strands", () => {
 		const long = { ...circular, bases: "ACGT".repeat(25_001) };
-		expect(views(opened(long, { sequence_view: true }))).toEqual([
-			"circle",
-			"line",
-		]);
+		const frame = opened(long, { sequence_view: true });
+		expect(views(frame)).toEqual(["circle", "line"]);
+		expect(
+			frame.box.parentElement?.querySelector('[name="strands"]'),
+		).toBeNull();
 	});
 
 	test("ticks the map and the sequence view the options open on", () => {

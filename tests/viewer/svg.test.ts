@@ -410,6 +410,57 @@ test("a live drawing marks a shape with its item's key; a figure on a page, a st
 	expect(toSvg(keyed)).not.toContain("data-molviz");
 });
 
+test("a live drawing marks what holds a rail to show with both strands, and adds the part above it of a line or box across it, to show with the top one; a figure on a page, a still one and a file never do", () => {
+	const ink = { stroke: "#252525", strokeWidth: 1 };
+	const railed: Scene = {
+		extent: { x: 0, y: 0, width: 40, height: 40 },
+		shapes: [
+			{ shape: "line", x1: 5, y1: 0, x2: 5, y2: 30, rail: 10, ...ink },
+			{ shape: "line", x1: 5, y1: 10, x2: 15, y2: 10, rail: 10, ...ink },
+			{
+				shape: "rect",
+				x: 20,
+				y: 0,
+				width: 10,
+				height: 30,
+				corner: 0,
+				fill: "none",
+				rail: 10,
+				...ink,
+			},
+			{ shape: "line", x1: 0, y1: 0, x2: 0, y2: 30, ...ink },
+		],
+	};
+	const page = [...toElement(railed, document).children].slice(1);
+	const place = (one: Element) =>
+		(one.tagName === "line"
+			? ["x1", "y1", "x2", "y2"]
+			: ["x", "y", "width", "height"]
+		)
+			.map((name) => one.getAttribute(name))
+			.join(" ");
+	expect(
+		page.map((one) => [one.tagName, one.getAttribute("class"), place(one)]),
+	).toEqual([
+		["line", "molviz-both", "5.00 0.00 5.00 30.00"],
+		["line", "molviz-top", "5.00 0.00 5.00 10.00"],
+		["line", "molviz-both", "5.00 10.00 15.00 10.00"],
+		["rect", "molviz-both", "20.00 0.00 10.00 30.00"],
+		["rect", "molviz-top", "20.00 0.00 10.00 10.00"],
+		["line", null, "0.00 0.00 0.00 30.00"],
+	]);
+	const unrailed: Scene = {
+		...railed,
+		shapes: railed.shapes.map(({ rail, ...shape }) => shape),
+	};
+	const figure = toElement(railed, document, { tips: false });
+	expect(figure.outerHTML).toBe(
+		toElement(unrailed, document, { tips: false }).outerHTML,
+	);
+	expect(toStill(railed)).toBe(toStill(unrailed));
+	expect(toSvg(railed)).toBe(toSvg(unrailed));
+});
+
 test.each([
 	{ writer: "toSvg", write: toSvg },
 	{ writer: "toStill", write: toStill },

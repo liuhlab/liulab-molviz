@@ -441,6 +441,29 @@ describe("a cut site", () => {
 	});
 });
 
+describe("the bottom strand", () => {
+	test("is what holds its row's rail: the complement, a cut site's box, its lines along and under the rail, and an insertion's line; with one strand, nothing", () => {
+		const record = {
+			cuts: [cut("EcoRI", 10, 16, 11, 4)],
+			insertions: [{ name: "a", at: 30, length: 8 }],
+		};
+		const railed = (options: object) =>
+			lay(record, { bases_per_row: 20, ...options }).shapes.flatMap((s) =>
+				s.rail === undefined ? [] : [[s.shape, s.rail]],
+			);
+		const [one, two] = strands(lay(record, { bases_per_row: 20 }));
+		expect(railed({})).toEqual([
+			["text", one.rail],
+			["rect", one.rail],
+			["line", one.rail],
+			["line", one.rail],
+			["text", two.rail],
+			["line", two.rail],
+		]);
+		expect(railed({ bottom_strand: false })).toEqual([]);
+	});
+});
+
 describe("cut sites", () => {
 	test("are those of the enzymes on, the unique cutters by default, whatever their case", () => {
 		const record = {

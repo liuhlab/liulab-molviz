@@ -15,11 +15,14 @@ import type { Record } from "./record";
 import type { Box, Scene } from "./scene";
 import type { Selection } from "./selection";
 import { layoutSequence, type RowBox } from "./sequence";
-import { toElement } from "./svg";
+import { BOTH_STRANDS, TOP_STRAND, toElement } from "./svg";
 import { families } from "./text";
 
 /** The style element holding the frames' rules, shared by every frame on a page. */
 const STYLE_ID = "molviz-frame";
+
+/** The class of a pane showing the top strand alone. */
+const ONE_STRAND = "one-strand";
 
 type MapName = Options["map"];
 
@@ -421,9 +424,17 @@ interface SequenceDrawn extends SequenceShown {
 }
 
 /**
- * Show or hide the sequence view in `pane`, under its bar, as `options` say, its hovers in the
- * page's box, laying it out again only if the options it reads changed since it was `drawn`.
- * Returns it as drawn now.
+ * Show both strands of the sequence view in a frame's `pane`, or the top one alone, as `options`
+ * say. The view is laid out with both, so this lays nothing out again and nothing moves.
+ */
+export function showStrands(pane: HTMLElement, options: Options): void {
+	pane.classList.toggle(ONE_STRAND, !options.bottom_strand);
+}
+
+/**
+ * Show or hide the sequence view in `pane`, under its bar, as `options` say, with both strands or
+ * the top one, its hovers in the page's box, laying it out again only if the options it reads
+ * changed since it was `drawn`. Returns it as drawn now.
  */
 function redrawSequence(
 	record: Record,
@@ -432,10 +443,12 @@ function redrawSequence(
 	drawn: SequenceDrawn | null,
 ): SequenceDrawn | null {
 	pane.hidden = !options.sequence_view;
+	showStrands(pane, options);
 	if (!options.sequence_view) return drawn;
-	const reads = JSON.stringify({ ...options, map: null, sequence_view: null });
+	const both = { ...options, bottom_strand: true };
+	const reads = JSON.stringify({ ...both, map: null, sequence_view: null });
 	if (reads === drawn?.for) return drawn;
-	const scene = layoutSequence(record, options);
+	const scene = layoutSequence(record, both);
 	const svg = toElement(scene, pane.ownerDocument);
 	if (drawn) drawn.svg.replaceWith(svg);
 	else pane.append(svg);
@@ -505,6 +518,8 @@ function css(): string {
 .molviz .map { max-width: 100%; overflow: auto; }
 .molviz .sequence { overflow: auto; max-height: 100vh; }
 .molviz .sequence > .bar { position: sticky; top: 0; left: 0; z-index: 1; margin: 0; }
+.molviz .sequence:not(.${ONE_STRAND}) .${TOP_STRAND},
+.molviz .${ONE_STRAND} .${BOTH_STRANDS} { display: none; }
 .molviz svg { display: block; max-width: none; }
 .molviz [data-molviz-item] { cursor: pointer; }
 .molviz path[data-molviz-selected], .molviz rect[data-molviz-selected],
