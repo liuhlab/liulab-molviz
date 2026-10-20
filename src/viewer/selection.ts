@@ -2,14 +2,8 @@
 
 import { folded } from "./format";
 import type { Hidden } from "./labels";
-import { pointText, spanText, turns } from "./pieces";
-import {
-	type Bounds,
-	type Record,
-	recordBounds,
-	runsOnFromStart,
-	type Span,
-} from "./record";
+import { hulls, pointText, spansText, turns } from "./pieces";
+import { type Bounds, type Record, recordBounds, type Span } from "./record";
 
 /**
  * Bases selected, as spans in reading order, each in the record's counting; or an item's point
@@ -48,22 +42,6 @@ export function itemSelection(
 		(cut) => cut.at === item.at && on.has(folded(cut.enzyme)),
 	);
 	return { spans: [recognised(made, bounds)], item: key };
-}
-
-/**
- * From the first of `spans` to the last, as a feature's segments: across a linear end, the part
- * before the end and the part after, without the stretches out to the end and in from the start.
- */
-function hulls(spans: readonly Span[], bounds: Bounds): Span[] {
-	const parts: Span[][] = [];
-	for (const [i, span] of spans.entries()) {
-		if (i === 0 || runsOnFromStart(spans[i - 1], span, bounds)) parts.push([]);
-		parts[parts.length - 1].push(span);
-	}
-	return parts.map((part) => ({
-		start: part[0].start,
-		end: Math.max(...part.map(({ end }) => end)),
-	}));
 }
 
 /**
@@ -180,7 +158,6 @@ export function captionRoom(record: Record): number {
 export function caption(selection: Selection, bounds: Bounds): string {
 	if (!("spans" in selection)) return pointText(selection.at, bounds);
 	const { spans } = selection;
-	const { length } = bounds;
 	const count = spans.reduce((sum, { start, end }) => sum + end - start, 0);
-	return `${spans.map((span) => spanText(span, length)).join(", ")} (${count} bp)`;
+	return `${spansText(spans, bounds.length)} (${count} bp)`;
 }

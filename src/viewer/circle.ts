@@ -59,7 +59,8 @@ import {
 	shaded,
 	textColor,
 } from "./paint";
-import type { Feature, Record, Span } from "./record";
+import { hull } from "./pieces";
+import type { Record, Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
 import {
 	type Aligned,
@@ -290,7 +291,9 @@ function bars(
 	circle: Circle,
 	clear: number,
 ): CircleBar[] {
-	const hulls = shown.map(({ feature }) => hullOf(feature, circle.length));
+	const hulls = shown.map(({ feature }) =>
+		hull(feature.segments, circle.length),
+	);
 	const onRing = rings(hulls, circle);
 	const count = Math.max(0, ...onRing) + 1;
 	const outer = numbersInside(circle) - OVERHANG - SHAFT / 2;
@@ -393,15 +396,6 @@ function nameOn(name: string, arrow: Arrow): Shape | null {
 		size: LABEL_SIZE,
 		fill: textColor(arrow.color),
 		places,
-	};
-}
-
-/** Where a feature's first segment starts and its last ends, one turn at most. */
-function hullOf({ segments }: Feature, length: number): Span {
-	const start = segments[0].start;
-	return {
-		start,
-		end: Math.min(segments[segments.length - 1].end, start + length),
 	};
 }
 

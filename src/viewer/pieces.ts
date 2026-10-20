@@ -62,6 +62,26 @@ export function pieces(
 	return found.sort((a, b) => a.start - b.start || a.end - b.end);
 }
 
+/** From the first of `spans` to the farthest end, one turn at most. */
+export function hull(spans: readonly Span[], length: number): Span {
+	const { start } = spans[0];
+	const end = Math.max(...spans.map((span) => span.end));
+	return { start, end: Math.min(end, start + length) };
+}
+
+/**
+ * The hull of each part of a feature's `spans`: across a linear end, the part before the end and
+ * the part after, without the stretches out to the end and in from the start.
+ */
+export function hulls(spans: readonly Span[], bounds: Bounds): Span[] {
+	const parts: Span[][] = [];
+	for (const [i, span] of spans.entries()) {
+		if (i === 0 || runsOnFromStart(spans[i - 1], span, bounds)) parts.push([]);
+		parts[parts.length - 1].push(span);
+	}
+	return parts.map((part) => hull(part, bounds.length));
+}
+
 /**
  * Where the point `at` lies in the span, counted as the span counts: either end of the span
  * included, but the two ends of a circle opened whole are one point, its end.
