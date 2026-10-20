@@ -87,15 +87,38 @@ export type Label = Hidden & {
 	readonly dim: boolean;
 	/** For a cut site, the fewest times one of its enzymes cuts the record; else 0. */
 	readonly fewestCuts: number;
+	/** What a live page's hover box says of the item. */
+	readonly tip: string;
 };
 
+/** An item's tip: its name, type and span, then its length in bases if it has one. */
+export function tipOf(
+	name: string,
+	type: string,
+	span: string,
+	length?: number,
+): string {
+	return [
+		name,
+		type,
+		span,
+		...(length === undefined ? [] : [`${length} bp`]),
+	].join("\n");
+}
+
+/** `shapes`, each carrying the tip of `label`, the item they draw. */
+export function tipped(shapes: readonly Shape[], { tip }: Label): Shape[] {
+	return shapes.map((shape) => ({ ...shape, tip }));
+}
+
 /**
- * The label of `item` that says `runs` in `color`, dimmed to one grey when `highlight` names
- * something but none of `names`. Only a cut site's label passes `fewestCuts`.
+ * The label of `item` that says `runs` in `color`, with the item's `tip`, dimmed to one grey when
+ * `highlight` names something but none of `names`. Only a cut site's label passes `fewestCuts`.
  */
 export function labelOf(
 	item: Hidden,
 	runs: readonly Run[],
+	tip: string,
 	color: string,
 	highlight: readonly string[],
 	{
@@ -104,7 +127,7 @@ export function labelOf(
 	}: { names?: readonly string[]; fewestCuts?: number } = {},
 ): Label {
 	const dim = unlit(highlight, names);
-	return { ...item, runs, color: painted(color, dim), dim, fewestCuts };
+	return { ...item, runs, color: painted(color, dim), dim, fewestCuts, tip };
 }
 
 /** The label of a primer named `name` at the site `span`: its name and the bases it spans. */
@@ -134,9 +157,11 @@ function siteLabel(
 	color: string,
 	highlight: readonly string[],
 ): Label {
+	const span = spanText({ start, end }, length);
 	return labelOf(
 		{ kind, name, spans: [{ start, end }] },
-		[{ text: `${name} (${spanText({ start, end }, length)})`, face: "sans" }],
+		[{ text: `${name} (${span})`, face: "sans" }],
+		tipOf(name, kind === "primers" ? "primer" : "read", span, end - start),
 		color,
 		highlight,
 	);
@@ -154,6 +179,7 @@ export function insertionLabel(
 		`+${insertion.length} bp`,
 		insertion.color ?? INSERTION,
 		pointText(at, bounds),
+		insertion.length,
 		highlight,
 	);
 }
@@ -165,7 +191,7 @@ export function disagreementLabel(
 	highlight: readonly string[],
 ): { label: Label; hover: string } {
 	const { name } = disagreement;
-	const [item, where]: [Hidden, string] =
+	const [item, where, bases]: [Hidden, string, number?] =
 		disagreement.at === undefined
 			? [
 					{
@@ -174,6 +200,7 @@ export function disagreementLabel(
 						spans: [{ start: disagreement.start, end: disagreement.end }],
 					},
 					spanText(disagreement, bounds.length),
+					disagreement.end - disagreement.start,
 				]
 			: [
 					{ kind: "disagreements", name, at: disagreement.at },
@@ -184,21 +211,28 @@ export function disagreementLabel(
 		name,
 		disagreement.color ?? DISAGREEMENT,
 		where,
+		bases,
 		highlight,
 	);
 }
 
-/** The label of `item` saying `text` in `color`, and its hover: its name and `where` it lies. */
+/**
+ * The label of `item` saying `text` in `color`, with its tip, and its hover: its name and `where`
+ * it lies. An item `bases` long says so in its tip.
+ */
 function hovered(
 	item: Hidden,
 	text: string,
 	color: string,
 	where: string,
+	bases: number | undefined,
 	highlight: readonly string[],
 ): { label: Label; hover: string } {
+	const type = item.kind === "insertions" ? "insertion" : "disagreement";
 	const label = labelOf(
 		item,
 		[{ text, face: "sans" }],
+		tipOf(item.name, type, where, bases),
 		color.toLowerCase(),
 		highlight,
 	);
@@ -333,7 +367,8 @@ export function notice(
 
 /**
  * The notice set `GAP` under the corner (`right`, `bottom`) of what a drawing covers, ending at
- * `right`, with each hidden label on a line of its hover; nothing when none hid.
+ * `right`, with each hidden label on a line of its hover, and of its tip under the notice itself;
+ * nothing when none hid.
  */
 export function noticeShapes(
 	hidden: readonly Label[],
@@ -353,7 +388,8 @@ export function noticeShapes(
 			y: baseline("sans", SMALL_SIZE, middle),
 			anchor: "start",
 			fill: INK,
-			hover: hidden.map(textOf).join("\n"),
+			title: hidden.map(textOf).join("\n"),
+			tip: [text, ...hidden.map(textOf)].join("\n"),
 		},
 	];
 }

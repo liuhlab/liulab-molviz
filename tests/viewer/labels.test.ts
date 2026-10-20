@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { prepare } from "../../src/viewer/drawing";
 import {
 	disagreementLabel,
 	type Hidden,
@@ -14,6 +15,7 @@ import {
 import { check } from "../../src/viewer/record";
 import { leftEdge } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
+import backbone from "../records/puc19-backbone-amplicon.json";
 
 /** A hidden label of `kind` named `name`, at the record's start. */
 function hid(kind: LabelKind, name = "x"): Hidden {
@@ -34,6 +36,7 @@ function label(
 		color: "#000000",
 		dim,
 		fewestCuts,
+		tip: text,
 	};
 }
 
@@ -96,7 +99,8 @@ describe("noticeShapes", () => {
 			text: "1 cut site and 1 primer are hidden",
 			face: "sans",
 			size: 10.5,
-			hover: "EcoRI (396)\nM13 fwd (1 .. 17)",
+			title: "EcoRI (396)\nM13 fwd (1 .. 17)",
+			tip: "1 cut site and 1 primer are hidden\nEcoRI (396)\nM13 fwd (1 .. 17)",
 		});
 		if (text.shape !== "text") throw new Error("not text");
 		const left = leftEdge(text, measure(text.text, "sans", 10.5));
@@ -127,6 +131,119 @@ describe("notice", () => {
 		],
 	])("says %s", (_, kinds, said) => {
 		expect(notice(kinds.map((kind) => hid(kind)))).toBe(said);
+	});
+});
+
+/** A circular record of 1000 bases holding `items`, as a caller hands it over. */
+function holding(items: object): object {
+	return { name: "test", circular: true, bases: "ACGT".repeat(250), ...items };
+}
+
+function feature(name: string, segments: [number, number][]): object {
+	return {
+		features: [
+			{
+				name,
+				type: "CDS",
+				strand: 1,
+				segments: segments.map(([start, end]) => ({ start, end })),
+			},
+		],
+	};
+}
+
+describe("an item's tip", () => {
+	// mbio's hover rows: the name, then the type, the span 1-based and the length.
+	test.each<[string, object, string]>([
+		[
+			"a feature",
+			feature("lacZ", [[145, 469]]),
+			"lacZ\nCDS\n146 .. 469\n324 bp",
+		],
+		[
+			"a joined feature, each segment's span",
+			feature("split", [
+				[100, 160],
+				[200, 260],
+				[300, 360],
+			]),
+			"split\nCDS\n101 .. 160, 201 .. 260, 301 .. 360\n180 bp",
+		],
+		[
+			"a feature whose segments touch, as one span",
+			feature("AmpR", [
+				[100, 160],
+				[160, 200],
+			]),
+			"AmpR\nCDS\n101 .. 200\n100 bp",
+		],
+		[
+			"a feature across the origin",
+			feature("ori", [[950, 1050]]),
+			"ori\nCDS\n951 .. 50\n100 bp",
+		],
+		[
+			"a primer site",
+			{
+				primers: [
+					{
+						name: "M13 fwd",
+						bases: "A".repeat(17),
+						sites: [{ start: 378, end: 395, strand: 1 }],
+					},
+				],
+			},
+			"M13 fwd\nprimer\n379 .. 395\n17 bp",
+		],
+		[
+			"a cut site, its enzymes joined",
+			{
+				cuts: ["SacI", "BanII"].map((enzyme) => ({
+					enzyme,
+					start: 400,
+					end: 406,
+					at: 406,
+					stagger: -4,
+				})),
+			},
+			"BanII - SacI\ncut site\n406",
+		],
+		[
+			"an insertion",
+			{ insertions: [{ name: "ins", at: 12, length: 6 }] },
+			"ins\ninsertion\n12^13\n6 bp",
+		],
+		[
+			"a read",
+			{ reads: [{ name: "r1", start: 90, end: 110, strand: 1 }] },
+			"r1\nread\n91 .. 110\n20 bp",
+		],
+		[
+			"a disagreement over a span",
+			{
+				disagreements: [
+					{ name: "96 A>G", start: 95, end: 96, bases: "G", reads: [] },
+				],
+			},
+			"96 A>G\ndisagreement\n96 .. 96\n1 bp",
+		],
+	])(
+		"of %s is on every shape it draws, on the line and the circle",
+		(_, items, tip) => {
+			for (const map of ["line", "circle"]) {
+				const bare = prepare(holding({}), { map });
+				const scene = prepare(holding(items), { map });
+				const tipped = scene.shapes.filter((shape) => shape.tip !== undefined);
+				expect(tipped.map((shape) => shape.tip)).toEqual(tipped.map(() => tip));
+				expect(scene.shapes.length - tipped.length).toBe(bare.shapes.length);
+			}
+		},
+	);
+
+	test("of a feature across a linear record's end gives each segment's span", () => {
+		const scene = prepare(backbone, {});
+		const tips = new Set(scene.shapes.map((shape) => shape.tip));
+		expect(tips).toContain("lacZα\nCDS\n2395 .. 2644, 15 .. 32\n268 bp");
 	});
 });
 

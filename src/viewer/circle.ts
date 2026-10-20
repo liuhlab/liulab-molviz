@@ -29,6 +29,7 @@ import {
 	PAD_X,
 	PAD_Y,
 	SMALL_SIZE,
+	tipped,
 } from "./labels";
 import {
 	BACKBONE,
@@ -180,17 +181,20 @@ export function layoutCircle(
 	const shapes: Shape[] = [
 		...backbone(circle),
 		...ruler(circle),
-		...drawnBars.flatMap(barShapes),
-		...drawnSites.map(({ arrow }) => arrowShape(arrow)),
-		...drawnMarks.map(({ bar }) => bar),
+		...drawnBars.flatMap((bar) => tipped(barShapes(bar), bar.label)),
+		...drawnSites.flatMap(({ arrow, label }) =>
+			tipped([arrowShape(arrow)], label),
+		),
+		...drawnMarks.flatMap(({ bar, label }) => tipped([bar], label)),
 	];
 	const boxes: Box[] = [];
 	for (const [i, one] of placed.entries()) {
 		if (!one) continue;
 		const { label, angle, inward } = outside[i];
 		const [from, to] = one.leader;
-		if (inward) shapes.push(leader(xy(backboneEdge, angle), from));
-		shapes.push(leader(from, to), ...labelShapes(label, one.box));
+		const leaders = [leader(from, to)];
+		if (inward) leaders.unshift(leader(xy(backboneEdge, angle), from));
+		shapes.push(...tipped([...leaders, ...labelShapes(label, one.box)], label));
 		boxes.push(one.box);
 	}
 	shapes.push(...middle.shapes);
@@ -266,7 +270,7 @@ function marks(
 			y2,
 			stroke: label.color,
 			strokeWidth: INSERTION_WIDTH,
-			hover,
+			title: hover,
 		};
 		return { bar, label, angle };
 	});

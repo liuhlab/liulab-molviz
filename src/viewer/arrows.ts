@@ -7,6 +7,7 @@ import {
 	labelOf,
 	PAD_X,
 	PAD_Y,
+	tipOf,
 } from "./labels";
 import type { Options } from "./options";
 import {
@@ -19,7 +20,7 @@ import {
 	shaded,
 	textColor,
 } from "./paint";
-import type { Piece } from "./pieces";
+import { type Piece, spansText } from "./pieces";
 import { type Feature, type Record, recordBounds, type Span } from "./record";
 import type { Shape } from "./scene";
 import { baseline, height, measure } from "./text";
@@ -89,13 +90,17 @@ export function coloredFeatures(
 	return record.features
 		.filter((feature) => !off.has(feature.type))
 		.map((feature) => {
+			const spans = feature.segments.map(({ start, end }) => ({ start, end }));
+			const bases = spans.reduce((sum, { start, end }) => sum + end - start, 0);
 			const label = labelOf(
-				{
-					kind: "features",
-					name: feature.name,
-					spans: feature.segments.map(({ start, end }) => ({ start, end })),
-				},
+				{ kind: "features", name: feature.name, spans },
 				[{ text: feature.name, face: "sans" }],
+				tipOf(
+					feature.name,
+					feature.type,
+					spansText(spans, record.bases.length),
+					bases,
+				),
 				colorOf(feature, feature.segments[0]),
 				options.highlight,
 			);

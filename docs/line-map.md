@@ -9,6 +9,13 @@ it holds. The map draws a record's features, its primers at each place they bind
 insertions, and the cut sites of each enzyme that cuts it once. Where labels would crowd, some
 are hidden, and a note at the bottom right counts them.
 
+A bar above each map turns things on and off: each kind, each feature type, and each enzyme,
+with how many times it cuts. Each change draws the map again, so a label hidden before may
+now show. Rest the pointer on anything to see its name, type, place and length. To zoom, use
+the slider, or hold Ctrl or ⌘ and scroll. A zoomed map scrolls in its box, and Reset brings
+back its first size. Sequence shows the bases under the map. A printed page leaves out the
+bar and prints each map at its first size.
+
 A circular record drawn whole opens on [the circle](circle.md), so this page asks for the line.
 
 If a record cannot be drawn, its place on the page says why.

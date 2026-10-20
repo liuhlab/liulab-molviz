@@ -228,7 +228,7 @@ describe("an insertion", () => {
 			options,
 		);
 		const bars = lines(scene, INSERTION);
-		expect(bars.map((bar) => [bar.x1, bar.hover])).toEqual(
+		expect(bars.map((bar) => [bar.x1, bar.title])).toEqual(
 			xs.map((x) => [x, hover]),
 		);
 	});

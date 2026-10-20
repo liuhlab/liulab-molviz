@@ -605,7 +605,7 @@ describe("an insertion", () => {
 			},
 		});
 		const bars = lines(scene).filter((l) => l.strokeWidth === 2);
-		expect(bars.map((b) => [b.stroke, b.hover])).toEqual([
+		expect(bars.map((b) => [b.stroke, b.title])).toEqual([
 			["#cc3311", "ins · 250^251"],
 			["#00aa00", "750^751"],
 		]);
@@ -965,7 +965,7 @@ describe("a disagreement", () => {
 		const [mark, ...more] = lines(scene).filter((l) => l.stroke === "#ee7733");
 		expect(more).toEqual([]);
 		expect(mark.strokeWidth).toBe(2);
-		expect(mark.hover).toBe("insertion after 250 · 250^251");
+		expect(mark.title).toBe("insertion after 250 · 250^251");
 		expect([mark.x1, mark.x2]).toEqual([
 			expect.closeTo(214.9 - 1.5),
 			expect.closeTo(221.3 + 1.5),
@@ -1189,9 +1189,9 @@ describe.each(CIRCULAR)("%s drawn whole", (_, file) => {
 			test("the notice sits at the bottom right, clear of everything", () => {
 				const notices = texts(scene).filter((t) => t.text.endsWith("hidden"));
 				expect(notices).toHaveLength(scene.hidden.length ? 1 : 0);
-				for (const { text, hover } of notices) {
+				for (const { text, title } of notices) {
 					expect(text).toBe(notice(scene.hidden));
-					expect(hover?.split("\n")).toHaveLength(scene.hidden.length);
+					expect(title?.split("\n")).toHaveLength(scene.hidden.length);
 				}
 				const { extent } = scene;
 				for (const shown of notices) {

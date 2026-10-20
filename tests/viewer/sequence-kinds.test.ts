@@ -465,7 +465,7 @@ describe("an insertion", () => {
 			(s): s is Line => s.shape === "line" && s.strokeWidth === 2,
 		);
 		expect(
-			lines.map((s) => [s.x1, s.y1, s.x2, s.y2, s.stroke, s.hover]),
+			lines.map((s) => [s.x1, s.y1, s.x2, s.y2, s.stroke, s.title]),
 		).toEqual([
 			[0, rows[1].top[0], 0, rows[1].bottom?.[1], "#cc3311", "a · 10^11"],
 			[110, rows[3].top[0], 110, rows[3].bottom?.[1], "#00aa00", "b · 40^41"],
@@ -702,7 +702,7 @@ describe("a disagreement at a point", () => {
 		const marks = (scene: SequenceScene) =>
 			scene.shapes.flatMap((s) =>
 				s.shape === "line" && s.strokeWidth === 2
-					? [[s.x1, s.y1, s.y2, s.stroke, s.hover]]
+					? [[s.x1, s.y1, s.y2, s.stroke, s.title]]
 					: [],
 			);
 		expect(marks(scene)).toEqual([

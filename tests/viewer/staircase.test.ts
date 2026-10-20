@@ -22,6 +22,7 @@ function label(
 		color: "#dddddd",
 		dim,
 		fewestCuts,
+		tip: name,
 	};
 }
 

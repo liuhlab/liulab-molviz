@@ -52,7 +52,7 @@ function open(html: string): NodeListOf<SVGSVGElement> {
 	for (const script of document.querySelectorAll("script:not([type])")) {
 		vm.runInThisContext(`{${script.textContent ?? ""}\n}`);
 	}
-	return document.querySelectorAll("#drawing > svg");
+	return document.querySelectorAll("#drawing svg");
 }
 
 test("a page the Python package writes draws its record when it opens, with no outline script", () => {
@@ -62,6 +62,11 @@ test("a page the Python package writes draws its record when it opens, with no o
 		expect(drawn).toHaveLength(1);
 		const texts = [...drawn[0].querySelectorAll("text")];
 		expect(texts.map((t) => t.textContent)).toContain("lacZ");
+		const page = document.querySelector("#drawing > .molviz");
+		expect(
+			page?.querySelector(":scope > .bar input[value='sequence']"),
+		).not.toBeNull();
+		expect(page?.querySelector(":scope > .map > svg")).toBe(drawn[0]);
 	} finally {
 		vi.unstubAllGlobals();
 	}
