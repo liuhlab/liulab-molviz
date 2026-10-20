@@ -146,6 +146,15 @@ describe.each(drawings)("the still SVG of $input", ({ still, file, scene }) => {
 		expect(still.notice).toBe(file.notice);
 	});
 
+	test("lies first on a white ground as large as the drawing", () => {
+		const { root, children } = elements(still.svg);
+		const [x, y, width, height] =
+			/viewBox="([^"]*)"/.exec(root)?.[1].split(" ") ?? [];
+		expect(children[0]).toBe(
+			`<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="#ffffff"/>`,
+		);
+	});
+
 	test("is its file but for the letters and the hovers", () => {
 		const ours = elements(still.svg);
 		const theirs = drawnOf(file.svg);

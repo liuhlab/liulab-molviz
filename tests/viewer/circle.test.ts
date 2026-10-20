@@ -1,4 +1,3 @@
-/// <reference types="vite/client" />
 import { describe, expect, test } from "vitest";
 import { boxOf } from "../../src/viewer/bounds";
 import { layoutCircle } from "../../src/viewer/circle";
@@ -11,14 +10,9 @@ import ap1File from "../records/ap1-product.json";
 import colourTestFile from "../records/colour-test.json";
 import puc19File from "../records/puc19-gfp-product.json";
 import verifiedFile from "../records/puc19-gfp-verification.json";
-import {
-	closestToCentre,
-	crosses,
-	nearestToCentre,
-	overlap,
-	type Segment,
-	TOUCH,
-} from "./round";
+import { crossing, labelsOf, leaders, overlapping } from "./apart";
+import { enzymeChoices, enzymesOf, RECORDS } from "./records";
+import { closestToCentre, nearestToCentre, segment, TOUCH } from "./round";
 
 /** A circular record of 1000 bases: each base turns 0.36 degrees. */
 const BASES = "ACGT".repeat(250);
@@ -549,11 +543,6 @@ describe("a primer", () => {
 	});
 });
 
-/** The lines from a label to what it names. */
-function leaders(scene: Scene): Line[] {
-	return lines(scene).filter((l) => l.stroke === "#7f7f7f");
-}
-
 describe("a cut site", () => {
 	test("is labelled by its enzymes and the base before the cut, on a leader carried on to the backbone", () => {
 		const scene = lay([], {
@@ -834,11 +823,6 @@ describe("the extent", () => {
 	});
 });
 
-/** Every enzyme that cuts `file`. */
-function enzymesOf(file: { cuts?: readonly { enzyme: string }[] }): string[] {
-	return [...new Set((file.cuts ?? []).map(({ enzyme }) => enzyme))];
-}
-
 describe("mbio's records", () => {
 	// The counts mbio's circle gives for the same records and enzymes.
 	test.each([
@@ -997,75 +981,7 @@ describe("a disagreement", () => {
 	});
 });
 
-/** A label set in a column: its box, its leader, and the leader's part carried on to the backbone. */
-interface Outside {
-	readonly box: Box;
-	readonly leader: Line;
-	readonly inward: Line | null;
-}
-
-/** Each label in a column, read from the shapes that draw it: its leaders, then its box or text. */
-function labelsOf(scene: Scene): Outside[] {
-	const found: { lines: Line[]; parts: (Rect | Text)[] }[] = [];
-	let open = false;
-	for (const shape of scene.shapes) {
-		const last = found[found.length - 1];
-		if (shape.shape === "line" && shape.stroke === "#7f7f7f") {
-			if (open && last.parts.length === 0) last.lines.push(shape);
-			else found.push({ lines: [shape], parts: [] });
-			open = true;
-		} else if (
-			open &&
-			(shape.shape === "rect" ||
-				(shape.shape === "text" && shape.size === 11.5 && !shape.rotate))
-		) {
-			last.parts.push(shape);
-		} else open = false;
-	}
-	return found.map(({ lines, parts }) => ({
-		box: labelBox(parts),
-		leader: lines[lines.length - 1],
-		inward: lines.length > 1 ? lines[0] : null,
-	}));
-}
-
-/** A label's box: its rectangle, or its text with 3 points either side and 1 above and below. */
-function labelBox(parts: readonly (Rect | Text)[]): Box {
-	const [first] = parts;
-	if (first.shape === "rect") return first;
-	const last = parts[parts.length - 1] as Text;
-	const tall = height("sans", 11.5) + 2;
-	const x = first.x - 3;
-	const middle = first.y - baseline("sans", 11.5, 0);
-	return {
-		x,
-		y: middle - tall / 2,
-		width: last.x + measure(last.text, last.face, 11.5) + 3 - x,
-		height: tall,
-	};
-}
-
-/** `line` as a segment from one end to the other. */
-function segment({ x1, y1, x2, y2 }: Line): Segment {
-	return [
-		{ x: x1, y: y1 },
-		{ x: x2, y: y2 },
-	];
-}
-
-const RECORDS = import.meta.glob("../records/*.json", {
-	eager: true,
-	import: "default",
-}) as { [path: string]: RecordFile };
-
-type RecordFile = Parameters<typeof check>[0] & {
-	readonly circular: boolean;
-	readonly cuts?: readonly { enzyme: string }[];
-};
-
-const CIRCULAR = Object.entries(RECORDS)
-	.filter(([, file]) => file.circular)
-	.map(([path, file]) => [path.slice("../records/".length, -5), file] as const);
+const CIRCULAR = RECORDS.filter(([, file]) => file.circular);
 
 /** Each kind's place in the order labels hide. */
 const HIDING = [
@@ -1111,10 +1027,7 @@ function before(a: number[], b: number[]): boolean {
 }
 
 describe.each(CIRCULAR)("%s drawn whole", (_, file) => {
-	describe.each([
-		["the unique cutters", {}],
-		["every enzyme", { enzymes: enzymesOf(file) }],
-	])("with %s", (__, given) => {
+	describe.each(enzymeChoices(file))("with %s", (__, given) => {
 		describe.each([0, 100, 250])("turned %i degrees", (rotation) => {
 			const record = check(file);
 			const options = checkOptions(given, record);
@@ -1149,28 +1062,28 @@ describe.each(CIRCULAR)("%s drawn whole", (_, file) => {
 			});
 
 			test("no two labels overlap, and none overlaps the drawing", () => {
-				const pairs = boxes.flatMap((one, k) =>
-					boxes.slice(k + 1).filter((other) => overlap(one, other)),
-				);
-				expect(pairs).toEqual([]);
+				expect(overlapping(scene)).toEqual([]);
 				for (const box of boxes)
 					expect(nearestToCentre(box)).toBeGreaterThanOrEqual(drawing);
 			});
 
 			test("no leader enters the drawing or crosses another label", () => {
-				for (const { leader, inward, box } of placed) {
+				for (const { leader, toBackbone } of placed) {
 					expect(closestToCentre(segment(leader))).toBeGreaterThanOrEqual(
 						drawing - TOUCH,
 					);
-					if (inward) {
-						expect(closestToCentre(segment(inward))).toBeCloseTo(backbone, 9);
-						expect([inward.x2, inward.y2]).toEqual([leader.x1, leader.y1]);
+					if (toBackbone) {
+						expect(closestToCentre(segment(toBackbone))).toBeCloseTo(
+							backbone,
+							9,
+						);
+						expect([toBackbone.x2, toBackbone.y2]).toEqual([
+							leader.x1,
+							leader.y1,
+						]);
 					}
-					const others = boxes.filter((other) => other !== box);
-					expect(
-						others.filter((other) => crosses(segment(leader), other)),
-					).toEqual([]);
 				}
+				expect(crossing(scene)).toEqual([]);
 			});
 
 			test("every label lies within 390 points above and below the centre", () => {
