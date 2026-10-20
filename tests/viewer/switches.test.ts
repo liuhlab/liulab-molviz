@@ -226,7 +226,7 @@ describe("Both strands", () => {
 	 * The sequence view's drawing in `frame`, and whether what it draws with both strands and
 	 * what it draws with the top one alone shows.
 	 */
-	const view = (frame: Frame) => {
+	const sequence = (frame: Frame) => {
 		// happy-dom keeps an element's computed style when an ancestor's class changes; a copy's
 		// is fresh.
 		const copy = frame.pane.cloneNode(true) as HTMLElement;
@@ -248,32 +248,32 @@ describe("Both strands", () => {
 		const frame = opened(record, { sequence_view: true, bottom_strand: false });
 		expect(frame.state.options.bottom_strand).toBe(false);
 		expect(input(frame, "both").checked).toBe(false);
-		expect(view(frame)).toMatchObject(one);
+		expect(sequence(frame)).toMatchObject(one);
 	});
 
 	test("shows and hides the bottom strand, laying nothing out again", () => {
 		const frame = opened(record, { sequence_view: true });
-		const before = view(frame);
+		const before = sequence(frame);
 		const map = frame.box.querySelector("svg");
 		expect(before).toMatchObject(two);
 		input(frame, "both").click();
 		expect(frame.state.options.bottom_strand).toBe(false);
-		expect(view(frame)).toMatchObject({ ...one, svg: before.svg });
+		expect(sequence(frame)).toMatchObject({ ...one, svg: before.svg });
 		expect(frame.box.querySelector("svg")).toBe(map);
 		input(frame, "both").click();
 		expect(frame.state.options.bottom_strand).toBe(true);
-		expect(view(frame)).toMatchObject(two);
+		expect(sequence(frame)).toMatchObject(two);
 	});
 
 	test("is left out of what lays the view out again, which keeps it", () => {
 		const frame = opened(record, { sequence_view: true });
-		const before = view(frame).svg;
+		const before = sequence(frame).svg;
 		input(frame, "both").click();
 		input(frame, "line").click();
-		expect(view(frame).svg).toBe(before);
+		expect(sequence(frame).svg).toBe(before);
 		input(frame, "features").click();
-		expect(view(frame).svg).not.toBe(before);
-		expect(view(frame)).toMatchObject(one);
+		expect(sequence(frame).svg).not.toBe(before);
+		expect(sequence(frame)).toMatchObject(one);
 	});
 
 	test("sits first in the sequence view's bar, hidden with it", () => {

@@ -101,8 +101,8 @@ test("a drag across the map of a page the Python package writes selects the base
 		map.dispatchEvent(new PointerEvent("pointerup", { ...press, ...at(59) }));
 		const said = document.querySelector("#drawing .sequence > .bar output");
 		expect(said?.textContent).toBe("11 .. 60 (50 bp)");
-		const view = document.querySelector("#drawing .sequence svg");
-		expect(view?.querySelectorAll("rect[fill='#bbddf5']")).toHaveLength(1);
+		const sequence = document.querySelector("#drawing .sequence svg");
+		expect(sequence?.querySelectorAll("rect[fill='#bbddf5']")).toHaveLength(1);
 	} finally {
 		vi.unstubAllGlobals();
 	}

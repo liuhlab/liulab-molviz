@@ -110,7 +110,7 @@ function onBases(
 /**
  * Lay `frame`'s pane out as a browser would: `height` CSS pixels tall with its top at the client
  * y `at`, its bar `bar` of them, the view's points one pixel each from the bar's foot down,
- * scrolled by the pane. Returns the client y of a point of the view.
+ * scrolled by the pane. Returns the client y of a point of the sequence view.
  */
 function laidOutPane(
 	frame: Frame,

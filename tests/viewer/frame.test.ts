@@ -202,12 +202,12 @@ describe("the sequence view's switch", () => {
 
 	test("leaves the view as it is drawn when only the map changes", () => {
 		const frame = opened(circular, { sequence_view: true });
-		const view = frame.pane.querySelector("svg");
-		expect(view).not.toBeNull();
+		const sequence = frame.pane.querySelector("svg");
+		expect(sequence).not.toBeNull();
 		input(frame, "line").click();
 		frame.shown().zoom = 2;
 		frame.redraw();
-		expect(frame.pane.querySelector("svg")).toBe(view);
+		expect(frame.pane.querySelector("svg")).toBe(sequence);
 	});
 });
 
@@ -256,21 +256,21 @@ function widthsOf(record: unknown, options: unknown = {}) {
 			page: true,
 		},
 	);
-	const view = (perRow: number) =>
+	const sequence = (perRow: number) =>
 		layoutSequence(checked, { ...all, bases_per_row: perRow }).extent.width;
 	return {
 		map: layoutMap(checked, all).extent.width,
-		full: view(all.bases_per_row),
-		half: view(Math.ceil(all.bases_per_row / 2)),
+		full: sequence(all.bases_per_row),
+		half: sequence(Math.ceil(all.bases_per_row / 2)),
 	};
 }
 
 /** How far `frame`'s pane scrolls to show the row holding `base` at its top, at `scale`. */
 function scrollFor(frame: Frame, base: number, scale = 1): number {
-	const view = frame.sequence();
-	const row = view && rowHolding(view.rows, base);
-	if (!view || !row) throw new Error(`no row holds ${base}`);
-	const [, top] = (view.svg.getAttribute("viewBox") ?? "").split(" ");
+	const sequence = frame.sequence();
+	const row = sequence && rowHolding(sequence.rows, base);
+	if (!sequence || !row) throw new Error(`no row holds ${base}`);
+	const [, top] = (sequence.svg.getAttribute("viewBox") ?? "").split(" ");
 	return (row.y - Number(top)) * scale;
 }
 

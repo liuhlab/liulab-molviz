@@ -200,11 +200,11 @@ describe("the circle", () => {
 });
 
 describe("the sequence view's rows", () => {
-	const view = layoutSequence(
+	const sequence = layoutSequence(
 		colourTest,
 		checkOptions({ ...ACROSS, sequence_view: true }, colourTest),
 	);
-	const { rows } = view;
+	const { rows } = sequence;
 	const middle = ([top, bottom]: readonly [number, number]) =>
 		(top + bottom) / 2;
 
@@ -214,10 +214,10 @@ describe("the sequence view's rows", () => {
 			[2660, 2720],
 			[2720, 2750],
 		]);
-		const strands = view.shapes
+		const strands = sequence.shapes
 			.filter((s): s is Text => s.shape === "text" && s.face === "mono")
 			.sort((a, b) => a.y - b.y);
-		const rails = view.shapes
+		const rails = sequence.shapes
 			.filter((s): s is Line => s.shape === "line" && s.strokeWidth === 1.6)
 			.sort((a, b) => a.y1 - b.y1);
 		for (const [i, row] of rows.entries()) {

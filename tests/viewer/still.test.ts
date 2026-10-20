@@ -229,19 +229,19 @@ describe("the still SVG of a record with its sequence view", () => {
 	const [ground, ...still] = [...held.children[0].children];
 	const [, ...mapShapes] = [...map.children];
 	// What a live view draws in place of a shape while the bottom strand hides is the page's alone.
-	const viewShapes = [...sequence.children]
+	const sequenceShapes = [...sequence.children]
 		.slice(1)
 		.filter((shape) => !shape.classList.contains("molviz-top"));
 
 	test("is the live map, then the live sequence view moved under it", () => {
 		expect(ground.tagName.toLowerCase()).toBe("rect");
-		expect(still).toHaveLength(mapShapes.length + viewShapes.length);
+		expect(still).toHaveLength(mapShapes.length + sequenceShapes.length);
 		mapShapes.forEach((shape, i) => {
 			expect(withoutHovers(still[i].outerHTML)).toBe(
 				withoutHovers(shape.outerHTML),
 			);
 		});
-		viewShapes.forEach((shape, i) => {
+		sequenceShapes.forEach((shape, i) => {
 			const ours = still[mapShapes.length + i];
 			expect(ours.tagName).toBe(shape.tagName);
 			expect(ours.textContent).toBe(shape.textContent);
@@ -260,7 +260,7 @@ describe("the still SVG of a record with its sequence view", () => {
 	});
 
 	test("sets its letters as the live view does, every text moved by one step", () => {
-		const texts = viewShapes.flatMap((shape, i) =>
+		const texts = sequenceShapes.flatMap((shape, i) =>
 			shape.tagName.toLowerCase() === "text"
 				? [[still[mapShapes.length + i], shape] as const]
 				: [],
