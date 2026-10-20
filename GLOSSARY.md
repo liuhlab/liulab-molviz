@@ -81,6 +81,13 @@ A point between two bases where bases are added, with how many.
 
 The names a drawing lights. Everything else is dimmed to one grey, and nothing moves.
 
+### Selection
+
+The bases a reader picks on a page, by clicking an item or dragging across a view, lit in every
+view at once. Picking a cut site selects the bases its enzyme recognises; picking an insertion
+selects its point. A selection lives only on a page; a file never holds one.
+_Avoid_: highlight, which the caller sets
+
 ### Hidden-label notice
 
 The count, by kind, of the labels left out because they would overlap. Hovering it lists them.
