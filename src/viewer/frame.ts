@@ -4,35 +4,35 @@
  * change that lays nothing out.
  */
 
-import { type Arrangement, arrange } from "./arrange";
 import { aroundBoxes } from "./bounds";
 import { layoutMap } from "./drawing";
-import { type MapGeometry, rowHolding } from "./geometry";
+import type { MapGeometry } from "./geometry";
 import { hoverBox } from "./hover";
 import type { MapScene } from "./labels";
 import type { Options } from "./options";
-import { GROUND, INK, LEADER, SELECTED, SELECTED_WIDTH } from "./paint";
+import {
+	GROUND,
+	INK,
+	LEADER,
+	SELECTED_OUTLINE,
+	SELECTED_OUTLINE_WIDTH,
+} from "./paint";
+import {
+	BESIDE,
+	type ClientPoint,
+	ONE_STRAND,
+	openPane,
+	type SequenceShown,
+	VIEWS_APART,
+} from "./pane";
 import type { Record } from "./record";
 import type { Box, Scene } from "./scene";
 import type { Selection } from "./selection";
-import { layoutSequence, type RowBox, type SequenceScene } from "./sequence";
-import { BOTH_STRANDS, TOP_STRAND, toElement } from "./svg";
+import { BOTH_STRANDS, ITEM, SELECTED, TOP_STRAND, toElement } from "./svg";
 import { families } from "./text";
 
 /** The style element holding the frames' rules, shared by every frame on a page. */
 const STYLE_ID = "molviz-frame";
-
-/** The class of a pane showing the top strand alone. */
-const ONE_STRAND = "one-strand";
-
-/** The room between a map and the sequence view beside it, in CSS pixels. */
-export const GAP = 24;
-
-/** The class of a frame showing the sequence view beside its map. */
-const BESIDE = "beside";
-
-/** How a frame prints, and opens before its page is laid out. */
-const UNDER: Arrangement = { place: "under", rows: "full", scale: 1 };
 
 type MapName = Options["map"];
 
@@ -64,12 +64,6 @@ export interface MapShown {
 	readonly geometry: MapGeometry;
 }
 
-/** The sequence view as a frame shows it: its drawing on the page, and its rows. */
-export interface SequenceShown {
-	readonly svg: SVGSVGElement;
-	readonly rows: readonly RowBox[];
-}
-
 /** A record drawn in a frame on a page, for its controls to change. */
 export interface Frame {
 	readonly record: Record;
@@ -90,6 +84,10 @@ export interface Frame {
 	map(): MapShown;
 	/** The sequence view as shown, or null while it is off or absent. */
 	sequence(): SequenceShown | null;
+	/** The base of the sequence view at `at`, or with `near` the nearest; null off its strands. */
+	sequenceBase(at: ClientPoint, near?: boolean): number | null;
+	/** Show both strands of the sequence view, or the top one alone, as the options say. */
+	showStrands(): void;
 	/**
 	 * Lay out again what the state changed and swap it in, returning the map. The map flipped
 	 * from keeps its scroll, and the one flipped to gets its own back. With `hold`, as a circle
@@ -249,11 +247,7 @@ export function openFrame(
 	const bar = make("form", "bar");
 	bar.autocomplete = "off";
 	const box = make("div", "map");
-	const pane = make("div", "sequence");
-	const paneBar = make("form", "bar");
-	paneBar.autocomplete = "off";
-	pane.append(paneBar);
-	root.append(bar, box, pane);
+	root.append(bar, box);
 	element.append(root);
 
 	const state: FrameState = {
@@ -261,6 +255,8 @@ export function openFrame(
 		maps: { circle: opening(), line: opening() },
 		selection: null,
 	};
+	const pane = openPane(root, record, () => state.options);
+	root.append(pane.element);
 	const listeners: (() => void)[] = [];
 	const changed = () => {
 		for (const listener of listeners) listener();
@@ -277,115 +273,23 @@ export function openFrame(
 		svg: SVGSVGElement;
 		geometry: MapGeometry;
 	} | null = null;
-	let sequenceDrawn: SequenceDrawn | null = null;
 	/** The box a turning circle keeps, until a redraw without `hold`. */
 	let held: Scene["extent"] | null = null;
-	/** Where the view sits, and how wide its rows lay out for the options it last read. */
-	let arranged = UNDER;
-	let widths: { for: string; full?: number; half?: number } = { for: "" };
 	let printing = false;
-	/** The first base of the pane's top row, as the reader's scrolling last left it. */
-	let heading: number | null = null;
 
-	/** How wide the pane's scroll bar is, where it takes room. */
-	const gutter = () => pane.offsetWidth - pane.clientWidth;
-	/** The room the map has, in CSS pixels: the frame's, less a view's beside it. */
-	const mapRoom = () =>
-		arranged.place === "beside" && sequenceDrawn !== null
-			? root.clientWidth -
-				GAP -
-				sequenceDrawn.extent.width * arranged.scale -
-				gutter()
-			: root.clientWidth;
 	/** The scale a map shows at: its size at 1× fitted to its room. */
 	const scaleOf = ({ name, extent }: NonNullable<typeof shown>) =>
-		displayScale((sizes.get(name)?.extent ?? extent).width, mapRoom());
-
-	/** The top row in sight: the first whose rail lies below the pane's bar. */
-	const topRow = (): RowBox | null => {
-		if (sequenceDrawn === null) return null;
-		const { rows, extent } = sequenceDrawn;
-		// The bar is stuck at the pane's top, over the drawing's first `scrollTop` pixels.
-		const y = extent.y + pane.scrollTop / arranged.scale;
-		return rows.find((row) => row.strands.rail > y) ?? rows.at(-1) ?? null;
-	};
-	/** Scroll the pane so the row holding the heading is its top row, unless it is already. */
-	const keepHeading = () => {
-		const top = topRow();
-		if (heading === null || sequenceDrawn === null || top === null) return;
-		if (top.start <= heading && heading < top.end) return;
-		const { rows, extent } = sequenceDrawn;
-		const row = rowHolding(rows, heading);
-		if (row === null) return;
-		pane.scrollTop = row === rows[0] ? 0 : (row.y - extent.y) * arranged.scale;
-	};
-	pane.addEventListener("scroll", () => {
-		const top = topRow();
-		if (top === null) return;
-		if (heading === null || heading < top.start || top.end <= heading) {
-			heading = top.start;
-		}
-	});
+		displayScale((sizes.get(name)?.extent ?? extent).width, pane.mapRoom());
 
 	/**
-	 * Show the sequence view as the options say, beside the map or under it, with full rows or
-	 * half, as the room allows or as a page prints, laid out again only for other rows or other
-	 * options it reads. With `still`, as a circle turns, it stays where it sits. Returns whether it
-	 * was drawn anew.
+	 * Show the sequence view beside the map shown or under it, as the room allows or a page
+	 * prints. With `still`, as a circle turns, it stays where it sits. Returns whether it was
+	 * drawn anew.
 	 */
 	const arrangeViews = (still = false): boolean => {
-		const { options } = state;
-		pane.hidden = !options.sequence_view;
-		showStrands(pane, options);
-		if (!options.sequence_view || shown === null) {
-			arranged = UNDER;
-			root.classList.remove(BESIDE);
-			return false;
-		}
-		const key = viewKey(options);
-		if (widths.for !== key) widths = { for: key };
-		const laid = new Map<Rows, SequenceScene>();
-		const widthOf = (rows: Rows) => {
-			const known = widths[rows];
-			if (known !== undefined) return known;
-			const scene = paneLayout(record, options, rows);
-			laid.set(rows, scene);
-			widths[rows] = scene.extent.width;
-			return scene.extent.width;
-		};
-		let next = printing ? UNDER : arranged;
-		if (!printing && !still) {
-			const room = root.clientWidth - gutter();
-			const map = (sizes.get(shown.name)?.extent ?? shown.extent).width;
-			const full = widthOf("full");
-			// Told half rows take no room, `arrange` says whether they may; only then are they laid out.
-			next = arrange(room, GAP, { map, full, half: 0 });
-			if (next.rows === "half") {
-				next = arrange(room, GAP, { map, full, half: widthOf("half") });
-			}
-		}
-		const perRow = perRowOf(options, next.rows);
-		const anew = sequenceDrawn?.for !== key || sequenceDrawn.perRow !== perRow;
-		const rescaled = next.scale !== arranged.scale;
-		arranged = next;
-		root.classList.toggle(BESIDE, next.place === "beside");
-		if (anew || sequenceDrawn === null) {
-			const scene =
-				laid.get(next.rows) ?? paneLayout(record, options, next.rows);
-			const svg = toElement(scene, document);
-			if (sequenceDrawn) sequenceDrawn.svg.replaceWith(svg);
-			else pane.append(svg);
-			hoverBox(svg);
-			const { rows, extent } = scene;
-			sequenceDrawn = { for: key, perRow, svg, rows, extent };
-		}
-		const { svg, extent } = sequenceDrawn;
-		const px = (points: number) =>
-			next.scale === 1 ? "" : `${points * next.scale}px`;
-		svg.style.width = px(extent.width);
-		svg.style.height = px(extent.height);
-		if (anew || rescaled) keepHeading();
-		return anew;
+		if (shown === null) return false;
+		const map = (sizes.get(shown.name)?.extent ?? shown.extent).width;
+		return pane.arrange(map, { still, printing });
 	};
 	/** Arrange the views again for the room, as the window's size changes. */
 	const rearrange = () => {
@@ -451,7 +355,7 @@ export function openFrame(
 		return scene;
 	};
 
-	// A print shows the view under the map with full rows, and a zoomed map at 1×; after it the
+	// A print shows the sequence view under the map with full rows, and a zoomed map at 1×; after it the
 	// map gets its zoom and scroll back.
 	let printed: { zoom: number; left: number; top: number } | null = null;
 	const beforePrint = () => {
@@ -483,8 +387,8 @@ export function openFrame(
 		state,
 		bar,
 		box,
-		pane,
-		paneBar,
+		pane: pane.element,
+		paneBar: pane.bar,
 		shown: () => state.maps[state.options.map],
 		drawn: () => {
 			if (shown === null) throw new Error("the frame has drawn no map");
@@ -494,7 +398,12 @@ export function openFrame(
 			if (shown === null) throw new Error("the frame has drawn no map");
 			return { svg: shown.svg, geometry: shown.geometry };
 		},
-		sequence: () => (pane.hidden ? null : sequenceDrawn),
+		sequence: pane.shown,
+		sequenceBase: pane.sequenceBase,
+		showStrands: () => {
+			pane.showStrands();
+			changed();
+		},
 		redraw,
 		reset: () => {
 			Object.assign(state.maps[state.options.map], opening());
@@ -537,51 +446,6 @@ function restOfTurn(
 /** The state a map opens on: at its size, its origin at the top, unscrolled. */
 function opening(): MapState {
 	return { zoom: 1, turn: 0, left: 0, top: 0 };
-}
-
-type Rows = Arrangement["rows"];
-
-/** The sequence view as drawn in a pane: the options it read, and how many bases a row holds. */
-interface SequenceDrawn extends SequenceShown {
-	readonly for: string;
-	readonly perRow: number;
-	readonly extent: Box;
-}
-
-/**
- * Show both strands of the sequence view in a frame's `pane`, or the top one alone, as `options`
- * say. The view is laid out with both, so this lays nothing out again and nothing moves.
- */
-export function showStrands(pane: HTMLElement, options: Options): void {
-	pane.classList.toggle(ONE_STRAND, !options.bottom_strand);
-}
-
-/** What of `options` the sequence view in a pane reads, as text. */
-function viewKey(options: Options): string {
-	return JSON.stringify({
-		...options,
-		bottom_strand: true,
-		map: null,
-		sequence_view: null,
-	});
-}
-
-/** How many bases a row of the view holds, with full `rows` or half. */
-function perRowOf({ bases_per_row }: Options, rows: Rows): number {
-	return rows === "full" ? bases_per_row : Math.ceil(bases_per_row / 2);
-}
-
-/** The sequence view laid out for a pane, with both strands, and with full `rows` or half. */
-function paneLayout(
-	record: Record,
-	options: Options,
-	rows: Rows,
-): SequenceScene {
-	return layoutSequence(record, {
-		...options,
-		bottom_strand: true,
-		bases_per_row: perRowOf(options, rows),
-	});
 }
 
 /** Add the frames' rules to `document`, unless a frame already has. */
@@ -645,7 +509,7 @@ function css(): string {
 	color: inherit; font: inherit; cursor: pointer;
 }
 .molviz.${BESIDE} {
-	display: grid; grid-template-columns: max-content max-content; column-gap: ${GAP}px;
+	display: grid; grid-template-columns: max-content max-content; column-gap: ${VIEWS_APART}px;
 	align-items: start;
 }
 .molviz.${BESIDE} > .bar { grid-column: 1 / -1; }
@@ -656,10 +520,9 @@ function css(): string {
 .molviz .sequence:not(.${ONE_STRAND}) .${TOP_STRAND},
 .molviz .${ONE_STRAND} .${BOTH_STRANDS} { display: none; }
 .molviz svg { display: block; max-width: none; }
-.molviz [data-molviz-item] { cursor: pointer; }
-.molviz path[data-molviz-selected], .molviz rect[data-molviz-selected],
-.molviz line[data-molviz-selected] {
-	stroke: ${SELECTED}; stroke-width: ${SELECTED_WIDTH}px;
+.molviz [${ITEM}] { cursor: pointer; }
+.molviz path[${SELECTED}], .molviz rect[${SELECTED}], .molviz line[${SELECTED}] {
+	stroke: ${SELECTED_OUTLINE}; stroke-width: ${SELECTED_OUTLINE_WIDTH}px;
 }
 @media print {
 	.molviz.${BESIDE} { display: block; }

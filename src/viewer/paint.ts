@@ -180,5 +180,5 @@ export const SHADING_EDGE = "#0077bb";
 export const SHADING_EDGE_WIDTH = 1;
 
 /** The outline of an item a reader selected, on a page. */
-export const SELECTED = SHADING_EDGE;
-export const SELECTED_WIDTH = 1.6;
+export const SELECTED_OUTLINE = SHADING_EDGE;
+export const SELECTED_OUTLINE_WIDTH = 1.6;

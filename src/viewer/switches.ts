@@ -5,7 +5,7 @@
 
 import { byName, cutCounts } from "./cuts";
 import { folded } from "./format";
-import { type Frame, fieldset, showStrands } from "./frame";
+import { type Frame, fieldset } from "./frame";
 import { KINDS, type Kind } from "./labels";
 import { LIMIT, type Options } from "./options";
 
@@ -155,7 +155,7 @@ function viewSwitches({
  * sets the options and shows or hides the bottom strand, laying nothing out again.
  */
 function strandSwitch(frame: Frame): HTMLLabelElement {
-	const { bar, pane, state } = frame;
+	const { bar, state } = frame;
 	const label = labelled(
 		bar.ownerDocument,
 		"checkbox",
@@ -170,8 +170,7 @@ function strandSwitch(frame: Frame): HTMLLabelElement {
 			...frame.state.options,
 			bottom_strand: input.checked,
 		};
-		showStrands(pane, frame.state.options);
-		frame.changed();
+		frame.showStrands();
 	});
 	return label;
 }

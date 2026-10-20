@@ -36,6 +36,10 @@ type Attributes = readonly (readonly [name: string, value: string])[];
 export const BOTH_STRANDS = "molviz-both";
 export const TOP_STRAND = "molviz-top";
 
+/** The attribute a live page names the item a shape draws by, and the one outlining it selected. */
+export const ITEM = "data-molviz-item";
+export const SELECTED = "data-molviz-selected";
+
 /**
  * One SVG element: its tag, its attributes in the order they are written, its text or the
  * elements inside it, and the text of its `<title>`.
@@ -76,6 +80,22 @@ export function toElement(
 	for (const [name, value] of root) svg.setAttribute(name, value);
 	svg.append(...children.map((tag) => element(tag, document)));
 	return svg;
+}
+
+/**
+ * The point of `svg`'s drawing at a place on the page, in points; null where the drawing has no
+ * place on the page.
+ */
+export function inPoints(
+	svg: SVGSVGElement,
+	{ clientX, clientY }: { readonly clientX: number; readonly clientY: number },
+): [number, number] | null {
+	const m = svg.getScreenCTM()?.inverse();
+	if (!m) return null;
+	return [
+		m.a * clientX + m.c * clientY + m.e,
+		m.b * clientX + m.d * clientY + m.f,
+	];
 }
 
 /** `shapes` as elements of `document`, written as `toElement` writes them in its `<svg>`. */
@@ -129,7 +149,7 @@ function tags(
 				...drawn,
 				attributes: [
 					...drawn.attributes,
-					...(item ? [["data-molviz-item", item] as const] : []),
+					...(item ? [[ITEM, item] as const] : []),
 					...(strands ? [["class", strands] as const] : []),
 				],
 				title: shape.tip ?? shape.title,
@@ -171,8 +191,11 @@ function tags(
 function byStrands(shape: Shape): (readonly [Shape, string | null])[] {
 	const { rail } = shape;
 	if (rail === undefined) return [[shape, null]];
-	const cut = above(shape, rail);
-	return [[shape, BOTH_STRANDS], ...(cut ? [[cut, TOP_STRAND] as const] : [])];
+	const upper = above(shape, rail);
+	return [
+		[shape, BOTH_STRANDS],
+		...(upper ? [[upper, TOP_STRAND] as const] : []),
+	];
 }
 
 /** The part above the height `rail` of a line or rect across it; null for any other shape. */

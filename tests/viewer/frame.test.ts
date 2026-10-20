@@ -7,11 +7,11 @@ import {
 	beforePaint,
 	displayScale,
 	type Frame,
-	GAP,
 	openFrame,
 } from "../../src/viewer/frame";
 import { rowHolding } from "../../src/viewer/geometry";
 import { checkOptions } from "../../src/viewer/options";
+import { VIEWS_APART } from "../../src/viewer/pane";
 import { check } from "../../src/viewer/record";
 import { layoutSequence } from "../../src/viewer/sequence";
 import {
@@ -310,18 +310,18 @@ describe("where the sequence view sits", () => {
 	test("beside the map with full rows when both fit at full size, else beside with half rows", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { map, full, half } = widthsOf(long);
-		resized(frame, map + GAP + full);
+		resized(frame, map + VIEWS_APART + full);
 		expect(arrangement(frame)).toEqual({ beside: true, perRow: 60 });
-		resized(frame, map + GAP + full - 1);
+		resized(frame, map + VIEWS_APART + full - 1);
 		expect(arrangement(frame)).toEqual({ beside: true, perRow: 30 });
-		resized(frame, map + GAP + half);
+		resized(frame, map + VIEWS_APART + half);
 		expect(arrangement(frame)).toEqual({ beside: true, perRow: 30 });
 	});
 
 	test("under the map with full rows once half rows do not fit beside, else with half rows", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { map, full, half } = widthsOf(long);
-		resized(frame, map + GAP + half - 1);
+		resized(frame, map + VIEWS_APART + half - 1);
 		expect(arrangement(frame)).toEqual({ beside: false, perRow: 60 });
 		resized(frame, full);
 		expect(arrangement(frame)).toEqual({ beside: false, perRow: 60 });
@@ -351,14 +351,14 @@ describe("where the sequence view sits", () => {
 		const options = { sequence_view: true, bases_per_row: 61 };
 		const frame = opened(long, options);
 		const { map, full, half } = widthsOf(long, options);
-		resized(frame, map + GAP + full);
+		resized(frame, map + VIEWS_APART + full);
 		scrolled(frame, scrollFor(frame, 122) + 5);
-		resized(frame, map + GAP + half);
+		resized(frame, map + VIEWS_APART + half);
 		expect(arrangement(frame).perRow).toBe(31);
 		// The half row holding 122 starts at 93; full rows come back to 122's, not 93's.
 		expect(frame.pane.scrollTop).toBe(scrollFor(frame, 122));
 		frame.pane.dispatchEvent(new Event("scroll"));
-		resized(frame, map + GAP + full);
+		resized(frame, map + VIEWS_APART + full);
 		expect(frame.pane.scrollTop).toBe(scrollFor(frame, 122));
 		resized(frame, half / 2);
 		expect(frame.pane.scrollTop).toBeCloseTo(scrollFor(frame, 122, 0.5), 6);
@@ -369,14 +369,14 @@ describe("where the sequence view sits", () => {
 	test("keeping the selection across full rows and half, in the drawing shown", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { map, full, half } = widthsOf(long);
-		resized(frame, map + GAP + full);
+		resized(frame, map + VIEWS_APART + full);
 		const lacZ = frame.box.querySelector("[data-molviz-item]");
 		if (!lacZ) throw new Error("no item on the map");
 		click(lacZ);
 		const shaded = () =>
 			frame.sequence()?.svg.querySelectorAll("rect[fill='#bbddf5']").length;
 		expect(shaded()).toBe(1);
-		resized(frame, map + GAP + half);
+		resized(frame, map + VIEWS_APART + half);
 		const svg = frame.pane.querySelector("svg");
 		expect(frame.sequence()?.svg).toBe(svg);
 		expect(shaded()).toBe(2);
@@ -393,7 +393,7 @@ describe("where the sequence view sits", () => {
 		const circle = widthsOf({ ...long, circular: true });
 		const line = widthsOf({ ...long, circular: true }, { map: "line" });
 		expect(line.map).toBeGreaterThan(circle.map);
-		resized(frame, circle.map + GAP + circle.full);
+		resized(frame, circle.map + VIEWS_APART + circle.full);
 		expect(arrangement(frame)).toEqual({ beside: true, perRow: 60 });
 		input(frame, "line").click();
 		expect(arrangement(frame)).toEqual({ beside: true, perRow: 30 });
@@ -476,7 +476,7 @@ describe("printing", () => {
 	test("lays the view out under the map, with full rows at full size and the selection, then back", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { map, half } = widthsOf(long);
-		resized(frame, map + GAP + half);
+		resized(frame, map + VIEWS_APART + half);
 		const lacZ = frame.box.querySelector("[data-molviz-item]");
 		if (!lacZ) throw new Error("no item on the map");
 		click(lacZ);

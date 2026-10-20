@@ -1,40 +1,23 @@
 /** A frame's views linked: what the reader selects in either is drawn in both. */
 
 import { aroundBoxes, boxOf } from "./bounds";
-import { type Frame, fieldset } from "./frame";
-import {
-	circleBase,
-	circleShading,
-	lineBase,
-	lineShading,
-	type MapGeometry,
-	rowBase,
-	rowHolding,
-	rowShading,
-} from "./geometry";
-import { hoverBox } from "./hover";
+import type { Frame } from "./frame";
+import { onMap, rowHolding, rowShading } from "./geometry";
+import type { ClientPoint } from "./pane";
 import { turns } from "./pieces";
-import { type Bounds, recordBounds, type Span } from "./record";
+import { type Bounds, recordBounds } from "./record";
 import type { Shape } from "./scene";
 import {
-	caption,
-	captionRoom,
 	clicked,
-	copied,
 	type Drag,
 	dragFrom,
 	dragged,
 	dragTo,
 	itemSelection,
 	type Selection,
-	turnTo,
 } from "./selection";
 import type { RowBox } from "./sequence";
-import { shapeElements } from "./svg";
-
-/** The attribute naming the item a shape draws, and the one outlining a selected item's shapes. */
-const ITEM = "data-molviz-item";
-const SELECTED = "data-molviz-selected";
+import { ITEM, inPoints, SELECTED, shapeElements } from "./svg";
 
 /** How far, in CSS pixels, a press may move and still be a click. */
 const CLICK = 4;
@@ -49,69 +32,18 @@ const layers = new WeakMap<SVGSVGElement, SVGGElement>();
 const outlines = new WeakMap<SVGSVGElement, string | null>();
 
 /**
- * For each page, the frame selected in last, whose bases a copy by the keys takes, and whether its
- * Copy button is copying.
- */
-const copying = new WeakMap<
-	Document,
-	{ frame: Frame | null; button: boolean }
->();
-
-/**
  * Select in `frame`'s views: an item by clicking it in either, bases by dragging across the map or
- * across the bases. The selection is said in a caption with Copy, in the pane's bar, or in the
- * frame's bar after Reset while the view does not show.
+ * across the bases.
  */
 export function addLinks(frame: Frame): void {
-	const { record, state, bar, box, pane, paneBar } = frame;
+	const { record, state, box, pane, paneBar } = frame;
 	const bounds = recordBounds(record);
-	const document = pane.ownerDocument;
-	const window = document.defaultView;
-	const copier = copyKeys(document);
+	const window = pane.ownerDocument.defaultView;
 	const select = (selection: Selection | null) => {
 		if (JSON.stringify(selection) === JSON.stringify(state.selection)) return;
 		state.selection = selection;
-		if (selection) copier.frame = frame;
 		frame.changed();
 	};
-
-	const output = document.createElement("output");
-	const copy = document.createElement("button");
-	copy.type = "button";
-	copy.textContent = "Copy";
-	output.style.minWidth = `${captionRoom(record)}ch`;
-	const said = fieldset(document, "Selection", [output, copy], "selection");
-	/**
-	 * Say the selection, in the pane's bar while the view shows, else in the frame's. What says
-	 * nothing hides with its room kept, so that nothing moves.
-	 */
-	const say = () => {
-		const { selection } = state;
-		const room = (element: HTMLElement, shown: unknown) => {
-			element.style.visibility = shown ? "" : "hidden";
-		};
-		room(said, selection);
-		output.textContent = selection ? caption(selection, bounds) : "";
-		room(copy, selection && "spans" in selection);
-		const home = frame.sequence()
-			? paneBar
-			: (bar.querySelector(".end") ?? bar);
-		if (said.parentElement !== home) home.append(said);
-	};
-	copy.addEventListener("click", () => {
-		const text = state.selection ? copied(state.selection, record.bases) : "";
-		if (!text) return;
-		copier.frame = frame;
-		// Without the clipboard, as on a page not served securely, the copy event takes it.
-		const byEvent = () => {
-			copier.button = true;
-			document.execCommand?.("copy");
-			copier.button = false;
-		};
-		const clipboard = window?.navigator.clipboard;
-		if (clipboard) clipboard.writeText(text).catch(byEvent);
-		else byEvent();
-	});
 
 	/**
 	 * The press under way: where it began, on what item, and the drag it became on the map, or
@@ -129,42 +61,11 @@ export function addLinks(frame: Frame): void {
 	const mapBase = (event: PointerEvent): number | null => {
 		const { svg, geometry } = frame.map();
 		const point = inPoints(svg, event);
-		if (point === null) return null;
-		const [x, y] = point;
-		return geometry.map === "line"
-			? lineBase(geometry, x)
-			: circleBase(geometry, x, y);
+		return point === null ? null : onMap(geometry).base(...point);
 	};
 
-	/** The base of the sequence view under `event`, or with `near` the nearest; null off it. */
-	const viewBase = (
-		event: Pick<PointerEvent, "clientX" | "clientY">,
-		near = false,
-	): number | null => {
-		const view = frame.sequence();
-		const point = view && inPoints(view.svg, event);
-		if (!view || !point) return null;
-		const bottom = state.options.bottom_strand;
-		return rowBase(view.rows, point[0], point[1], { near, bottom });
-	};
-
-	/** What the hover box says over a base of the view: its position. */
-	const resolve = (event: PointerEvent) => {
-		const base = viewBase(event);
-		return base === null ? null : `position ${(base % bounds.length) + 1}`;
-	};
-	let resolved: SVGSVGElement | null = null;
-	const redrawn = () => {
-		show(frame, bounds);
-		say();
-		const view = frame.sequence();
-		if (view && view.svg !== resolved) {
-			hoverBox(view.svg, resolve);
-			resolved = view.svg;
-		}
-	};
-	frame.onChange(redrawn);
-	redrawn();
+	frame.onChange(() => show(frame, bounds));
+	show(frame, bounds);
 
 	/**
 	 * The pane in sight, in client pixels, from its bar's foot to its own, within the window; null
@@ -181,7 +82,7 @@ export function addLinks(frame: Frame): void {
 	};
 
 	/** Where the pointer was last in a drag across bases, and the frame scrolling the pane. */
-	let pointer: Pick<PointerEvent, "clientX" | "clientY"> | null = null;
+	let pointer: ClientPoint | null = null;
 	let gliding = 0;
 
 	/** Take a drag across bases on to the base in sight nearest the pointer. */
@@ -191,7 +92,10 @@ export function addLinks(frame: Frame): void {
 		const clientY = seen
 			? Math.min(Math.max(pointer.clientY, seen.top), seen.bottom)
 			: pointer.clientY;
-		const base = viewBase({ clientX: pointer.clientX, clientY }, true);
+		const base = frame.sequenceBase(
+			{ clientX: pointer.clientX, clientY },
+			true,
+		);
 		if (base === null) return;
 		press.bases = dragTo(press.bases, base);
 		select(dragged(press.bases, bounds));
@@ -221,10 +125,11 @@ export function addLinks(frame: Frame): void {
 	};
 	/** Scroll the pane so the row holding the selection's start sits at its top, under its bar. */
 	const toRow = () => {
-		const view = frame.sequence();
+		const sequence = frame.sequence();
 		const { selection } = state;
-		const row = view && selection && rowOf(view.rows, selection, bounds);
-		const ctm = view?.svg.getScreenCTM();
+		const row =
+			sequence && selection && rowOf(sequence.rows, selection, bounds);
+		const ctm = sequence?.svg.getScreenCTM();
 		if (!row || !ctm) return;
 		const top = ctm.b * row.x + ctm.d * row.y + ctm.f;
 		const under = Math.max(
@@ -248,9 +153,9 @@ export function addLinks(frame: Frame): void {
 							end: Math.max(selection.at, 1),
 						},
 					];
-		const { geometry } = frame.map();
+		const on = onMap(frame.map().geometry);
 		const boxes = spans
-			.flatMap((span) => mapShading(geometry, bounds, span))
+			.flatMap((span) => on.shading(bounds, span))
 			.flatMap((shape) => boxOf(shape) ?? []);
 		if (!boxes.length) return;
 		const area = aroundBoxes(boxes);
@@ -277,13 +182,14 @@ export function addLinks(frame: Frame): void {
 			const svg = drawingUnder(event);
 			if (!pointing(event) || svg === null) return;
 			const item = itemUnder(event);
-			const onMap = view === box ? mapBase(event) : null;
-			const onBase = view === pane && item === null ? viewBase(event) : null;
+			const onMapBase = view === box ? mapBase(event) : null;
+			const onBase =
+				view === pane && item === null ? frame.sequenceBase(event) : null;
 			press = {
 				x: event.clientX,
 				y: event.clientY,
 				item,
-				map: onMap === null ? null : { base: onMap, drag: null },
+				map: onMapBase === null ? null : { base: onMapBase, drag: null },
 				bases: onBase === null ? null : dragFrom(onBase),
 			};
 			svg.setPointerCapture(event.pointerId);
@@ -303,16 +209,12 @@ export function addLinks(frame: Frame): void {
 			const map = press?.map;
 			if (!press || !map) return;
 			if (map.drag === null) {
-				if (!moved(press, event)) return;
+				if (!pastClick(press, event)) return;
 				map.drag = dragFrom(map.base);
 			}
 			const base = mapBase(event);
 			if (base === null) return;
-			const { geometry } = frame.map();
-			map.drag =
-				geometry.map === "line"
-					? dragTo(map.drag, base)
-					: turnTo(map.drag, base, bounds.length);
+			map.drag = onMap(frame.map().geometry).dragTo(map.drag, base);
 			select(dragged(map.drag, bounds));
 		});
 		view.addEventListener("pointerup", (event) => {
@@ -321,7 +223,7 @@ export function addLinks(frame: Frame): void {
 			stop();
 			if (ended === null) return;
 			if (!ended.bases && !ended.map?.drag) {
-				if (moved(ended, event)) return;
+				if (pastClick(ended, event)) return;
 				const { item } = ended;
 				const picked =
 					item === null
@@ -344,49 +246,11 @@ export function addLinks(frame: Frame): void {
 }
 
 /** Whether the pointer at `event` has gone farther from `press` than a click may. */
-function moved(
+function pastClick(
 	press: { readonly x: number; readonly y: number },
 	event: PointerEvent,
 ): boolean {
 	return Math.hypot(event.clientX - press.x, event.clientY - press.y) > CLICK;
-}
-
-/** The point of `svg`'s drawing under `event`, in points; null where it has no place on the page. */
-function inPoints(
-	svg: SVGSVGElement,
-	{ clientX, clientY }: Pick<PointerEvent, "clientX" | "clientY">,
-): [number, number] | null {
-	const m = svg.getScreenCTM()?.inverse();
-	if (!m) return null;
-	return [
-		m.a * clientX + m.c * clientY + m.e,
-		m.b * clientX + m.d * clientY + m.f,
-	];
-}
-
-/**
- * Let a copy by the keys or the Edit menu on `document` take the bases of the frame selected in
- * last, unless the page has text selected and its Copy button is not copying. Returns what the
- * copy reads, for each frame to set.
- */
-function copyKeys(document: Document): {
-	frame: Frame | null;
-	button: boolean;
-} {
-	const kept = copying.get(document);
-	if (kept) return kept;
-	const copier = { frame: null as Frame | null, button: false };
-	copying.set(document, copier);
-	document.addEventListener("copy", (event) => {
-		const { frame, button } = copier;
-		const selection = frame?.box.isConnected ? frame.state.selection : null;
-		const text = selection ? copied(selection, frame?.record.bases ?? "") : "";
-		if (!text) return;
-		if (!button && document.getSelection()?.isCollapsed === false) return;
-		event.clipboardData?.setData("text/plain", text);
-		event.preventDefault();
-	});
-	return copier;
 }
 
 /** Whether `event` is a press, or a move, of a mouse's main button or a pen; a touch scrolls. */
@@ -415,31 +279,23 @@ function show(frame: Frame, bounds: Bounds): void {
 	const spans = selection && "spans" in selection ? selection.spans : [];
 	const item = selection?.item ?? null;
 	const map = frame.map();
+	const on = onMap(map.geometry);
 	shade(
 		map.svg,
-		spans.flatMap((span) => mapShading(map.geometry, bounds, span)),
+		spans.flatMap((span) => on.shading(bounds, span)),
 	);
 	outline(map.svg, item);
-	const view = frame.sequence();
-	if (view === null) return;
+	const sequence = frame.sequence();
+	if (sequence === null) return;
 	shade(
-		view.svg,
+		sequence.svg,
 		spans.flatMap((span) =>
-			rowShading(view.rows, bounds, span, { bottom: options.bottom_strand }),
+			rowShading(sequence.rows, bounds, span, {
+				bottom: options.bottom_strand,
+			}),
 		),
 	);
-	outline(view.svg, item);
-}
-
-/** `span` shaded on the map that `geometry` sets the bases of. */
-function mapShading(
-	geometry: MapGeometry,
-	bounds: Bounds,
-	span: Span,
-): Shape[] {
-	return geometry.map === "line"
-		? lineShading(geometry, bounds, span)
-		: circleShading(geometry, span);
+	outline(sequence.svg, item);
 }
 
 /**

@@ -1,12 +1,13 @@
 /**
  * Where each view sets the bases, in the points it is laid out in: a position to a point, a point
- * back to the base under it, and a selection shaded.
+ * back to the base under it, a selection shaded, and a drag carried on.
  */
 
 import { SHADING, SHADING_EDGE, SHADING_EDGE_WIDTH } from "./paint";
 import { type Piece, pieces } from "./pieces";
 import type { Bounds, Span } from "./record";
 import type { PathCommand, Shape } from "./scene";
+import { type Drag, dragTo, turnTo } from "./selection";
 import { CELL, type RowBox, type Strands } from "./sequence";
 
 /** Where the line sets the bases, and the highest and lowest its marks reach. */
@@ -49,6 +50,31 @@ export interface CircleGeometry {
 
 /** Where a map sets the bases. */
 export type MapGeometry = LineGeometry | CircleGeometry;
+
+/** What a page asks of a map: the base at a point, a span shaded, and a drag carried on. */
+export interface OnMap {
+	/** The base at the point (`x`, `y`). */
+	base(x: number, y: number): number;
+	/** `span` shaded. */
+	shading(bounds: Bounds, span: Span): Shape[];
+	/** `drag` carried on to `base`: along the line, or round the circle the shorter way. */
+	dragTo(drag: Drag, base: number): Drag;
+}
+
+/** What a page asks of the map `geometry` sets the bases of. */
+export function onMap(geometry: MapGeometry): OnMap {
+	return geometry.map === "line"
+		? {
+				base: (x) => lineBase(geometry, x),
+				shading: (bounds, span) => lineShading(geometry, bounds, span),
+				dragTo,
+			}
+		: {
+				base: (x, y) => circleBase(geometry, x, y),
+				shading: (_, span) => circleShading(geometry, span),
+				dragTo: (drag, base) => turnTo(drag, base, geometry.length),
+			};
+}
 
 /** The angle of `position`, in radians clockwise from the top. */
 export function angleOf(

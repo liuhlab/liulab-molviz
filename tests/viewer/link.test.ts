@@ -117,7 +117,7 @@ function laidOutPane(
 	{ height = 200, bar = 30, at = 0 } = {},
 ): (y: number) => number {
 	const { pane, paneBar } = frame;
-	const svg = viewSvg(frame);
+	const svg = sequenceSvg(frame);
 	const top = Number(svg.getAttribute("viewBox")?.split(" ")[1]);
 	Object.defineProperty(pane, "clientHeight", { value: height });
 	pane.getBoundingClientRect = () => new DOMRect(0, at, 800, height);
@@ -135,7 +135,7 @@ function mapSvg(frame: Frame): SVGSVGElement {
 }
 
 /** The sequence view's drawing in `frame`. */
-function viewSvg(frame: Frame): SVGSVGElement {
+function sequenceSvg(frame: Frame): SVGSVGElement {
 	const svg = frame.pane.querySelector("svg");
 	if (!svg) throw new Error("no sequence view drawn");
 	return svg;
@@ -186,17 +186,17 @@ describe("a click on an item", () => {
 			spans: [{ start: 10, end: 60 }],
 			item: LACZ,
 		});
-		for (const svg of [mapSvg(frame), viewSvg(frame)]) {
+		for (const svg of [mapSvg(frame), sequenceSvg(frame)]) {
 			expect(outlined(svg)).toEqual(new Set([LACZ]));
 		}
 		const onLine = (base: number) => (base * WIDTH) / linear.bases.length;
 		expect(shaded(mapSvg(frame))).toEqual([[onLine(10), onLine(60)]]);
-		expect(shaded(viewSvg(frame))).toEqual([[10 * CELL, 60 * CELL]]);
+		expect(shaded(sequenceSvg(frame))).toEqual([[10 * CELL, 60 * CELL]]);
 	});
 
 	test("in the sequence view selects it as on the map", () => {
 		const frame = opened(linear, { sequence_view: true });
-		click(itemIn(viewSvg(frame), LACZ));
+		click(itemIn(sequenceSvg(frame), LACZ));
 		expect(frame.state.selection?.item).toBe(LACZ);
 		expect(outlined(mapSvg(frame))).toEqual(new Set([LACZ]));
 		expect(shaded(mapSvg(frame))).toEqual([[72, 432]]);
@@ -219,17 +219,17 @@ describe("a click on an item", () => {
 		const frame = opened(linear, { sequence_view: true });
 		const clear = [
 			() => itemIn(mapSvg(frame), LACZ),
-			() => itemIn(viewSvg(frame), LACZ),
+			() => itemIn(sequenceSvg(frame), LACZ),
 			// Each drawing's ground.
 			() => mapSvg(frame).firstElementChild as Element,
-			() => viewSvg(frame).firstElementChild as Element,
+			() => sequenceSvg(frame).firstElementChild as Element,
 		];
 		for (const on of clear) {
 			click(itemIn(mapSvg(frame), LACZ));
 			expect(frame.state.selection).not.toBeNull();
 			click(on());
 			expect(frame.state.selection).toBeNull();
-			for (const svg of [mapSvg(frame), viewSvg(frame)]) {
+			for (const svg of [mapSvg(frame), sequenceSvg(frame)]) {
 				expect(outlined(svg)).toEqual(new Set());
 				expect(shaded(svg)).toEqual([]);
 			}
@@ -246,7 +246,7 @@ describe("the selection", () => {
 		const kept = () => {
 			expect(frame.state.selection).toBe(selected);
 			expect(shadings(mapSvg(frame))).toBeGreaterThan(0);
-			expect(shaded(viewSvg(frame))).toEqual([[110, 660]]);
+			expect(shaded(sequenceSvg(frame))).toEqual([[110, 660]]);
 		};
 		input(frame, "line").click();
 		kept();
@@ -265,7 +265,7 @@ describe("the selection", () => {
 		input(frame, "features").click();
 		kept();
 		expect(outlined(mapSvg(frame))).toEqual(new Set([key]));
-		expect(outlined(viewSvg(frame))).toEqual(new Set([key]));
+		expect(outlined(sequenceSvg(frame))).toEqual(new Set([key]));
 		frame.reset();
 		kept();
 	});
@@ -281,7 +281,7 @@ describe("a drag across the map", () => {
 			item: null,
 		});
 		expect(shaded(mapSvg(frame))).toEqual([[144, 216]]);
-		expect(shaded(viewSvg(frame))).toEqual([[220, 330]]);
+		expect(shaded(sequenceSvg(frame))).toEqual([[220, 330]]);
 		drag(ground, alongLine(frame, [29, 20]));
 		expect(frame.state.selection).toEqual({
 			spans: [{ start: 20, end: 30 }],
@@ -303,7 +303,7 @@ describe("a drag across the map", () => {
 			spans: [{ start: 12, end: 41 }],
 			item: null,
 		});
-		for (const svg of [mapSvg(frame), viewSvg(frame)]) {
+		for (const svg of [mapSvg(frame), sequenceSvg(frame)]) {
 			expect(outlined(svg)).toEqual(new Set());
 		}
 	});
@@ -334,7 +334,7 @@ describe("a drag across the map", () => {
 		drag(ground, aroundCircle(frame, [4, 1, 98, 95]));
 		expect(frame.state.selection).toEqual(across);
 		// In the view, the end of the last row and the start of the first.
-		expect(shaded(viewSvg(frame))).toEqual([
+		expect(shaded(sequenceSvg(frame))).toEqual([
 			[0, 55],
 			[385, 440],
 		]);
@@ -361,11 +361,11 @@ describe("a drag across the map", () => {
 describe("a drag across bases", () => {
 	test("selects them from the base pressed, across rows, either way, in both views", () => {
 		const frame = opened(linear, { sequence_view: true });
-		const ground = viewSvg(frame).firstElementChild as Element;
+		const ground = sequenceSvg(frame).firstElementChild as Element;
 		const stretch = { spans: [{ start: 20, end: 76 }], item: null };
 		drag(ground, onBases(frame, [20, 40, 75]));
 		expect(frame.state.selection).toEqual(stretch);
-		expect(shaded(viewSvg(frame))).toEqual([
+		expect(shaded(sequenceSvg(frame))).toEqual([
 			[220, 660],
 			[0, 176],
 		]);
@@ -376,7 +376,7 @@ describe("a drag across bases", () => {
 
 	test("selects the base pressed alone, at once", () => {
 		const frame = opened(linear, { sequence_view: true });
-		const ground = viewSvg(frame).firstElementChild as Element;
+		const ground = sequenceSvg(frame).firstElementChild as Element;
 		ground.dispatchEvent(pointer("pointerdown", ...onBases(frame, [20])[0]));
 		expect(frame.state.selection).toEqual({
 			spans: [{ start: 20, end: 21 }],
@@ -386,10 +386,10 @@ describe("a drag across bases", () => {
 
 	test("with the bottom strand hidden, finds no base under the rail and shades down to it", () => {
 		const frame = opened(linear, { sequence_view: true });
-		const ground = viewSvg(frame).firstElementChild as Element;
+		const ground = sequenceSvg(frame).firstElementChild as Element;
 		const [row] = frame.sequence()?.rows ?? [];
 		const foot = () => {
-			const band = viewSvg(frame).querySelector("rect[fill='#bbddf5']");
+			const band = sequenceSvg(frame).querySelector("rect[fill='#bbddf5']");
 			return (
 				Number(band?.getAttribute("y")) + Number(band?.getAttribute("height"))
 			);
@@ -412,7 +412,7 @@ describe("a drag across bases past the pane's edge", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { pane } = frame;
 		const client = laidOutPane(frame);
-		const svg = viewSvg(frame);
+		const svg = sequenceSvg(frame);
 		const [x, y] = onBases(frame, [20])[0];
 		svg.dispatchEvent(pointer("pointerdown", x, client(y)));
 		// 50 pixels under the pane's foot, for half a second.
@@ -451,7 +451,7 @@ describe("a drag across bases past the pane's edge", () => {
 			const frame = opened(long, { sequence_view: true });
 			const { pane } = frame;
 			const client = laidOutPane(frame, { height: 400, at: -100 });
-			const svg = viewSvg(frame);
+			const svg = sequenceSvg(frame);
 			const [x, y] = onBases(frame, [20])[0];
 			svg.dispatchEvent(pointer("pointerdown", x, client(y)));
 			svg.dispatchEvent(pointer("pointermove", x, 160));
@@ -515,7 +515,7 @@ describe("the other view scrolls to the selection", () => {
 		const { box } = frame;
 		Object.defineProperty(box, "clientWidth", { value: 300 });
 		Object.defineProperty(box, "clientHeight", { value: 2000 });
-		const lacZ = () => itemIn(viewSvg(frame), LONG_LACZ);
+		const lacZ = () => itemIn(sequenceSvg(frame), LONG_LACZ);
 		click(lacZ());
 		expect([box.scrollLeft, box.scrollTop]).toEqual([0, 0]);
 		click(lacZ());
@@ -541,7 +541,7 @@ describe("the other view scrolls to the selection", () => {
 		const frame = opened(circular, { sequence_view: true });
 		frame.shown().zoom = 2;
 		frame.redraw();
-		click(itemIn(viewSvg(frame), LACZ));
+		click(itemIn(sequenceSvg(frame), LACZ));
 		expect(frame.state.selection?.item).toBe(LACZ);
 		expect(frame.shown().turn).toBe(0);
 	});
@@ -550,7 +550,7 @@ describe("the other view scrolls to the selection", () => {
 describe("hovering the sequence view", () => {
 	test("over a base says its position, an item under the pointer first", () => {
 		const frame = opened(long, { sequence_view: true });
-		const svg = viewSvg(frame);
+		const svg = sequenceSvg(frame);
 		const ground = svg.firstElementChild as Element;
 		const say = (on: Element, [x, y]: readonly [number, number]) => {
 			on.dispatchEvent(pointer("pointermove", x, y));
@@ -574,7 +574,7 @@ describe("hovering the sequence view", () => {
 			sequence_view: true,
 			span: { start: 90, end: 110 },
 		});
-		const ground = viewSvg(frame).firstElementChild as Element;
+		const ground = sequenceSvg(frame).firstElementChild as Element;
 		const [x, y] = onBases(frame, [104])[0];
 		ground.dispatchEvent(pointer("pointermove", x, y));
 		expect(hoverBoxOf()?.textContent).toBe("position 5");
@@ -625,7 +625,7 @@ describe("the caption", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { paneBar } = frame;
 		expect(said(frame).text).toBeNull();
-		const ground = viewSvg(frame).firstElementChild as Element;
+		const ground = sequenceSvg(frame).firstElementChild as Element;
 		drag(ground, onBases(frame, [150, 200, 275]));
 		const { set, text, copy } = said(frame);
 		expect(text).toBe("151 .. 276 (126 bp)");
@@ -724,7 +724,7 @@ describe("copying", () => {
 		const second = opened(long, { sequence_view: true });
 		expect(copyKeys()).toBeNull();
 		drag(
-			viewSvg(second).firstElementChild as Element,
+			sequenceSvg(second).firstElementChild as Element,
 			onBases(second, [150, 155]),
 		);
 		click(itemIn(mapSvg(first), LACZ));

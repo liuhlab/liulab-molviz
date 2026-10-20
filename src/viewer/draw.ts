@@ -1,5 +1,6 @@
 /** An input drawn live into an element of a page. */
 
+import { addCaption } from "./caption";
 import { prepareGel, preparePlate } from "./drawing";
 import { prepareFigure } from "./figure";
 import { type Frame, openFrame } from "./frame";
@@ -41,7 +42,7 @@ export function draw(
 
 /**
  * Open `record` with `options` in a frame added at the end of `element`, with its controls: the
- * switches, the zoom and the turn, and its views linked.
+ * switches, the zoom and the turn, its views linked, and the caption of their selection.
  */
 export function openRecord(
 	element: Element,
@@ -53,6 +54,7 @@ export function openRecord(
 	addZoom(frame);
 	addTurn(frame);
 	addLinks(frame);
+	addCaption(frame);
 	return frame;
 }
 

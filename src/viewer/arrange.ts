@@ -7,10 +7,13 @@ export interface Widths {
 	readonly half: number;
 }
 
-/** Where the sequence view sits, which rows it is laid out with, and the scale it shows at. */
+/** How long the sequence view's rows are laid out: full, or half as long. */
+export type RowLength = "full" | "half";
+
+/** Where the sequence view sits, how long its rows are, and the scale it shows at. */
 export interface Arrangement {
 	readonly place: "beside" | "under";
-	readonly rows: "full" | "half";
+	readonly rowLength: RowLength;
 	readonly scale: number;
 }
 
@@ -25,11 +28,11 @@ export function arrange(
 	widths: Widths,
 ): Arrangement {
 	const { map, full, half } = widths;
-	if (room <= 0) return { place: "under", rows: "full", scale: 1 };
+	if (room <= 0) return { place: "under", rowLength: "full", scale: 1 };
 	if (map + gap + full <= room)
-		return { place: "beside", rows: "full", scale: 1 };
+		return { place: "beside", rowLength: "full", scale: 1 };
 	if (map + gap + half <= room)
-		return { place: "beside", rows: "half", scale: 1 };
-	if (full <= room) return { place: "under", rows: "full", scale: 1 };
-	return { place: "under", rows: "half", scale: Math.min(1, room / half) };
+		return { place: "beside", rowLength: "half", scale: 1 };
+	if (full <= room) return { place: "under", rowLength: "full", scale: 1 };
+	return { place: "under", rowLength: "half", scale: Math.min(1, room / half) };
 }
