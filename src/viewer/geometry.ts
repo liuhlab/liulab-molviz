@@ -47,6 +47,9 @@ export interface CircleGeometry {
 	readonly outer: number;
 }
 
+/** Where a map sets the bases. */
+export type MapGeometry = LineGeometry | CircleGeometry;
+
 /** The angle of `position`, in radians clockwise from the top. */
 export function angleOf(
 	position: number,

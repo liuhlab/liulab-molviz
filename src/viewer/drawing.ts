@@ -1,10 +1,10 @@
 /** An input drawn as SVG text, with no DOM. */
 
-import { layoutCircle } from "./circle";
+import { type CircleScene, layoutCircle } from "./circle";
 import { checkGel } from "./gel";
 import { layoutGel } from "./gel-layout";
 import { type Hidden, type MapScene, notice } from "./labels";
-import { layoutLine, WIDTH } from "./line";
+import { type LineScene, layoutLine, WIDTH } from "./line";
 import { checkOptions, type Options } from "./options";
 import { rowPages, stacked } from "./pages";
 import { checkPlate } from "./plate";
@@ -69,7 +69,7 @@ export function layoutMap(
 		zoom = 1,
 		turn = 0,
 	}: { readonly zoom?: number; readonly turn?: number } = {},
-): MapScene {
+): LineScene | CircleScene {
 	return options.map === "circle"
 		? layoutCircle(record, options, turn, zoom)
 		: layoutLine(record, options, WIDTH * zoom);

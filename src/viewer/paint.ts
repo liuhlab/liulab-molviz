@@ -178,3 +178,7 @@ function channels(color: string): [number, number, number] {
 export const SHADING = "#bbddf5";
 export const SHADING_EDGE = "#0077bb";
 export const SHADING_EDGE_WIDTH = 1;
+
+/** The outline of an item a reader selected, on a page. */
+export const SELECTED = SHADING_EDGE;
+export const SELECTED_WIDTH = 1.6;

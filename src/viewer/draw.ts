@@ -3,6 +3,7 @@
 import { prepareGel, preparePlate } from "./drawing";
 import { prepareFigure } from "./figure";
 import { type Frame, openFrame } from "./frame";
+import { addLinks } from "./link";
 import { checkOptions, type Options } from "./options";
 import { check, type Record } from "./record";
 import type { Scene } from "./scene";
@@ -40,7 +41,7 @@ export function draw(
 
 /**
  * Open `record` with `options` in a frame added at the end of `element`, with its controls: the
- * switches, the zoom and the turn.
+ * switches, the zoom and the turn, and its views linked.
  */
 export function openRecord(
 	element: Element,
@@ -51,6 +52,7 @@ export function openRecord(
 	switches(frame);
 	addZoom(frame);
 	addTurn(frame);
+	addLinks(frame);
 	return frame;
 }
 

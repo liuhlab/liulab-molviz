@@ -73,6 +73,14 @@ export function toElement(
 	return svg;
 }
 
+/** `shapes` as elements of `document`, written as `toElement` writes them in its `<svg>`. */
+export function shapeElements(
+	shapes: readonly Shape[],
+	document: Document,
+): Element[] {
+	return shapes.map((shape) => element(tag(shape), document));
+}
+
 /**
  * `scene` as one SVG document that draws as `toElement` does, for a page to hold as it is: its
  * letters `<text>` in the viewer's faces, each shape's title a `<title>` in it. The page
