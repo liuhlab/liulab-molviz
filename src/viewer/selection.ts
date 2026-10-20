@@ -56,7 +56,7 @@ function recognised(spans: readonly Span[], bounds: Bounds): Span {
 		);
 		return { start: start + shift, end: end + shift };
 	});
-	return within(
+	return startInside(
 		{
 			start: Math.min(...near.map(({ start }) => start)),
 			end: Math.max(...near.map(({ end }) => end)),
@@ -66,7 +66,7 @@ function recognised(spans: readonly Span[], bounds: Bounds): Span {
 }
 
 /** `span` moved a turn, if it must be, to start inside the record. */
-function within({ start, end }: Span, { length, circular }: Bounds): Span {
+function startInside({ start, end }: Span, { length, circular }: Bounds): Span {
 	const shift = circular ? Math.floor(start / length) * length : 0;
 	return { start: start - shift, end: end - shift };
 }
@@ -123,7 +123,19 @@ export function dragged({ anchor, travel }: Drag, bounds: Bounds): Selection {
 			: travel < 0
 				? { start: anchor + travel, end: anchor + 1 }
 				: { start: anchor, end: anchor + travel + 1 };
-	return { spans: [within(span, bounds)], item: null };
+	return { spans: [startInside(span, bounds)], item: null };
+}
+
+/**
+ * Where a view shows `selection`: its spans, or a point by the base before it, which on a circle
+ * is the last base at the origin, and on a linear record the first at its start.
+ */
+export function shownAt(selection: Selection, bounds: Bounds): readonly Span[] {
+	if ("spans" in selection) return selection.spans;
+	const start = bounds.circular
+		? selection.at - 1
+		: Math.max(selection.at - 1, 0);
+	return [{ start, end: start + 1 }];
 }
 
 /** The top strand's bases `selection` holds, in reading order; none at a point. */

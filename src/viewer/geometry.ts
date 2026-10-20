@@ -4,7 +4,7 @@
  */
 
 import { SHADING, SHADING_EDGE, SHADING_EDGE_WIDTH } from "./paint";
-import { type Piece, pieces } from "./pieces";
+import { overlaps, type Piece, pieces } from "./pieces";
 import type { Bounds, Span } from "./record";
 import type { PathCommand, Shape } from "./scene";
 import { type Drag, dragTo, turnTo } from "./selection";
@@ -95,10 +95,10 @@ export function pointAt(radius: number, angle: number): [number, number] {
  */
 export function arc(radius: number, start: number, end: number): PathCommand[] {
 	if (end === start) return [];
-	const pieces = Math.ceil(Math.abs(end - start) / Math.PI + 1e-9);
+	const parts = Math.ceil(Math.abs(end - start) / Math.PI + 1e-9);
 	const sweep = end > start ? 1 : 0;
-	return Array.from({ length: pieces }, (_, i) => {
-		const [x, y] = pointAt(radius, start + ((end - start) * (i + 1)) / pieces);
+	return Array.from({ length: parts }, (_, i) => {
+		const [x, y] = pointAt(radius, start + ((end - start) * (i + 1)) / parts);
 		return ["A", radius, 0, sweep, x, y] as const;
 	});
 }
@@ -207,7 +207,7 @@ export function rowShading(
 	const drawn = { start: rows[0].start, end: (rows.at(-1) as RowBox).end };
 	return within(span, drawn, bounds).flatMap((piece) =>
 		rows
-			.filter((row) => row.start < piece.end && piece.start < row.end)
+			.filter((row) => overlaps(row, piece))
 			.flatMap((row) => {
 				const { strands } = row;
 				return shaded(

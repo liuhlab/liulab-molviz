@@ -4,7 +4,7 @@ import { aroundBoxes, boxOf } from "./bounds";
 import type { Frame } from "./frame";
 import { onMap, rowHolding, rowShading } from "./geometry";
 import type { ClientPoint } from "./pane";
-import { turns } from "./pieces";
+import { overlaps, turns } from "./pieces";
 import { type Bounds, recordBounds } from "./record";
 import type { Shape } from "./scene";
 import {
@@ -15,6 +15,7 @@ import {
 	dragTo,
 	itemSelection,
 	type Selection,
+	shownAt,
 } from "./selection";
 import type { RowBox } from "./sequence";
 import { ITEM, inPoints, SELECTED, shapeElements } from "./svg";
@@ -143,18 +144,8 @@ export function addLinks(frame: Frame): void {
 	const toMap = () => {
 		const { selection } = state;
 		if (selection === null || frame.shown().zoom === 1) return;
-		// A point shows as the base before it, or the first.
-		const spans =
-			"spans" in selection
-				? selection.spans
-				: [
-						{
-							start: Math.max(selection.at - 1, 0),
-							end: Math.max(selection.at, 1),
-						},
-					];
 		const on = onMap(frame.map().geometry);
-		const boxes = spans
+		const boxes = shownAt(selection, bounds)
 			.flatMap((span) => on.shading(bounds, span))
 			.flatMap((shape) => boxOf(shape) ?? []);
 		if (!boxes.length) return;
@@ -307,11 +298,8 @@ function rowOf(
 	selection: Selection,
 	bounds: Bounds,
 ): RowBox | null {
-	const spans =
-		"spans" in selection
-			? selection.spans
-			: [{ start: selection.at - 1, end: selection.at + 1 }];
-	const first = "spans" in selection ? spans[0].start : selection.at;
+	const spans = shownAt(selection, bounds);
+	const first = spans[0].start;
 	const shifts = turns(bounds);
 	for (const shift of shifts) {
 		const row = rowHolding(rows, first + shift);
@@ -319,8 +307,8 @@ function rowOf(
 	}
 	const lies = (row: RowBox) =>
 		spans.some(({ start, end }) =>
-			shifts.some(
-				(shift) => row.start < end + shift && start + shift < row.end,
+			shifts.some((shift) =>
+				overlaps(row, { start: start + shift, end: end + shift }),
 			),
 		);
 	return rows.find(lies) ?? null;

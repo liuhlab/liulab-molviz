@@ -94,6 +94,11 @@ export function points(at: number, span: Span, bounds: Bounds): number[] {
 		.filter((p) => start <= p && p <= end && !(whole && p === start));
 }
 
+/** Whether `a` and `b` share a base. */
+export function overlaps(a: Span, b: Span): boolean {
+	return a.start < b.end && b.start < a.end;
+}
+
 /** How far a position may lie from where the record counts it: a turn either way on a circle. */
 export function turns({ length, circular }: Bounds): number[] {
 	return circular ? [-length, 0, length] : [0];

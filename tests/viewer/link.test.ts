@@ -537,6 +537,22 @@ describe("the other view scrolls to the selection", () => {
 		expect(box.scrollLeft).toBe(kept);
 	});
 
+	test("from the sequence view, to a point at a circle's origin where the line draws it, at its end", () => {
+		const spacer = { name: "spacer", at: 0, length: 3 };
+		const record = { ...circular, insertions: [spacer] };
+		const frame = opened(record, { sequence_view: true, map: "line" });
+		const { box } = frame;
+		Object.defineProperty(box, "clientWidth", { value: 300 });
+		frame.shown().zoom = 4;
+		frame.redraw();
+		click(itemIn(sequenceSvg(frame), keyNamed(sequenceSvg(frame), "spacer")));
+		expect(frame.state.selection).toMatchObject({ at: 0 });
+		const { extent, scale } = frame.drawn();
+		const end = (4 * WIDTH - extent.x) * scale;
+		expect(end).toBeGreaterThan(box.scrollLeft);
+		expect(end).toBeLessThan(box.scrollLeft + box.clientWidth);
+	});
+
 	test("from the sequence view, never turning the circle", () => {
 		const frame = opened(circular, { sequence_view: true });
 		frame.shown().zoom = 2;
