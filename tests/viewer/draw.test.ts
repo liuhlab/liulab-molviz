@@ -100,6 +100,20 @@ describe("draw", () => {
 		expect(element.children).toHaveLength(0);
 	});
 
+	test("lays the map and the sequence view each first on a white ground as large as it", () => {
+		const element = spot();
+		draw(element, record, { sequence_view: true });
+		const drawn = [...element.querySelectorAll("svg")];
+		expect(drawn).toHaveLength(2);
+		for (const svg of drawn) {
+			const [x, y, width, height] =
+				svg.getAttribute("viewBox")?.split(" ") ?? [];
+			expect(svg.firstElementChild?.outerHTML).toBe(
+				`<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="#ffffff"></rect>`,
+			);
+		}
+	});
+
 	test("shows the map's hovers in a box at once, with no title left in it", () => {
 		const element = spot();
 		draw(element, record, {});
