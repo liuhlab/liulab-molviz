@@ -1,16 +1,10 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { Frame } from "../../src/viewer/frame";
-import {
-	angleOf,
-	lineX,
-	pointAt,
-	rowHolding,
-	rowX,
-} from "../../src/viewer/geometry";
-import { WIDTH } from "../../src/viewer/line";
+import { rowHolding, rowX } from "../../src/viewer/geometry";
+import { angleOf, lineX, pointAt, WIDTH } from "../../src/viewer/map";
 import type { Span } from "../../src/viewer/record";
-import { CELL } from "../../src/viewer/sequence";
+import { CELL } from "../../src/viewer/row";
 import insertionsFile from "../records/both-strands-and-insertions.json";
 import backboneFile from "../records/puc19-backbone-amplicon.json";
 import { circular, hoverBoxOf, input, linear, opened } from "./live";

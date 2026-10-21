@@ -16,7 +16,6 @@ import {
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
 import { columns, type Point, REACH, type Unplaced } from "./columns";
-import { angleOf, arc, type CircleGeometry, pointAt } from "./geometry";
 import {
 	hiddenOf,
 	hidingOrder,
@@ -26,26 +25,30 @@ import {
 	labelShapes,
 	labelSize,
 	type MapScene,
-	noticeShapes,
 	PAD_X,
 	PAD_Y,
 	SMALL_SIZE,
 } from "./labels";
 import {
+	angleOf,
+	arc,
 	BACKBONE,
+	type CircleGeometry,
 	CLEAR,
 	INSERTION_REACH,
 	MARGIN,
 	NAME_SIZE,
+	noticeUnder,
 	ORIGIN_TICK,
 	ORIGIN_TICK_WIDTH,
+	pointAt,
 	STRANDS_APART,
 	TICK,
 	TICK_WIDTH,
 	tickStep,
 	titleLines,
 	titleShapes,
-} from "./line";
+} from "./map";
 import type { Options } from "./options";
 import {
 	CONNECTOR,
@@ -210,11 +213,7 @@ export function layoutCircle(
 		MARGIN,
 	);
 	const left = hidden.map((i) => outside[i].label);
-	const notice = noticeShapes(
-		left,
-		covered.x + covered.width - MARGIN,
-		covered.y + covered.height - MARGIN,
-	);
+	const notice = noticeUnder(left, covered);
 	shapes.push(...notice);
 	const below = notice.flatMap((s) => boxOf(s) ?? []);
 	const arrows = drawnBars.flatMap((bar) => bar.arrows);

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import type { MapScene } from "../../src/viewer/labels";
-import { layoutLine, WIDTH } from "../../src/viewer/line";
+import { layoutLine } from "../../src/viewer/line";
+import { WIDTH } from "../../src/viewer/map";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
