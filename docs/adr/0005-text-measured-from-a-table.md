@@ -12,7 +12,7 @@ carries the faces as WOFF2. It holds no font parser. The letter outlines a file 
 second script with a fixed name, which only export loads. Both tables are built with opentype.js,
 so every width and outline is the one it gave: the same drawings, and a file's bytes unchanged.
 The measurements are in
-[the page-size note](https://github.com/liuhlab/liulab-molviz/blob/research/page-size/docs/research/molviz-page-size.md).
+[the page-size note](../research/molviz-page-size.md).
 
 ## Considered options
 
