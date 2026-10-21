@@ -145,6 +145,11 @@ One place on a plate, named by its row letters and column number, such as `B3`. 
 is its contents, given as text.
 _Avoid_: kind, for what a well holds, which is a record's word
 
+### Input
+
+One thing a caller hands over to be drawn: a record, a figure, a gel or a plate.
+_Avoid_: document, data
+
 ### Page
 
 One HTML file that opens offline and shows one or more inputs: records, figures, gels or plates.
