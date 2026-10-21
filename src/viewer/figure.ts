@@ -15,7 +15,7 @@ import {
 } from "./drawing";
 import { list, orThrow, type Problem, parse } from "./format";
 import type { MapScene } from "./labels";
-import { MARGIN, NAME_SIZE } from "./line";
+import { MARGIN, NAME_SIZE } from "./map";
 import { type Options, parsedOptions } from "./options";
 import { rowPages } from "./pages";
 import { MUTED } from "./paint";

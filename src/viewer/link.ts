@@ -6,6 +6,7 @@ import { onMap, rowHolding, rowShading } from "./geometry";
 import type { ClientPoint } from "./pane";
 import { overlaps, turns } from "./pieces";
 import { type Bounds, recordBounds } from "./record";
+import type { RowBox } from "./row";
 import type { Shape } from "./scene";
 import {
 	clicked,
@@ -17,7 +18,6 @@ import {
 	type Selection,
 	shownAt,
 } from "./selection";
-import type { RowBox } from "./sequence";
 import { ITEM, inPoints, SELECTED, shapeElements } from "./svg";
 
 /** How far, in CSS pixels, a press may move and still be a click. */

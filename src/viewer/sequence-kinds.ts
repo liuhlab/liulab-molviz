@@ -24,8 +24,9 @@ import {
 	shaded,
 } from "./paint";
 import { isWhole, pieces, turns } from "./pieces";
+import type { Strands } from "./row";
 import type { Box, Shape } from "./scene";
-import type { Row, RowMarks, RunOn, Shelf, Strands } from "./sequence";
+import type { Row, RowMarks, RunOn, Shelf } from "./sequence";
 import { type Aligned, shownCuts, shownMarks, shownSites } from "./shown";
 import type { Anchored } from "./staircase";
 

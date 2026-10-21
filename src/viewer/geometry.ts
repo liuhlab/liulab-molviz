@@ -1,33 +1,23 @@
 /**
- * Where each view sets the bases, in the points it is laid out in: a position to a point, a point
- * back to the base under it, a selection shaded, and a drag carried on.
+ * Where a pointer lands on a map or a row, in the points the view is laid out in: a point back to
+ * the base under it, a selection shaded, and a drag carried on.
  */
 
+import {
+	angleOf,
+	arc,
+	type CircleGeometry,
+	type LineGeometry,
+	lineX,
+	type MapGeometry,
+	pointAt,
+} from "./map";
 import { SHADING, SHADING_EDGE, SHADING_EDGE_WIDTH } from "./paint";
 import { overlaps, type Piece, pieces } from "./pieces";
 import type { Bounds, Span } from "./record";
-import type { PathCommand, Shape } from "./scene";
+import { CELL, type RowBox, type Strands } from "./row";
+import type { Shape } from "./scene";
 import { type Drag, dragTo, turnTo } from "./selection";
-import { CELL, type RowBox, type Strands } from "./sequence";
-
-/** Where the line sets the bases, and the highest and lowest its marks reach. */
-export interface LineGeometry {
-	readonly map: "line";
-	/** The positions drawn, counted as the span counts. */
-	readonly span: Span;
-	/** The line's length. */
-	readonly width: number;
-	readonly top: number;
-	readonly bottom: number;
-}
-
-/** The x of `position`, counted as the span counts. */
-export function lineX(
-	{ span, width }: Pick<LineGeometry, "span" | "width">,
-	position: number,
-): number {
-	return ((position - span.start) * width) / (span.end - span.start);
-}
 
 /** The base at `x`, counted as the span counts, or the span's nearest past either end. */
 export function lineBase({ span, width }: LineGeometry, x: number): number {
@@ -35,21 +25,6 @@ export function lineBase({ span, width }: LineGeometry, x: number): number {
 	const base = start + Math.floor((x * (end - start)) / width);
 	return Math.min(Math.max(base, start), end - 1);
 }
-
-/** Where the circle sets the bases round (0, 0), and the nearest and farthest its marks reach. */
-export interface CircleGeometry {
-	readonly map: "circle";
-	readonly length: number;
-	/** The backbone's radius. */
-	readonly radius: number;
-	/** The angle of the origin, in radians clockwise from the top. */
-	readonly turn: number;
-	readonly inner: number;
-	readonly outer: number;
-}
-
-/** Where a map sets the bases. */
-export type MapGeometry = LineGeometry | CircleGeometry;
 
 /** What a page asks of a map: the base at a point, a span shaded, and a drag carried on. */
 export interface OnMap {
@@ -74,33 +49,6 @@ export function onMap(geometry: MapGeometry): OnMap {
 				shading: (_, span) => circleShading(geometry, span),
 				dragTo: (drag, base) => turnTo(drag, base, geometry.length),
 			};
-}
-
-/** The angle of `position`, in radians clockwise from the top. */
-export function angleOf(
-	position: number,
-	{ length, turn }: Pick<CircleGeometry, "length" | "turn">,
-): number {
-	return (2 * Math.PI * position) / length + turn;
-}
-
-/** The point `radius` from the centre at `angle`. */
-export function pointAt(radius: number, angle: number): [number, number] {
-	return [radius * Math.sin(angle), -radius * Math.cos(angle)];
-}
-
-/**
- * An arc on `radius` from `start` to `end`, in pieces of less than a half turn, from the point
- * at `start`, which the path is already at.
- */
-export function arc(radius: number, start: number, end: number): PathCommand[] {
-	if (end === start) return [];
-	const parts = Math.ceil(Math.abs(end - start) / Math.PI + 1e-9);
-	const sweep = end > start ? 1 : 0;
-	return Array.from({ length: parts }, (_, i) => {
-		const [x, y] = pointAt(radius, start + ((end - start) * (i + 1)) / parts);
-		return ["A", radius, 0, sweep, x, y] as const;
-	});
 }
 
 /** The base at the point (`x`, `y`), counted from the origin, at any distance from the centre. */

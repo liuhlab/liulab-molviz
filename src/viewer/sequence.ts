@@ -22,11 +22,12 @@ import {
 	PAD_Y,
 	SMALL_SIZE,
 } from "./labels";
-import { MARGIN } from "./line";
+import { MARGIN } from "./map";
 import type { Options } from "./options";
 import { INK, RAIL } from "./paint";
 import { pieces } from "./pieces";
 import { type Bounds, type Record, recordBounds } from "./record";
+import { CELL, type RowBox, type Strands } from "./row";
 import {
 	type Box,
 	moved,
@@ -41,8 +42,7 @@ import { shownBars } from "./shown";
 import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, height, measure } from "./text";
 
-/** How wide a base's cell is, and the size its letter is set at. */
-export const CELL = 11;
+/** The size a base's letter is set at. */
 const BASE_SIZE = 11;
 
 // The room under the numbers and either side of the rail, how far a tick reaches either side of
@@ -61,13 +61,6 @@ const ROW_GAP = 16;
 /** The sequence view laid out, and its rows, top to bottom. */
 export interface SequenceScene extends Scene {
 	readonly rows: readonly RowBox[];
-}
-
-/** The box a row takes, the bases it holds, counted as the span counts, and its strands. */
-export interface RowBox extends Box {
-	readonly start: number;
-	readonly end: number;
-	readonly strands: Strands;
 }
 
 /** One row of the view: what it is drawn against, and the bases it holds. */
@@ -100,14 +93,6 @@ export interface Shelf extends RowMarks {
  * label, a primer site or a read by itself.
  */
 export type RunOn = Map<object, number>;
-
-/** Where a row's strands lie, each from its top to its bottom, and its rail between them. */
-export interface Strands {
-	readonly top: readonly [top: number, bottom: number];
-	readonly rail: number;
-	/** Nothing when the bottom strand is not drawn. */
-	readonly bottom: readonly [top: number, bottom: number] | null;
-}
 
 /** Lay out the span `options` gives of `record` in rows of `options.bases_per_row` bases. */
 export function layoutSequence(

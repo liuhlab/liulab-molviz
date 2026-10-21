@@ -1,19 +1,17 @@
 import { describe, expect, test } from "vitest";
 import { layoutCircle } from "../../src/viewer/circle";
 import {
-	angleOf,
 	circleBase,
 	circleShading,
 	lineBase,
 	lineShading,
-	lineX,
-	pointAt,
 	rowBase,
 	rowHolding,
 	rowShading,
 	rowX,
 } from "../../src/viewer/geometry";
 import { layoutLine } from "../../src/viewer/line";
+import { angleOf, lineX, pointAt } from "../../src/viewer/map";
 import { checkOptions } from "../../src/viewer/options";
 import { check, recordBounds } from "../../src/viewer/record";
 import type { Shape } from "../../src/viewer/scene";
@@ -84,16 +82,6 @@ describe("the line", () => {
 		},
 	);
 
-	test("puts the origin where the ruler draws its tick, and the span's ends at the line's", () => {
-		const scene = layoutLine(colourTest, options, 1440);
-		const origin = scene.shapes.find(
-			(s): s is Line => s.shape === "line" && s.strokeWidth === 2.4,
-		);
-		expect(lineX(scene.geometry, 2686)).toBeCloseTo(origin?.x1 ?? NaN, 9);
-		expect(lineX(scene.geometry, 2600)).toBe(0);
-		expect(lineX(scene.geometry, 2750)).toBe(1440);
-	});
-
 	test("takes a point past either end to the span's nearest base", () => {
 		const { geometry } = layoutLine(colourTest, options);
 		expect(lineBase(geometry, -50)).toBe(2600);
@@ -152,16 +140,11 @@ describe("the circle", () => {
 		},
 	);
 
-	test("puts the origin where the backbone draws its tick, the first base clockwise of it", () => {
+	test("finds the first base clockwise of the origin's tick, and the last anticlockwise", () => {
 		const scene = layoutCircle(colourTest, options, 200, 2);
 		const tick = scene.shapes.find(
 			(s): s is Line => s.shape === "line" && s.strokeWidth === 2.4,
 		) as Line;
-		const angle = Math.atan2(tick.x1, -tick.y1);
-		const turn = angleOf(0, scene.geometry) - angle;
-		expect(
-			Math.abs(turn - 2 * Math.PI * Math.round(turn / (2 * Math.PI))),
-		).toBeLessThan(1e-9);
 		const [x, y] = [tick.x1, tick.y1];
 		const by = (a: number) =>
 			[

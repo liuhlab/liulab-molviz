@@ -8,8 +8,9 @@ import { rowBase, rowHolding } from "./geometry";
 import { hoverBox } from "./hover";
 import type { Options } from "./options";
 import type { Record } from "./record";
+import type { RowBox } from "./row";
 import type { Box } from "./scene";
-import { layoutSequence, type RowBox, type SequenceScene } from "./sequence";
+import { layoutSequence, type SequenceScene } from "./sequence";
 import { inPoints, toElement } from "./svg";
 
 /** The class of a pane showing the top strand alone. */

@@ -6,9 +6,9 @@
 
 import { aroundBoxes } from "./bounds";
 import { layoutMap } from "./drawing";
-import type { MapGeometry } from "./geometry";
 import { hoverBox } from "./hover";
 import type { MapScene } from "./labels";
+import type { MapGeometry } from "./map";
 import type { Options } from "./options";
 import {
 	GROUND,

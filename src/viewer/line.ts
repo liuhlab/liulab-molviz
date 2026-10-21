@@ -21,7 +21,6 @@ import {
 	TIER_GAP,
 } from "./arrows";
 import { aroundBoxes, boxOf } from "./bounds";
-import { type LineGeometry, lineX } from "./geometry";
 import {
 	GAP,
 	hiddenOf,
@@ -29,10 +28,27 @@ import {
 	LABEL_SIZE,
 	type Label,
 	type MapScene,
-	noticeShapes,
 	PAD_Y,
 	SMALL_SIZE,
 } from "./labels";
+import {
+	BACKBONE,
+	CLEAR,
+	INSERTION_REACH,
+	type LineGeometry,
+	lineX,
+	MARGIN,
+	noticeUnder,
+	ORIGIN_TICK,
+	ORIGIN_TICK_WIDTH,
+	STRANDS_APART,
+	TICK,
+	TICK_WIDTH,
+	tickStep,
+	titleLines,
+	titleShapes,
+	WIDTH,
+} from "./map";
 import type { Options } from "./options";
 import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
 import { pieces, points, spanText } from "./pieces";
@@ -40,38 +56,12 @@ import { type Bounds, type Record, recordBounds, type Span } from "./record";
 import type { Box, Shape } from "./scene";
 import { shownBars, shownCuts, shownMarks, shownSites } from "./shown";
 import { type Anchored, labelsAbove } from "./staircase";
-import { baseline, type Face, height, measure } from "./text";
-
-/** The line's length, unless a layout is given another. */
-export const WIDTH = 720;
-
-/** How far an insertion's bar reaches past the backbone either side. */
-export const INSERTION_REACH = 1.5;
-
-// The backbone: each strand's line, and how far apart they are.
-export const BACKBONE = 2.6;
-export const STRANDS_APART = 3.8;
+import { baseline, height, measure } from "./text";
 
 // The dots at an end: where the first sits beyond the line, how far apart they are, and their size.
 const DOT_START = 7;
 const DOT_STEP = 6;
 const DOT = 1.8;
-
-// The ruler's ticks under the backbone, and how far a number keeps from another and from the
-// origin's tick.
-export const TICK = 6;
-export const TICK_WIDTH = 1.2;
-export const ORIGIN_TICK = 12;
-export const ORIGIN_TICK_WIDTH = 2.4;
-export const CLEAR = 10;
-/** The most numbers the ruler gives along each `WIDTH` points of the line. */
-const NUMBERS = 10;
-
-/** The size of the record's name. */
-export const NAME_SIZE = 13.5;
-
-/** The room left around everything a record's drawing covers. */
-export const MARGIN = 16;
 
 /** What every kind is drawn against. */
 export interface Along {
@@ -162,14 +152,7 @@ export function layoutLine(
 	const covers = drawn.flatMap((one) => one.covers ?? []);
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
 	const boxes = [...above.boxes, ...covers];
-	const covered = extent(shapes, width, boxes);
-	shapes.push(
-		...noticeShapes(
-			above.hidden,
-			covered.x + covered.width - MARGIN,
-			covered.y + covered.height - MARGIN,
-		),
-	);
+	shapes.push(...noticeUnder(above.hidden, extent(shapes, width, boxes)));
 	return {
 		extent: extent(shapes, width, boxes),
 		shapes,
@@ -406,20 +389,6 @@ function ruler(
 }
 
 /**
- * The least of 1, 2 or 5 times a power of ten that gives at most `NUMBERS` numbers along each
- * `WIDTH` points of a line `width` long drawing `bases`.
- */
-export function tickStep(bases: number, width = WIDTH): number {
-	for (let power = 1; ; power *= 10) {
-		for (const factor of [1, 2, 5]) {
-			if (factor * power * NUMBERS * width >= bases * WIDTH) {
-				return factor * power;
-			}
-		}
-	}
-}
-
-/**
  * The record's name in bold over its length, or over the span drawn, from the height `top`,
  * centred on a line `width` long.
  */
@@ -440,45 +409,6 @@ function title(
 		width / 2,
 		top,
 	);
-}
-
-/** One line of a title: its text, face and size. */
-export type TitleLine = readonly [text: string, face: Face, size: number];
-
-/** A title's lines: each of `names` in bold, then `under`. */
-export function titleLines(
-	names: readonly string[],
-	under: string,
-): TitleLine[] {
-	return [
-		...names.map((text): TitleLine => [text, "sans-bold", NAME_SIZE]),
-		[under, "sans", SMALL_SIZE],
-	];
-}
-
-/** `lines` set one under another from `top`, each centred on `x`. */
-export function titleShapes(
-	lines: readonly TitleLine[],
-	x: number,
-	top: number,
-): Shape[] {
-	const shapes: Shape[] = [];
-	let y = top;
-	for (const [text, face, size] of lines) {
-		const h = height(face, size);
-		shapes.push({
-			shape: "text",
-			text,
-			face,
-			size,
-			x,
-			y: baseline(face, size, y + h / 2),
-			anchor: "middle",
-			fill: INK,
-		});
-		y += h;
-	}
-	return shapes;
 }
 
 function backbone(width: number): Shape[] {
