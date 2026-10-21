@@ -1,7 +1,11 @@
+// @vitest-environment happy-dom
+import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
-import type { Scene } from "../../src/viewer/scene";
-import { toSvg } from "../../src/viewer/svg";
-import { measure, outline } from "../../src/viewer/text";
+import { units } from "../../src/viewer/faces";
+import type { Scene, Shape } from "../../src/viewer/scene";
+import { itemKey } from "../../src/viewer/selection";
+import { toElement, toStill, toSvg } from "../../src/viewer/svg";
+import { type Face, glyphs, measure, outlineOf } from "../../src/viewer/text";
 
 const scene: Scene = {
 	extent: { x: -16, y: -30.5, width: 752, height: 120.25 },
@@ -58,15 +62,129 @@ const scene: Scene = {
 			anchor: "start",
 			fill: "#252525",
 		},
+		{
+			shape: "text",
+			text: "ACGA",
+			face: "mono",
+			size: 11,
+			cell: 11,
+			x: 0,
+			y: 90,
+			anchor: "start",
+			fill: "#1c1e21",
+		},
 	],
 };
 
 const written = toSvg(scene);
 
+/** `shape` alone in a scene, written as a file and as a page. */
+function both(shape: Shape): { file: string; page: SVGSVGElement } {
+	const alone: Scene = {
+		extent: { x: -230, y: -230, width: 460, height: 460 },
+		shapes: [shape],
+	};
+	return { file: toSvg(alone), page: toElement(alone, document) };
+}
+
+describe("a curve or a turn", () => {
+	test("writes a path as one path element, an arc with its radius twice", () => {
+		const { file, page } = both({
+			shape: "path",
+			commands: [
+				["M", 0, -220],
+				["A", 220, 0, 1, 0, 220],
+				["L", -0.001, 216.2],
+				["A", 216.2, 1, 0, 0, -216.2],
+				["Z"],
+			],
+			fill: "none",
+			stroke: "#252525",
+			strokeWidth: 2.6,
+		});
+		const d =
+			"M0.00 -220.00A220.00 220.00 0 0 1 0.00 220.00L0.00 216.20" +
+			"A216.20 216.20 0 1 0 0.00 -216.20Z";
+		expect(file).toContain(
+			`<path d="${d}" fill="none" stroke="#252525" stroke-width="2.60"/>`,
+		);
+		expect(page.innerHTML).toContain(
+			`<path d="${d}" fill="none" stroke="#252525" stroke-width="2.60"></path>`,
+		);
+	});
+
+	test("turns text clockwise about its x and y, in one transform in a file", () => {
+		const { file, page } = both({
+			shape: "text",
+			text: "100",
+			face: "sans",
+			size: 10.5,
+			x: 0,
+			y: -190,
+			anchor: "middle",
+			fill: "#252525",
+			rotate: 90,
+		});
+		const left = (-measure("100", "sans", 10.5) / 2).toFixed(2);
+		const turn = "rotate(90.00 0.00 -190.00)";
+		expect(file).toContain(
+			`<g transform="${turn} translate(${left} -190.00) scale(${10.5 / units("sans").unitsPerEm})" fill="#252525"><use `,
+		);
+		expect(page.querySelector("text")?.outerHTML).toContain(
+			`transform="${turn}"`,
+		);
+	});
+
+	const name: Shape = {
+		shape: "letters",
+		text: "a b",
+		face: "sans",
+		size: 11.5,
+		fill: "#000000",
+		places: [
+			[0, -180, -10],
+			[7.08, -181.05, 0],
+			[14.5, -180, 10.5],
+		],
+	};
+
+	test("sets a name along a curve on a page as one text, each letter at its place", () => {
+		const texts = both(name).page.querySelectorAll("text");
+		expect(texts).toHaveLength(1);
+		const [text] = texts;
+		expect(text.textContent).toBe("a b");
+		expect(text.getAttribute("x")).toBe("0.00 7.08 14.50");
+		expect(text.getAttribute("y")).toBe("-180.00 -181.05 -180.00");
+		expect(text.getAttribute("rotate")).toBe("-10.00 0.00 10.50");
+		expect(text.getAttribute("font-family")).toBe("molviz Sans");
+		expect(text.getAttribute("font-size")).toBe("11.50");
+		expect(text.getAttribute("font-weight")).toBe("400");
+		expect(text.getAttribute("fill")).toBe("#000000");
+	});
+
+	test("draws a name along a curve in a file as a use of each inked letter, turned at its place", () => {
+		const [a] = glyphs("a", "sans", 11.5);
+		const [b] = glyphs("b", "sans", 11.5);
+		const letter = (id: string, at: string) =>
+			`<use xlink:href="#${id}" transform="${at} scale(${11.5 / units("sans").unitsPerEm})"/>`;
+		const { file } = both(name);
+		expect(file).toContain(
+			`<g fill="#000000">${letter(a.id, "translate(0.00 -180.00) rotate(-10.00)")}` +
+				`${letter(b.id, "translate(14.50 -180.00) rotate(10.50)")}</g>`,
+		);
+		expect(file).toContain(
+			`<path id="${a.id}" d="${outlineOf("sans", a.index)}"/>`,
+		);
+		expect(file).toContain(
+			`<path id="${b.id}" d="${outlineOf("sans", b.index)}"/>`,
+		);
+	});
+});
+
 describe("toSvg", () => {
 	test("sizes the drawing to its extent with no unit, so one unit is one point", () => {
 		expect(written).toMatch(
-			/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="752\.00" height="120\.25" viewBox="-16\.00 -30\.50 752\.00 120\.25">/,
+			/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink" width="752\.00" height="120\.25" viewBox="-16\.00 -30\.50 752\.00 120\.25">/,
 		);
 	});
 
@@ -79,28 +197,68 @@ describe("toSvg", () => {
 		);
 	});
 
-	test("draws every letter as an outline, from where its anchor puts it", () => {
+	test("draws every letter as a use of its glyph, each glyph defined once before the ground", () => {
 		expect(written).not.toContain("<text");
+		const defined = [
+			...(
+				written.match(/^<svg[^>]*><defs>(.*?)<\/defs><rect /)?.[1] ?? ""
+			).matchAll(/<path id="([^"]+)" d="([^"]+)"\/>/g),
+		].map((m) => [m[1], m[2]]);
+		const texts: [string, Face][] = [
+			["lacZ", "sans"],
+			["pUC19", "sans-bold"],
+			["ACGA", "mono"],
+		];
+		const expected = new Map(
+			texts.flatMap(([text, face]) =>
+				glyphs(text, face, 10).map(
+					(g) => [g.id, outlineOf(face, g.index)] as const,
+				),
+			),
+		);
+		expect(defined).toEqual([...expected]);
+		expect(written.match(/<use /g)).toHaveLength(13);
+	});
+
+	test("sets each text from where its anchor puts it, scaled from its face's units", () => {
+		const uses = (text: string, face: Face) =>
+			glyphs(text, face, 2048)
+				.map((g) => `<use xlink:href="#${g.id}" x="${g.x.toFixed(2)}"/>`)
+				.join("");
 		const start = 360 - measure("lacZ", "sans", 11.5) / 2;
 		expect(written).toContain(
-			`<path d="${outline("lacZ", "sans", 11.5, start, 50)}" fill="#000000"/>`,
+			`<g transform="translate(${start.toFixed(2)} 50.00) scale(0.005615234375)" fill="#000000">${uses("lacZ", "sans")}</g>`,
 		);
 		expect(written).toContain(
-			`<path d="${outline("pUC19", "sans-bold", 13.5, 12, 70)}" fill="#252525"/>`,
+			`<g transform="translate(12.00 70.00) scale(0.006591796875)" fill="#252525">${uses("pUC19", "sans-bold")}</g>`,
+		);
+	});
+
+	test("sets text in cells a glyph to a cell, each centred in its own", () => {
+		const [a, c, g] = glyphs("ACG", "mono", 11);
+		expect(written).toContain(
+			'<g transform="translate(0.00 90.00) scale(0.00537109375)" fill="#1c1e21">' +
+				`<use xlink:href="#${a.id}" x="407.50"/><use xlink:href="#${c.id}" x="2455.50"/>` +
+				`<use xlink:href="#${g.id}" x="4503.50"/><use xlink:href="#${a.id}" x="6551.50"/></g>`,
 		);
 	});
 
 	test("writes the shapes in order, every number with two decimals", () => {
-		const tags = [...written.matchAll(/<(\w+)/g)].map((m) => m[1]);
+		const shapes = written.slice(written.indexOf("</defs>"));
+		const tags = [...shapes.matchAll(/<(\w+)/g)].map((m) => m[1]);
+		const uses = (count: number) => Array(count).fill("use");
 		expect(tags).toEqual([
-			"svg",
 			"rect",
 			"line",
 			"path",
 			"rect",
 			"circle",
-			"path",
-			"path",
+			"g",
+			...uses(4),
+			"g",
+			...uses(5),
+			"g",
+			...uses(4),
 		]);
 		expect(written).toContain(
 			'<line x1="0.00" y1="0.00" x2="720.00" y2="0.00" stroke="#252525" stroke-width="2.60"/>',
@@ -135,7 +293,188 @@ describe("toSvg", () => {
 		};
 		const written = toSvg(tiny);
 		expect(written).toContain('cx="0.00"');
-		expect(written).toMatch(/<path d="M[^"]* 0\.00L/);
+		expect(written).toContain("translate(0.00 0.00)");
+		expect(written).toMatch(/<path id="[^"]+" d="M[^"]* 0\.00L/);
 		expect(written).not.toContain("-0.00");
 	});
+
+	test("writes a path's steps as one path, an arc with its radius both ways", () => {
+		const path: Scene = {
+			extent: { x: 0, y: 0, width: 10, height: 10 },
+			shapes: [
+				{
+					shape: "path",
+					commands: [
+						["M", 1, 2],
+						["L", 3.456, 4],
+						["A", 5, 1, 0, 6, 7.5],
+						["Z"],
+					],
+					fill: "none",
+					stroke: "#7f7f7f",
+					strokeWidth: 1,
+				},
+			],
+		};
+		expect(toSvg(path)).toContain(
+			'<path d="M1.00 2.00L3.46 4.00A5.00 5.00 0 1 0 6.00 7.50Z" fill="none" stroke="#7f7f7f" stroke-width="1.00"/>',
+		);
+	});
+
+	test("writes no hover text, though a shape has one", () => {
+		const hovered: Scene = {
+			extent: { x: 0, y: 0, width: 10, height: 10 },
+			shapes: [
+				{ shape: "circle", cx: 5, cy: 5, r: 1, fill: "#000000", title: "A1" },
+			],
+		};
+		expect(toSvg(hovered)).not.toContain("<title");
+	});
 });
+
+describe("toElement", () => {
+	test("writes text set in cells as one text element, each letter placed in its cell", () => {
+		const svg = toElement(
+			{
+				extent: { x: 0, y: 0, width: 50, height: 30 },
+				shapes: [
+					{
+						shape: "text",
+						text: "ACGA",
+						face: "mono",
+						size: 11,
+						cell: 11,
+						x: 22,
+						y: 20,
+						anchor: "middle",
+						fill: "#1c1e21",
+					},
+				],
+			},
+			document,
+		);
+		const texts = svg.querySelectorAll("text");
+		expect(texts).toHaveLength(1);
+		const [text] = texts;
+		expect(text.textContent).toBe("ACGA");
+		expect(text.getAttribute("x")).toBe("2.19 13.19 24.19 35.19");
+		expect(text.getAttribute("y")).toBe("20.00");
+		expect(text.getAttribute("font-family")).toBe("molviz Mono");
+		expect(text.getAttribute("font-weight")).toBe("400");
+		expect(text.hasAttribute("textLength")).toBe(false);
+	});
+});
+
+test("a live drawing shows a shape's tip in place of its hover; a still one, its hover; a file, neither", () => {
+	const tipped: Scene = {
+		extent: { x: 0, y: 0, width: 10, height: 10 },
+		shapes: [
+			{
+				shape: "circle",
+				cx: 5,
+				cy: 5,
+				r: 1,
+				fill: "#000000",
+				title: "ins · 12^13",
+				tip: "ins\ninsertion\n12^13\n6 bp",
+			},
+		],
+	};
+	const live = toElement(tipped, document).querySelectorAll("title");
+	expect([...live].map((title) => title.textContent)).toEqual([
+		"ins\ninsertion\n12^13\n6 bp",
+	]);
+	expect(toStill(tipped)).toContain("<title>ins · 12^13</title>");
+	expect(toStill(tipped)).not.toContain("insertion");
+	expect(toSvg(tipped)).not.toContain("<title");
+});
+
+test("a live drawing marks a shape with its item's key; a figure on a page, a still one and a file never do", () => {
+	const item = itemKey({ kind: "insertions", name: "ins", at: 12 });
+	const keyed: Scene = {
+		extent: { x: 0, y: 0, width: 10, height: 10 },
+		shapes: [
+			{ shape: "circle", cx: 5, cy: 5, r: 1, fill: "#000000", item },
+			{ shape: "circle", cx: 2, cy: 2, r: 1, fill: "#000000" },
+		],
+	};
+	const marked = (svg: SVGSVGElement) =>
+		[...svg.querySelectorAll("circle")].map((one) =>
+			one.getAttribute("data-molviz-item"),
+		);
+	expect(marked(toElement(keyed, document))).toEqual([item, null]);
+	expect(marked(toElement(keyed, document, { tips: false }))).toEqual([
+		null,
+		null,
+	]);
+	expect(toStill(keyed)).not.toContain("data-molviz");
+	expect(toSvg(keyed)).not.toContain("data-molviz");
+});
+
+test("a live drawing marks what holds a rail to show with both strands, and adds the part above it of a line or box across it, to show with the top one; a figure on a page, a still one and a file never do", () => {
+	const ink = { stroke: "#252525", strokeWidth: 1 };
+	const railed: Scene = {
+		extent: { x: 0, y: 0, width: 40, height: 40 },
+		shapes: [
+			{ shape: "line", x1: 5, y1: 0, x2: 5, y2: 30, rail: 10, ...ink },
+			{ shape: "line", x1: 5, y1: 10, x2: 15, y2: 10, rail: 10, ...ink },
+			{
+				shape: "rect",
+				x: 20,
+				y: 0,
+				width: 10,
+				height: 30,
+				corner: 0,
+				fill: "none",
+				rail: 10,
+				...ink,
+			},
+			{ shape: "line", x1: 0, y1: 0, x2: 0, y2: 30, ...ink },
+		],
+	};
+	const page = [...toElement(railed, document).children].slice(1);
+	const place = (one: Element) =>
+		(one.tagName === "line"
+			? ["x1", "y1", "x2", "y2"]
+			: ["x", "y", "width", "height"]
+		)
+			.map((name) => one.getAttribute(name))
+			.join(" ");
+	expect(
+		page.map((one) => [one.tagName, one.getAttribute("class"), place(one)]),
+	).toEqual([
+		["line", "molviz-both", "5.00 0.00 5.00 30.00"],
+		["line", "molviz-top", "5.00 0.00 5.00 10.00"],
+		["line", "molviz-both", "5.00 10.00 15.00 10.00"],
+		["rect", "molviz-both", "20.00 0.00 10.00 30.00"],
+		["rect", "molviz-top", "20.00 0.00 10.00 10.00"],
+		["line", null, "0.00 0.00 0.00 30.00"],
+	]);
+	const unrailed: Scene = {
+		...railed,
+		shapes: railed.shapes.map(({ rail, ...shape }) => shape),
+	};
+	const figure = toElement(railed, document, { tips: false });
+	expect(figure.outerHTML).toBe(
+		toElement(unrailed, document, { tips: false }).outerHTML,
+	);
+	expect(toStill(railed)).toBe(toStill(unrailed));
+	expect(toSvg(railed)).toBe(toSvg(unrailed));
+});
+
+test.each([
+	{ writer: "toSvg", write: toSvg },
+	{ writer: "toStill", write: toStill },
+])(
+	"$writer writes an attribute value that reads back as it was",
+	({ write }) => {
+		const fill = 'a&amp;b<c"d';
+		const odd: Scene = {
+			extent: { x: 0, y: 0, width: 10, height: 10 },
+			shapes: [{ shape: "circle", cx: 5, cy: 5, r: 1, fill }],
+		};
+		const { DOMParser } = new Window();
+		const parsed = new DOMParser().parseFromString(write(odd), "image/svg+xml");
+		expect(parsed.querySelector("circle")?.getAttribute("fill")).toBe(fill);
+	},
+);

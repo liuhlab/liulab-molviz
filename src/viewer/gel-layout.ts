@@ -12,6 +12,7 @@ import {
 	TITLE_SIZE,
 } from "./furniture";
 import type { Gel } from "./gel";
+import { MUTED } from "./paint";
 import type { Scene, Shape } from "./scene";
 import { measure, wrap } from "./text";
 
@@ -49,7 +50,6 @@ const GEL_FILL = "#15171c";
 const WELL_FILL = "#030407";
 const BAND_FILL = "#f3f0ff";
 const LADDER_FILL = "#a9bbff";
-const SIZE_INK = "#5c626b";
 
 /** A lane as drawn: its mark over the gel, its bands, and its line of the legend. */
 interface Lane {
@@ -107,7 +107,7 @@ export function layoutGel(gel: Gel): Scene {
 		const label = String(bp);
 		const x = left - SIZE_GAP - measure(label, "sans", TEXT_SIZE);
 		const lineTop = at(bp) - (LEADING * TEXT_SIZE) / 2;
-		lines(shapes, [label], "sans", TEXT_SIZE, x, lineTop, { fill: SIZE_INK });
+		lines(shapes, [label], "sans", TEXT_SIZE, x, lineTop, { fill: MUTED });
 		last = at(bp);
 	}
 	for (const [k, { mark, bands }] of lanes.entries()) {
@@ -183,7 +183,7 @@ function rect(
 	height: number,
 	fill: string,
 	corner: number,
-	hover?: string,
+	title?: string,
 ): Shape {
 	return {
 		shape: "rect",
@@ -195,6 +195,6 @@ function rect(
 		fill,
 		stroke: "none",
 		strokeWidth: 0,
-		hover,
+		title,
 	};
 }

@@ -106,17 +106,48 @@ function pathOf(
 	return path || name;
 }
 
+/** A problem in an input: its path, and what is wrong there. */
+export interface Problem {
+	readonly path: string;
+	readonly message: string;
+}
+
+/** An input as its schema types it, or every problem in it. */
+export type Parsed<T> =
+	| { readonly output: T }
+	| { readonly problems: readonly Problem[] };
+
+/** `input` as `schema` types it, or every problem in it. */
+export function parsed<S extends v.GenericSchema>(
+	schema: S,
+	input: unknown,
+	naming: Naming = {},
+): Parsed<v.InferOutput<S>> {
+	const result = v.safeParse(schema, input);
+	if (result.success) return { output: result.output };
+	return {
+		problems: result.issues.map((issue) => ({
+			path: pathOf(issue, naming),
+			message: issue.message,
+		})),
+	};
+}
+
+/** Return the output, or throw one FormatError naming each problem on a line of its own. */
+export function orThrow<T>(result: Parsed<T>): T {
+	if ("output" in result) return result.output;
+	throw new FormatError(
+		result.problems
+			.map(({ path, message }) => `${path}: ${message}`)
+			.join("\n"),
+	);
+}
+
 /** Return `input` as `schema` types it, or throw one FormatError naming every problem. */
 export function parse<S extends v.GenericSchema>(
 	schema: S,
 	input: unknown,
 	naming: Naming = {},
 ): v.InferOutput<S> {
-	const result = v.safeParse(schema, input);
-	if (result.success) return result.output;
-	throw new FormatError(
-		result.issues
-			.map((issue) => `${pathOf(issue, naming)}: ${issue.message}`)
-			.join("\n"),
-	);
+	return orThrow(parsed(schema, input, naming));
 }

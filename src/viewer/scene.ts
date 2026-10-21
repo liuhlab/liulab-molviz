@@ -3,6 +3,7 @@
  * SVG or DOM in it.
  */
 
+import type { ItemKey } from "./selection";
 import type { Face } from "./text";
 
 /** A rectangle: its top-left corner, width and height. */
@@ -12,6 +13,19 @@ export interface Box {
 	readonly width: number;
 	readonly height: number;
 }
+
+/** One step of a path, in points. */
+export type PathCommand =
+	| readonly ["M" | "L", x: number, y: number]
+	| readonly [
+			"A",
+			radius: number,
+			large: 0 | 1,
+			sweep: 0 | 1,
+			x: number,
+			y: number,
+	  ]
+	| readonly ["Z"];
 
 /** One thing a scene draws. Lengths are in points; colours are written `#rrggbb`. */
 export type Shape = (
@@ -30,6 +44,28 @@ export type Shape = (
 			readonly fill: string;
 			readonly stroke: string;
 			readonly strokeWidth: number;
+	  }
+	| {
+			readonly shape: "path";
+			readonly commands: readonly PathCommand[];
+			/** `none` leaves it unfilled. */
+			readonly fill: string;
+			readonly stroke: string;
+			readonly strokeWidth: number;
+	  }
+	| {
+			/** A name set along a curve, a letter at a time. */
+			readonly shape: "letters";
+			readonly text: string;
+			readonly face: Face;
+			readonly size: number;
+			readonly fill: string;
+			/** Where each letter starts on its baseline, and the degrees it turns clockwise there. */
+			readonly places: readonly (readonly [
+				x: number,
+				y: number,
+				rotate: number,
+			])[];
 	  }
 	| {
 			readonly shape: "rect";
@@ -59,12 +95,32 @@ export type Shape = (
 			readonly x: number;
 			/** The baseline. */
 			readonly y: number;
+			/** Degrees it turns clockwise about `x` and `y`. */
+			readonly rotate?: number;
 			readonly anchor: "start" | "middle";
 			readonly fill: string;
+			/** If given, each letter sits centred in a cell this wide, the cells side by side. */
+			readonly cell?: number;
 	  }
 ) & {
-	/** What a page shows while the pointer rests on the shape. A file leaves it out. */
-	readonly hover?: string;
+	/**
+	 * What a still drawing shows while the pointer rests on the shape, as its `<title>`. A file
+	 * leaves it out.
+	 */
+	readonly title?: string;
+	/**
+	 * What a live map's hover box shows in place of `title`: lines, the first in bold, as an
+	 * item's name, type, span and length. A still drawing and a file leave it out.
+	 */
+	readonly tip?: string;
+	/** The key of the item the shape draws, the same in every view; only a live page writes it. */
+	readonly item?: ItemKey;
+	/**
+	 * The sequence view's rail, under which the shape draws the bottom strand: a live page hides
+	 * the shape with that strand, and draws in its place the part of a line or rect above the
+	 * rail. A still drawing and a file leave it out.
+	 */
+	readonly rail?: number;
 };
 
 /** A drawing laid out: its shapes in the order they are drawn. */
@@ -86,4 +142,58 @@ export function leftEdge(
 export function twoDecimals(value: number): string {
 	const text = value.toFixed(2);
 	return text === "-0.00" ? "0.00" : text;
+}
+
+/** `shape` moved `dx` right and `dy` down. */
+export function moved(shape: Shape, dx: number, dy: number): Shape {
+	const out = shifted(shape, dx, dy);
+	return shape.rail === undefined ? out : { ...out, rail: shape.rail + dy };
+}
+
+function shifted(shape: Shape, dx: number, dy: number): Shape {
+	switch (shape.shape) {
+		case "line":
+			return {
+				...shape,
+				x1: shape.x1 + dx,
+				y1: shape.y1 + dy,
+				x2: shape.x2 + dx,
+				y2: shape.y2 + dy,
+			};
+		case "polygon":
+			return {
+				...shape,
+				points: shape.points.map(([x, y]) => [x + dx, y + dy] as const),
+			};
+		case "path":
+			return {
+				...shape,
+				commands: shape.commands.map((command) => {
+					switch (command[0]) {
+						case "Z":
+							return command;
+						case "A": {
+							const [letter, r, large, sweep, x, y] = command;
+							return [letter, r, large, sweep, x + dx, y + dy] as const;
+						}
+						default: {
+							const [letter, x, y] = command;
+							return [letter, x + dx, y + dy] as const;
+						}
+					}
+				}),
+			};
+		case "letters":
+			return {
+				...shape,
+				places: shape.places.map(
+					([x, y, turn]) => [x + dx, y + dy, turn] as const,
+				),
+			};
+		case "circle":
+			return { ...shape, cx: shape.cx + dx, cy: shape.cy + dy };
+		case "rect":
+		case "text":
+			return { ...shape, x: shape.x + dx, y: shape.y + dy };
+	}
 }

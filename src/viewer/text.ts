@@ -1,54 +1,34 @@
 /// <reference types="vite/client" />
 /** Text in the faces the viewer carries: measured, and outlined as SVG paths. */
 
-import { type Font, parse } from "opentype.js";
-import sansUrl from "./fonts/sans.ttf?inline";
-import sansBoldUrl from "./fonts/sans-bold.ttf?inline";
+import { OUTLINES_GLOBAL } from "virtual:molviz-fonts";
+import type { Outlines } from "virtual:molviz-outlines";
+import { advance, FACES, type Face, has, places, units } from "./faces";
+import monoUrl from "./fonts/mono.woff2?inline";
+import sansUrl from "./fonts/sans.woff2?inline";
+import sansBoldUrl from "./fonts/sans-bold.woff2?inline";
 import { twoDecimals } from "./scene";
 
-/** A face the viewer carries: DejaVu Sans, or its bold. */
-export type Face = "sans" | "sans-bold";
+export type { Face } from "./faces";
 
-/** The family a page declares both faces under. No installed font has it, so none stands in. */
-export const family = "molviz Sans";
+/** The family a page declares each face under. No installed font has one, so none stands in. */
+export const families: Record<Face, string> = {
+	sans: "molviz Sans",
+	"sans-bold": "molviz Sans",
+	mono: "molviz Mono",
+};
 
-const urls: Record<Face, string> = { sans: sansUrl, "sans-bold": sansBoldUrl };
-/** The weight each face is declared at under `family`. */
-export const weights: Record<Face, number> = { sans: 400, "sans-bold": 700 };
-const fonts: Partial<Record<Face, Font>> = {};
-
-function font(face: Face): Font {
-	fonts[face] ??= parse(bytes(urls[face]));
-	return fonts[face];
-}
-
-const base64Alphabet =
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-/** The bytes of a base64 data URL, decoded by hand: mini-racer has no `atob`. */
-function bytes(url: string): ArrayBuffer {
-	const text = url.slice(url.indexOf(",") + 1).replace(/=+$/, "");
-	const value = new Uint8Array(128);
-	for (let i = 0; i < base64Alphabet.length; i++)
-		value[base64Alphabet.charCodeAt(i)] = i;
-	const out = new Uint8Array((text.length * 3) >> 2);
-	let bits = 0;
-	let held = 0;
-	let o = 0;
-	for (let i = 0; i < text.length; i++) {
-		bits = (bits << 6) | value[text.charCodeAt(i)];
-		held += 6;
-		if (held >= 8) {
-			held -= 8;
-			out[o++] = (bits >> held) & 255;
-		}
-	}
-	return out.buffer;
-}
-
-// DejaVu files its kerning under the Latin script, and opentype.js reads only the default
-// script unless told.
-const kerned = { script: "latn" };
+const urls: Record<Face, string> = {
+	sans: sansUrl,
+	"sans-bold": sansBoldUrl,
+	mono: monoUrl,
+};
+/** The weight each face is declared at in its family. */
+export const weights: Record<Face, number> = {
+	sans: 400,
+	"sans-bold": 700,
+	mono: 400,
+};
 
 /**
  * `text` with each character `face` lacks replaced by U+FFFD, which it has.
@@ -57,27 +37,40 @@ const kerned = { script: "latn" };
  * font and the width no longer matches `measure`.
  */
 export function inFace(text: string, face: Face): string {
-	const f = font(face);
 	let out = "";
-	for (const character of text) out += f.hasChar(character) ? character : "�";
+	for (const character of text) out += has(character, face) ? character : "�";
 	return out;
 }
 
 /** The advance width of `text` set in `face` at `size`, kerned, in the units of `size`. */
 export function measure(text: string, face: Face, size: number): number {
-	return font(face).getAdvanceWidth(inFace(text, face), size, kerned);
+	return advance(inFace(text, face), face, size);
+}
+
+/** How wide `text` is set in `face` at `size`, or, given `cell`, in cells that wide. */
+export function textWidth(
+	text: string,
+	face: Face,
+	size: number,
+	cell?: number,
+): number {
+	return cell === undefined
+		? measure(text, face, size)
+		: [...text].length * cell;
 }
 
 /**
  * `text` broken into lines no wider than `width`, as many words to a line as fit, and none for
- * text with no word. A word wider than a line breaks between letters, and a letter wider than a
- * line takes a line alone.
+ * text with no word. A word wider than a line breaks after any of the letters `after`, as many
+ * pieces to a line as fit; a piece still too wide breaks between letters, and a letter wider
+ * than a line takes a line alone.
  */
 export function wrap(
 	text: string,
 	face: Face,
 	size: number,
 	width: number,
+	after = "",
 ): string[] {
 	const fits = (line: string) => measure(line, face, size) <= width;
 	const lines: string[] = [];
@@ -89,25 +82,41 @@ export function wrap(
 			continue;
 		}
 		if (line) lines.push(line);
-		let rest = [...word];
-		while (!fits(rest.join(""))) {
-			let cut = 1;
-			while (cut < rest.length && fits(rest.slice(0, cut + 1).join(""))) cut++;
-			lines.push(rest.slice(0, cut).join(""));
-			rest = rest.slice(cut);
+		line = "";
+		for (const piece of piecesOf(word, after)) {
+			if (fits(line + piece)) {
+				line += piece;
+				continue;
+			}
+			if (line) lines.push(line);
+			let rest = [...piece];
+			while (!fits(rest.join(""))) {
+				let cut = 1;
+				while (cut < rest.length && fits(rest.slice(0, cut + 1).join("")))
+					cut++;
+				lines.push(rest.slice(0, cut).join(""));
+				rest = rest.slice(cut);
+			}
+			line = rest.join("");
 		}
-		line = rest.join("");
 	}
 	return line ? [...lines, line] : lines;
 }
 
+/** `word` cut after each run of the letters `after`. */
+function piecesOf(word: string, after: string): string[] {
+	if (!after) return [word];
+	const letters = after.replace(/[\]\\^-]/g, "\\$&");
+	return (
+		word.match(new RegExp(`[^${letters}]*[${letters}]+|[^${letters}]+`, "g")) ??
+		[]
+	);
+}
+
 /** How far `face` reaches above and below its baseline, per unit of size. */
 export function metrics(face: Face): { ascent: number; descent: number } {
-	const f = font(face);
-	return {
-		ascent: f.ascender / f.unitsPerEm,
-		descent: -f.descender / f.unitsPerEm,
-	};
+	const { unitsPerEm, ascender, descender } = units(face);
+	return { ascent: ascender / unitsPerEm, descent: -descender / unitsPerEm };
 }
 
 /** The height of a line of text in `face` at `size`. */
@@ -122,38 +131,75 @@ export function baseline(face: Face, size: number, middle: number): number {
 	return middle + ((ascent - descent) / 2) * size;
 }
 
+/** One glyph of a line of text, and where it sits. */
+export interface Glyph {
+	/** Names the glyph among every face's glyphs. */
+	readonly id: string;
+	/** The glyph's index in its face, which `outlineOf` takes. */
+	readonly index: number;
+	/** Where its origin sits, in the units of the line's size, from where the line starts. */
+	readonly x: number;
+}
+
 /**
- * SVG path data drawing `text` in `face` at `size`, starting at `x` on the baseline `y`.
- *
- * Every number has two decimals, so the same text always gives the same string.
+ * The glyphs drawing `text` in `face` at `size`: kerned, or with a `cell` width each centred in a
+ * cell that wide, the cells side by side.
  */
-export function outline(
+export function glyphs(
 	text: string,
 	face: Face,
 	size: number,
-	x: number,
-	y: number,
-): string {
-	const path = font(face).getPath(inFace(text, face), x, y, size, kerned);
-	let d = "";
-	for (const c of path.commands) {
-		if (c.type === "Z") d += "Z";
-		else if (c.type === "Q")
-			d += `Q${twoDecimals(c.x1)} ${twoDecimals(c.y1)} ${twoDecimals(c.x)} ${twoDecimals(c.y)}`;
-		else if (c.type === "C")
-			d += `C${twoDecimals(c.x1)} ${twoDecimals(c.y1)} ${twoDecimals(c.x2)} ${twoDecimals(c.y2)} ${twoDecimals(c.x)} ${twoDecimals(c.y)}`;
-		else d += `${c.type}${twoDecimals(c.x)} ${twoDecimals(c.y)}`;
-	}
-	return d;
+	cell?: number,
+): Glyph[] {
+	const scale = size / units(face).unitsPerEm;
+	const placed = places(inFace(text, face), face);
+	const glyph = (index: number, x: number) => ({
+		id: `${face}-${index}`,
+		index,
+		x,
+	});
+	if (cell === undefined)
+		return placed.map(({ index, x }) => glyph(index, x * scale));
+	let start = 0;
+	return placed.map(({ index, advance: width }) => {
+		const centred = glyph(index, start + (cell - width * scale) / 2);
+		start += cell;
+		return centred;
+	});
 }
 
-/** CSS `@font-face` rules declaring each face under `family`, by weight, as a data URL. */
+// Each outline read so far, with two decimals, by face and then glyph index.
+const roundedOutlines: Partial<Record<Face, Map<number, string>>> = {};
+
+/**
+ * The outline of glyph `index` of `face` as SVG path data in its face's units, y down, from its
+ * origin on the baseline, every number with two decimals. Empty for a glyph with no ink, such
+ * as a space. Throws unless the outline script has run.
+ */
+export function outlineOf(face: Face, index: number): string {
+	const scriptOutlines = (globalThis as Record<string, unknown>)[
+		OUTLINES_GLOBAL
+	] as Outlines | undefined;
+	if (scriptOutlines === undefined)
+		throw new Error("molviz: a file's outlines need the outline script");
+	roundedOutlines[face] ??= new Map();
+	const known = roundedOutlines[face];
+	let outline = known.get(index);
+	if (outline === undefined) {
+		outline = (scriptOutlines[face][index] ?? "").replace(
+			/-?\d+(\.\d+)?/g,
+			(n) => twoDecimals(Number(n)),
+		);
+		known.set(index, outline);
+	}
+	return outline;
+}
+
+/** CSS `@font-face` rules declaring each face in its family, by weight, as a data URL. */
 export function fontFaceCss(): string {
-	return (Object.keys(urls) as Face[])
-		.map(
-			(face) =>
-				`@font-face{font-family:"${family}";font-weight:${weights[face]};` +
-				`src:url(${urls[face]}) format("truetype")}`,
-		)
-		.join("\n");
+	return FACES.map(
+		(face) =>
+			`@font-face{font-family:"${families[face]}";font-weight:${weights[face]};` +
+			`src:url(${urls[face]}) format("woff2")}`,
+	).join("\n");
 }

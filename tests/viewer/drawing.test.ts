@@ -1,7 +1,12 @@
 import { describe, expect, test } from "vitest";
+import { layoutCircle } from "../../src/viewer/circle";
 import { gelSvg, plateSvg, prepare, svg } from "../../src/viewer/drawing";
 import { FormatError } from "../../src/viewer/format";
+import { layoutLine } from "../../src/viewer/line";
+import { checkOptions } from "../../src/viewer/options";
+import { check } from "../../src/viewer/record";
 import { leftEdge } from "../../src/viewer/scene";
+import { layoutSequence } from "../../src/viewer/sequence";
 import { measure, metrics } from "../../src/viewer/text";
 
 const good = { name: "p", circular: false, bases: "ACGT".repeat(25) };
@@ -18,6 +23,16 @@ describe("svg", () => {
 			new FormatError(
 				"options.span.end: must be at most the record's length, 100",
 			),
+		);
+	});
+
+	test("lays a whole circular record out as the circle, or as the line when asked", () => {
+		const circular = check({ ...good, circular: true });
+		expect(prepare(circular, {})).toStrictEqual(
+			layoutCircle(circular, checkOptions({}, circular)),
+		);
+		expect(prepare(circular, { map: "line" })).toStrictEqual(
+			layoutLine(circular, checkOptions({ map: "line" }, circular)),
 		);
 	});
 
@@ -110,13 +125,68 @@ describe("svg", () => {
 				length: 3,
 			})),
 		};
-		const drawn = svg(record);
+		const drawn = svg(record, { map: "line" });
 		expect(drawn.hidden).toEqual([]);
 		expect(drawn.notice).toBe("");
-		const said = prepare(record, {}).shapes.filter(
+		const said = prepare(record, { map: "line" }).shapes.filter(
 			(s) => s.shape === "text" && s.text === "across (996 .. 5)",
 		);
 		expect(said).toHaveLength(1);
+	});
+});
+
+describe("svg with the sequence view", () => {
+	const record = { ...good, bases: "ACGT".repeat(500) };
+	const drawn = svg(record, { sequence_view: true });
+	const size = (text: string) => {
+		const root = /^<svg\b[^>]*>/.exec(text)?.[0] ?? "";
+		const [width, height] = ["width", "height"].map((name) =>
+			Number(new RegExp(`\\s${name}="([^"]*)"`).exec(root)?.[1]),
+		);
+		return { width, height };
+	};
+
+	test("draws the view under the map, centred, as wide as the wider", () => {
+		const checked = check(record);
+		const view = layoutSequence(
+			checked,
+			checkOptions({ sequence_view: true }, checked),
+		).extent;
+		const map = size(svg(record).svg);
+		const whole = size(drawn.svg);
+		expect(whole.width).toBeCloseTo(Math.max(map.width, view.width), 2);
+		expect(whole.height).toBeCloseTo(map.height + view.height, 2);
+	});
+
+	test("pages the map alone, then the rows on pages as wide as the view", () => {
+		const [map, ...rows] = drawn.pages;
+		expect(map).toBe(svg(record).svg);
+		expect(rows.length).toBeGreaterThan(1);
+		const { width } = size(rows[0]);
+		for (const page of rows) {
+			expect(size(page).width).toBe(width);
+			expect(size(page).height).toBeLessThanOrEqual(width * Math.SQRT2);
+		}
+	});
+
+	test("hides nothing it would not hide without the view", () => {
+		expect(drawn.hidden).toEqual([]);
+		expect(drawn.notice).toBe("");
+	});
+
+	test("draws a whole circular record's circle above the view, the circle its first page", () => {
+		const circular = check({ ...record, circular: true });
+		const both = svg(circular, { sequence_view: true });
+		const circle = svg(circular);
+		expect(both.pages[0]).toBe(circle.svg);
+		const view = layoutSequence(
+			circular,
+			checkOptions({ sequence_view: true }, circular),
+		).extent;
+		expect(size(both.svg).height).toBeCloseTo(
+			size(circle.svg).height + view.height,
+			2,
+		);
 	});
 });
 

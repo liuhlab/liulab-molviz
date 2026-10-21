@@ -13,6 +13,9 @@ describe("check", () => {
 			primers: [],
 			cuts: [],
 			insertions: [],
+			reads: [],
+			disagreements: [],
+			tracks: [],
 		});
 	});
 
@@ -111,7 +114,7 @@ describe("features", () => {
 
 	test.each<[string, boolean, object[], string[]]>([
 		[
-			"with starts that do not ascend",
+			"with a start equal to the one before",
 			false,
 			[
 				{ start: 50, end: 60 },
@@ -120,7 +123,68 @@ describe("features", () => {
 			],
 			[
 				"features[0].segments[1].start: must be greater than the previous segment's start",
-				"features[0].segments[2].start: must be greater than the previous segment's start",
+			],
+		],
+		[
+			"running off a linear record's end and on from its start",
+			false,
+			[
+				{ start: 90, end: 98 },
+				{ start: 2, end: 9 },
+			],
+			[],
+		],
+		[
+			"running off a linear record's end twice",
+			false,
+			[
+				{ start: 50, end: 60 },
+				{ start: 20, end: 30 },
+				{ start: 10, end: 15 },
+			],
+			[
+				"features[0].segments[2].start: must be greater than the previous segment's start: a feature runs off a linear record's end once",
+			],
+		],
+		[
+			"past where it began, after running off a linear record's end",
+			false,
+			[
+				{ start: 50, end: 60 },
+				{ start: 10, end: 20 },
+				{ start: 30, end: 51 },
+			],
+			[
+				"features[0].segments[2].end: must be at most segments[0].start, 50, once the feature has run off the end",
+			],
+		],
+		[
+			"up to where it began, after running off a linear record's end",
+			false,
+			[
+				{ start: 50, end: 60 },
+				{ start: 20, end: 50 },
+			],
+			[],
+		],
+		[
+			"from a linear record's last base on from its first",
+			false,
+			[
+				{ start: 90, end: 100 },
+				{ start: 0, end: 5 },
+			],
+			[],
+		],
+		[
+			"running back past the origin of a circular record",
+			true,
+			[
+				{ start: 90, end: 98 },
+				{ start: 2, end: 9 },
+			],
+			[
+				"features[0].segments[1].start: must be greater than the previous segment's start",
 			],
 		],
 		[
@@ -500,6 +564,231 @@ describe("insertions", () => {
 	});
 });
 
+describe("reads", () => {
+	const read = { name: "consensus.fasta", start: 10, end: 60, strand: 1 };
+	const reads = (...changes: object[]) => ({
+		reads: changes.map((change) => ({ ...read, ...change })),
+	});
+	const across = { start: 90, end: 110 };
+
+	test("may run across the origin of a circular record, on either strand", () => {
+		expect(
+			problems(record(true, reads(across, { name: "r2", strand: -1 }))),
+		).toEqual([]);
+	});
+
+	test.each<[string, boolean, object[], string[]]>([
+		[
+			"across a linear record's end",
+			false,
+			[across],
+			["reads[0].end: must be at most the record's length, 100"],
+		],
+		[
+			"on no strand",
+			true,
+			[{ strand: 0 }],
+			["reads[0].strand: must be 1 or -1"],
+		],
+		[
+			"two of one name",
+			true,
+			[{}, { start: 0, end: 5 }, { name: "consensus.fasta" }],
+			[
+				"reads[1].name: must differ from reads[0].name",
+				"reads[2].name: must differ from reads[0].name",
+			],
+		],
+		[
+			"keys a read does not have",
+			true,
+			[{ color: "#cc3311" }],
+			["reads[0].color: unknown key"],
+		],
+	])("rejects %s", (_, isCircular, changes, expected) => {
+		expect(problems(record(isCircular, reads(...changes)))).toEqual(expected);
+	});
+});
+
+describe("disagreements", () => {
+	const reads = [
+		{ name: "r1", start: 0, end: 60, strand: 1 },
+		{ name: "r2", start: 50, end: 100, strand: -1 },
+	];
+	const substitution = {
+		name: "41 A>G",
+		start: 40,
+		end: 41,
+		bases: "G",
+		reads: ["r1"],
+	};
+	const disagreements = (change: object) => ({
+		reads,
+		disagreements: [{ ...substitution, ...change }],
+	});
+	const point = { start: undefined, end: undefined, at: 55 };
+
+	test.each<[string, object]>([
+		["over a span, with a color", { color: "#CC3311" }],
+		["over a span, as a deletion", { end: 43, bases: "" }],
+		[
+			"across the origin, shown by two reads",
+			{ start: 95, end: 102, bases: "ACGTNNN", reads: ["r2", "r1"] },
+		],
+		["at a point, as an insertion", { ...point, bases: "TT" }],
+		["at the origin", { ...point, at: 0, bases: "A" }],
+		["shown by no read", { reads: [] }],
+	])("may lie %s", (_, change) => {
+		expect(problems(record(true, disagreements(change)))).toEqual([]);
+	});
+
+	test.each<[string, object, string[]]>([
+		[
+			"a span and a point",
+			{ at: 40 },
+			["disagreements[0].at: must not come with start or end"],
+		],
+		[
+			"neither a span nor a point",
+			{ start: undefined, end: undefined },
+			["disagreements[0]: must have start and end, or at"],
+		],
+		[
+			"a start with no end",
+			{ end: undefined },
+			["disagreements[0].end: missing"],
+		],
+		[
+			"an empty span",
+			{ end: 40 },
+			["disagreements[0].end: must be greater than start"],
+		],
+		[
+			"no bases at a point",
+			{ ...point, bases: "" },
+			["disagreements[0].bases: must hold at least one base at a point"],
+		],
+		[
+			"bases that are not nucleotides",
+			{ bases: "G-" },
+			[
+				'disagreements[0].bases: has "-" at index 1, which is not an IUPAC nucleotide letter',
+			],
+		],
+		[
+			"reads the record does not hold, by their exact names",
+			{ reads: ["r1", "R2", "r3"] },
+			[
+				"disagreements[0].reads[1]: names no read in the record",
+				"disagreements[0].reads[2]: names no read in the record",
+			],
+		],
+		[
+			"a color not written #rrggbb",
+			{ color: "red" },
+			["disagreements[0].color: must be a color written #rrggbb"],
+		],
+	])("rejects %s", (_, change, expected) => {
+		expect(problems(record(true, disagreements(change)))).toEqual(expected);
+	});
+
+	test("lie within a linear record", () => {
+		expect(
+			problems(record(false, disagreements({ start: 95, end: 102 }))),
+		).toEqual([
+			"disagreements[0].end: must be at most the record's length, 100",
+		]);
+	});
+});
+
+describe("tracks", () => {
+	const curve = [0, 3, 9, 3, 0, -1];
+	const track = {
+		name: "3730",
+		curves: { A: curve, C: curve, G: curve, T: curve },
+		// A bottom-strand read's bases descend as its samples ascend.
+		peaks: [
+			[2, 99],
+			[4, 98],
+		],
+	};
+	const tracks = (change: object) => ({ tracks: [{ ...track, ...change }] });
+	const curves = (change: object) =>
+		tracks({ curves: { ...track.curves, ...change } });
+
+	test("may hold no samples", () => {
+		const empty = { A: [], C: [], G: [], T: [] };
+		expect(
+			problems(record(false, tracks({ curves: empty, peaks: [] }))),
+		).toEqual([]);
+	});
+
+	test.each<[string, object, string[]]>([
+		["descending bases, and values below 0", tracks({}), []],
+		[
+			"a curve for a letter that is not A, C, G or T",
+			curves({ N: curve }),
+			["tracks[0].curves.N: unknown key"],
+		],
+		[
+			"a curve left out",
+			tracks({ curves: { A: curve, C: curve, G: curve } }),
+			["tracks[0].curves.T: missing"],
+		],
+		[
+			"curves of unequal length",
+			curves({ C: [1], T: [...curve, 0] }),
+			[
+				"tracks[0].curves.C: must be as long as curves.A, 6 samples",
+				"tracks[0].curves.T: must be as long as curves.A, 6 samples",
+			],
+		],
+		[
+			"a value that is not a finite number",
+			curves({ G: [0, "3", 9, Number.POSITIVE_INFINITY, 0, 0] }),
+			[
+				"tracks[0].curves.G[1]: must be a number",
+				"tracks[0].curves.G[3]: must be a finite number",
+			],
+		],
+		[
+			"samples that do not ascend",
+			tracks({
+				peaks: [
+					[2, 10],
+					[2, 11],
+					[1, 12],
+				],
+			}),
+			[
+				"tracks[0].peaks[1][0]: must be greater than the previous peak's sample",
+				"tracks[0].peaks[2][0]: must be greater than the previous peak's sample",
+			],
+		],
+		[
+			"a sample past the curves",
+			tracks({ peaks: [[6, 10]] }),
+			["tracks[0].peaks[0][0]: must be less than the curves' length, 6"],
+		],
+		[
+			"a base past the record",
+			tracks({ peaks: [[1, 100]] }),
+			["tracks[0].peaks[0][1]: must be less than the record's length, 100"],
+		],
+		[
+			"a peak that is not a pair of whole numbers",
+			tracks({ peaks: [[1], [2.5, 3], [3, 4, 5]] }),
+			[
+				"tracks[0].peaks[0]: must be a pair, a sample and a base",
+				"tracks[0].peaks[1][0]: must be an integer",
+				"tracks[0].peaks[2]: must be a pair, a sample and a base",
+			],
+		],
+	])("with %s", (_, kinds, expected) => {
+		expect(problems(record(false, kinds))).toEqual(expected);
+	});
+});
+
 describe("a record whose length or shape is malformed", () => {
 	// Each kind holds one problem that needs no length, and one value that would break a rule
 	// only a length could check.
@@ -535,9 +824,10 @@ describe("a record whose length or shape is malformed", () => {
 
 	test.each<[string, object, string[]]>([
 		[
+			// The feature's lower second start is where it runs off a linear record's end.
 			"bases, on a linear record",
 			{ circular: false, bases: 7 },
-			["bases: must be text", ascend, outside(0), outside(1), bottom, empty],
+			["bases: must be text", outside(0), outside(1), bottom, empty],
 		],
 		[
 			// Mismatch 2 may lie past the origin, inside a site that crosses it.

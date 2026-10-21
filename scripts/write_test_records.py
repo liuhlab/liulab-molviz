@@ -1,16 +1,21 @@
-"""Write mbio's example records, gels and plates into ``tests/``, in the viewer's formats.
+"""Write mbio's example inputs into ``tests/``, in the viewer's formats.
 
-The records go to ``tests/records/``, and from mbio's protocol JSON the gels to ``tests/gels/``
-and the plates to ``tests/plates/``. It runs in mbio's environment, and
-``tests/records/README.md`` has the command. Each input is read at `REVISION` through
-``git show``, so mbio's files on disk do not matter, but the mbio code it imports must match
-that commit. Every record carries the cuts of all of mbio's enzymes. An input that repeats one
-already written, such as a plate two protocols declare alike, is written once. The hand-made
-records in ``tests/records/`` are not written here.
+The records go to ``tests/records/``, and from mbio's protocol JSON the figures to
+``tests/figures/``, the gels to ``tests/gels/`` and the plates to ``tests/plates/``. It runs in
+mbio's environment, and ``tests/records/README.md`` has the command. Each input is read at
+`REVISION` through ``git show``, so mbio's files on disk do not matter, but the mbio code it
+imports must match that commit. Every record carries the cuts of all of mbio's enzymes. An
+input that repeats one already written, such as a plate two protocols declare alike, is written
+once. The hand-made records in ``tests/records/`` are not written here.
+
+A verification's reads and disagreements, and a trace's track, are what mbio's verification
+page draws of them, so this reads some of that page's private names.
 """
 
+import dataclasses
 import inspect
 import json
+import posixpath
 import re
 import subprocess
 import sys
@@ -27,7 +32,21 @@ from mbio.protocol.model import (  # pyright: ignore[reportMissingImports]
     read_project,
     read_protocol,
 )
+from mbio.sequence import (  # pyright: ignore[reportMissingImports]
+    Feature,
+    Segment,
+    SequenceRecord,
+    reverse_complement,
+)
 from mbio.sites import find_sites  # pyright: ignore[reportMissingImports]
+from mbio.verification import (  # pyright: ignore[reportMissingImports]
+    page,
+    read_channels,
+    read_trace,
+    regions,
+    verify,
+)
+from mbio.verification.cli import read_result  # pyright: ignore[reportMissingImports]
 
 #: The mbio commit the records are read at. To move it, edit it and run this again.
 REVISION = "10e87856849e7d484f0274064b8ff96357a5f618"
@@ -35,15 +54,61 @@ REVISION = "10e87856849e7d484f0274064b8ff96357a5f618"
 #: Each record's file name in ``tests/records/``, and its input in mbio.
 RECORDS = {
     "puc19-gfp-product": "docs/examples/pUC19-GFP/product.dna",
+    "puc19-backbone-amplicon": "docs/examples/pUC19-GFP/puc19-backbone-amplicon.dna",
+    "gfp-amplicon": "docs/examples/pUC19-GFP/gfp-amplicon.dna",
     "ap1-product": "docs/examples/ap1-library/product.dna",
+    "ap1-block-vector-1": "docs/examples/ap1-library/block-vector-1.dna",
+    "ap1-round-1": "docs/examples/ap1-library/round-1.dna",
+    "ap1-round-2": "docs/examples/ap1-library/round-2.dna",
     "colour-test": "tests/data/colour-test-snapgene.gbk",
     "primer-test": "tests/data/primer-test.dna",
 }
 
+_AP1 = "docs/examples/ap1-library/protocol/project.json"
+
+#: Each figure's file name in ``tests/figures/``, and the protocol or project in mbio and the
+#: key of the step that holds it. A figure's records must be in `RECORDS`.
+FIGURES = {
+    "ap1-round-1": (_AP1, "round-1-ligate"),
+    "ap1-round-2": (_AP1, "round-2-ligate"),
+    "ap1-round-3": (_AP1, "round-3-ligate"),
+    "ap1-barcode": (_AP1, "barcode-wells"),
+    "ap1-stuffer": (_AP1, "assemble-cargo"),
+    "ap1-cargo": (_AP1, "assemble-into-working-vector"),
+    "puc19-gfp-assembly": ("docs/examples/pUC19-GFP/protocol.json", "run-assembly"),
+}
+
+#: Each verification's file name in ``tests/records/``: its record in mbio, and the results
+#: held against it in the record's own regions.
+VERIFICATIONS = {
+    "puc19-gfp-verification": (
+        "docs/examples/pUC19-GFP/product.dna",
+        ("docs/examples/pUC19-GFP/verification/consensus.fasta",),
+    ),
+}
+
+#: Each trace record's file name in ``tests/records/``: its Sanger trace in mbio, and whether the
+#: record is read along its bottom strand.
+TRACES = {
+    "trace-3730": ("tests/data/3730.ab1", False),
+    "trace-3730-reversed": ("tests/data/3730.ab1", True),
+}
+
+#: Where a trace record's one changed base is, counted into the trace's trusted bases, as mbio's
+#: page tests plant it; and how many bases the record keeps on each side of it.
+PLANTED = 300
+FLANK = 60
+
+#: The base planted in place of each base.
+_REPLACEMENT = {"A": "C", "C": "G", "G": "T", "T": "A"}
+
+#: The bases of a trace's curves, in the order mbio's verification page gives the curves.
+_CURVE_BASES = ("A", "C", "G", "T")
+
 #: Each protocol or project in mbio whose steps hold gels, by the short name that starts each
 #: gel's file name in ``tests/gels/``. The gel's title ends it.
 GELS = {
-    "ap1": "docs/examples/ap1-library/protocol/project.json",
+    "ap1": _AP1,
     "gateway": "docs/examples/gateway/protocol.json",
     "gibson": "docs/examples/pUC19-GFP/gibson/protocol.json",
     "golden-gate": "docs/examples/pUC19-GFP/protocol.json",
@@ -54,7 +119,7 @@ GELS = {
 #: Each protocol or project in mbio that declares plates, by the short name that starts each
 #: plate's file name in ``tests/plates/``. The plate's name, or a stamp's title, ends it.
 PLATES = {
-    "ap1": "docs/examples/ap1-library/protocol/project.json",
+    "ap1": _AP1,
     "ap1-readback": "docs/examples/ap1-readback/protocol.json",
 }
 
@@ -148,6 +213,143 @@ def convert(record: Any) -> dict[str, Any]:
     return out
 
 
+def convert_verification(record: Any, made: Any) -> dict[str, Any]:
+    """Return a verification's placed reads, and its disagreements as mbio's page draws them.
+
+    `made` is what mbio's ``verify`` made of results held against `record`. A disagreement
+    takes the page's name and its verdict's colour.
+    """
+    statuses = {one.name: one.status for one in made.checks}
+    reads = [
+        {"name": placed.result, **_span(placed.span), "strand": int(placed.strand)}
+        for placed in made.placements
+        if placed.strand is not None
+    ]
+    disagreements = [
+        {
+            "name": page._name(one, record),
+            **({"at": one.start} if one.kind == "insertion" else _span(one)),
+            "bases": one.bases,
+            "reads": list(one.results),
+            "color": page._VERDICT_COLORS[page._verdict(one, statuses)],
+        }
+        for one in made.disagreements
+    ]
+    return {"reads": reads, "disagreements": disagreements}
+
+
+def convert_track(track: Any) -> dict[str, Any]:
+    """Return an mbio ``Track`` of a trace's four channels in the viewer's format."""
+    curves = zip(_CURVE_BASES, track.curves, strict=True)
+    return {
+        "name": track.name,
+        "curves": {base: list(curve.values) for base, curve in curves},
+        "peaks": [list(peak) for peak in track.peaks],
+    }
+
+
+def _trace(name: str, path: Path, reverse: bool) -> dict[str, Any]:
+    """Return a record of a trace's trusted bases, `PLANTED` changed, cropped to `FLANK` each side.
+
+    The record is verified whole against the trace, as mbio's page tests do, then cropped. Read
+    along the bottom strand, it is the reverse complement, cropped to the same bases.
+    """
+    result, channels = read_trace(path), read_channels(path)
+    first, last = result.trusted_span
+    bases = list(result.bases[first:last])
+    bases[PLANTED] = _REPLACEMENT[bases[PLANTED]]
+    own = "".join(bases)
+    start, end = PLANTED - FLANK, PLANTED + FLANK
+    if reverse:
+        own = reverse_complement(own)
+        start, end = len(own) - end, len(own) - start
+    record = SequenceRecord(own, name=name)
+    whole = Feature("read", "misc_feature", (Segment(0, len(own)),))
+    made = verify(record, (result,), (whole,))
+    [track] = page._tracks(record, (result,), made, (channels,))
+    window = SequenceRecord(own[start:end], name=name)
+    return (
+        convert(window)
+        | convert_verification(window, _cropped(made, start, end))
+        | {"tracks": [convert_track(_cropped_track(track, start, end))]}
+    )
+
+
+def _cropped(made: Any, start: int, end: int) -> Any:
+    """Return a verification within the bases from `start` to `end`, counted from `start`.
+
+    Each placement is clipped to them, and a disagreement not wholly within them is dropped.
+    """
+    placements = tuple(
+        dataclasses.replace(
+            placed,
+            span=Segment(max(placed.span.start, start) - start, min(placed.span.end, end) - start),
+        )
+        if placed.span is not None
+        else placed
+        for placed in made.placements
+    )
+    disagreements = tuple(
+        dataclasses.replace(one, start=one.start - start, end=one.end - start)
+        for one in made.disagreements
+        if start <= one.start and one.end <= end
+    )
+    return dataclasses.replace(made, placements=placements, disagreements=disagreements)
+
+
+def _cropped_track(track: Any, start: int, end: int) -> Any:
+    """Return a track's peaks over the bases from `start` to `end`, counted from `start`.
+
+    The curves keep the samples from a step before the first of those peaks to a step after the
+    last, more than a run of them draws.
+    """
+    peaks = [(sample, base - start) for sample, base in track.peaks if start <= base < end]
+    (first, _), (second, _) = peaks[:2]
+    (before, _), (final, _) = peaks[-2:]
+    low = max(0, 2 * first - second)
+    high = 2 * final - before + 1
+    curves = tuple(dataclasses.replace(c, values=c.values[low:high]) for c in track.curves)
+    moved = tuple((sample - low, base) for sample, base in peaks)
+    return dataclasses.replace(track, curves=curves, peaks=moved)
+
+
+def convert_figure(figure: dict[str, Any], folder: str) -> dict[str, Any]:
+    """Return a figure from mbio's protocol JSON as its records' names and its options.
+
+    Each record path resolves against `folder`, the protocol's folder in mbio, to a name in
+    `RECORDS`; any other record stops the script. ``linear`` becomes ``"map": "line"``. An
+    option at mbio's default is left out, and the caption and citation stay mbio's.
+    """
+    names = {path: name for name, path in RECORDS.items()}
+    records = []
+    for path in figure["records"]:
+        if (resolved := posixpath.normpath(posixpath.join(folder, path))) not in names:
+            sys.exit(f"a figure draws {resolved}, which is not in RECORDS")
+        records.append(names[resolved])
+    options: dict[str, Any] = {"map": "line"} if figure.get("linear") else {}
+    if (span := figure.get("span")) is not None:
+        options["span"] = {"start": span[0], "end": span[1]}
+    if figure.get("sequence_view"):
+        options["sequence_view"] = True
+    if (enzymes := figure.get("enzymes")) is not None:
+        options["enzymes"] = enzymes
+    if highlight := figure.get("highlight"):
+        options["highlight"] = highlight
+    return {"records": records, "options": options}
+
+
+def _figure(data: dict[str, Any], key: str) -> dict[str, Any]:
+    """Return the one figure of the step with ``key`` in a protocol, or in a project's protocols."""
+    protocols = data.get("protocols", [data])
+    steps = [step for protocol in protocols for step in protocol.get("steps", [])]
+    found = [
+        figure for step in steps if step.get("key") == key for figure in step.get("figures", [])
+    ]
+    if len(found) != 1:
+        sys.exit(f"step {key!r} holds {len(found)} figures, not one")
+    return found[0]
+
+
 def convert_gel(gel: dict[str, Any]) -> dict[str, Any]:
     """Return a gel from mbio's protocol JSON in the viewer's format, leaving out an empty title.
 
@@ -234,12 +436,16 @@ def _slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
-def _write(path: Path, data: dict[str, Any], written: dict[Path, str]) -> bool:
+def _write(
+    path: Path, data: dict[str, Any], written: dict[Path, str], *, compact: bool = False
+) -> bool:
     """Write ``data`` to ``path``, unless it repeats a file in ``written`` exactly.
 
     Returns whether it wrote. Stops where two different inputs would both be written to ``path``.
+    A `compact` file is written on one line, with no spaces.
     """
-    text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
+    shape: dict[str, Any] = {"separators": (",", ":")} if compact else {"indent": 1}
+    text = json.dumps(data, ensure_ascii=False, **shape) + "\n"
     if text in written.values():
         return False
     if path in written:
@@ -260,8 +466,13 @@ def _show(repo: Path, path: str, scratch: Path) -> Path:
     return copy
 
 
+def _print_counts(name: str, record: dict[str, Any]) -> None:
+    counts = ", ".join(f"{len(v)} {k}" for k, v in record.items() if isinstance(v, list))
+    print(f"{name}: {len(record['bases'])} bp, {counts}")
+
+
 def main() -> None:
-    """Write the records in `RECORDS`, and the gels and plates in `GELS` and `PLATES`."""
+    """Write every input in `RECORDS`, `VERIFICATIONS`, `TRACES`, `FIGURES`, `GELS` and `PLATES`."""
     imported = Path(inspect.getfile(mbio)).resolve().parent
     repo = Path(_git(imported, "rev-parse", "--show-toplevel").decode().strip())
     changed = _git(repo, "diff", "--name-only", REVISION, "--", "src")
@@ -275,8 +486,27 @@ def main() -> None:
         for name, path in RECORDS.items():
             data = convert(read_record(_show(repo, path, scratch)))
             if _write(tests / "records" / f"{name}.json", data, written):
-                counts = ", ".join(f"{len(v)} {k}" for k, v in data.items() if isinstance(v, list))
-                print(f"{name}: {len(data['bases'])} bp, {counts}")
+                _print_counts(name, data)
+        for name, (path, results) in VERIFICATIONS.items():
+            record = read_record(_show(repo, path, scratch))
+            made = verify(
+                record,
+                tuple(read_result(_show(repo, one, scratch)) for one in results),
+                regions(record),
+            )
+            data = convert(record) | convert_verification(record, made)
+            if _write(tests / "records" / f"{name}.json", data, written):
+                _print_counts(name, data)
+        for name, (path, reverse) in TRACES.items():
+            data = _trace(name, _show(repo, path, scratch), reverse)
+            # Its curves' numbers would take a line each.
+            if _write(tests / "records" / f"{name}.json", data, written, compact=True):
+                _print_counts(name, data)
+        for name, (path, key) in FIGURES.items():
+            protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
+            figure = convert_figure(_figure(protocol, key), posixpath.dirname(path))
+            if _write(tests / "figures" / f"{name}.json", figure, written):
+                print(f"{name}: {', '.join(figure['records'])}")
         for short, path in GELS.items():
             protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
             for gel in _gels(protocol):

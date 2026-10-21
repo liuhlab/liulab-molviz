@@ -1,36 +1,82 @@
 /** An input drawn live into an element of a page. */
 
-import { prepare, prepareGel, preparePlate } from "./drawing";
+import { addCaption } from "./caption";
+import { prepareGel, preparePlate } from "./drawing";
+import { prepareFigure } from "./figure";
+import { type Frame, openFrame } from "./frame";
+import { addLinks } from "./link";
+import { checkOptions, type Options } from "./options";
+import { check, type Record } from "./record";
 import type { Scene } from "./scene";
 import { toElement } from "./svg";
+import { switches } from "./switches";
 import { fontFaceCss } from "./text";
+import { addTurn } from "./turn";
+import { addZoom } from "./zoom";
 
 /** The style element declaring the viewer's faces, shared by every drawing on a page. */
 const FONTS = "molviz-fonts";
 
 /** A drawing in an element of a page. */
-export interface Drawn {
+export interface LiveDrawing {
 	/** Remove the drawing, leaving the faces for any other. Calling it again does nothing. */
 	destroy(): void;
 }
 
 /**
- * Draw `record` with `options` into `element`, after what it holds, its letters as real text.
- * Throws one FormatError naming every problem in the record, or else in the options.
+ * Draw `record` with `options` into `element`, after what it holds, its letters as real text: a
+ * bar of controls, the map, and the sequence view under it. A span past the sequence view's limit
+ * leaves the view out. Throws one FormatError naming every problem in the record, or else in the
+ * options.
  */
 export function draw(
 	element: Element,
 	record: unknown,
 	options: unknown = {},
-): Drawn {
-	return drawScene(element, prepare(record, options));
+): LiveDrawing {
+	const checked = check(record);
+	const checkedOptions = checkOptions(options, checked, { page: true });
+	declareFaces(element.ownerDocument);
+	return { destroy: openRecord(element, checked, checkedOptions).destroy };
+}
+
+/**
+ * Open `record` with `options` in a frame added at the end of `element`, with its controls: the
+ * switches, the zoom and the turn, its views linked, and the caption of their selection.
+ */
+export function openRecord(
+	element: Element,
+	record: Record,
+	options: Options,
+): Frame {
+	const frame = openFrame(element, record, options);
+	switches(frame);
+	addZoom(frame);
+	addTurn(frame);
+	addLinks(frame);
+	addCaption(frame);
+	return frame;
+}
+
+/**
+ * Draw `records` stacked, each with `options`, into `element`, after what it holds, its letters
+ * as real text. A still drawing, with no switches. A span past the sequence view's limit leaves
+ * the view out. Throws one FormatError naming every problem in the records, or else in the
+ * options.
+ */
+export function drawFigure(
+	element: Element,
+	records: unknown,
+	options: unknown = {},
+): LiveDrawing {
+	return drawScene(element, prepareFigure(records, options, { page: true }));
 }
 
 /**
  * Draw `gel` into `element`, after what it holds, its letters as real text. Throws one
  * FormatError naming every problem in the gel.
  */
-export function drawGel(element: Element, gel: unknown): Drawn {
+export function drawGel(element: Element, gel: unknown): LiveDrawing {
 	return drawScene(element, prepareGel(gel));
 }
 
@@ -38,21 +84,24 @@ export function drawGel(element: Element, gel: unknown): Drawn {
  * Draw `plate` into `element`, after what it holds, its letters as real text. Throws one
  * FormatError naming every problem in the plate.
  */
-export function drawPlate(element: Element, plate: unknown): Drawn {
+export function drawPlate(element: Element, plate: unknown): LiveDrawing {
 	return drawScene(element, preparePlate(plate));
 }
 
-/** Draw `scene` into `element`, after what it holds, declaring the faces if no drawing has. */
-function drawScene(element: Element, scene: Scene): Drawn {
+/**
+ * Draw `scene` into `element`, after what it holds, as its still drawing draws, declaring the
+ * faces if no drawing has.
+ */
+function drawScene(element: Element, scene: Scene): LiveDrawing {
 	const document = element.ownerDocument;
 	declareFaces(document);
-	const svg = toElement(scene, document);
+	const svg = toElement(scene, document, { tips: false });
 	element.append(svg);
 	return { destroy: () => svg.remove() };
 }
 
-/** Add the faces' `@font-face` rules to `document`, unless a drawing already has. */
-function declareFaces(document: Document): void {
+/** Add the font rules to `document` once, for every drawing on it, live or still. */
+export function declareFaces(document: Document): void {
 	if (document.getElementById(FONTS)) return;
 	const style = document.createElement("style");
 	style.id = FONTS;

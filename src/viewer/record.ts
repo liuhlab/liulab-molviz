@@ -51,7 +51,7 @@ type Problem = readonly [keys: readonly Key[], message: string];
  * A rule across the parts of a well-formed value, which reports each problem at the part it
  * concerns.
  */
-function rule<T>(find: (value: T) => Iterable<Problem>) {
+export function rule<T>(find: (value: T) => Iterable<Problem>) {
 	return v.rawCheck<T>(({ dataset, addIssue }) => {
 		if (!dataset.typed) return;
 		for (const [keys, message] of find(dataset.value)) {
@@ -93,14 +93,17 @@ function spanKeys(bounds: Bounds) {
 }
 
 /** What a span's `start` and `end` keep between them. */
-function spanRule<T extends { start: number; end: number }>({
-	length,
-	circular,
-}: Bounds) {
-	return rule<T>(function* ({ start, end }) {
-		if (start >= end) yield [["end"], "must be greater than start"];
-		if (circular) yield* pastOneTurn(["end"], "start", start, end, length);
-	});
+function spanRule<T extends { start: number; end: number }>(bounds: Bounds) {
+	return rule<T>(({ start, end }) => spanProblems(bounds, start, end));
+}
+
+function* spanProblems(
+	{ length, circular }: Bounds,
+	start: number,
+	end: number,
+): Generator<Problem> {
+	if (start >= end) yield [["end"], "must be greater than start"];
+	if (circular) yield* pastOneTurn(["end"], "start", start, end, length);
 }
 
 /**
@@ -132,10 +135,15 @@ function overAlphabet(outside: RegExp, letter: string) {
 	);
 }
 
+const Nucleotides = overAlphabet(
+	/[^ACGTURYSWKMBDHVN]/i,
+	"an IUPAC nucleotide letter",
+);
+
 const Bases = v.pipe(
 	Text,
 	v.nonEmpty("must hold at least one base"),
-	overAlphabet(/[^ACGTURYSWKMBDHVN]/i, "an IUPAC nucleotide letter"),
+	Nucleotides,
 );
 
 /** One letter per codon, `*` for a stop. */
@@ -153,8 +161,22 @@ function segment(bounds: Bounds) {
 }
 
 /**
+ * Whether `segment`, the one after `before` in a feature, runs on from a linear record's start:
+ * the feature ran off the end between them.
+ */
+export function runsOnFromStart(
+	before: Span,
+	segment: Span,
+	{ circular }: Bounds,
+): boolean {
+	return !circular && segment.start < before.start;
+}
+
+/**
  * A feature's segments, in ascending order of start. On a circular record a later segment may
- * start past the length, counted on past the origin, within one turn from the first.
+ * start past the length, counted on past the origin, within one turn from the first. On a
+ * linear record one segment may start lower than the one before, where the feature runs off
+ * the end and on from the start.
  */
 function segments(bounds: Bounds) {
 	const { length, circular } = bounds;
@@ -165,16 +187,33 @@ function segments(bounds: Bounds) {
 		v.tupleWithRest([segment(bounds)], segment(laterBounds)),
 		rule(function* (segments) {
 			const first = segments[0].start;
+			let crossed = false;
 			for (let i = 1; i < segments.length; i++) {
-				if (segments[i].start <= segments[i - 1].start) {
+				const { start, end } = segments[i];
+				const previous = segments[i - 1].start;
+				const runsOn = runsOnFromStart(segments[i - 1], segments[i], bounds);
+				if (runsOn && !crossed) {
+					crossed = true;
+				} else if (runsOn) {
+					yield [
+						[i, "start"],
+						"must be greater than the previous segment's start: a feature runs off a linear record's end once",
+					];
+				} else if (start <= previous) {
 					yield [
 						[i, "start"],
 						"must be greater than the previous segment's start",
 					];
 				}
-				// Ends need not ascend, so each is held to the first segment's turn.
+				// Ends need not ascend, so each is held to the first start: at most it on a linear
+				// record once the feature has run off the end, within one turn past it on a circle.
+				if (crossed && end > first) {
+					yield [
+						[i, "end"],
+						`must be at most segments[0].start, ${first}, once the feature has run off the end`,
+					];
+				}
 				if (circular) {
-					const { end } = segments[i];
 					yield* pastOneTurn(
 						[i, "end"],
 						"segments[0].start",
@@ -312,20 +351,171 @@ function insertion(bounds: Bounds) {
 	});
 }
 
+/** One sequencing result, over the bases it trusts. */
+function read(bounds: Bounds) {
+	return v.pipe(
+		exact({ name: Text, ...spanKeys(bounds), strand: oneOf([1, -1]) }),
+		spanRule(bounds),
+	);
+}
+
+/** Where a disagreement lies: over a span, or at a point. */
+type Lies =
+	| { start: number; end: number; at?: undefined }
+	| { at: number; start?: undefined; end?: undefined };
+
+/**
+ * A place where reads differ from the record: a span, or a point `at` which they add bases. Its
+ * `bases` are what the reads hold there, none for a deletion.
+ */
+function disagreement(bounds: Bounds) {
+	const { start, end } = spanKeys(bounds);
+	return v.pipe(
+		exact({
+			name: Text,
+			start: v.optional(start),
+			end: v.optional(end),
+			at: v.optional(point(bounds)),
+			bases: v.pipe(Text, Nucleotides),
+			reads: list(Text),
+			color: v.optional(Color),
+		}),
+		rule(function* ({ start, end, at, bases }) {
+			if (at !== undefined) {
+				if (start !== undefined || end !== undefined) {
+					yield [["at"], "must not come with start or end"];
+				} else if (!bases) {
+					yield [["bases"], "must hold at least one base at a point"];
+				}
+			} else if (start === undefined) {
+				yield end === undefined
+					? [[], "must have start and end, or at"]
+					: [["start"], "missing"];
+			} else if (end === undefined) {
+				yield [["end"], "missing"];
+			} else {
+				yield* spanProblems(bounds, start, end);
+			}
+		}),
+		// The rule has passed, so the disagreement lies one way or the other.
+		v.transform(
+			<T extends object>(given: T) => given as Omit<T, keyof Lies> & Lies,
+		),
+	);
+}
+
+const Curve = list(
+	v.pipe(v.number("must be a number"), v.finite("must be a finite number")),
+);
+
+/**
+ * Curves `A`, `C`, `G` and `T` sampled alike, and `peaks`: pairs of a sample and the base it lies
+ * over, the samples ascending. A bottom-strand read's bases may descend.
+ */
+function track(bounds: Bounds) {
+	const peak = v.pipe(
+		list(v.unknown()),
+		v.length(2, "must be a pair, a sample and a base"),
+		v.tuple([NonNegative, base(bounds)]),
+	);
+	return v.pipe(
+		exact({
+			name: Text,
+			curves: exact({ A: Curve, C: Curve, G: Curve, T: Curve }),
+			peaks: list(peak),
+		}),
+		rule(function* ({ curves, peaks }) {
+			const samples = curves.A.length;
+			for (const letter of ["C", "G", "T"] as const) {
+				if (curves[letter].length !== samples) {
+					yield [
+						["curves", letter],
+						`must be as long as curves.A, ${samples} samples`,
+					];
+				}
+			}
+			for (const [i, [sample]] of peaks.entries()) {
+				if (sample >= samples) {
+					yield [
+						["peaks", i, 0],
+						`must be less than the curves' length, ${samples}`,
+					];
+				}
+				if (i > 0 && sample <= peaks[i - 1][0]) {
+					yield [
+						["peaks", i, 0],
+						"must be greater than the previous peak's sample",
+					];
+				}
+			}
+		}),
+	);
+}
+
+/** A record's reads are each named once, and a disagreement names only its reads. */
 function recordSchema(bounds: Bounds) {
-	return exact({
-		name: Text,
-		circular: v.boolean("must be true or false"),
-		bases: Bases,
-		features: v.optional(list(feature(bounds)), () => []),
-		primers: v.optional(list(primer(bounds)), () => []),
-		cuts: v.optional(list(cut(bounds)), () => []),
-		insertions: v.optional(list(insertion(bounds)), () => []),
-	});
+	return v.pipe(
+		exact({
+			name: Text,
+			circular: v.boolean("must be true or false"),
+			bases: Bases,
+			features: v.optional(list(feature(bounds)), () => []),
+			primers: v.optional(list(primer(bounds)), () => []),
+			cuts: v.optional(list(cut(bounds)), () => []),
+			insertions: v.optional(list(insertion(bounds)), () => []),
+			reads: v.optional(list(read(bounds)), () => []),
+			disagreements: v.optional(list(disagreement(bounds)), () => []),
+			tracks: v.optional(list(track(bounds)), () => []),
+		}),
+		rule(function* ({ reads, disagreements }) {
+			const first = new Map<string, number>();
+			for (const [i, { name }] of reads.entries()) {
+				const earlier = first.get(name);
+				if (earlier === undefined) {
+					first.set(name, i);
+				} else {
+					yield [
+						["reads", i, "name"],
+						`must differ from reads[${earlier}].name`,
+					];
+				}
+			}
+			for (const [i, { reads: names }] of disagreements.entries()) {
+				for (const [j, name] of names.entries()) {
+					if (!first.has(name)) {
+						yield [
+							["disagreements", i, "reads", j],
+							"names no read in the record",
+						];
+					}
+				}
+			}
+		}),
+	);
 }
 
 /** One DNA molecule as a caller hands it over, with each missing list empty. */
 export type Record = v.InferOutput<ReturnType<typeof recordSchema>>;
+
+/** One of a record's features. */
+export type Feature = Record["features"][number];
+
+/** One of a record's insertions. */
+export type Insertion = Record["insertions"][number];
+
+/** One of a record's reads. */
+export type Read = Record["reads"][number];
+
+/** One of a record's disagreements: over a span where `at` is undefined, else at a point. */
+export type Disagreement = Record["disagreements"][number];
+
+/** One of a record's tracks. */
+export type Track = Record["tracks"][number];
+
+/** What `record`'s coordinates count against: its length, and whether it is circular. */
+export function recordBounds({ bases, circular }: Record): Bounds {
+	return { length: bases.length, circular };
+}
 
 /**
  * What a record's coordinates are checked against. Where `bases` or `circular` is malformed
@@ -342,7 +532,12 @@ function boundsOf(input: unknown): Bounds {
 	return { length: UNBOUNDED, circular: circular !== false };
 }
 
+/** What `input` is checked against as a record: the format, bound by its own bases. */
+export function recordSchemaOf(input: unknown) {
+	return recordSchema(boundsOf(input));
+}
+
 /** Return `input` as a typed record, or throw one FormatError naming every problem. */
 export function check(input: unknown): Record {
-	return parse(recordSchema(boundsOf(input)), input, { name: "record" });
+	return parse(recordSchemaOf(input), input, { name: "record" });
 }

@@ -1,8 +1,21 @@
 /** A map's labels, the order they hide in, and the notice that counts them. */
 
-import { INK, OUTLINE_WIDTH, painted, shaded, textColor, unlit } from "./paint";
-import type { Span } from "./record";
+import {
+	DISAGREEMENT,
+	INK,
+	INSERTION,
+	OUTLINE_WIDTH,
+	PRIMER,
+	painted,
+	READ,
+	shaded,
+	textColor,
+	unlit,
+} from "./paint";
+import { pointText, spanText } from "./pieces";
+import type { Bounds, Disagreement, Insertion, Read, Span } from "./record";
 import type { Box, Scene, Shape } from "./scene";
+import { itemKey } from "./selection";
 import { baseline, type Face, height, measure } from "./text";
 
 /** A label's size of text, and the small text of a map's ruler, title and notice. */
@@ -16,21 +29,36 @@ export const PAD_Y = 1;
 /** The room between a drawing and what is set beside it: its labels, title and notice. */
 export const GAP = 10;
 
+/** The least room between two labels' boxes. */
+export const SPACING = 2;
+
 /** Each kind a record holds, by its list's key in the record. */
-export const KINDS = ["features", "primers", "cuts", "insertions"] as const;
+export const KINDS = [
+	"features",
+	"primers",
+	"cuts",
+	"insertions",
+	"reads",
+	"disagreements",
+	"tracks",
+] as const;
 
 export type Kind = (typeof KINDS)[number];
 
-/** The kinds whose items lie at a point between two bases. */
-type AtPoint = "cuts" | "insertions";
+/** The kinds a map labels: all but tracks. */
+export type LabelKind = Exclude<Kind, "tracks">;
+
+/** The kinds whose items lie at a point between two bases; a disagreement may lie at either. */
+type AtPoint = "cuts" | "insertions" | "disagreements";
 
 /**
- * A label left out because it would overlap: a feature's or primer's by the spans it belongs to,
- * a cut site's or insertion's by its point, as the record writes it.
+ * A label left out because it would overlap: a feature's, primer's, read's or disagreement's by
+ * the spans it belongs to, a cut site's, insertion's or disagreement's by its point, as the record
+ * writes it.
  */
 export type Hidden =
 	| {
-			readonly kind: Exclude<Kind, AtPoint>;
+			readonly kind: Exclude<LabelKind, "cuts" | "insertions">;
 			readonly name: string;
 			readonly spans: readonly Span[];
 	  }
@@ -60,15 +88,40 @@ export type Label = Hidden & {
 	readonly dim: boolean;
 	/** For a cut site, the fewest times one of its enzymes cuts the record; else 0. */
 	readonly fewestCuts: number;
+	/** What a live page's hover box says of the item. */
+	readonly tip: string;
 };
 
+/** An item's tip: its name, type and span, then its length in bases if it has one. */
+export function tipOf(
+	name: string,
+	type: string,
+	span: string,
+	length?: number,
+): string {
+	return [
+		name,
+		type,
+		span,
+		...(length === undefined ? [] : [`${length} bp`]),
+	].join("\n");
+}
+
+/** `shapes`, each carrying the tip and the key of `label`, the item they draw. */
+export function itemShapes(shapes: readonly Shape[], label: Label): Shape[] {
+	const { tip } = label;
+	const item = itemKey(label);
+	return shapes.map((shape) => ({ ...shape, tip, item }));
+}
+
 /**
- * The label of `item` that says `runs` in `color`, dimmed to one grey when `highlight` names
- * something but none of `names`. Only a cut site's label passes `fewestCuts`.
+ * The label of `item` that says `runs` in `color`, with the item's `tip`, dimmed to one grey when
+ * `highlight` names something but none of `names`. Only a cut site's label passes `fewestCuts`.
  */
 export function labelOf(
 	item: Hidden,
 	runs: readonly Run[],
+	tip: string,
 	color: string,
 	highlight: readonly string[],
 	{
@@ -77,7 +130,117 @@ export function labelOf(
 	}: { names?: readonly string[]; fewestCuts?: number } = {},
 ): Label {
 	const dim = unlit(highlight, names);
-	return { ...item, runs, color: painted(color, dim), dim, fewestCuts };
+	return { ...item, runs, color: painted(color, dim), dim, fewestCuts, tip };
+}
+
+/** The label of a primer named `name` at the site `span`: its name and the bases it spans. */
+export function primerLabel(
+	name: string,
+	span: Span,
+	length: number,
+	highlight: readonly string[],
+): Label {
+	return siteLabel("primers", name, span, length, PRIMER, highlight);
+}
+
+/** The label of `read`: its name and the bases it spans. */
+export function readLabel(
+	read: Read,
+	length: number,
+	highlight: readonly string[],
+): Label {
+	return siteLabel("reads", read.name, read, length, READ, highlight);
+}
+
+function siteLabel(
+	kind: "primers" | "reads",
+	name: string,
+	{ start, end }: Span,
+	length: number,
+	color: string,
+	highlight: readonly string[],
+): Label {
+	const span = spanText({ start, end }, length);
+	return labelOf(
+		{ kind, name, spans: [{ start, end }] },
+		[{ text: `${name} (${span})`, face: "sans" }],
+		tipOf(name, kind === "primers" ? "primer" : "read", span, end - start),
+		color,
+		highlight,
+	);
+}
+
+/** The label of `insertion`, what it adds, and its hover: its name and point. */
+export function insertionLabel(
+	insertion: Insertion,
+	bounds: Bounds,
+	highlight: readonly string[],
+): { label: Label; hover: string } {
+	const { name, at } = insertion;
+	return hovered(
+		{ kind: "insertions", name, at },
+		`+${insertion.length} bp`,
+		insertion.color ?? INSERTION,
+		pointText(at, bounds),
+		insertion.length,
+		highlight,
+	);
+}
+
+/** The label of `disagreement`, its name, and its hover: its name and where it lies. */
+export function disagreementLabel(
+	disagreement: Disagreement,
+	bounds: Bounds,
+	highlight: readonly string[],
+): { label: Label; hover: string } {
+	const { name } = disagreement;
+	const [item, where, bases]: [Hidden, string, number?] =
+		disagreement.at === undefined
+			? [
+					{
+						kind: "disagreements",
+						name,
+						spans: [{ start: disagreement.start, end: disagreement.end }],
+					},
+					spanText(disagreement, bounds.length),
+					disagreement.end - disagreement.start,
+				]
+			: [
+					{ kind: "disagreements", name, at: disagreement.at },
+					pointText(disagreement.at, bounds),
+				];
+	return hovered(
+		item,
+		name,
+		disagreement.color ?? DISAGREEMENT,
+		where,
+		bases,
+		highlight,
+	);
+}
+
+/**
+ * The label of `item` saying `text` in `color`, with its tip, and its hover: its name and `where`
+ * it lies. An item `bases` long says so in its tip.
+ */
+function hovered(
+	item: Hidden,
+	text: string,
+	color: string,
+	where: string,
+	bases: number | undefined,
+	highlight: readonly string[],
+): { label: Label; hover: string } {
+	const type = item.kind === "insertions" ? "insertion" : "disagreement";
+	const label = labelOf(
+		item,
+		[{ text, face: "sans" }],
+		tipOf(item.name, type, where, bases),
+		color.toLowerCase(),
+		highlight,
+	);
+	const hover = [item.name.trim(), where].filter(Boolean).join(" · ");
+	return { label, hover };
 }
 
 /** The radius of a box's corners. */
@@ -96,11 +259,13 @@ export function labelSize(label: Label): { width: number; height: number } {
 }
 
 /**
- * `label` drawn in `box`, which `labelSize` sized: a feature's name in a box of its colour, any
- * other label as text in its colour.
+ * `label` drawn in `box`, which `labelSize` sized: a feature's name, or a disagreement's over a
+ * span, in a box of its colour; any other label as text in its colour.
  */
 export function labelShapes(label: Label, box: Box): Shape[] {
-	const boxed = label.kind === "features";
+	const boxed =
+		label.kind === "features" ||
+		(label.kind === "disagreements" && "spans" in label);
 	const shapes: Shape[] = boxed
 		? [
 				{
@@ -132,19 +297,23 @@ export function labelShapes(label: Label, box: Box): Shape[] {
 }
 
 /** Each kind's place in the order labels hide, first to hide first. */
-const HIDING: { readonly [K in Kind]: number } = {
+const HIDING: { readonly [K in LabelKind]: number } = {
 	cuts: 0,
 	primers: 1,
-	features: 2,
-	insertions: 3,
+	reads: 2,
+	features: 3,
+	insertions: 4,
+	disagreements: 5,
 };
 
 /** What the notice calls one label of each kind. */
-const WORDS: { readonly [K in Kind]: string } = {
+const WORDS: { readonly [K in LabelKind]: string } = {
 	cuts: "cut site",
 	primers: "primer",
+	reads: "read",
 	features: "feature",
 	insertions: "insertion",
+	disagreements: "disagreement",
 };
 
 /**
@@ -182,8 +351,12 @@ function textOf(label: Label): string {
  * The hidden-label notice: how many labels of each kind hid, as "3 cut sites and 1 primer are
  * hidden", or nothing when none did.
  */
-export function notice(hidden: readonly { readonly kind: Kind }[]): string {
-	const kinds = [...KINDS].sort((a, b) => HIDING[a] - HIDING[b]);
+export function notice(
+	hidden: readonly { readonly kind: LabelKind }[],
+): string {
+	const kinds = (Object.keys(HIDING) as LabelKind[]).sort(
+		(a, b) => HIDING[a] - HIDING[b],
+	);
 	const parts = kinds.flatMap((kind) => {
 		const word = WORDS[kind];
 		const n = hidden.filter((one) => one.kind === kind).length;
@@ -197,7 +370,8 @@ export function notice(hidden: readonly { readonly kind: Kind }[]): string {
 
 /**
  * The notice set `GAP` under the corner (`right`, `bottom`) of what a drawing covers, ending at
- * `right`, with each hidden label on a line of its hover; nothing when none hid.
+ * `right`, with each hidden label on a line of its hover, and of its tip under the notice itself;
+ * nothing when none hid.
  */
 export function noticeShapes(
 	hidden: readonly Label[],
@@ -217,7 +391,8 @@ export function noticeShapes(
 			y: baseline("sans", SMALL_SIZE, middle),
 			anchor: "start",
 			fill: INK,
-			hover: hidden.map(textOf).join("\n"),
+			title: hidden.map(textOf).join("\n"),
+			tip: [text, ...hidden.map(textOf)].join("\n"),
 		},
 	];
 }

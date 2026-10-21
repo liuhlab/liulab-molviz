@@ -18,7 +18,7 @@ classifiers = [
 ]
 # hatch-vcs reads the newest git tag. Never add a `version` key.
 dynamic = ["version"]
-dependencies = ["typer>=0.12", "mini-racer>=0.14", "vl-convert-python>=1.9,<2.0.0a0"]
+dependencies = ["typer>=0.12", "mini-racer>=0.14", "vl-convert-python>=1.9,<2.0.0a0", "pypdf>=6"]
 
 [project.scripts]
 molviz = "molviz.cli:app"
@@ -36,14 +36,15 @@ source = "vcs"
 [tool.hatch.build.targets.wheel]
 packages = ["src/molviz"]
 
-# The built viewer is gitignored, so hatchling skips it unless named. Named for every target:
+# The built scripts are gitignored, so hatchling skips them unless named. Named for every target:
 # `python -m build` makes the wheel from the sdist, so a file the sdist lacks the wheel lacks.
 [tool.hatch.build]
-artifacts = ["src/molviz/viewer.js"]
+artifacts = ["src/molviz/viewer.js", "src/molviz/outlines.js"]
 
 # Fails the build when the viewer was never built, rather than shipping a wheel without it.
 [tool.hatch.build.targets.sdist.force-include]
 "src/molviz/viewer.js" = "src/molviz/viewer.js"
+"src/molviz/outlines.js" = "src/molviz/outlines.js"
 
 # ============================== pixi ==============================
 
@@ -64,6 +65,7 @@ typer = ">=0.12"
 mini-racer = ">=0.14"
 # Below 2: a new major may change the bytes a drawing writes.
 vl-convert-python = ">=1.9,<2.0.0a0"
+pypdf = ">=6"
 ruff = "*"
 # Exact: Pylance is pyright, so the editor and CI must give one verdict.
 pyright = "==1.1.411"
@@ -107,6 +109,8 @@ python = "3.13.*"
 fonttools = "*"
 # The committed subsets were cut from this release.
 font-ttf-dejavu = "2.37.*"
+# fontTools writes WOFF2 with it.
+brotli-python = "*"
 
 [tool.pixi.feature.fonts.tasks]
 build-fonts = "python scripts/build_fonts.py"

@@ -19,8 +19,12 @@ site_description: "Draws DNA sequences and plasmids in the browser, from data a 
 nav:
   - Home: index.md
   - The line map: line-map.md
+  - The circle: circle.md
+  - The sequence view: sequence-view.md
   - Gels: gels.md
   - Plates: plates.md
+  - Figures: figures.md
+  - Verification: verification.md
   - API reference: api.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not

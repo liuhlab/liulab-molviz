@@ -9,6 +9,15 @@ it holds. The map draws a record's features, its primers at each place they bind
 insertions, and the cut sites of each enzyme that cuts it once. Where labels would crowd, some
 are hidden, and a note at the bottom right counts them.
 
+A bar above each map turns things on and off: each kind, each feature type, and each enzyme,
+with how many times it cuts. Each change draws the map again, so a label hidden before may
+now show. Rest the pointer on anything to see its name, type, place and length. To zoom, use
+the slider, or hold Ctrl or ⌘ and scroll. A zoomed map scrolls in its box, and Reset brings
+back its first size. Sequence shows the bases under the map. A printed page leaves out the
+bar and prints each map at its first size.
+
+A circular record drawn whole opens on [the circle](circle.md), so this page asks for the line.
+
 If a record cannot be drawn, its place on the page says why.
 
 ## puc19-gfp-product
@@ -18,6 +27,9 @@ A Golden Gate product. Its lacZα CDS is joined across the GFP insert.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/puc19-gfp-product.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -31,7 +43,46 @@ everything else turns pale grey. Nothing moves.
 --8<-- "tests/records/puc19-gfp-product.json"
 </script>
 <script type="application/json" data-options>
-{"highlight": ["GFP", "GFP forward", "GFP reverse"]}
+{"map": "line", "highlight": ["GFP", "GFP forward", "GFP reverse"]}
+</script>
+</div>
+
+## puc19-gfp-verification
+
+The same product checked against one consensus read. The read runs the whole length of the
+record and is drawn as a primer is. It disagrees with the record at two bases, and each is a
+bar with its name, packed with the features. `696 A>G` lies in the GFP insert, a region that
+fails, so it is red. `2687 C>T` lies in AmpR, outside every region checked, so it is grey.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-gfp-verification.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
+</div>
+
+## puc19-backbone-amplicon
+
+A linear PCR product that starts inside lacZα. The lacZα CDS runs past the record's right end
+and on from its left end, so the map draws it in two pieces. A grey join runs from each piece
+to the end it meets.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/puc19-backbone-amplicon.json"
+</script>
+</div>
+
+## gfp-amplicon
+
+A linear PCR product of GFP. Its GFP CDS ends at a Golden Gate overhang, and both of its
+primers have 5' tails.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/gfp-amplicon.json"
 </script>
 </div>
 
@@ -43,6 +94,51 @@ A larger product with many features, some on no strand.
 <script type="application/json" data-record>
 --8<-- "tests/records/ap1-product.json"
 </script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
+</div>
+
+## ap1-block-vector-1
+
+The vector the AP-1 library is built in, before any part goes in. A short stuffer sits where
+the first part will go.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-block-vector-1.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
+</div>
+
+## ap1-round-1
+
+The vector after the first round. The part `N_JUN` and its barcode have replaced the stuffer,
+and a new stuffer sits where the next part will go.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-round-1.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
+</div>
+
+## ap1-round-2
+
+The vector after the second round, with `DBD_JUN` joined after `N_JUN`. The third round makes
+`ap1-product`.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/ap1-round-2.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
 </div>
 
 ## colour-test
@@ -53,6 +149,9 @@ feature runs over the origin.
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/colour-test.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -88,6 +187,9 @@ A feature on both strands, and two insertions, one of them at the origin.
 <script type="application/json" data-record>
 --8<-- "tests/records/both-strands-and-insertions.json"
 </script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
 </div>
 
 ## mismatch-across-origin
@@ -97,6 +199,9 @@ A primer with two sites. One runs across the origin, with a mismatch on each sid
 <div data-molviz>
 <script type="application/json" data-record>
 --8<-- "tests/records/mismatch-across-origin.json"
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
 </script>
 </div>
 
@@ -118,31 +223,30 @@ An N inside a CDS, so one codon translates as X, and an EcoRI cut at the origin.
 <script type="application/json" data-record>
 --8<-- "tests/records/n-and-cut-at-origin.json"
 </script>
-</div>
-
-## crowded-sites
-
-A circle where 40 enzymes cut within 143 bases, with primers, tiny features and an insertion in
-that stretch and just past it. Its labels crowd, so some are hidden, and the note at the bottom
-right counts them.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
-</div>
-
-## crowded-sites, with every enzyme and EcoRI lit
-
-The same circle with the cut sites of all 40 enzymes. EcoRI cuts it three times, so with
-nothing lit, its site in the crowd is the first label to hide. Here EcoRI is lit, so that site
-is the last to hide, and other sites hide in its place.
-
-<div data-molviz>
-<script type="application/json" data-record>
---8<-- "tests/records/crowded-sites.json"
-</script>
 <script type="application/json" data-options>
-{"enzymes": ["AatII", "Acc65I", "AflII", "AgeI", "AscI", "AvrII", "BamHI", "BanII", "BglII", "BsaI", "BsiWI", "BsmBI", "ClaI", "EcoRI", "EcoRV", "Esp3I", "HindIII", "HpaI", "KpnI", "MfeI", "MluI", "NcoI", "NdeI", "NheI", "NotI", "NruI", "NsiI", "PacI", "PmeI", "PstI", "SacI", "SalI", "SmaI", "SnaBI", "SpeI", "SphI", "StuI", "XbaI", "XhoI", "XmaI"], "highlight": ["EcoRI"]}
+{"map": "line"}
+</script>
+</div>
+
+## trace-3730
+
+The 120 bases around one changed base in a Sanger read. The read covers them all, and its one
+disagreement, `61 G>C`, is red. The record also holds the read's trace, which only the
+sequence view draws.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/trace-3730.json"
+</script>
+</div>
+
+## trace-3730-reversed
+
+The same bases turned to the other strand, so the read runs along the bottom strand and its
+disagreement is `60 C>G`.
+
+<div data-molviz>
+<script type="application/json" data-record>
+--8<-- "tests/records/trace-3730-reversed.json"
 </script>
 </div>

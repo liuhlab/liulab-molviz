@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { layout } from "../../src/viewer/line";
+import { layoutLine } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import type { Scene, Shape } from "../../src/viewer/scene";
@@ -27,7 +27,7 @@ function lay(
 		})),
 		...rest,
 	});
-	return layout(checked, checkOptions(options, checked));
+	return layoutLine(checked, checkOptions(options, checked));
 }
 
 type Polygon = Extract<Shape, { shape: "polygon" }>;
@@ -228,7 +228,7 @@ describe("an insertion", () => {
 			options,
 		);
 		const bars = lines(scene, INSERTION);
-		expect(bars.map((bar) => [bar.x1, bar.hover])).toEqual(
+		expect(bars.map((bar) => [bar.x1, bar.title])).toEqual(
 			xs.map((x) => [x, hover]),
 		);
 	});
