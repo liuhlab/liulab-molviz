@@ -19,6 +19,9 @@ site_description: "Draws DNA sequences and plasmids in the browser, from data a 
 # human-facing but stays out of the nav on purpose, and out of search by its front matter.
 nav:
   - Home: index.md
+  - Get started:
+      - Draw your first plasmid map: get-started/first-map.md
+      - Choose a drawing: get-started/choose-a-drawing.md
   - How-to guides:
       - Maps and sequences:
           - Choose what a map shows: how-to/what-a-map-shows.md
@@ -38,6 +41,11 @@ nav:
       - Figure format: reference/figure.md
       - Python API: api.md
       - JavaScript API: reference/javascript.md
+  - Explanation:
+      - What molviz draws and what you hand it: explanation/what-molviz-draws.md
+      - How a drawing stays readable: explanation/readable.md
+      - Pages, files and still drawings: explanation/outputs.md
+      - Coordinates: explanation/coordinates.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not
 # taken from what a strict mkdocs build used to do:
