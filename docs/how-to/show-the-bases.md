@@ -67,7 +67,8 @@ as [Choose what a map shows](what-a-map-shows.md) explains.
 
 ## Set how many bases a row holds
 
-A row holds 60 bases unless you set `bases_per_row`.
+Unless you set `bases_per_row`, a row on a page holds as many bases as fit its width, from 20 to
+100 in steps of 10. A file, a still drawing or a figure holds 60 bases to a row.
 
 To change the row length, set `bases_per_row`. These rows hold 20 bases each:
 

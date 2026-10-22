@@ -15,7 +15,7 @@ import {
 	TIER_GAP,
 } from "../arrows";
 import { aroundBoxes, boxOf } from "../bounds";
-import type { Options } from "../format/options";
+import { basesPerRow, type Options } from "../format/options";
 import { type Record, recordBounds } from "../format/record";
 import {
 	itemShapes,
@@ -68,12 +68,13 @@ export interface SequenceScene extends Scene {
 	readonly rows: readonly RowBox[];
 }
 
-/** Lay out the span `options` gives of `record` in rows of `options.bases_per_row` bases. */
+/** Lay out the span `options` gives of `record` in rows of `basesPerRow(options)` bases. */
 export function layoutSequence(
 	record: Record,
 	options: Options,
 ): SequenceScene {
-	const { span, bases_per_row: perRow } = options;
+	const { span } = options;
+	const perRow = basesPerRow(options);
 	const bounds = recordBounds(record);
 	const starts: number[] = [];
 	for (let start = span.start; start < span.end; start += perRow) {
@@ -233,7 +234,7 @@ function bars(
 	);
 	const bars = found.map(({ bar }) => bar);
 	const tiers = pack(bars);
-	const placed = places(bars, tiers, options.bases_per_row * CELL, true);
+	const placed = places(bars, tiers, basesPerRow(options) * CELL, true);
 	const lineHeight = height("sans", LABEL_SIZE);
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];

@@ -357,8 +357,8 @@ export function openFrame(
 		return scene;
 	};
 
-	// A print shows the sequence view under the map with full rows, and a zoomed map at 1×; after it the
-	// map gets its zoom and scroll back.
+	// A print shows the sequence view under the map with rows as a file's, and a zoomed map at 1×;
+	// after it the map gets its zoom and scroll back.
 	let printed: { zoom: number; left: number; top: number } | null = null;
 	const beforePrint = () => {
 		printing = true;
