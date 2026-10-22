@@ -20,6 +20,10 @@ site_description: "Draws DNA sequences and plasmids in the browser, from data a 
 nav:
   - Home: index.md
   - Reference:
+      - Record format: reference/record.md
+      - Gel format: reference/gel.md
+      - Plate format: reference/plate.md
+      - Figure format: reference/figure.md
       - Python API: api.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not
