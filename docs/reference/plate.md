@@ -1,14 +1,18 @@
 # Plate format
 
 A plate is a grid of wells in rows and columns, with what each well holds. It holds no record.
-In Python a plate is a `dict`, which `molviz.check_plate` checks and `molviz.draw_plate` draws.
-In a page it is a JSON object, which the global `molviz.checkPlate` checks and
-`molviz.drawPlate` draws. Both run the same check.
+In Python a plate is a `dict`, which [`molviz.check_plate`](../api.md#molviz.check_plate)
+checks and [`molviz.draw_plate`](../api.md#molviz.draw_plate) draws. In a page it is a JSON
+object, which the global [`molviz.checkPlate`](javascript.md#check) checks and
+[`molviz.drawPlate`](javascript.md#draw-into-an-element) draws. Both run the same check.
 
 The check reports every problem it finds, each named by its path, such as
 `wells.I1: not on the plate, which runs A1 to H12`. Python raises `ValueError`, and the page's
-check throws a `FormatError`. A key that is not on this page is an error. The types are the
-ones on the [record format](record.md#types) page.
+check throws a [`FormatError`](javascript.md#formaterror). A key that is not on this page is an
+error. The types are the ones on the [record format](record.md#types) page.
+
+[Draw a plate and a stamp](../how-to/draw-a-plate.md) writes plates in this format, a stamp
+among them, and draws them.
 
 ## Example
 
@@ -66,4 +70,5 @@ only the count.
 ## Stamps
 
 The format has no stamp. A stamp's drawing is two plates: the plate it takes from and the
-plate it fills.
+plate it fills. [Draw a stamp as two plates](../how-to/draw-a-plate.md#draw-a-stamp-as-two-plates)
+builds them.

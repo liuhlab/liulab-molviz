@@ -3,6 +3,7 @@
 The viewer is one script. Running it defines one global, `molviz`, and this page lists every
 name on it. Python's [`viewer_script()`](../api.md#molviz.viewer.viewer_script) returns the
 script's text, for a page to put in a `<script>` element.
+[Put drawings in your own page](../how-to/your-own-page.md) uses these calls.
 
 ## Each input's four calls
 
@@ -11,18 +12,18 @@ it as SVG for a file, and one returns it as a still SVG.
 
 | Input | Check | Draw into an element | File SVG | Still SVG |
 | --- | --- | --- | --- | --- |
-| A record | `check` | `draw` | `svg` | `stillSvg` |
-| A figure | `checkFigure` | `drawFigure` | `figureSvg` | `figureStillSvg` |
-| A gel | `checkGel` | `drawGel` | `gelSvg` | `gelStillSvg` |
-| A plate | `checkPlate` | `drawPlate` | `plateSvg` | `plateStillSvg` |
+| [A record](record.md) | `check` | `draw` | `svg` | `stillSvg` |
+| [A figure](figure.md) | `checkFigure` | `drawFigure` | `figureSvg` | `figureStillSvg` |
+| [A gel](gel.md) | `checkGel` | `drawGel` | `gelSvg` | `gelStillSvg` |
+| [A plate](plate.md) | `checkPlate` | `drawPlate` | `plateSvg` | `plateStillSvg` |
 
-Each call takes the input as a plain object, in the format Python's calls take. A figure's
-input is a list of one or more records.
+Each call takes the input as a plain object, in the format Python's calls take, which each
+input's format page gives. A figure's input is a list of one or more records.
 
 A record's calls and a figure's calls take `options` as one object, such as `{"map": "line"}`.
-They are the [options](../api.md#options) that Python's `draw` takes by name. A figure's
-options apply to every record in it. A gel's calls and a plate's calls accept `options` and
-ignore them. Left out, `options` is `{}`, so each option takes its default.
+They are the [options](../api.md#options) that Python's [`draw`](../api.md#molviz.draw) takes
+by name. A figure's options apply to every record in it. A gel's calls and a plate's calls
+accept `options` and ignore them. Left out, `options` is `{}`, so each option takes its default.
 
 ### Check
 
@@ -46,9 +47,9 @@ molviz.draw(element, record, options)
 element, after what it already holds. Letters are real text. Each call first adds the font
 rules to the page with [`declareFaces`](#declarefaces).
 
-- `draw` opens the record in a frame: a bar of controls, the map, and the sequence view when
+- `draw` opens the record in a frame: a bar of switches, the map, and the sequence view when
   `sequence_view` is `true`.
-- `drawFigure`, `drawGel` and `drawPlate` each add one SVG element, with no controls.
+- `drawFigure`, `drawGel` and `drawPlate` each add one SVG element, with no switches.
 
 Where a span holds more than [`SEQUENCE_VIEW_LIMIT`](#sequence_view_limit) bases, `draw` and
 `drawFigure` leave the sequence view out instead of throwing.
@@ -124,8 +125,8 @@ molviz.fontRules()
 
 Returns the font rules as CSS text: one `@font-face` rule for each of the viewer's fonts. Each
 rule loads its font from a data URL, so the page needs no network. A page writes the rules once,
-in a `<style>` element, for every still SVG it holds. Python's `font_rules()` returns the same
-text.
+in a `<style>` element, for every still SVG it holds. Python's
+[`font_rules()`](../api.md#molviz.font_rules) returns the same text.
 
 ## declareFaces
 
@@ -153,7 +154,7 @@ molviz[call](element, gel);
 ## SEQUENCE_VIEW_LIMIT
 
 The number `100000`: the most bases of a span that the sequence view draws. Python's
-`SEQUENCE_VIEW_LIMIT` is the same number.
+[`SEQUENCE_VIEW_LIMIT`](../api.md#molviz.SEQUENCE_VIEW_LIMIT) is the same number.
 
 ## FormatError
 

@@ -2,13 +2,13 @@
 
 The sequence view sets a record's bases in rows, the top strand over the bottom strand. It
 draws each feature, primer, cut site and insertion at its own bases, and a CDS with a
-translation shows its amino acids over its codons. The sequence view hides nothing. This guide
+[`translation`](../reference/record.md#features) shows its amino acids over its codons. The sequence view hides nothing. This guide
 turns the view on, narrows it to the bases you need, sets its rows, and writes the rows to a
 PDF.
 
-The examples draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. Its
-record is `puc19-gfp-product.json`, in the repo's
-[test records](https://github.com/liuhlab/liulab-molviz/tree/main/tests/records). Load it once:
+The examples draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. Save
+its record, [`puc19-gfp-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json), beside your script, and load
+it once:
 
 ```python
 import json
@@ -19,8 +19,8 @@ import molviz
 record = json.loads(Path("puc19-gfp-product.json").read_text())
 ```
 
-Each step writes a page, then shows that page here, drawn from the same record and options.
-[The options table](../api.md#options) lists every option with its default.
+Each step shows its code, then the drawing it makes, drawn here from the same record and
+options. [The options table](../api.md#options) lists every option with its default.
 
 ## Turn on the sequence view
 
@@ -40,7 +40,8 @@ molviz.draw(record, sequence_view=True).write("bases.html")
 </div>
 
 On a page, the reader can also turn the view on and off with the **Sequence** switch. The view
-draws at most 100,000 bases, the value of `molviz.SEQUENCE_VIEW_LIMIT`. For a longer record,
+draws at most 100,000 bases, the value of
+[`molviz.SEQUENCE_VIEW_LIMIT`](../api.md#molviz.SEQUENCE_VIEW_LIMIT). For a longer record,
 give a span, or `draw` raises `ValueError`.
 
 ## Show only the bases you need
@@ -117,5 +118,6 @@ molviz.draw(record, sequence_view=True).write("pUC19-GFP.pdf")
 ```
 
 The PDF holds the drawing from the first step. The map is on the first page, and the rows are
-on the pages after it. Each of those pages holds as many whole rows as fit a page the shape of
-A4. An SVG or a PNG holds the map and the rows as one tall drawing.
+on the pages after it. Each of those pages is as wide as the rows, and holds as many whole rows
+as fit a page the shape of A4. An SVG or a PNG holds the map and the rows as one tall drawing.
+[Export SVG, PNG and PDF](export.md) gives the other formats.

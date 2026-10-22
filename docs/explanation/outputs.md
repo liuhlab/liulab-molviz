@@ -6,9 +6,10 @@ in what a reader can do with the drawing and in where it can go.
 
 ## A page is for a reader with a browser
 
-A drawing's `write("map.html")` writes a page: one HTML file that opens offline in any browser. It loads
-nothing over the network. The fonts are inside it, and so is everything it draws. You can send
-it by email or attach it to a lab notebook entry, and it opens with nothing else installed.
+A drawing's `write("map.html")` writes a page: one HTML file that opens offline in any
+browser. It loads nothing over the network. The fonts are inside it, and so is everything it
+draws. You can send it by email or attach it to a lab notebook entry, and it opens with nothing
+else installed.
 
 A record's page also carries the viewer, the script that lays the record out and draws it when
 the page opens. The reader can then flip a circular record between the circle and the line,
@@ -32,7 +33,7 @@ A file differs from a page in three ways:
 - It draws only what is on. An item the options leave out, such as the primers when
   `kinds_off` names them, is not in the file at all.
 - Each letter is an outline, not text. The file looks the same in every program and needs no
-  font, but you cannot search or copy its text.
+  font, but you can't search or copy its text.
 - Nothing in it can be switched or zoomed. Its hidden labels stay hidden, and the drawing's
   `hidden` lists them.
 
@@ -51,13 +52,14 @@ Each format has its use:
 ## A still drawing is for a page of your own
 
 A still drawing is SVG with real text and no viewer, written into a page. It is laid out once,
-so it cannot be zoomed or switched. Its text can be found and copied. It draws in molviz's
-fonts once the page holds the font rules, which `molviz.font_rules()` returns. One copy of the
-font rules serves every still drawing on the page.
+so a reader can't zoom it or switch it, but can find and copy its text. It draws in molviz's
+fonts once the page holds the font rules, which
+[`molviz.font_rules()`](../api.md#molviz.font_rules) returns. One copy of the font rules serves
+every still drawing on the page.
 
 `still_svg()` returns a drawing in this form. It suits a page that holds many drawings, such as
-a protocol with a figure beside each step. Each drawing adds only its own SVG to the page, and the
-page carries no viewer. To draw a record live in your own page instead, put the viewer's script,
+a protocol with a figure beside each step. Each drawing adds only its own SVG to the page, and
+the page carries no viewer. To draw a record live in your own page instead, put the viewer's script,
 which `molviz.viewer_script()` returns, into the page and call the viewer's draw function. The
 [JavaScript API](../reference/javascript.md) lists the viewer's calls, its still ones
 included.
@@ -91,3 +93,6 @@ a new drawing with the one written before.
 | An audience in a talk | `.png`, or `.pdf` if your slides take it |
 | A reader of a paper or a report | `.pdf`, or `.svg` to edit first |
 | A visitor to your own page | a still drawing, or the viewer for a live record |
+
+[Export SVG, PNG and PDF](../how-to/export.md) and
+[Put drawings in your own page](../how-to/your-own-page.md) give the steps for each.

@@ -33,5 +33,12 @@ pixi add --pypi liulab-molviz
 
 ## Go further
 
-The [Python API](api.md) lists each function, the [options](api.md#options) that `draw`
-takes, and [the command line](api.md#the-command-line).
+- [Draw your first plasmid map](get-started/first-map.md) installs molviz and draws a plasmid
+  you type, one step at a time.
+- [Choose a drawing](get-started/choose-a-drawing.md) says which drawing answers which
+  question, and links to the guide for each one.
+- The [record format](reference/record.md) lists every key a record holds. The
+  [Python API](api.md) lists each function, the [options](api.md#options) that `draw` takes,
+  and [the command line](api.md#the-command-line).
+- [What molviz draws and what you hand it](explanation/what-molviz-draws.md) says which work is
+  your code's and which is molviz's.

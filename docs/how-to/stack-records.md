@@ -4,9 +4,9 @@ A figure is a still drawing to set beside a step of a protocol. It draws one rec
 stacked top to bottom, all with the same options. This guide draws the Golden Gate step that
 makes pUC19-GFP: its two PCR products over the plasmid they make.
 
-The records are `gfp-amplicon.json`, `puc19-backbone-amplicon.json` and
-`puc19-gfp-product.json`, in the repo's
-[test records](https://github.com/liuhlab/liulab-molviz/tree/main/tests/records). Load them
+Save their records, [`gfp-amplicon.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/gfp-amplicon.json),
+[`puc19-backbone-amplicon.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-backbone-amplicon.json) and
+[`puc19-gfp-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json), beside your script, and load them
 once:
 
 ```python
@@ -25,14 +25,14 @@ backbone = load("puc19-backbone-amplicon")
 product = load("puc19-gfp-product")
 ```
 
-Each step shows its code, then the figure that code makes, drawn here from the same records and
+Each step shows its code, then the figure it makes, drawn here from the same records and
 options. A figure takes the options that `draw` takes, which
 [the options table](../api.md#options) lists. [The figure format](../reference/figure.md) says
 what a figure holds.
 
 ## Draw one record
 
-`draw_figure` takes a list of records. Given one, it draws that record alone. A circular record
+[`draw_figure`](../api.md#molviz.draw_figure) takes a list of records. Given one, it draws that record alone. A circular record
 drawn whole is a circle:
 
 ```python
@@ -87,9 +87,10 @@ site, so no cut is drawn on it.
 
 To draw one stretch of every record, give a `span`. Each record keeps its own numbers, and the
 lines share one scale, so a base number sits at the same place in each line. Records that share
-their numbering line up, such as a vector before and after a part goes in.
-AP-1's vector, `ap1-block-vector-1.json`, takes its first part, N_JUN, in place of a short
-stuffer to make `ap1-round-1.json`:
+their numbering line up, such as a vector before and after a part goes in. AP-1 is a project
+that builds a library of clones in rounds. Its vector,
+[`ap1-block-vector-1.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/ap1-block-vector-1.json), takes its first part, N_JUN, in place
+of a short stuffer to make [`ap1-round-1.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/ap1-round-1.json):
 
 ```python
 vector = load("ap1-block-vector-1")
@@ -150,5 +151,6 @@ the first of them under the record's name.
 
 A figure writes the same files as a single record: `.svg`, `.png` and `.pdf`. Its `.html` page
 holds the still drawing and no viewer, so a reader can't zoom it or flip a switch. To put a
-figure in a page of your own, use `still_svg()`, which returns the drawing as SVG text.
+figure in a page of your own, use [`still_svg()`](../api.md#molviz.Drawing.still_svg), which
+returns the drawing as SVG text.
 [Put drawings in your own page](your-own-page.md) shows how.

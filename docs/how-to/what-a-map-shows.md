@@ -6,9 +6,9 @@ what your reader doesn't need, picks the enzymes, draws a stretch of the record,
 names that matter. Each option sets what the drawing starts with. On a page, the reader can
 still change it with the switches above the map.
 
-The examples draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. Its
-record is `puc19-gfp-product.json`, in the repo's
-[test records](https://github.com/liuhlab/liulab-molviz/tree/main/tests/records). Load it once:
+The examples draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. Save
+its record, [`puc19-gfp-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json), beside your script, and load
+it once:
 
 ```python
 import json
@@ -19,8 +19,8 @@ import molviz
 record = json.loads(Path("puc19-gfp-product.json").read_text())
 ```
 
-Each step writes a page, then shows that page here, drawn from the same record and options.
-[The options table](../api.md#options) lists every option with its default.
+Each step shows its code, then the drawing it makes, drawn here from the same record and
+options. [The options table](../api.md#options) lists every option with its default.
 
 ## Leave out a kind
 
@@ -82,8 +82,8 @@ molviz.draw(record, enzymes=["BsaI"]).write("bsai.html")
 </div>
 
 Your list replaces the default, so this map draws BsaI's sites and no others. A name matches in
-any case. molviz draws only the cuts that your record lists, so an enzyme with no cut in the
-record draws nothing.
+any case. molviz draws only the [cuts](../reference/record.md#cuts) that your record lists, so
+an enzyme with no cut in the record draws nothing.
 
 ## Draw the record as a line
 
@@ -137,7 +137,7 @@ molviz.draw(record, span={"start": 3100, "end": 3500}).write("origin-span.html")
 </script>
 </div>
 
-A span runs at most once round the record. The circle draws a record whole, so `map="circle"`
+A span runs at most once around the record. The circle draws a record whole, so `map="circle"`
 with a shorter span is an error. [Coordinates](../reference/record.md#coordinates) in the record
 format gives the rules for counting bases.
 
@@ -168,8 +168,8 @@ the record, `draw` raises `ValueError` with the message
 
 Where labels would overlap, a drawing hides some of them and counts them in a notice at the
 bottom right of the map. Labels hide when you ask for more than fits. AP-1's product,
-`ap1-product.json` in the same folder, holds cuts for 14 enzymes. Drawn on the circle with all
-of them, some of its cut-site labels hide:
+[`ap1-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/ap1-product.json), holds cuts for 14 enzymes. Drawn on the circle
+with all of them, some of its cut-site labels hide:
 
 ```python
 ap1 = json.loads(Path("ap1-product.json").read_text())
@@ -192,8 +192,8 @@ It prints:
 {'kind': 'cuts', 'name': 'BspQI - SapI', 'at': 2505}
 ```
 
-`notice` is the sentence that the drawing shows, and it is empty when nothing hides. `hidden`
-lists each label left out by its `kind` and its `name`. A cut site, an insertion, or a
+The drawing's [`notice`](../api.md#molviz.Drawing) is the sentence that the drawing shows, and
+it is empty when nothing hides. `hidden` lists each label left out by its `kind` and its `name`. A cut site, an insertion, or a
 disagreement at a point gives its place as `at`, the count of bases before it. Anything else
 gives its place as `spans`, a list of `start` and `end` pairs. Both count as the record does.
 
@@ -211,3 +211,4 @@ out again each time the reader turns the circle or flips a switch, so the count 
 
 To bring a hidden label back, draw less: leave out a kind, name fewer enzymes, or draw a span. A
 lit label is the last to hide, so `highlight` keeps the labels that matter in view.
+[How a drawing stays readable](../explanation/readable.md) gives the order in which labels hide.

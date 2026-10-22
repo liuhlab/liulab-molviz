@@ -1,13 +1,16 @@
 # Figure format
 
 A figure is one record, or several stacked top to bottom, all drawn with one set of options. In
-Python a figure is a `list` of records, which `molviz.draw_figure` draws. In a page it is a JSON
-array of records, which the global `molviz.checkFigure` checks and `molviz.drawFigure` draws.
-Both run the same check.
+Python a figure is a `list` of records, which [`molviz.draw_figure`](../api.md#molviz.draw_figure)
+draws. In a page it is a JSON array of records, which the global
+[`molviz.checkFigure`](javascript.md#check) checks and
+[`molviz.drawFigure`](javascript.md#draw-into-an-element) draws. Both run the same check.
 
 The check reports every problem it finds, each named by its path from `records`, such as
 `records[1].bases: must hold at least one base`. Python raises `ValueError`, and the page's
-check throws a `FormatError`.
+check throws a [`FormatError`](javascript.md#formaterror).
+
+[Stack records into a figure](../how-to/stack-records.md) draws figures in this format.
 
 ## Example
 
@@ -55,6 +58,6 @@ with them.
   `"map": "circle"` needs every record to be circular and drawn whole.
 - A name in `highlight` must name something in at least one record.
 - An option left out takes its default for each record on its own. Each circular record drawn
-  whole is a circle, and each record shows its own unique cutters.
+  whole is a circle, and each record shows the enzymes that cut it once.
 - A problem that only some records have names them after its path, such as
   `options.span.end (records[0])`.

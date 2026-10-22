@@ -2,13 +2,13 @@
 
 When you sequence a clone, you compare its reads with the record you expect. molviz draws the
 result: where each read lies, each place where a read disagrees with the record, and a close-up
-of the bases round each one, with the read's trace when you have it. Your code aligns the reads
+of the bases around each one, with the read's trace when you have it. Your code aligns the reads
 and finds the disagreements. molviz draws only what you hand it.
 
 The examples check pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly, against
-one consensus read. The records are in the repo's
-[test records](https://github.com/liuhlab/liulab-molviz/tree/main/tests/records). Each step
-shows its code, then the drawing that code makes, drawn here from the same record and options.
+one consensus read. Save its record,
+[`puc19-gfp-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json), beside your script. Each step shows
+its code, then the drawing it makes, drawn here from the same record and options.
 
 ## Add the reads and the disagreements
 
@@ -57,9 +57,10 @@ The name and the colour are yours. molviz writes the name as you give it, so `69
 from 1, as a reader does. Here red marks a change in a region that fails, and grey marks one
 outside every region checked. A disagreement with no colour is grey.
 
-`molviz.check` raises `ValueError` if the record breaks the format, such as a disagreement that
-names a read the record doesn't hold. [The record format](../reference/record.md#reads) lists
-every key of a read and a disagreement.
+[`molviz.check`](../api.md#molviz.check) raises `ValueError` if the record breaks the format,
+such as a disagreement that names a read the record doesn't hold. The record format lists every
+key of a [read](../reference/record.md#reads) and a
+[disagreement](../reference/record.md#disagreements).
 
 ## Draw the map
 
@@ -84,7 +85,7 @@ in its own colour.
 
 ## Draw a close-up of each disagreement
 
-A close-up is the record drawn over a few dozen bases round one disagreement: the line, and the
+A close-up is the record drawn over a few dozen bases around one disagreement: the line, and the
 sequence view in one row. To make one, draw a span of 30 bases on either side, with a row long
 enough to hold the whole span:
 
@@ -123,21 +124,23 @@ These are the two close-ups, drawn as still drawings:
 </div>
 
 The read marks the base where it disagrees in red, whatever the colour of the disagreement's
-bar. To put a close-up in a page of your own, use `close_up.still_svg()`, which returns the same
-drawing as SVG text. [Put drawings in your own page](your-own-page.md) shows how.
+bar. To put a close-up in a page of your own, use
+[`close_up.still_svg()`](../api.md#molviz.Drawing.still_svg), which returns the same drawing as
+SVG text. [Put drawings in your own page](your-own-page.md) shows how.
 
 ## Add a trace
 
 A Sanger read's trace is a track. Your code reads it from the sequencer's `.ab1` file and adds
-it to the record's `tracks`. A track holds:
+it to the record's [`tracks`](../reference/record.md#tracks). A track holds:
 
 - `name`, the track's name.
 - `curves`, four lists of numbers, one for each of `A`, `C`, `G` and `T`, all the same length.
 - `peaks`, pairs of a sample and a base, with the base counted from 0. Each pair ties one sample
   of the curves to the base it was read as. The samples rise from one pair to the next.
 
-pUC19-GFP's consensus read has no trace, so this step draws `trace-3730.json`. It holds 120
-bases from one Sanger read, with one base changed so that the read disagrees at `61 G>C`:
+pUC19-GFP's consensus read has no trace, so this step draws
+[`trace-3730.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/trace-3730.json). It holds 120 bases from one Sanger read, with one
+base changed so that the read disagrees at `61 G>C`:
 
 ```python
 trace = json.loads(Path("trace-3730.json").read_text())
@@ -166,7 +169,8 @@ record holds G.
 
 If the read is on the bottom strand, swap each curve for the base it pairs with, A with T and
 C with G, so that the curves read as the top strand does. The bases in `peaks` then fall as the
-samples rise. `trace-3730-reversed.json` is the same read turned to the other strand:
+samples rise. [`trace-3730-reversed.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/trace-3730-reversed.json) is the same read
+turned to the other strand:
 
 ```python
 reversed_trace = json.loads(Path("trace-3730-reversed.json").read_text())

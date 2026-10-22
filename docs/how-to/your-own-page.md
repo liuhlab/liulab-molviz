@@ -13,13 +13,13 @@ For one drawing on a page of its own, `drawing.write("name.html")` is enough. Se
 
 ## Draw live with the viewer
 
-1. Put `viewer_script()` in a `<script>` element, once.
-2. After it, call `molviz.draw(element, record, options)` for each record. The drawing is added
-   at the end of the element.
+1. Put [`viewer_script()`](../api.md#molviz.viewer.viewer_script) in a `<script>` element,
+   once.
+2. After it, call [`molviz.draw(element, record, options)`](../reference/javascript.md#draw-into-an-element)
+   for each record. The drawing is added at the end of the element.
 
 This Python writes a page that draws pUC19-GFP live. Save its record,
-[puc19-gfp-product.json](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json),
-beside the script.
+[`puc19-gfp-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json), beside your script.
 
 ```python
 import json
@@ -73,8 +73,9 @@ The other inputs have draw calls of their own: `molviz.drawGel(element, gel)`,
 
 ## Write still drawings with the font rules
 
-1. Put `font_rules()` in a `<style>` element, once.
-2. Write each drawing's `still_svg()` into the page as it is.
+1. Put [`font_rules()`](../api.md#molviz.font_rules) in a `<style>` element, once.
+2. Write each drawing's [`still_svg()`](../api.md#molviz.Drawing.still_svg) into the page as it
+   is.
 
 This writes a page that holds a gel and a plate, `colony_pcr` from
 [Draw a gel](draw-a-gel.md) and `picked` from [Draw a plate and a stamp](draw-a-plate.md):
@@ -118,15 +119,16 @@ The page shows these:
 The font rules load molviz's fonts from the page itself. Without them, the browser draws the
 text in a font of its own, which may not fit the space laid out for it.
 
-If the page also draws live, leave the font rules out. Each draw call adds them, and written
-twice they make the page larger for nothing.
+If the page also draws live, leave the font rules out. Each draw call adds them, and a second
+copy only makes the page larger.
 
 ## Make a still drawing in the browser
 
-A page that carries the viewer can make still drawings itself. Each input has a still call:
-`molviz.stillSvg(record, options)`, `molviz.gelStillSvg(gel)`, `molviz.plateStillSvg(plate)`
-and `molviz.figureStillSvg(records, options)`. Each returns an object whose `svg` is the SVG
-text. Call `molviz.declareFaces(document)` once, to add the font rules to the page:
+A page that carries the viewer can make still drawings itself. Each input has a
+[still call](../reference/javascript.md#still-svg): `molviz.stillSvg(record, options)`,
+`molviz.gelStillSvg(gel)`, `molviz.plateStillSvg(plate)` and
+`molviz.figureStillSvg(records, options)`. Each returns an object whose `svg` is the SVG text. Call [`molviz.declareFaces(document)`](../reference/javascript.md#declarefaces) once, to
+add the font rules to the page:
 
 ```js
 const { svg } = molviz.gelStillSvg(gel);
@@ -135,7 +137,7 @@ document.getElementById("gel").insertAdjacentHTML("beforeend", svg);
 ```
 
 Don't call `molviz.svg`, `molviz.gelSvg`, `molviz.plateSvg` or `molviz.figureSvg` in a page.
-They write the SVG for a file, which needs letter outlines that a page doesn't load, so they
-throw an error.
+They write the [SVG for a file](../reference/javascript.md#file-svg), which needs letter
+outlines that a page doesn't load, so they throw an error.
 
 The [JavaScript API](../reference/javascript.md) lists every name on the global `molviz`.

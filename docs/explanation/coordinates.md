@@ -22,8 +22,8 @@ Counting this way keeps the arithmetic plain:
   are.
 
 Counting from 1 with both ends included is how people read a map. A person says "base 396",
-not "the base at index 395". So the record keeps the form that code gets right, and molviz turns it into the
-form people read when it writes a label.
+not "the base at index 395". So the record keeps the form that code gets right, and molviz turns
+it into the form people read when it writes a label.
 
 ## A point between bases is the count of bases before it
 

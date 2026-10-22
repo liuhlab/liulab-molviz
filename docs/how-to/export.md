@@ -1,15 +1,15 @@
 # Export SVG, PNG and PDF
 
 Write a drawing to a file to put it in slides, a paper or a report. Each draw call returns a
-drawing, and the drawing's `write` picks the file's format from its ending. Python writes the
+drawing, and the drawing's [`write`](../api.md#molviz.Drawing.write) picks the file's format
+from its ending. Python writes the
 file on its own, with no browser and no network.
 
 ## Draw what you want to export
 
-These examples draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. Save its
-record,
-[puc19-gfp-product.json](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json),
-beside your script, or use a record of your own.
+These examples draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. Save
+its record, [`puc19-gfp-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json), beside your script, or use
+a record of your own.
 
 ```python
 import json
@@ -44,14 +44,17 @@ Each file holds this drawing:
 
 Pick the format by where the drawing goes:
 
-- **SVG** for a web page, or to change the drawing in a vector editor such as Inkscape. Its
-  letters are drawn as shapes, so it looks the same on a computer that lacks molviz's fonts.
+- **SVG** for a web page, or to change the drawing in a vector editor such as Inkscape. Each
+  letter is an outline, so it looks the same on a computer that lacks molviz's fonts.
 - **PNG** for slides and documents that take an image.
 - **PDF** for print and for a paper.
 
 The ending is read in any case, so `.PDF` works too. Any other ending raises `ValueError`.
 
-A file has no bar of switches. It shows the record with the [options](../api.md#options) you passed to `draw`.
+A file has no bar of switches. It shows the record with the [options](../api.md#options) you
+passed to `draw`. If those options turn on the sequence view, the PDF has the map on its first
+page and the rows of bases on the pages after it.
+[Write the rows to a PDF](show-the-bases.md#write-the-rows-to-a-pdf) gives the steps.
 
 ## Set the PNG's resolution
 
@@ -63,18 +66,7 @@ drawing.write("puc19-gfp.png", dpi=600)
 
 A drawing is measured in points, 72 to the inch, so a PNG prints at the drawing's own size at
 any dpi. A higher dpi gives more pixels. If the PNG would be too large, `write` raises
-`ValueError`. Write a PDF instead: it stays sharp at any size.
-
-## Export the bases as PDF pages
-
-If the drawing has the sequence view, its PDF puts the map on the first page and the rows of
-bases on the pages after:
-
-```python
-molviz.draw(record, sequence_view=True).write("puc19-gfp-bases.pdf")
-```
-
-Each page is as large as what it holds.
+`ValueError`. Write a PDF instead, which stays sharp at any size.
 
 ## Write a page instead
 
@@ -87,3 +79,4 @@ drawing.write("puc19-gfp.html")
 The page opens offline. A record's page draws it with the viewer, so that the reader can turn the
 map and switch views. A gel's, a plate's or a figure's page holds its still drawing. To put
 several drawings in one page, see [Put drawings in your own page](your-own-page.md).
+[Pages, files and still drawings](../explanation/outputs.md) compares a page with each file.

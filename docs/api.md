@@ -1,8 +1,14 @@
 # Python API
 
-The `molviz` package's names, each as its docstring describes it. Import each one from
-`molviz`, as in `molviz.draw`. A page that draws in the browser calls the viewer itself,
-through the names on the [JavaScript API](reference/javascript.md) page.
+This page lists the `molviz` package's names, each as its docstring describes it. Import each
+one from `molviz`, as in `molviz.draw`. A page that draws in the browser calls the viewer
+itself, through the names on the [JavaScript API](reference/javascript.md) page.
+
+Each input's keys are on its format's page: [record](reference/record.md),
+[gel](reference/gel.md), [plate](reference/plate.md) and [figure](reference/figure.md).
+[Export SVG, PNG and PDF](how-to/export.md) uses `Drawing.write`, and
+[Put drawings in your own page](how-to/your-own-page.md) uses `still_svg`, `font_rules` and
+`viewer_script`.
 
 ## molviz
 
@@ -32,7 +38,10 @@ through the names on the [JavaScript API](reference/javascript.md) page.
 
 `draw` takes these options by name, and so does `draw_figure`, for every record it stacks.
 Each says what the drawing starts with. An option it does not know is an error, and one left
-out takes its default.
+out takes its default. `span` counts bases as the record format's
+[coordinates](reference/record.md#coordinates) do.
+[Choose what a map shows](how-to/what-a-map-shows.md) and
+[Show the bases](how-to/show-the-bases.md) use each option in turn.
 
 | Option | What it does | Default |
 | --- | --- | --- |

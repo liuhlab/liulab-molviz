@@ -3,11 +3,12 @@
 A plate drawing shows what each well holds. A stamp drawing shows a transfer: the wells it
 takes from one plate and the wells it fills on another.
 
-This page draws plates from AP-1, a project that builds a library of clones in three rounds.
+This guide draws plates from AP-1, a project that builds a library of clones on 96-well and
+384-well plates.
 
 ## Name what each well holds
 
-Write the plate as a dictionary: its rows, its columns, and `wells`, which maps each well's name
+Write the plate as a Python dict: its rows, its columns, and `wells`, which maps each well's name
 to its contents. A well left out is empty. Rows are lettered from A, and past Z they go on as AA,
 AB and so on. The [plate format](../reference/plate.md) lists every key.
 
@@ -40,12 +41,15 @@ The file holds this plate:
 Each different contents takes a colour of its own, and the legend under the plate names it.
 Empty wells are pale grey. Rest the pointer on a well to see its name and contents.
 
-`draw_plate` takes no options. molviz draws a plate the same in a file and on a page.
+[`draw_plate`](../api.md#molviz.draw_plate) takes no options. molviz draws a plate the same
+in a file and on a page.
 
 ## Draw a plate with many contents
 
-molviz gives a colour of its own to each of up to ten different contents on a plate. Past ten, every
-filled well takes one colour, and the legend counts the contents in place of naming them.
+molviz gives a colour of its own to each of up to ten different contents on a plate. Past ten,
+every filled well takes one colour, and the legend counts the contents in place of naming them.
+The plate format's [colours and legend](../reference/plate.md#colours-and-the-legend) give the
+order the colours go in.
 
 AP-1's plate index 1 holds a different pair of primers in each of its 96 wells:
 
@@ -103,9 +107,9 @@ Start each plate's title with "From" or "Into", so that a reader can tell the tw
 
 ## Check a plate before you draw it
 
-`draw_plate` checks the plate first. To check it without drawing it, call `check_plate`. Both
-raise `ValueError`, and the message names each problem by its place in the plate. Here a well
-lies past the plate's last row:
+`draw_plate` checks the plate first. To check it without drawing it, call
+[`check_plate`](../api.md#molviz.check_plate). Both raise `ValueError`, and the message names
+each problem by its place in the plate. Here a well lies past the plate's last row:
 
 ```python
 molviz.check_plate({"rows": 8, "columns": 12, "wells": {"I1": "water"}})

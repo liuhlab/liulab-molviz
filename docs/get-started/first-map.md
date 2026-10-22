@@ -63,7 +63,10 @@ a type and a strand, and covers one or more segments of the bases:
 - The `strand` is `1` for a feature that reads along the top strand, and `-1` for one that
   reads along the bottom strand.
 - A segment's `start` and `end` count bases from 0, and the base at `end` is not part of it.
-  GFP's segment holds 720 bases, which the map numbers 101 to 820.
+  GFP's segment holds 720 bases, which the map numbers 101 to 820. The record format's
+  [coordinates](../reference/record.md#coordinates) give the full rules.
+
+The [record format](../reference/record.md) lists every key a record can hold.
 
 Run the file:
 
@@ -107,8 +110,8 @@ Now try the page:
 1. Rest the pointer on GFP. A box shows its name, its type, its place, `101 .. 820`, and its
    length, `720 bp`.
 2. Scroll over the ring to turn it.
-3. Click **Line** in the bar above the map. The viewer draws the plasmid along a straight line. Click
-   **Circle** to bring the ring back.
+3. Click **Line** in the bar above the map. The viewer draws the plasmid along a straight
+   line. Click **Circle** to bring the ring back.
 4. Click **Sequence** to show the bases on both strands, with each feature under them. They sit
    beside the map, or under it in a narrow window.
 
@@ -141,5 +144,7 @@ You typed a record, drew it as a page and wrote it as two files. From here:
 
 - [Choose a drawing](choose-a-drawing.md) shows the other drawings molviz makes, and the
   question each one answers.
+- The [record format](../reference/record.md) lists the primers, cut sites, reads and other
+  items a record can hold.
 - The [Python API](../api.md) lists every function, and the [options](../api.md#options) that
   `draw` takes.

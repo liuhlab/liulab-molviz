@@ -1,13 +1,20 @@
 # Record format
 
 A record is one DNA molecule as you hand it to molviz: its name, whether it is circular, its
-bases, and what is drawn on it. In Python a record is a `dict`, which `molviz.check` checks and
-`molviz.draw` draws. In a page it is a JSON object, which the global `molviz.check` checks and
-`molviz.draw` draws. Both run the same check.
+bases, and what is drawn on it. In Python a record is a `dict`, which
+[`molviz.check`](../api.md#molviz.check) checks and [`molviz.draw`](../api.md#molviz.draw)
+draws. In a page it is a JSON object, which the global [`molviz.check`](javascript.md#check)
+checks and [`molviz.draw`](javascript.md#draw-into-an-element) draws. Both run the same check.
 
 The check reports every problem it finds, each named by its path, such as
 `features[0].segments[0].end: must be greater than start`. Python raises `ValueError`, and the
-page's check throws a `FormatError`. A key that is not on this page is an error.
+page's check throws a [`FormatError`](javascript.md#formaterror). A key that is not on this page
+is an error.
+
+The guides [Choose what a map shows](../how-to/what-a-map-shows.md),
+[Show the bases](../how-to/show-the-bases.md),
+[Check a clone against its reads](../how-to/check-a-clone.md) and
+[Stack records into a figure](../how-to/stack-records.md) draw records in this format.
 
 ## Example
 
@@ -78,7 +85,7 @@ Each item of `features` is an object with these keys.
 | Key | Type | Required | Default | Meaning |
 | --- | --- | --- | --- | --- |
 | `name` | text | yes | | The feature's label. |
-| `type` | text | yes | | Its type, such as `CDS` or `promoter`. Any text is allowed. The type sets the default colour, and the `types_off` option names types. |
+| `type` | text | yes | | Its type, such as `CDS` or `promoter`. Any text is allowed. The type sets the default colour, and the [`types_off`](../api.md#options) option names types. |
 | `strand` | `1`, `-1`, `0` or `2` | yes | | `1` is the top strand and `-1` the bottom strand. `0` is no strand, drawn with no arrowhead. `2` is both strands, drawn with an arrowhead at each end. |
 | `segments` | list of [segments](#segments), at least one | yes | | The stretches the feature covers, joined in order. |
 | `color` | colour | no | its [type's colour](#colours-by-type) | The fill of each segment that has no colour of its own. |
@@ -147,7 +154,7 @@ at one place are two items.
 
 | Key | Type | Required | Default | Meaning |
 | --- | --- | --- | --- | --- |
-| `enzyme` | text | yes | | The enzyme's name. The `enzymes` and `highlight` options match it in any case. |
+| `enzyme` | text | yes | | The enzyme's name. The `enzymes` and `highlight` [options](../api.md#options) match it in any case. |
 | `start` | integer | yes | | The first base the enzyme recognises. |
 | `end` | integer | yes | | The base after the last base it recognises. It is greater than `start`. |
 | `at` | integer | yes | | The point where the top strand is cut. It may lie outside the recognised bases, as it does for an enzyme that cuts away from its site. |

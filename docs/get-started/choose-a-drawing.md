@@ -18,11 +18,12 @@ Each call takes its input as a Python dict, like the record you type in
 [Draw your first plasmid map](first-map.md), and `draw_figure` takes a list of records. Each
 call returns a drawing, which [`write`](../api.md#molviz.Drawing.write) saves as a page or a
 file. In your own web page, the global `molviz` makes the same drawings with `draw`,
-`drawFigure`, `drawGel` and `drawPlate`.
+`drawFigure`, `drawGel` and `drawPlate`, which the
+[JavaScript API](../reference/javascript.md#draw-into-an-element) lists.
 
 The examples below draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. The
-plate comes from AP-1, a library built in 96-well and 384-well plates. The viewer draws each
-example in your browser when the page opens.
+plate comes from AP-1, a project that builds a library of clones on 96-well and 384-well plates.
+The viewer draws each example in your browser when the page opens.
 
 ## The circle: what a plasmid holds
 
@@ -40,6 +41,9 @@ the call needs no options.
 ```python
 drawing = molviz.draw(record)
 ```
+
+[Choose what a map shows](../how-to/what-a-map-shows.md) leaves out kinds, feature types and
+enzymes, and lights the names that matter.
 
 ## The line: what lies along a stretch
 
@@ -63,6 +67,8 @@ drawing = molviz.draw(record, span={"start": 340, "end": 1210})
 A span counts bases from 0 and leaves out the base at `end`, so this span holds bases 341 to
 1210 as the line numbers them. Any span shorter than the whole record draws as a line. To draw
 a whole circular record as a line, pass `map="line"`.
+[Draw a stretch of the record](../how-to/what-a-map-shows.md#draw-a-stretch-of-the-record)
+gives the steps, a span across the origin included.
 
 ## The sequence view: which bases
 
@@ -86,12 +92,13 @@ drawing = molviz.draw(record, span={"start": 380, "end": 440}, sequence_view=Tru
 ```
 
 On a page, the sequence view sits beside the map or under it. In a PDF, its rows follow the map
-on pages of their own.
+on pages of their own. [Show the bases](../how-to/show-the-bases.md) sets the span, the row
+length and the strands.
 
 ## A figure: what a step makes
 
-A figure is a still drawing of one record, or of several stacked, to one span. It goes beside a
-step of a protocol. A figure draws every record with the same options, so stacked records line
+A figure is a still drawing of one record, or of several stacked top to bottom. It goes beside
+a step of a protocol. A figure draws every record with the same options, so stacked records line
 up. Stack a vector before and after a part goes in, for example. This figure shows the Golden
 Gate product. It asks for BbsI, the enzyme of the Golden Gate step. BbsI no longer cuts the
 product, so the figure marks no BbsI site. It also lights both junctions.
@@ -112,6 +119,9 @@ drawing = molviz.draw_figure(
     [record], enzymes=["BbsI"], highlight=["ATGA junction", "TGGC junction"]
 )
 ```
+
+[Stack records into a figure](../how-to/stack-records.md) stacks the two PCR products over the
+plasmid they make.
 
 ## A close-up: whether the clone is right
 
@@ -146,7 +156,10 @@ drawing.write("696.svg")
 ```
 
 Here `checked` is the record with its reads and disagreements. Write a close-up as an SVG, PNG
-or PDF file, or take its SVG text from `drawing.still_svg()`.
+or PDF file, or take its SVG text from `drawing.still_svg()`. In your own page, the global's
+[`stillSvg`](../reference/javascript.md#still-svg) returns the same SVG.
+[Check a clone against its reads](../how-to/check-a-clone.md) adds the reads and draws a
+close-up of each disagreement.
 
 ## A gel: which bands to expect
 
@@ -164,7 +177,8 @@ pUC19-GFP, with a correct clone beside the empty vector.
 drawing = molviz.draw_gel(gel)
 ```
 
-`draw_gel` takes no options.
+`draw_gel` takes no options. [Draw a gel](../how-to/draw-a-gel.md) writes this gel down
+and draws it.
 
 ## A plate: what each well holds
 
@@ -186,6 +200,7 @@ drawing = molviz.draw_plate(plate)
 
 `draw_plate` takes no options. molviz draws a stamp, which moves a pattern of wells from one
 plate into another, as two plates: the one it takes from and the one it fills.
+[Draw a plate and a stamp](../how-to/draw-a-plate.md) builds this plate and a stamp from it.
 
 ## Live or still
 
@@ -194,3 +209,7 @@ The circle, the line and the sequence view are three views of one record. On a p
 bases. A figure, a close-up, a gel and a plate are still drawings. The viewer draws each one
 once, and a reader can't zoom it or switch its view, so it fits a report or a protocol. `write`
 also saves every drawing as an SVG, PNG or PDF file.
+
+[Export SVG, PNG and PDF](../how-to/export.md) writes the files, and
+[Put drawings in your own page](../how-to/your-own-page.md) puts live and still drawings in a
+page you build. [Pages, files and still drawings](../explanation/outputs.md) compares them.

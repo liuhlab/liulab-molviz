@@ -3,13 +3,13 @@
 A gel drawing shows the bands you expect beside a ladder, each band where its size runs. Set it
 beside a PCR or a digest in a protocol, so that the reader can compare the real gel with it.
 
-This page draws the colony PCR from the build of pUC19-GFP, the pUC19 vector with GFP put in by
+This guide draws the colony PCR from the build of pUC19-GFP, the pUC19 vector with GFP put in by
 Golden Gate assembly. It checks two colonies: a correct clone, which gives two bands, and an
 empty vector, which gives one.
 
 ## Write down the gel
 
-Write the gel as a dictionary. Give the ladder's name and its band sizes in base pairs. Then
+Write the gel as a Python dict. Give the ladder's name and its band sizes in base pairs. Then
 list the lanes in the order they run, each with its name and the sizes of its bands.
 
 ```python
@@ -30,7 +30,8 @@ The title is optional. The [gel format](../reference/gel.md) lists every key.
 
 ## Draw it and write a file
 
-Call `draw_gel`, then write the drawing to a file. The file's ending picks its format.
+Call [`draw_gel`](../api.md#molviz.draw_gel), then write the drawing to a file. The file's
+ending picks its format.
 
 ```python
 import molviz
@@ -51,8 +52,9 @@ The ladder runs in the lane marked L, and the sample lanes follow it, numbered i
 legend under the gel names each lane and its sizes. Rest the pointer on a band to see its size.
 
 The gel spans the sizes it holds. Its largest band sits at the top and its smallest near the
-foot, spaced by the logarithm of their size, as a real gel runs them. If a ladder size's label
-would crowd the one above it, molviz leaves the label off but still draws the band.
+foot, spaced by the [logarithm of their size](../reference/gel.md#where-a-band-runs), as a
+real gel runs them. If a ladder size's label would crowd the one above it, molviz leaves the
+label off but still draws the band.
 
 `draw_gel` takes no options. molviz draws a gel the same in a file and on a page.
 
@@ -68,9 +70,9 @@ Its line in the legend reads "no band".
 
 ## Check a gel before you draw it
 
-`draw_gel` checks the gel first. To check it without drawing it, call `check_gel`. Both raise
-`ValueError`, and the message names each problem by its place in the gel. Here a size was typed
-as text:
+`draw_gel` checks the gel first. To check it without drawing it, call
+[`check_gel`](../api.md#molviz.check_gel). Both raise `ValueError`, and the message names each
+problem by its place in the gel. Here a size was typed as text:
 
 ```python
 colony_pcr["lanes"][0]["bands"] = [160, "838"]

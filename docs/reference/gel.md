@@ -1,14 +1,18 @@
 # Gel format
 
 A gel is a simulated agarose gel: a ladder and sample lanes, each band at its size in base
-pairs. It holds no record. In Python a gel is a `dict`, which `molviz.check_gel` checks and
-`molviz.draw_gel` draws. In a page it is a JSON object, which the global `molviz.checkGel`
-checks and `molviz.drawGel` draws. Both run the same check.
+pairs. It holds no record. In Python a gel is a `dict`, which
+[`molviz.check_gel`](../api.md#molviz.check_gel) checks and
+[`molviz.draw_gel`](../api.md#molviz.draw_gel) draws. In a page it is a JSON object, which the
+global [`molviz.checkGel`](javascript.md#check) checks and
+[`molviz.drawGel`](javascript.md#draw-into-an-element) draws. Both run the same check.
 
 The check reports every problem it finds, each named by its path, such as
 `ladder.bands[1]: must be 1 or more`. Python raises `ValueError`, and the page's check throws a
-`FormatError`. A key that is not on this page is an error. The types are the ones on the
-[record format](record.md#types) page.
+[`FormatError`](javascript.md#formaterror). A key that is not on this page is an error. The
+types are the ones on the [record format](record.md#types) page.
+
+[Draw a gel](../how-to/draw-a-gel.md) writes a gel in this format and draws it.
 
 ## Example
 
