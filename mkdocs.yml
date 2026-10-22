@@ -19,6 +19,12 @@ site_description: "Draws DNA sequences and plasmids in the browser, from data a 
 # human-facing but stays out of the nav on purpose, and out of search by its front matter.
 nav:
   - Home: index.md
+  - How-to guides:
+      - Maps and sequences:
+          - Choose what a map shows: how-to/what-a-map-shows.md
+          - Show the bases: how-to/show-the-bases.md
+          - Check a clone against its reads: how-to/check-a-clone.md
+          - Stack records into a figure: how-to/stack-records.md
   - Reference:
       - Python API: api.md
 
