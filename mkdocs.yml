@@ -19,6 +19,9 @@ site_description: "Draws DNA sequences and plasmids in the browser, from data a 
 # human-facing but stays out of the nav on purpose, and out of search by its front matter.
 nav:
   - Home: index.md
+  - Get started:
+      - Draw your first plasmid map: get-started/first-map.md
+      - Choose a drawing: get-started/choose-a-drawing.md
   - Reference:
       - Python API: api.md
 
