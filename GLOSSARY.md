@@ -175,3 +175,10 @@ a file needs.
 
 One of the nine things a drawing guarantees its reader, listed in section 5 of
 `docs/research/molviz-mbio-drawings.md`.
+
+### Gallery
+
+The docs site's pages that draw every test input once, at its defaults, so a change to a
+drawing can be reviewed on the live site. They are published, but left out of the menu and the
+search.
+_Avoid_: examples, docs
