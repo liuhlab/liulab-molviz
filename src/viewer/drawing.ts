@@ -1,15 +1,13 @@
 /** An input drawn as SVG text, with no DOM. */
 
 import { type CircleScene, layoutCircle } from "./circle";
-import { checkGel } from "./gel";
-import { layoutGel } from "./gel-layout";
+import { checkGel, layoutGel } from "./gel";
 import { type Hidden, notice } from "./labels";
 import { type LineScene, layoutLine } from "./line";
 import { WIDTH } from "./map";
 import { checkOptions, type Options } from "./options";
 import { rowPages, stacked } from "./pages";
-import { checkPlate } from "./plate";
-import { layoutPlate } from "./plate-layout";
+import { checkPlate, layoutPlate } from "./plate";
 import { check, type Record } from "./record";
 import type { MapScene, Scene } from "./scene";
 import { layoutSequence, type SequenceScene } from "./sequence";
