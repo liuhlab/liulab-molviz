@@ -1,0 +1,2162 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/research/molviz-js-packages/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Which JavaScript packages liulab-molviz can build on - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#which-javascript-packages-liulab-molviz-can-build-on" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Which JavaScript packages liulab-molviz can build on
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-verdict-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. The verdict, first
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-decisive-check-seqviz-under-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. The decisive check: SeqViz under Node
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. The decisive check: SeqViz under Node">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-what-was-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.1 What was run
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-what-came-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.2 What came out
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-comparison-one-row-per-package-per-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Comparison, one row per package per view
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-licences" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Licences
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-building-blocks-with-no-dom-measured" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. Building blocks with no DOM, measured
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-also-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. Also found
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-earlier-findings-checked" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7. The earlier findings, checked
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Open gaps
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sources
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="which-javascript-packages-liulab-molviz-can-build-on">Which JavaScript packages liulab-molviz can build on<a class="headerlink" href="#which-javascript-packages-liulab-molviz-can-build-on" title="Permanent link">&para;</a></h1>
+<p>Research note written for <a href="https://github.com/liuhlab/liulab-mbio/issues/575">liulab-mbio#575</a> on 2026-10-17, a sub-issue of map
+<a href="https://github.com/liuhlab/liulab-mbio/issues/572">liulab-mbio#572</a>. liulab-molviz will draw in the browser from
+data mbio writes: a circular and a linear plasmid map, a sequence view with both strands and
+translations, Sanger trace tracks, a simulated gel, a plate grid, and later 3D protein structures.
+A command line must also write SVG, PNG and PDF with no browser. The reader promises it inherits:
+no label overlaps another and a hidden label is counted; bases are real text that find reaches and
+copy takes; one file opens offline. The map also decided that the viewer draws only what it is
+given: mbio finds cut sites, translates and places features.</p>
+<p>Every claim below was <strong>read</strong> (from a package's source, docs, LICENSE or npm metadata) or
+<strong>measured</strong> (installed, run, downloaded and sized, or counted through the GitHub API) on
+<strong>2026-10-17</strong>, unless its line gives another date. Sizes are the package's own browser build,
+minified as shipped, then <code>gzip -9</code>. Commit counts are commits on the default branch since
+2025-10-17, from <code>gh api .../commits?since=2025-10-17T00:00:00Z --paginate</code>. Claims from memory are
+marked <strong>unverified</strong>.</p>
+<h2 id="1-the-verdict-first">1. The verdict, first<a class="headerlink" href="#1-the-verdict-first" title="Permanent link">&para;</a></h2>
+<p><strong>SeqViz is a look to copy, not a package to build on</strong> (measured and read, 2026-10-17). It does
+render to an SVG string under Node, but only through a test hook, and four of its traits break a
+need:</p>
+<ul>
+<li><strong>The sequence view is virtualised.</strong> It mounts five rows at a time. On the server the linear
+  view returned the first 450 of 3,347 bases and nothing else; in a browser, rows off screen are not
+  in the page, so find cannot reach them (read: <code>InfiniteScroll</code>, <code>visibleBlocks</code> starts at
+  <code>Math.min(5, …)</code>).</li>
+<li><strong>Bases are text but not selectable.</strong> Each base is a <code>&lt;tspan&gt;</code> inside one <code>&lt;text&gt;</code>, styled
+  <code>user-select: none</code>; copy goes through SeqViz's own Ctrl+C handler (measured in the server
+  output; read: <code>copyEvent</code>).</li>
+<li><strong>It computes what mbio computes.</strong> It takes enzyme names or <code>{rseq, fcut, rcut}</code> and digests the
+  sequence itself, and takes translation ranges and translates them itself. There is no prop for a
+  cut site at a given position (read: <code>SeqVizProps</code>).</li>
+<li><strong>Its element kinds are fixed</strong>: annotations, primers (linear viewer only), translations, enzymes,
+  highlights, search. <code>children</code> and <code>refs</code> rearrange its two viewers; they add no track kind
+  (read: <code>SeqVizProps</code>).</li>
+</ul>
+<p>It also needs React (bundled in its 188 KB build) and fetches Roboto Mono from Google Fonts unless
+<code>disableExternalFonts</code> is set (read).</p>
+<p><strong>The strongest alternative for the prototype is no viewer package: a framework-free SVG core of
+molviz's own on d3-path, d3-shape and d3-scale, with rbush for collisions and opentype.js for text
+width</strong> (measured: all five run under Node with no DOM, section 5). It is the only route that meets
+every need at once, about 84 KB gzipped together (sum of the dist files measured, d3-scale's own
+dependencies excluded). It can draw SeqViz's look, which is flat SVG. Among packaged viewers
+<strong>CGView.js</strong> is the runner-up for maps: Apache-2.0, SVG export, a plugin system, and the nearest
+label rule to ours: priority labels pushed outward until free, then every other label drawn only
+where it overlaps nothing. It drops the rest without counting them, though the count is one
+subtraction away. It draws to a canvas: its labels and bases are pixels on screen, its SVG export
+needs a DOM (<code>d3.select('body')</code>) and svgcanvas, and it has no sequence view. Its label code is
+worth reading, and Apache-2.0 lets molviz port it with the notice kept.</p>
+<table>
+<thead>
+<tr>
+<th>View</th>
+<th>Build on</th>
+<th>Read or copy from</th>
+<th>Reject</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Circular and linear map</td>
+<td>own core on d3-path, d3-shape, d3-scale and rbush</td>
+<td>SeqViz (look, <code>name,+N</code> groups), CGView.js (label islands), @carabennemsi/plasmid (pure SVG function)</td>
+<td>OVE (React, Redux, 2.2 MB gzip), nitro-bio (React)</td>
+</tr>
+<tr>
+<td>Sequence view</td>
+<td>own core; one <code>&lt;text&gt;</code> per strand per row, all rows in the page</td>
+<td>SeqViz (layout of strands, primers, translation boxes)</td>
+<td>SeqViz's virtualised view</td>
+</tr>
+<tr>
+<td>Sanger trace</td>
+<td>own core</td>
+<td>teal (approach only: GPL-3.0), sanger-viewer (MIT, pure <code>exportSvg</code>)</td>
+<td>OVE's trace (canvas, React)</td>
+</tr>
+<tr>
+<td>Simulated gel</td>
+<td>own core</td>
+<td>hatchlings <code>GelViewer</code> (Svelte)</td>
+<td>nothing else exists on npm</td>
+</tr>
+<tr>
+<td>Plate grid</td>
+<td>own core</td>
+<td>hatchlings <code>PlateHeatmap</code> (Svelte)</td>
+<td>plate-map (AGPL-3.0), @nitro-bio/platemap (GPL-3.0)</td>
+</tr>
+<tr>
+<td>3D structure, later</td>
+<td><strong>Mol*</strong> through <code>PluginContext</code> without its React UI, fed MolViewSpec</td>
+<td>3Dmol.js as the light fallback</td>
+<td>iCn3D (licence, network), NGL (maintenance only), LiteMol (dead)</td>
+</tr>
+<tr>
+<td>Label placement</td>
+<td>own 1D de-overlap on rbush that returns the hidden labels</td>
+<td>d3fc-label-layout <code>removeOverlaps</code> (marks <code>hidden = true</code>)</td>
+<td>labella (no hidden output, unmaintained)</td>
+</tr>
+<tr>
+<td>Text width with no browser</td>
+<td>opentype.js, with the same font file inlined in the page</td>
+<td>fontkit (same widths)</td>
+<td>canvas <code>measureText</code> (needs a canvas)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-the-decisive-check-seqviz-under-node">2. The decisive check: SeqViz under Node<a class="headerlink" href="#2-the-decisive-check-seqviz-under-node" title="Permanent link">&para;</a></h2>
+<h3 id="21-what-was-run">2.1 What was run<a class="headerlink" href="#21-what-was-run" title="Permanent link">&para;</a></h3>
+<p>In a fresh empty directory outside the repo (measured, 2026-10-17; Node 26.10.0, pnpm 12.4.1):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s1">'{"name":"seqviz-env","private":true}'</span><span class="w"> </span>&gt;<span class="w"> </span>package.json
+pixi<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-s<span class="w"> </span>nodejs<span class="w"> </span>-s<span class="w"> </span>pnpm<span class="w"> </span>--<span class="w"> </span>pnpm<span class="w"> </span>add<span class="w"> </span>seqviz<span class="w"> </span>react<span class="w"> </span>react-dom
+<span class="c1"># → seqviz 3.10.25, react 19.3.1, react-dom 19.3.1</span>
+</code></pre></div>
+<p>The record was <code>docs/examples/pUC19-GFP/product.dna</code> read with Biopython's SnapGene reader: 3,347
+bp, 21 features, 11 of them <code>primer_bind</code>, passed as SeqViz <code>annotations</code> and <code>primers</code>, with
+twelve enzymes (<code>EcoRI</code>, <code>SacI</code>, <code>KpnI</code>, <code>SmaI</code>, <code>BamHI</code>, <code>XbaI</code>, <code>SalI</code>, <code>PstI</code>, <code>SphI</code>,
+<code>HindIII</code>, <code>NcoI</code>, <code>BsaI</code>) and the GFP span as a translation. The script lived in a separate
+directory and loaded the packages by path:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// node seqviz-ssr.cjs ENV_DIR RECORD_JSON OUT_DIR</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">req</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createRequire</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">envDir</span><span class="p">,</span><span class="w"> </span><span class="s2">"package.json"</span><span class="p">));</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">React</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">(</span><span class="s2">"react"</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">renderToStaticMarkup</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">(</span><span class="s2">"react-dom/server"</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">seqviz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">(</span><span class="s2">"seqviz"</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="nx">rec</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">seq</span><span class="o">:</span><span class="w"> </span><span class="nx">rec</span><span class="p">.</span><span class="nx">seq</span><span class="p">,</span><span class="w"> </span><span class="nx">annotations</span><span class="p">,</span><span class="w"> </span><span class="nx">primers</span><span class="p">,</span><span class="w"> </span><span class="nx">enzymes</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">translations</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">start</span><span class="o">:</span><span class="w"> </span><span class="nx">gfp</span><span class="p">.</span><span class="nx">start</span><span class="p">,</span><span class="w"> </span><span class="nx">end</span><span class="o">:</span><span class="w"> </span><span class="nx">gfp</span><span class="p">.</span><span class="nx">end</span><span class="p">,</span><span class="w"> </span><span class="nx">direction</span><span class="o">:</span><span class="w"> </span><span class="nx">gfp</span><span class="p">.</span><span class="nx">direction</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">  </span><span class="nx">disableExternalFonts</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">style</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">width</span><span class="o">:</span><span class="w"> </span><span class="s2">"1000px"</span><span class="p">,</span><span class="w"> </span><span class="nx">height</span><span class="o">:</span><span class="w"> </span><span class="s2">"800px"</span><span class="w"> </span><span class="p">},</span>
+<span class="p">};</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">TEST_SIZE</span><span class="p">)</span><span class="w"> </span><span class="nx">base</span><span class="p">.</span><span class="nx">testSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">width</span><span class="o">:</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="nx">height</span><span class="o">:</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">TEST_SIZE</span><span class="p">)</span><span class="w"> </span><span class="p">};</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">viewer</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="p">[</span><span class="s2">"circular"</span><span class="p">,</span><span class="w"> </span><span class="s2">"linear"</span><span class="p">,</span><span class="w"> </span><span class="s2">"both"</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">renderToStaticMarkup</span><span class="p">(</span><span class="nx">React</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="nx">seqviz</span><span class="p">.</span><span class="nx">SeqViz</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">base</span><span class="p">,</span><span class="w"> </span><span class="nx">viewer</span><span class="w"> </span><span class="p">}));</span><span class="w">  </span><span class="c1">// route 1</span>
+<span class="w">  </span><span class="nx">seqviz</span><span class="p">.</span><span class="nx">Viewer</span><span class="p">(</span><span class="kc">undefined</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">base</span><span class="p">,</span><span class="w"> </span><span class="nx">viewer</span><span class="w"> </span><span class="p">}).</span><span class="nx">renderToString</span><span class="p">();</span><span class="w">                 </span><span class="c1">// route 2</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Each output's <code>&lt;svg&gt;</code> was pulled out and rasterised with <code>vl_convert.svg_to_png</code> to look at it.</p>
+<h3 id="22-what-came-out">2.2 What came out<a class="headerlink" href="#22-what-came-out" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Size given</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Viewer(…).renderToString()</code>, the README's "server-side rendering" call</td>
+<td>any</td>
+<td><strong>Throws</strong> <code>ReferenceError: document is not defined</code>, for all three viewers</td>
+</tr>
+<tr>
+<td><code>renderToStaticMarkup(&lt;SeqViz&gt;)</code></td>
+<td><code>style</code> only</td>
+<td>Empty containers, no <code>&lt;svg&gt;</code>: width and height come from a resize detector, which reports 0 on the server</td>
+</tr>
+<tr>
+<td><code>renderToStaticMarkup(&lt;SeqViz&gt;)</code> with <code>testSize</code> 1000 × 800</td>
+<td>test hook</td>
+<td><strong>Circular: one complete <code>&lt;svg&gt;</code></strong>, 24,774 bytes, 24 <code>&lt;text&gt;</code>, 51 <code>&lt;path&gt;</code>: ring, ticks, feature arrows, labels on the arc through <code>&lt;textPath&gt;</code> (lacZα, ori, AmpR, GFP), outside labels with leader lines (AmpR promoter, ATGA junction, NcoI, BsaI ×2, lac promoter, lac operator) and one group <code>MCS,+1</code>. No primers: the circular viewer does not draw them</td>
+</tr>
+<tr>
+<td>same</td>
+<td>test hook</td>
+<td><strong>Linear: five <code>&lt;svg&gt;</code> rows</strong>, both strands, primers above and below, the GFP translation as boxed residues, annotations, index — <strong>bases 1 to 450 only</strong></td>
+</tr>
+<tr>
+<td>same, <code>testSize</code> height 60,000</td>
+<td>test hook</td>
+<td>Still five rows: the window is fixed at five blocks, not sized to the height</td>
+</tr>
+</tbody>
+</table>
+<p><code>testSize</code> is documented only in <code>SeqViewerContainer.d.ts</code>: "a forced height/width that overwrites
+anything from sizeMe. For testing" (read). <code>SeqViz</code> passes every prop through to the container, so
+it reaches it (read). The layout itself needs no DOM: label widths are estimated at a fixed 7.2 px
+per character (<code>CHAR_WIDTH</code>), and nothing is measured (read).</p>
+<p><strong>So</strong>: a SeqViz circular map can become SVG text on a command line through an undocumented hook;
+a whole sequence view cannot.</p>
+<h2 id="3-comparison-one-row-per-package-per-view">3. Comparison, one row per package per view<a class="headerlink" href="#3-comparison-one-row-per-package-per-view" title="Permanent link">&para;</a></h2>
+<p>Size is min / gzip of the package's own browser build (measured). Activity is the latest release
+and its date, then releases and commits since 2025-10-17. "No browser" asks whether its layout
+can emit SVG text under Node. All rows: 2026-10-17.</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>View</th>
+<th>Licence</th>
+<th>Size</th>
+<th>Activity</th>
+<th>Framework</th>
+<th>No browser</th>
+<th>Crowded labels</th>
+<th>Bases as text</th>
+<th>Own tracks and kinds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SeqViz 3.10.25</td>
+<td>circular map</td>
+<td>MIT</td>
+<td>631,230 / 187,615 B (<code>seqviz.min.js</code>, React bundled); 309,663 / 65,502 B without React (<code>dist/index.js</code>, unminified)</td>
+<td>2026-09-23; 9 releases, 126 commits</td>
+<td>React 16.8 to 19</td>
+<td><strong>Yes with <code>testSize</code></strong> (measured)</td>
+<td>Labels within 15 px on one side group as <code>name,+N</code>, names on hover; groups of up to 4 spread if neighbours allow; horizontal overlap not checked (read)</td>
+<td>Only for records of 250 bp or less (<code>RENDER_SEQ_LENGTH_CUTOFF</code>, read)</td>
+<td>No: fixed kinds</td>
+</tr>
+<tr>
+<td>SeqViz 3.10.25</td>
+<td>linear map and sequence view</td>
+<td>MIT</td>
+<td>same</td>
+<td>same</td>
+<td>React</td>
+<td><strong>First 5 rows only</strong> (measured)</td>
+<td>Primer and annotation names truncated with <code>…</code> to fit (measured: "Sequencing forwa…")</td>
+<td><code>&lt;tspan&gt;</code> per base, <code>user-select: none</code>, virtualised (measured, read)</td>
+<td>No: fixed kinds</td>
+</tr>
+<tr>
+<td>CGView.js 1.8.2</td>
+<td>circular map</td>
+<td>Apache-2.0</td>
+<td>222,830 / 59,959 B, plus d3 7.0.1 (pinned) 274,269 / 89,829 B and css 3,095 B gzip</td>
+<td>2026-05-04; 2 releases, 64 commits</td>
+<td>none (d3)</td>
+<td>No: draws to canvas; <code>getSVG()</code> needs svgcanvas and <code>d3.select('body')</code>; widths by canvas <code>measureText</code> (read)</td>
+<td>Labels sorted by priority; the first <code>priorityMax</code> are pushed outward until their rect is free, or set in angled "islands"; each remaining label is drawn only if it overlaps nothing, and the rest are <strong>dropped without a count</strong> (read: <code>Annotation</code>, <code>LabelPlacementDefault</code>)</td>
+<td>No: letters of both strands drawn on the canvas when zoomed in (read)</td>
+<td>Yes: its own tracks, and a plugin system since 1.8.0 (read: CHANGELOG)</td>
+</tr>
+<tr>
+<td>CGView.js 1.8.2</td>
+<td>linear map</td>
+<td>Apache-2.0</td>
+<td>same</td>
+<td>same</td>
+<td>none</td>
+<td>No</td>
+<td>same</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Open Vector Editor (@teselagen/ove 0.8.42)</td>
+<td>circular map</td>
+<td>MIT (repo; npm field missing)</td>
+<td>7,398,558 / 1,479,935 B (<code>index.umd.js</code>, as shipped, unminified) plus css 1,962,246 / 729,986 B</td>
+<td>2026-04-16; 37 releases, 84 commits under <code>packages/ove</code></td>
+<td>React 18, Redux, Blueprint 3</td>
+<td>No (unverified: not tried; built on react-measure and html2canvas)</td>
+<td>Groups crowded labels (read 2026-09-16 in <code>plasmid-map-packages.md</code>)</td>
+<td>n/a</td>
+<td>Unverified</td>
+</tr>
+<tr>
+<td>Open Vector Editor 0.8.42</td>
+<td>linear and sequence view</td>
+<td>MIT</td>
+<td>same</td>
+<td>same</td>
+<td>React, Redux</td>
+<td>No (unverified)</td>
+<td>unverified</td>
+<td>unverified</td>
+<td>unverified</td>
+</tr>
+<tr>
+<td>Open Vector Editor 0.8.42</td>
+<td>Sanger trace</td>
+<td>MIT</td>
+<td>same</td>
+<td>same</td>
+<td>React, Blueprint</td>
+<td>No: canvas <code>getContext("2d")</code> (read)</td>
+<td>n/a</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>@nitro-bio/sequence-viewers 2.4.0</td>
+<td>circular, linear, sequence</td>
+<td>MIT</td>
+<td>1,110,009 B unpacked (npm)</td>
+<td>2026-10-01; 6 releases; 31 stars</td>
+<td>React 18 or 19, Radix</td>
+<td>Not tried</td>
+<td>Not read</td>
+<td>Not read</td>
+<td>Not read</td>
+</tr>
+<tr>
+<td>@carabennemsi/plasmid 0.1.3</td>
+<td>circular map</td>
+<td>MIT</td>
+<td>115,172 B unpacked (npm)</td>
+<td>2026-07-24; 2 releases; repo created 2026-07-11, 0 stars</td>
+<td>none</td>
+<td><strong>Yes</strong>: <code>renderPlasmidSVG(record)</code> returns an SVG string (measured)</td>
+<td>Narrow features without room get <strong>no label, silently</strong>: of the 17 features not labelled on their arc, 3 get an outside label and 14 none, with no count (measured, pUC19-GFP)</td>
+<td>No sequence view</td>
+<td>Features and cut sites only</td>
+</tr>
+<tr>
+<td>@molbiohive/hatchlings 0.8.4</td>
+<td>map, sequence, trace, gel, plate</td>
+<td>MIT</td>
+<td>521,179 B unpacked; ships <code>.svelte</code> source</td>
+<td>2026-03-31; repo created 2026-03-04, 2 stars, no commit since</td>
+<td>Svelte 5</td>
+<td>Not tried (needs the Svelte compiler)</td>
+<td>Not read</td>
+<td>Not read</td>
+<td>Its own fixed components</td>
+</tr>
+<tr>
+<td>teal (gear-genomics)</td>
+<td>Sanger trace with reference row</td>
+<td>GPL-3.0</td>
+<td>not on npm</td>
+<td>last commit 2026-09-03</td>
+<td>none (Custom Element)</td>
+<td>Its SVG is built as strings; the element wrapper needs a DOM (read by subagent)</td>
+<td>n/a</td>
+<td>Unverified</td>
+<td>Takes tracy JSON: four channels, calls, qualities, gapped reference</td>
+</tr>
+<tr>
+<td>sanger-viewer (animeshkundu)</td>
+<td>Sanger trace</td>
+<td>MIT</td>
+<td>not on npm</td>
+<td>last commit 2026-09-10; 1 star</td>
+<td>none</td>
+<td><code>exportSvg</code> documented as pure, no DOM (read by subagent)</td>
+<td>n/a</td>
+<td>Unverified</td>
+<td>No</td>
+</tr>
+<tr>
+<td>plate-map 3.0.1 (NEB)</td>
+<td>plate grid</td>
+<td>AGPL-3.0-only</td>
+<td>not sized</td>
+<td>last commit 2026-10-06</td>
+<td>jQuery, jquery-ui, select2, svg.js</td>
+<td>No</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Editor, not a drawer</td>
+</tr>
+<tr>
+<td>@nitro-bio/platemap 2.0.3</td>
+<td>plate grid</td>
+<td>GPL-3.0-or-later</td>
+<td>not sized</td>
+<td>not checked</td>
+<td>React</td>
+<td>No</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>Mol* (molstar 5.13.1)</td>
+<td>3D</td>
+<td>MIT</td>
+<td>5,268,685 / 1,504,319 B (<code>build/viewer/molstar.js</code>)</td>
+<td>2026-10-08; 20 releases, 912 commits; master is a v6 prototype</td>
+<td>React bundled; <code>PluginContext</code> and <code>Canvas3D</code> usable without its React UI (read)</td>
+<td>PNG or JPEG through <code>HeadlessPluginContext</code> and the native <code>gl</code> module; <strong>no SVG</strong> (read)</td>
+<td>Labels are 3D primitives</td>
+<td>Residue labels, not sequence text</td>
+<td>Yes: MolViewSpec colours, labels, tooltips, primitives, annotation files; custom themes and representations</td>
+</tr>
+<tr>
+<td>PDBe Mol* 3.12.0</td>
+<td>3D</td>
+<td>Apache-2.0</td>
+<td>6,098,173 / 1,755,677 B</td>
+<td>2026-04-24; 5 releases, 46 commits; pins molstar 5.8.0</td>
+<td>React bundled, Lit</td>
+<td>Inherits Mol*</td>
+<td>—</td>
+<td>—</td>
+<td>PDBe helpers</td>
+</tr>
+<tr>
+<td>3Dmol.js 2.5.5</td>
+<td>3D</td>
+<td>BSD-3-Clause</td>
+<td>537,792 / 156,450 B (<code>3Dmol-min.js</code>, re-measured)</td>
+<td>2026-05-22; 2 releases, 52 commits</td>
+<td>none</td>
+<td>No: WebGL in a browser only (read)</td>
+<td>—</td>
+<td>—</td>
+<td>Yes: <code>setStyle</code> by selection, <code>addLabel</code>, <code>addShape</code>, <code>addSurface</code></td>
+</tr>
+<tr>
+<td>NGL 2.5.0</td>
+<td>3D</td>
+<td>MIT</td>
+<td>1,292,474 / 356,820 B</td>
+<td>2026-09-03; 1 release, 5 commits</td>
+<td>none (three.js)</td>
+<td>No (unverified)</td>
+<td>—</td>
+<td>—</td>
+<td>Selection language, Shape API</td>
+</tr>
+<tr>
+<td>iCn3D 3.54.5</td>
+<td>3D</td>
+<td>US public domain, except DelPhi code: no commercial use</td>
+<td>2,313,310 / 567,881 B</td>
+<td>2026-10-14; 33 releases, 83 commits</td>
+<td>jQuery, full app</td>
+<td>Node scripts analyse, do not render</td>
+<td>—</td>
+<td>—</td>
+<td>Own command language</td>
+</tr>
+<tr>
+<td>d3-path 3.1.0, d3-shape 3.2.0, d3-scale 4.0.2</td>
+<td>geometry for any 2D view</td>
+<td>ISC</td>
+<td>1,107 B; 7,614 B; 4,890 B gzip (d3-scale's own dependencies excluded)</td>
+<td>last releases 2022-12 to 2023-04; last commit 2023-10-06</td>
+<td>none</td>
+<td><strong>Yes</strong>: arcs, lines and scales give path strings under Node (measured)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>rbush 4.0.1</td>
+<td>label collisions</td>
+<td>MIT</td>
+<td>2,340 B gzip</td>
+<td>2024-08; last commit 2026-04-03</td>
+<td>none</td>
+<td><strong>Yes</strong>, <code>collides()</code> (measured)</td>
+<td>Building block</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>@d3fc/d3fc-label-layout 7.0.4</td>
+<td>label placement</td>
+<td>MIT</td>
+<td>—</td>
+<td>2024-06</td>
+<td>none in <code>src</code></td>
+<td>npm tarball fails to import: <code>main</code> points at a missing build (measured); <code>src</code> has no <code>document</code></td>
+<td><code>removeOverlaps</code> hides the most-overlapped label until none overlap, marking it <code>hidden = true</code> (read, re-read)</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>labella 1.1.4</td>
+<td>1D label placement</td>
+<td>Apache-2.0</td>
+<td>6,802 B gzip</td>
+<td>last change 2022-06; last commit 2021-10-21</td>
+<td>none</td>
+<td>Yes (measured)</td>
+<td>Moves overflow to more rows; reports nothing as unplaced (inferred)</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>opentype.js 2.0.0</td>
+<td>text width</td>
+<td>MIT</td>
+<td>67,605 B gzip</td>
+<td>2026-05-06; last commit 2026-05-19</td>
+<td>none</td>
+<td><strong>Yes</strong>: advance width of <code>BsaI</code> at 12 px = 24.012 (measured)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>fontkit 2.0.4</td>
+<td>text width with kerning</td>
+<td>MIT on npm</td>
+<td>110,540 B gzip</td>
+<td>2026-09-30</td>
+<td>none</td>
+<td>Yes, same width (measured)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Rows for teal, sanger-viewer, the plate packages, the five 3D viewers and the layout helpers come
+from two subagent reports; the rows marked "re-measured" or "re-read" were checked again by hand,
+and so were teal's GPL-3.0 and sanger-viewer's MIT licences.</p>
+<h2 id="4-licences">4. Licences<a class="headerlink" href="#4-licences" title="Permanent link">&para;</a></h2>
+<p>molviz is MIT and ships one built file, so every bundled package's notice must travel inside it.</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Licence</th>
+<th>Read from</th>
+<th>For an MIT single-file build</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SeqViz</td>
+<td>MIT</td>
+<td><code>package.json</code>, GitHub</td>
+<td>Fine; its own build already carries <code>seqviz.min.js.LICENSE.txt</code> listing React</td>
+</tr>
+<tr>
+<td>Open Vector Editor</td>
+<td>MIT</td>
+<td>tg-oss GitHub licence; <code>@teselagen/ove</code> npm has no <code>license</code> field</td>
+<td>Fine, once the field gap is accepted</td>
+</tr>
+<tr>
+<td>@nitro-bio/sequence-viewers, @carabennemsi/plasmid, @molbiohive/hatchlings, sanger-viewer</td>
+<td>MIT</td>
+<td>npm, GitHub</td>
+<td>Fine</td>
+</tr>
+<tr>
+<td>Mol*, NGL, rbush, d3fc-label-layout, opentype.js</td>
+<td>MIT</td>
+<td>npm, LICENSE</td>
+<td>Fine</td>
+</tr>
+<tr>
+<td>fontkit</td>
+<td>MIT on npm; GitHub detects no licence file</td>
+<td>npm</td>
+<td>Check the tarball's LICENSE before bundling</td>
+</tr>
+<tr>
+<td>d3-path, d3-shape, d3-scale</td>
+<td>ISC</td>
+<td>npm</td>
+<td>Fine</td>
+</tr>
+<tr>
+<td>nightingale-sequence</td>
+<td>ISC on npm; repo MIT</td>
+<td>npm, GitHub</td>
+<td>Fine</td>
+</tr>
+<tr>
+<td>CGView.js, PDBe Mol*, labella</td>
+<td>Apache-2.0</td>
+<td>npm, file header</td>
+<td>Fine; keep the licence and any NOTICE text; porting CGView's label code means keeping its copyright line</td>
+</tr>
+<tr>
+<td>3Dmol.js</td>
+<td>BSD-3-Clause, incorporating GLmol, three.js and jQuery code</td>
+<td>LICENSE</td>
+<td>Fine; keep all three notices</td>
+</tr>
+<tr>
+<td>teal</td>
+<td>GPL-3.0</td>
+<td>GitHub</td>
+<td><strong>Copying its code would make molviz GPL</strong>: read the approach only</td>
+</tr>
+<tr>
+<td>plate-map</td>
+<td>AGPL-3.0-only</td>
+<td>npm</td>
+<td>Out</td>
+</tr>
+<tr>
+<td>@nitro-bio/platemap</td>
+<td>GPL-3.0-or-later</td>
+<td>npm</td>
+<td>Out</td>
+</tr>
+<tr>
+<td>iCn3D</td>
+<td>US Government work, public domain, except DelPhi (Columbia; no commercial use without contact)</td>
+<td>LICENSE.md</td>
+<td>Out</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-building-blocks-with-no-dom-measured">5. Building blocks with no DOM, measured<a class="headerlink" href="#5-building-blocks-with-no-dom-measured" title="Permanent link">&para;</a></h2>
+<p>The layout helpers were checked in a scratch directory with <code>typeof document</code> and
+<code>typeof window</code> both <code>undefined</code> (subagent, measured 2026-10-17):</p>
+<div class="highlight"><pre><span></span><code>d3-shape arc: M0,-100A100,100,0,0,1,100,0L90,0A90,90,0,0,0,0,-90Z
+d3-shape line monotoneX: M0,0C0.333,2.5,0.667,5,1,5C1.333,5,1.667,2,2,2C2.333,2,2.667,5,3,8
+d3-path: M0,0L50,0A50,50,0,1,1,-50,6.123233995736766e-15
+d3-scale: 300 0,1000,2000,3000,4000,5000
+labella positions: 10.0,33.0,17.0,40.0,63.0 layers: 1,1,0,0,0
+rbush collides: true false
+opentype.js advance 'BsaI' @12px: 24.012
+fontkit advance 'BsaI' @12px: 24.012
+</code></pre></div>
+<p><code>@d3fc/d3fc-label-layout</code> failed with <code>ERR_MODULE_NOT_FOUND</code> from its own <code>index.js</code>, and the d3fc
+umbrella threw "d3fc-element depends on Custom Elements (v1)" at load.</p>
+<p>A text width from opentype.js matches the browser only if the page draws with the same font, so
+the font file is inlined in the page and read by the command line. SeqViz avoids the question by
+estimating 7.2 px per character; CGView.js asks a canvas.</p>
+<p><strong>The pure-function route has one working example.</strong> <code>@carabennemsi/plasmid</code> renders the pUC19-GFP
+record to a standalone SVG string under Node (measured: 12,328 bytes, 13 <code>&lt;text&gt;</code>). Its labels show
+why that is not enough alone: lacZα, GFP, AmpR and ori sit on their arcs, three narrow features
+and the NcoI site get outside labels, and the other 14 features, 10 primers among them, get none,
+with no count.</p>
+<h2 id="6-also-found">6. Also found<a class="headerlink" href="#6-also-found" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>What it is</th>
+<th>Why it is not in the table</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>igv.js 3.8.10</td>
+<td>MIT genome browser, released 2026-10-14</td>
+<td>Linear genome tracks, no plasmid circle, no trace view (subagent: 0 hits for "chromatogram"); not assessed further</td>
+</tr>
+<tr>
+<td>Nightingale 5.11.0 (EBI)</td>
+<td>Custom elements for protein feature tracks, d3 7.9.0</td>
+<td>Needs a DOM; a candidate for protein tracks later, not assessed</td>
+</tr>
+<tr>
+<td>@omicsos/circular-genome-viewer 0.1.4</td>
+<td>React wrapper around CGView.js</td>
+<td>Adds React to CGView</td>
+</tr>
+<tr>
+<td>seqviz-plus, dash_seqviz, forks of SeqViz</td>
+<td>wrappers</td>
+<td>Inherit SeqViz</td>
+</tr>
+<tr>
+<td>AngularPlasmid 1.0.5, @yapv/svg 0.2.2, @metrichor/plasmid 0.2.0</td>
+<td>plasmid drawers</td>
+<td>Last releases 2015, 2020, 2022</td>
+</tr>
+<tr>
+<td>open-vector-editor 18.3.6</td>
+<td>the old OVE package</td>
+<td>Repo archived, marked "DEPRECATED"; peers React 16</td>
+</tr>
+<tr>
+<td>LiteMol</td>
+<td>3D</td>
+<td>Last release 2019-06-08; replaced by Mol*</td>
+</tr>
+<tr>
+<td>JSmol</td>
+<td>3D</td>
+<td>Not checked (unverified: LGPL, Java port)</td>
+</tr>
+<tr>
+<td>Trace parsers: @teselagen/bio-parsers, @shandley/abif-ts, @fishka/seqio</td>
+<td><code>.ab1</code> readers</td>
+<td>molviz is handed data, so it reads no <code>.ab1</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-the-earlier-findings-checked">7. The earlier findings, checked<a class="headerlink" href="#7-the-earlier-findings-checked" title="Permanent link">&para;</a></h2>
+<p>The claims carried into this ticket from 2026-10-16:</p>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Now</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SeqViz MIT, 3.10.25, active</td>
+<td>Right: 3.10.25 on 2026-09-23, 9 releases and 126 commits in a year, last push 2026-10-13</td>
+</tr>
+<tr>
+<td>SeqViz 188 KB min+gz with React bundled</td>
+<td>Right: 187,615 B gzip of a 631,230 B build</td>
+</tr>
+<tr>
+<td>SeqViz has a map and a sequence view with both strands and translations</td>
+<td>Right. Primers show in the linear viewer only</td>
+</tr>
+<tr>
+<td>SeqViz has select and copy</td>
+<td>Right, through its own handler: the base text is <code>user-select: none</code></td>
+</tr>
+<tr>
+<td>SeqViz has no export</td>
+<td><strong>Half wrong</strong>: no export call, but its React component renders a circular map to SVG under Node with the <code>testSize</code> hook. Its documented <code>renderToString</code> throws</td>
+</tr>
+<tr>
+<td>CGView.js Apache-2.0, label placement, SVG and PNG export</td>
+<td>Right, but the SVG export needs svgcanvas and a DOM, and labels that do not fit are dropped uncounted</td>
+</tr>
+<tr>
+<td>CGView.js has no base-level view</td>
+<td><strong>Half wrong</strong>: it draws both strands' letters on the backbone when zoomed in, as canvas pixels; it has no row-by-row sequence view or translations</td>
+</tr>
+<tr>
+<td>OVE MIT, React and Redux</td>
+<td>Right; it now lives in <code>TeselaGen/tg-oss</code> as <code>@teselagen/ove</code>, the old repo archived; last release 2026-04-16</td>
+</tr>
+<tr>
+<td>OVE about 1.5 MB JS and CSS</td>
+<td><strong>Wrong</strong>: the shipped build is 7.4 MB JS and 2.0 MB CSS, 2.2 MB gzipped together; 1.5 MB is the JS alone, gzipped</td>
+</tr>
+<tr>
+<td>Mol* for 3D (from memory)</td>
+<td>Confirmed: MIT, 5.13.1 on 2026-10-08, 912 commits in a year</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-gaps">Open gaps<a class="headerlink" href="#open-gaps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>SeqViz in a real browser, offline.</strong> Whether Ctrl+F finds bases is inferred from the source
+  (<code>user-select: none</code>, five mounted rows), not tried. The SeqViz prototype should open its page
+  with the network off and search for a base run outside the first rows.</li>
+<li><strong>SeqViz on a crowded map.</strong> The 30-label variant of <code>plasmid-map-packages.md</code> was not drawn, so
+  how often <code>name,+N</code> groups or overlaps there is unmeasured.</li>
+<li><strong>Whether SeqViz would take a documented size prop</strong> in place of <code>testSize</code>, and an option to
+  mount every row. Not asked upstream.</li>
+<li><strong>CGView.js under jsdom with svgcanvas</strong> was not tried, so its command-line cost is read, not
+  measured.</li>
+<li><strong>@molbiohive/hatchlings</strong> was not compiled and rendered with <code>svelte/server</code>; it is the one
+  package covering trace, gel and plate, but is seven months old with two stars and no commit since
+  March.</li>
+<li><strong>@nitro-bio/sequence-viewers</strong> was not installed: only its README was read.</li>
+<li><strong>Mol* headless</strong> was not run; whether the native <code>gl</code> module builds under the pinned Node on
+  osx-arm64 and linux-64 is unknown, and the v6 reorganisation on master may move the API.</li>
+<li><strong>sage's trace code</strong> was not read, nor whether sanger-viewer's <code>exportSvg</code> draws a reference row.</li>
+<li><strong>Bundlephobia</strong> was not used; sizes are the packages' own builds. The own-core total is a sum of
+  dist files, not a bundled build.</li>
+<li><strong>OVE's headless behaviour and label rule at 0.8.42</strong> were not re-read.</li>
+<li><strong>JSmol, vega-label, tagmap.js</strong> were not checked.</li>
+<li><strong>This note is not in <code>docs/research/index.md</code></strong>: the branch carries only this file.</li>
+</ul>
+<h2 id="sources">Sources<a class="headerlink" href="#sources" title="Permanent link">&para;</a></h2>
+<p>All retrieved 2026-10-17. Downloads are kept under <code>reference_docs/molviz-packages/</code>.</p>
+<ul>
+<li>SeqViz 3.10.25: npm tarball (<code>package.json</code>, <code>README.md</code>, <code>dist/index.js</code>, <code>dist/seqviz.min.js</code>,
+  <code>dist/SeqViewerContainer.d.ts</code>, <code>dist/SeqViz.d.ts</code>); <a href="https://github.com/Lattice-Automation/seqviz">https://github.com/Lattice-Automation/seqviz</a></li>
+<li>CGView.js 1.8.2: npm tarball (<code>README.md</code>, <code>CHANGELOG.md</code>, <code>dist/cgview.esm.js</code>,
+  <code>dist/cgview.min.js</code>); <a href="https://github.com/sciguy/cgview-js">https://github.com/sciguy/cgview-js</a>; d3 7.0.1 from
+  <a href="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js">https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js</a></li>
+<li>Open Vector Editor 0.8.42: <a href="https://cdn.jsdelivr.net/npm/@teselagen/ove@0.8.42/index.umd.js">https://cdn.jsdelivr.net/npm/@teselagen/ove@0.8.42/index.umd.js</a>,
+  <code>ove.css</code>, the jsDelivr file listing; <a href="https://github.com/TeselaGen/tg-oss">https://github.com/TeselaGen/tg-oss</a>;
+  <a href="https://github.com/TeselaGen/openVectorEditor">https://github.com/TeselaGen/openVectorEditor</a> (archived);
+  <code>packages/ove/src/RowItem/Chromatograms/Chromatogram.js</code></li>
+<li>@carabennemsi/plasmid 0.1.3: npm tarball, README; <a href="https://github.com/cara/plasmid">https://github.com/cara/plasmid</a></li>
+<li>@nitro-bio/sequence-viewers 2.4.0: npm README; <a href="https://github.com/nitro-bio/sequence-viewers">https://github.com/nitro-bio/sequence-viewers</a></li>
+<li>@molbiohive/hatchlings 0.8.4: <a href="https://github.com/molbiohive/hatchlings">https://github.com/molbiohive/hatchlings</a> README,
+  <code>src/lib/index.ts</code>, <code>docs/viewers/trace-viewer.md</code></li>
+<li>teal: <a href="https://github.com/gear-genomics/teal">https://github.com/gear-genomics/teal</a>, <code>client/src/static/js/traceView.js</code></li>
+<li>sanger-viewer: <a href="https://github.com/animeshkundu/sanger-viewer">https://github.com/animeshkundu/sanger-viewer</a>, <code>src/export/svg.ts</code></li>
+<li>plate-map: <a href="https://github.com/nebiolabs/plate-map">https://github.com/nebiolabs/plate-map</a></li>
+<li>Mol* 5.13.1: <a href="https://github.com/molstar/molstar">https://github.com/molstar/molstar</a>, <code>docs/docs/plugin/instance.md</code> and
+  <code>docs/docs/plugin/file-formats.md</code> at v5.13.0, <code>build/viewer/molstar.js</code> from jsDelivr;
+  molrender <a href="https://github.com/molstar/molrender">https://github.com/molstar/molrender</a>; MolViewSpec
+  <a href="https://github.com/molstar/mol-view-spec">https://github.com/molstar/mol-view-spec</a> (<code>docs/docs/annotations.md</code>, <code>primitives.md</code>,
+  <code>selectors.md</code>); PDBe Mol* <a href="https://github.com/molstar/pdbe-molstar">https://github.com/molstar/pdbe-molstar</a></li>
+<li>3Dmol.js 2.5.5: <a href="https://github.com/3dmol/3Dmol.js">https://github.com/3dmol/3Dmol.js</a>, <code>src/GLViewer.ts</code>, LICENSE,
+  <code>build/3Dmol-min.js</code> from jsDelivr</li>
+<li>NGL 2.5.0: <a href="https://github.com/nglviewer/ngl">https://github.com/nglviewer/ngl</a>, <code>dist/ngl.js</code> from jsDelivr</li>
+<li>iCn3D 3.54.5: <a href="https://github.com/ncbi/icn3d">https://github.com/ncbi/icn3d</a>, LICENSE.md, <code>icn3dnode/README.md</code></li>
+<li>Layout helpers: npm metadata and dist files of d3-path 3.1.0, d3-shape 3.2.0, d3-scale 4.0.2,
+  rbush 4.0.1, labella 1.1.4, @d3fc/d3fc-label-layout 7.0.4 (and
+  <code>packages/d3fc-label-layout/src/removeOverlaps.js</code> on d3fc master), opentype.js 2.0.0,
+  fontkit 2.0.4</li>
+<li>Earlier reading: <code>docs/research/plasmid-map-packages.md</code> (2026-09-16) for SeqViz 3.10.24 and
+  OVE label grouping</li>
+</ul>
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

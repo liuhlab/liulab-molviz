@@ -1,0 +1,1938 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/research/molviz-page-size/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>How small a page can be: the viewer's fixed cost, and a still figure without the viewer - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-small-a-page-can-be-the-viewers-fixed-cost-and-a-still-figure-without-the-viewer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              How small a page can be: the viewer's fixed cost, and a still figure without the viewer
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. The answer
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-the-viewer-is-made-of-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. What the viewer is made of today
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-text-without-opentypejs-on-a-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Text without opentype.js on a page
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Text without opentype.js on a page">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-the-viewer-uses-opentypejs-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        How the viewer uses opentype.js today
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-table-and-whether-it-gives-the-same-widths" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The table, and whether it gives the same widths
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outlines-for-a-file-opentypejs-where-svg-runs-or-a-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Outlines for a file: opentype.js where <code>svg()</code> runs, or a table
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-fonts" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. The fonts
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-viewers-size-for-each-combination" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. The viewer's size for each combination
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-a-still-figure-on-a-protocol-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. A still figure on a protocol page
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7. Options
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-what-would-change-in-decided-calls-or-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8. What would change in decided calls or ADRs
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Open gaps
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sources
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="how-small-a-page-can-be-the-viewers-fixed-cost-and-a-still-figure-without-the-viewer">How small a page can be: the viewer's fixed cost, and a still figure without the viewer<a class="headerlink" href="#how-small-a-page-can-be-the-viewers-fixed-cost-and-a-still-figure-without-the-viewer" title="Permanent link">&para;</a></h1>
+<p>Research note written for <a href="https://github.com/liuhlab/liulab-molviz/issues/42">liulab-molviz#42</a>
+on 2026-10-19. It answers the ticket's four parts with bytes on disk, uncompressed, as a page
+holds them. molviz is at <code>main</code> aabcfbd; mbio at 10e8785, its committed examples. Every probe ran
+on osx-arm64 from a scratch folder outside the repo, under pixi, and is not committed.</p>
+<p>Every claim is tagged <strong>[measured]</strong> (built, run or counted, with what ran), <strong>[read]</strong> (from the
+named file) or <strong>[inferred]</strong> (worked out from measured parts, or a projection).</p>
+<h2 id="1-the-answer">1. The answer<a class="headerlink" href="#1-the-answer" title="Permanent link">&para;</a></h2>
+<p><strong>Measure text from a table built with the fonts, carry the faces as WOFF2, and move glyph
+outlines out of the page into a second file only export loads.</strong> The page viewer then drops from
+402,632 B to 134,583 B with the same drawings, and a file still draws every letter as an outline.
+For a figure on a protocol page, a still SVG with real text plus the font rules is smaller again,
+up to the point where a page's figures together outweigh the viewer.</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Viewer, today's code</th>
+<th>Measured how</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Today: opentype.js and two TTF faces in base64</td>
+<td>402,632 B</td>
+<td><code>pixi run build-js</code> [measured]</td>
+</tr>
+<tr>
+<td>Text measured from a table, faces as WOFF2, no opentype.js</td>
+<td>134,583 B</td>
+<td>the viewer rebuilt with a table-reading <code>text.ts</code> [measured]</td>
+</tr>
+<tr>
+<td>The same, kerning stored by class instead of by pair</td>
+<td>about 112,800 B</td>
+<td>134,583 less the 21,818 B saved (section 5) [inferred]</td>
+</tr>
+</tbody>
+</table>
+<p>The table gives opentype.js's widths to the last bit: on all 1,728 texts the test inputs lay out,
+and on every pair of characters each sans face holds [measured, section 3]. All 18 page drawings
+of the test records come out identical from both builds [measured].</p>
+<p>The real costs:</p>
+<ul>
+<li><strong>Two files, not one.</strong> The outlines a file needs take 209 to 262 KB for two faces, near the
+  354 KB of opentype.js and the TTF faces (section 3). Kept in the page script, they cancel the gain. The second file has
+  a fixed name too, and the same release ships the same bytes, so promise 8 holds [inferred].</li>
+<li><strong>A build step for the tables</strong>, the way mbio's <code>scripts/build_fonts.py</code> already writes
+  advances, kerning, outlines and WOFF2 [read]. molviz's <code>fonts</code> environment gains
+  <code>brotli-python</code> [measured: a scratch pixi environment with conda-forge fontTools 4.67.0 and
+  brotli-python 1.2.0 wrote every WOFF2 below].</li>
+<li><strong>Same file bytes only if the outline table is built with opentype.js.</strong> Built from fontTools'
+  pen, the contours start at another point and lack opentype.js's closing segment, so every
+  <code>.svg</code> and <code>.pdf</code> would change bytes once (section 3) [measured].</li>
+<li><strong>A still figure revises the calls</strong>: a call for SVG with real text, and one for the font
+  rules, where the calls say "No font call" (section 6) [read: issue 9's resolution].</li>
+</ul>
+<h2 id="2-what-the-viewer-is-made-of-today">2. What the viewer is made of today<a class="headerlink" href="#2-what-the-viewer-is-made-of-today" title="Permanent link">&para;</a></h2>
+<p>Attributed through the build's source map, and checked by building with opentype.js replaced by a
+one-line stub [measured].</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>opentype.js 2.0.0</td>
+<td>236,625 mapped; 237,918 leave the build when it is stubbed, its licence text included</td>
+</tr>
+<tr>
+<td><code>sans.ttf</code> and <code>sans-bold.ttf</code> as base64 data URLs</td>
+<td>60,371 and 55,955, 116,326 together</td>
+</tr>
+<tr>
+<td>Licence banner</td>
+<td>about 11,000 (9,913 without opentype.js's licence)</td>
+</tr>
+<tr>
+<td>valibot</td>
+<td>9,905</td>
+</tr>
+<tr>
+<td>The viewer's own code, <code>src/viewer/*.ts</code></td>
+<td>28,584, of which <code>line.ts</code> 8,240</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>402,632</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Without opentype.js and the fonts, about 48,400 B remain. The baseline on
+<a href="https://github.com/liuhlab/liulab-molviz/issues/15">issue 15</a> was 396,287 B at 1fabc60; the line's
+primers, cut sites and highlight have landed since and add 6,345 B [measured].</p>
+<h2 id="3-text-without-opentypejs-on-a-page">3. Text without opentype.js on a page<a class="headerlink" href="#3-text-without-opentypejs-on-a-page" title="Permanent link">&para;</a></h2>
+<h3 id="how-the-viewer-uses-opentypejs-today">How the viewer uses opentype.js today<a class="headerlink" href="#how-the-viewer-uses-opentypejs-today" title="Permanent link">&para;</a></h3>
+<p>Read from <code>src/viewer/text.ts</code> and opentype.js 2.0.0's <code>dist/opentype.mjs</code>, then checked on the
+committed subsets with fontTools [measured where marked].</p>
+<ul>
+<li><code>measure</code> calls <code>getAdvanceWidth(inFace(text), size, {script: "latn"})</code>. <code>inFace</code> replaces a
+  character the face lacks with U+FFFD first [read].</li>
+<li><strong>Kerning comes from GPOS.</strong> opentype.js reads the <code>kern</code> feature's pair-adjustment lookups for
+  the script it is given [read: <code>getKerningTables</code>]. Each sans subset has one such lookup holding
+  one class-pair subtable, and no old <code>kern</code> table; Sans Mono has no kerning [measured].</li>
+<li><strong>Lookups are not summed.</strong> opentype.js takes the first subtable that covers the left glyph and
+  returns its class value, zero included [read: <code>Position.getKerningValue</code>]. HarfBuzz sums
+  lookups [read: mbio's <code>scripts/build_fonts.py</code>, <code>kerning</code>]. With one lookup the two agree
+  [measured, below].</li>
+<li><strong>No substitution happens.</strong> opentype.js applies <code>liga</code> and <code>rlig</code> by default [read], but the
+  subsets' GSUB table keeps no feature [measured], since <code>build_fonts.py</code> keeps only <code>kern</code>.</li>
+<li><strong>The order of the sums matters.</strong> opentype.js adds <code>advance × scale</code>, then
+  <code>kern × scale</code>, per glyph, in floating point [read: <code>forEachGlyph</code>]. Summing font units first
+  and scaling once, as mbio does, differs on 1 of the 1,728 texts, by 8.9 × 10⁻¹⁶ [measured]. A
+  table must add in opentype.js's order to give the same numbers.</li>
+<li><strong>A filled glyph has no closepath.</strong> <code>Glyph.getPath</code> writes <code>Z</code> only for a stroked path [read].</li>
+<li><strong>A soft hyphen, U+00AD, is the one disagreement with a browser's shaper.</strong> opentype.js gives it
+  its advance, 739 units in Sans; HarfBuzz gives it none [measured: uharfbuzz 0.56.3 on every pair
+  of characters]. A label with a soft hyphen is measured wider than it draws, and <code>textLength</code>
+  stretches it. mbio drops characters of category Cf, which includes it [read:
+  <code>src/mbio/plot/fonts.py</code>, <code>INVISIBLE</code>].</li>
+</ul>
+<h3 id="the-table-and-whether-it-gives-the-same-widths">The table, and whether it gives the same widths<a class="headerlink" href="#the-table-and-whether-it-gives-the-same-widths" title="Permanent link">&para;</a></h3>
+<p>The table holds each face's units per em, ascender, descender, each character's advance and each
+kerned pair, read with fontTools from the committed subsets, the way mbio's <code>build_fonts.py</code>
+reads them [measured, read]. Sans has 2,447 kerned pairs, Sans Bold 1,305, Sans Mono none
+[measured].</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1,728 texts: what the test records, gels and plates lay out, and each record's names and hidden labels at the sizes used; 331 strings, 71 characters, sizes 5.3 to 13.5, both faces</td>
+<td>Table equals <code>measure</code> with <code>===</code> on 1,728 of 1,728 [measured]</td>
+</tr>
+<tr>
+<td>Every two-character string of each sans face's 416 characters, at size 2048</td>
+<td>Equal on 173,056 of 173,056 per face [measured]</td>
+</tr>
+<tr>
+<td>HarfBuzz on the same texts</td>
+<td>Equal on all 1,728; on pairs, equal except the 831 holding U+00AD [measured]</td>
+</tr>
+<tr>
+<td>All 9 test records drawn into happy-dom, with default and with all enzymes, by today's viewer and by the table build</td>
+<td>18 of 18 SVG elements identical [measured]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Which test proves it.</strong> None today. <code>tests/viewer/text.test.ts</code> pins three widths, such as
+<code>measure("AVATo", "sans", 12)</code> at 34.79296875, which a table must keep [read]. The proof would
+be a new Vitest test: lay out every test input, measure each text with the table and with
+opentype.js parsing the committed TTF, and expect <code>toBe</code>. That is the probe in the first row. It
+keeps opentype.js and the TTF faces as test-only files [inferred].</p>
+<h3 id="outlines-for-a-file-opentypejs-where-svg-runs-or-a-table">Outlines for a file: opentype.js where <code>svg()</code> runs, or a table<a class="headerlink" href="#outlines-for-a-file-opentypejs-where-svg-runs-or-a-table" title="Permanent link">&para;</a></h3>
+<p>A file draws every letter as an outline (promise 3), so export needs each glyph's contour. The
+sequence-view branch already draws a glyph once in <code>&lt;defs&gt;</code>, in font units, and places it with
+<code>&lt;use&gt;</code> [read: <code>git diff origin/main...origin/t/sequence-view-mono -- src/viewer/svg.ts</code>].</p>
+<table>
+<thead>
+<tr>
+<th>Outline source</th>
+<th>Two faces</th>
+<th>Three faces</th>
+<th>Same outline strings as today</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>opentype.js and the TTF faces, in a script only export loads</td>
+<td>354,232 B</td>
+<td>395,237 B</td>
+<td>Yes, unchanged code</td>
+</tr>
+<tr>
+<td>Outline table, plain JSON of opentype.js's contours in font units</td>
+<td>261,695 B</td>
+<td>394,354 B</td>
+<td>Yes: 1,244 of 1,244 glyphs as the branch writes them, 1,728 of 1,728 labels as <code>outline()</code> writes them [measured]</td>
+</tr>
+<tr>
+<td>The same table with relative coordinates</td>
+<td>209,481 B</td>
+<td>316,971 B</td>
+<td>Yes, if the reader adds them back [inferred]</td>
+</tr>
+<tr>
+<td>Outline table built from fontTools' pen</td>
+<td>about the same [inferred]</td>
+<td>about the same [inferred]</td>
+<td><strong>No</strong>: 414 of 416 Sans glyphs start elsewhere or lack the closing line [measured]</td>
+</tr>
+</tbody>
+</table>
+<p>Sizes are sums of measured parts. The opentype.js rows count its 237,918 B, the two faces'
+116,314 B and Sans Mono's 41,005 B.</p>
+<p><strong>One script or two.</strong> Two. An outline source is at least 209 KB, so a single script stays near
+today's size: 134,583 + 261,695 B is about 396 KB [inferred]. Two files, each with a fixed name
+and no hash, keep promise 8, since each build writes the same bytes [inferred]. Python's runtime
+would evaluate both before <code>svg()</code>; <code>viewer_script()</code> still returns the page script [read:
+<code>src/molviz/_runtime.py</code>]. Because the page script and export measure with the same table, a page
+and a file measure text identically by construction, and <code>Drawing.hidden</code> stays what a page opens
+on [inferred].</p>
+<h2 id="4-the-fonts">4. The fonts<a class="headerlink" href="#4-the-fonts" title="Permanent link">&para;</a></h2>
+<p>Cut with <code>scripts/build_fonts.py</code>'s options: the <code>kern</code> feature only, no hinting, all name
+records, <code>FFTM</code> and <code>MATH</code> dropped. Only the flavour or the character set changes [measured].</p>
+<table>
+<thead>
+<tr>
+<th>Face and set</th>
+<th>TTF</th>
+<th>WOFF</th>
+<th>WOFF2</th>
+<th>WOFF2 in base64</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sans, the viewer's set</td>
+<td>45,256</td>
+<td>20,624</td>
+<td>15,280</td>
+<td>20,376</td>
+</tr>
+<tr>
+<td>Sans Bold, the viewer's set</td>
+<td>41,944</td>
+<td>20,384</td>
+<td>15,032</td>
+<td>20,044</td>
+</tr>
+<tr>
+<td>Sans Mono, the viewer's set</td>
+<td>30,736</td>
+<td>18,068</td>
+<td>13,468</td>
+<td>17,960</td>
+</tr>
+<tr>
+<td>Sans Mono, printable ASCII and U+FFFD</td>
+<td>13,600</td>
+<td>7,992</td>
+<td>5,948</td>
+<td>7,932</td>
+</tr>
+<tr>
+<td>Sans, Latin-1 only</td>
+<td>29,840</td>
+<td>13,328</td>
+<td>10,080</td>
+<td>13,440</td>
+</tr>
+</tbody>
+</table>
+<p>In base64 the two sans faces take 116,272 B as TTF, 54,680 B as WOFF, and 40,420 B as WOFF2
+[measured]. The rebuilt TTFs have the committed sizes but not the committed bytes: their GPOS,
+GSUB and <code>head</code> tables pack differently, though GPOS and GSUB read the same as XML [measured].</p>
+<p><strong>How mbio gets 53,364 B for three faces.</strong> It is base64 of three WOFF2 subsets of 17,248,
+16,848 and 5,924 B: 23,000 + 22,464 + 7,900 [measured]. Its <code>scripts/build_fonts.py</code> cuts them
+with fontTools, <code>flavor = "woff2"</code> and brotli, in a <code>fonts</code> pixi environment holding <code>fonttools</code>
+and <code>brotli-python</code> [read]. It renames the family, drops GSUB, and keeps name records 0 to 6, 13
+and 14. Labels get Latin-1, Greek and Coptic, General Punctuation, the trade mark sign and U+FFFD;
+bases get printable ASCII and U+FFFD [read]. molviz could do the same under pixi by adding
+<code>brotli-python</code> to its <code>fonts</code> feature [measured above].</p>
+<p><strong>Does what measures text still read them?</strong> With the table, nothing reads a font at run time:
+the browser reads the WOFF2, and the table was read from the TTF at build time. opentype.js 2.0.0
+cannot read WOFF2: it throws "WOFF2 require an external decompressor library" [read:
+<code>dist/opentype.mjs</code>, <code>parse</code>]. It reads WOFF through its bundled tiny-inflate [read], so if
+opentype.js stays on the page, WOFF is the smallest it can read, saving 61,592 B [measured].</p>
+<p>A tighter set saves little and loses letters: Latin-1 alone saves 5,200 B of Sans WOFF2 and drops
+Greek, which a label such as <code>lacZα</code> uses [measured: α is in the test records' labels].</p>
+<h2 id="5-the-viewers-size-for-each-combination">5. The viewer's size for each combination<a class="headerlink" href="#5-the-viewers-size-for-each-combination" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Combination</th>
+<th>Viewer now</th>
+<th>With Sans Mono</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>opentype.js, TTF</td>
+<td>402,632 B [measured]</td>
+<td>438,359 B at 76497b0 [measured]</td>
+</tr>
+<tr>
+<td>opentype.js, WOFF</td>
+<td>about 341,000 B [inferred]</td>
+<td>about 360,000 B [inferred]</td>
+</tr>
+<tr>
+<td>Table, WOFF2</td>
+<td>134,583 B [measured]</td>
+<td>about 156,000 B with the viewer's set; about 145,000 B with ASCII only [inferred]</td>
+</tr>
+<tr>
+<td>Table with class kerning, WOFF2</td>
+<td>about 112,800 B [inferred]</td>
+<td>about 134,000 B / 123,000 B [inferred]</td>
+</tr>
+</tbody>
+</table>
+<p>Class kerning stores each face's first and second classes and the value matrix: 11,631 B for Sans
+and 6,918 B for Sans Bold, against 26,363 B and 14,004 B as pairs, and it rebuilds the pair table
+exactly [measured]. The branch's mono face costs 41,005 B as a TTF data URL, 17,960 B as WOFF2, or
+7,932 B as WOFF2 of ASCII alone. Its table is 2,873 B [measured].</p>
+<p><strong>What the build branches add.</strong> Read from the branches as they stand on 2026-10-19 [measured
+where marked]; the finished views are projections.</p>
+<table>
+<thead>
+<tr>
+<th>Branch</th>
+<th>Adds now</th>
+<th>Projected when done</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>t/sequence-view-mono</code> at 76497b0</td>
+<td>42,072 B over its merge base a2e07b7: Sans Mono's 41,005 B and about 1,067 B of code [measured]</td>
+<td>The sequence view's layout, about the line's 8,240 B [inferred]</td>
+</tr>
+<tr>
+<td><code>t/circle-columns</code> at f5ea9bd</td>
+<td>0 B: <code>columns.ts</code> is imported by nothing yet; alone it minifies to 2,928 B [measured]</td>
+<td>About 10,000 to 15,000 B: the columns plus a ring layout near the line's size [inferred]</td>
+</tr>
+<tr>
+<td>Controls, issues 34 and 35</td>
+<td>No branch yet</td>
+<td>About 12,000 to 20,000 B: mbio's page script minifies from 28,902 to 11,963 B, and its CSS is 5,605 B [measured, then inferred]</td>
+</tr>
+</tbody>
+</table>
+<p>So a viewer with the circle, the sequence view and the controls lands near 481 KB on today's
+route, and near 160 to 190 KB with the table and WOFF2 [inferred: sums of the rows above].</p>
+<h2 id="6-a-still-figure-on-a-protocol-page">6. A still figure on a protocol page<a class="headerlink" href="#6-a-still-figure-on-a-protocol-page" title="Permanent link">&para;</a></h2>
+<p><strong>What mbio does.</strong> <code>mbio.protocol.render</code> writes each figure's SVG inline with real text, and
+writes the three <code>@font-face</code> rules once on any page holding a drawing [read: <code>_fonts</code>]. Its
+pUC19-GFP protocol page is 206,617 B: font rules 53,720 B, three drawing figures 11,529, 11,258
+and 18,375 B with captions, and two gels of 3,632 and 2,774 B [measured]. On the ten of its
+eleven protocol pages that draw any, a page's figure SVGs total from 8,717 B to 420,939 B
+[measured].</p>
+<p><strong>Can molviz hand over the same?</strong> Yes. <code>svg.ts</code> already builds the real-text form for <code>draw</code>
+and writes the outline form as a string; the sequence-view branch adds a string writer for
+nested tags [read]. <code>fontFaceCss()</code> returns the rules [read]. Serialised from <code>draw</code> in
+happy-dom [measured]:</p>
+<table>
+<thead>
+<tr>
+<th>Drawing</th>
+<th>Record JSON</th>
+<th>Still SVG, real text</th>
+<th>File SVG, outlines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>puc19-gfp-product</code>, line</td>
+<td>8,996</td>
+<td>12,254, 37 <code>&lt;text&gt;</code></td>
+<td>198,592</td>
+</tr>
+<tr>
+<td><code>ap1-product</code>, line</td>
+<td>15,236</td>
+<td>15,780</td>
+<td>168,025</td>
+</tr>
+<tr>
+<td><code>colour-test</code>, span 2600 to 2750</td>
+<td>7,953</td>
+<td>2,996</td>
+<td>30,574</td>
+</tr>
+<tr>
+<td><code>primer-test</code></td>
+<td>2,507</td>
+<td>8,297</td>
+<td>98,170</td>
+</tr>
+<tr>
+<td><code>crowded-sites</code>, line</td>
+<td>8,771</td>
+<td>19,300</td>
+<td>237,152</td>
+</tr>
+</tbody>
+</table>
+<p>The font rules are 116,479 B today, 40,625 B as WOFF2 for two faces, and about 48,700 to
+58,700 B with Sans Mono [measured, then inferred]. A still figure is laid out by the same viewer
+in mini-racer, so its widths and hidden labels are a file's, and <code>textLength</code> holds each text to
+its width [read: <code>svg.ts</code>].</p>
+<p><strong>Beside a page that carries the viewer</strong>, for the pUC19-GFP protocol page [inferred: its
+111,735 B of other content plus measured parts; three still SVGs the size of mbio's; three
+records of at most 9,000 B each]:</p>
+<table>
+<thead>
+<tr>
+<th>The page carries</th>
+<th>About</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Three still SVGs and the font rules</td>
+<td>201,000 to 211,000 B, mbio's size</td>
+</tr>
+<tr>
+<td>Today's viewer and three records</td>
+<td>541,000 B</td>
+</tr>
+<tr>
+<td>The table viewer and three records</td>
+<td>273,000 B</td>
+</tr>
+<tr>
+<td>The table viewer with every view, and three records</td>
+<td>325,000 B</td>
+</tr>
+</tbody>
+</table>
+<p>Still figures win while a page's figure SVG totals less than the viewer and its records. Three of
+mbio's protocol pages hold more than the table viewer would: 286,857 B, 320,415 B and 420,939 B
+[measured], so there the viewer is smaller [inferred].</p>
+<h2 id="7-options">7. Options<a class="headerlink" href="#7-options" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Page</th>
+<th>A file needs</th>
+<th>Cost in code</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. Today</td>
+<td>402,632 B</td>
+<td>Nothing more</td>
+<td>None</td>
+<td>The fixed cost dominates every page</td>
+</tr>
+<tr>
+<td>B. opentype.js reading WOFF</td>
+<td>about 341,000 B</td>
+<td>Nothing more</td>
+<td>A flavour in <code>build_fonts.py</code></td>
+<td>One script; saves 61,592 B only</td>
+</tr>
+<tr>
+<td>C. Table and WOFF2 page script; export script with opentype.js and TTF</td>
+<td>134,583 B</td>
+<td>354,232 B, export only</td>
+<td>Table builder, a second build entry, the runtime loads both</td>
+<td>opentype.js stays for export; two font formats committed</td>
+</tr>
+<tr>
+<td><strong>D. Table and WOFF2 page script; outline table file</strong></td>
+<td><strong>134,583 B</strong></td>
+<td><strong>261,695 B, or 209,481 B relative</strong></td>
+<td>Table and outline builder, the runtime loads both</td>
+<td><strong>No font parser at run time; opentype.js only in the build and the equality test</strong></td>
+</tr>
+<tr>
+<td>E. Table, WOFF2 and outlines in one script</td>
+<td>about 396,000 B</td>
+<td>Nothing more</td>
+<td>As D</td>
+<td>Keeps one script; no page gain</td>
+</tr>
+<tr>
+<td>F. Still SVG with real text, no viewer</td>
+<td>3,000 to 19,300 B a figure, plus 40,625 to 58,700 B of font rules a page</td>
+<td>As C or D</td>
+<td>A still-SVG call, a font-rules call</td>
+<td>A protocol page at mbio's size; no controls on it</td>
+</tr>
+</tbody>
+</table>
+<p>Sizes are for today's code with two faces. The page column of C, D and E is the viewer alone.</p>
+<p><strong>Recommendation: D for the viewer, and F for protocol figures.</strong> D removes two thirds of the
+viewer with the same drawings, and its outline table yields today's outline strings when the
+build step uses opentype.js. C is the fallback if a Node build step for outlines is unwelcome. F
+lets mbio keep its protocol pages at today's size, choosing the viewer only where a page's
+figures outweigh it. If Sans Mono draws only bases and translations, ASCII alone saves another
+10,000 B.</p>
+<h2 id="8-what-would-change-in-decided-calls-or-adrs">8. What would change in decided calls or ADRs<a class="headerlink" href="#8-what-would-change-in-decided-calls-or-adrs" title="Permanent link">&para;</a></h2>
+<p>No ADR covers fonts or the build's files, so a new one would record the choice: text is measured
+from a table built with the fonts, and outlines live in a second file. In <code>CLAUDE.md</code>:</p>
+<ul>
+<li><strong>The core</strong>: "on small d3 modules, rbush and opentype.js" loses opentype.js at run time.</li>
+<li><strong>Toolchain</strong>: "The built viewer is <code>src/molviz/viewer.js</code> ... one script" gains the outline
+  file beside it, also fixed-name and gitignored.</li>
+<li><strong>Releases</strong>: "carries the built viewer file" becomes two files.</li>
+</ul>
+<p>In the calls (issue 9's resolution), option F replaces "No font call" with a call for the font
+rules, and adds a still SVG with real text beside <code>svg()</code>, which the figure ticket (issue 40)
+would use.</p>
+<h2 id="open-gaps">Open gaps<a class="headerlink" href="#open-gaps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Nothing ran on linux-64</strong>, and no browser drew the WOFF2 pages; happy-dom does not shape text.</li>
+<li><strong><code>digest-drawings</code> was not run on a table build.</strong> The outline strings match, but the <code>.svg</code>,
+  <code>.png</code> and <code>.pdf</code> digests were not compared.</li>
+<li><strong>Class kerning and relative outlines were sized, not built</strong> into a viewer.</li>
+<li><strong>The committed subsets do not rebuild byte for byte</strong> here (section 4); why was not traced.</li>
+<li><strong>Time to load the outline file</strong> into mini-racer on each <code>svg()</code> call was not measured.</li>
+<li><strong>The projections</strong> for the circle, the sequence view and the controls assume layouts near the
+  line's size and controls near mbio's.</li>
+</ul>
+<h2 id="sources">Sources<a class="headerlink" href="#sources" title="Permanent link">&para;</a></h2>
+<p>Read or run 2026-10-19.</p>
+<ul>
+<li>molviz at aabcfbd: <code>src/viewer/text.ts</code>, <code>src/viewer/svg.ts</code>, <code>src/viewer/draw.ts</code>,
+  <code>src/molviz/_runtime.py</code>, <code>src/molviz/drawing.py</code>, <code>scripts/build_fonts.py</code>,
+  <code>vite.config.ts</code>, <code>tests/viewer/text.test.ts</code>, <code>tests/records/</code>, <code>tests/gels/</code>,
+  <code>tests/plates/</code>.</li>
+<li>Branches: <code>origin/t/sequence-view-mono</code> at 76497b0, built in its own scratch worktree with its
+  merge base a2e07b7; <code>origin/t/circle-columns</code> at f5ea9bd.</li>
+<li>opentype.js 2.0.0, <code>node_modules/opentype.js/dist/opentype.mjs</code>: <code>parse</code>, <code>forEachGlyph</code>,
+  <code>Position.getKerningValue</code>, <code>Glyph.getPath</code>.</li>
+<li>mbio at 10e8785: <code>src/mbio/plot/fonts.py</code>, <code>src/mbio/plot/page.py</code>,
+  <code>src/mbio/protocol/render.py</code>, <code>scripts/build_fonts.py</code>, <code>pyproject.toml</code>,
+  <code>src/mbio/data/fonts/</code>, <code>docs/examples/*/protocol.html</code>, <code>docs/examples/ap1-library/protocol/</code>,
+  <code>src/mbio/plot/plot.js</code>.</li>
+<li>Tools, all from conda-forge or the repo's lock: fontTools 4.67.0, brotli-python 1.2.0,
+  uharfbuzz 0.56.3, DejaVu 2.37 (<code>font-ttf-dejavu</code>), Vite 8.3.4, happy-dom 21, Node 24.</li>
+<li>Issues: <a href="https://github.com/liuhlab/liulab-molviz/issues/9">9</a>,
+  <a href="https://github.com/liuhlab/liulab-molviz/issues/15">15</a>,
+  <a href="https://github.com/liuhlab/liulab-molviz/issues/34">34</a>,
+  <a href="https://github.com/liuhlab/liulab-molviz/issues/35">35</a>,
+  <a href="https://github.com/liuhlab/liulab-molviz/issues/40">40</a>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

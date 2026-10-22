@@ -1,0 +1,3799 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/get-started/choose-a-drawing/">
+      
+      
+        <link rel="prev" href="../first-map/">
+      
+      
+        <link rel="next" href="../../how-to/what-a-map-shows/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Choose a drawing - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#choose-a-drawing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Choose a drawing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-circle-what-a-plasmid-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The circle: what a plasmid holds
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-line-what-lies-along-a-stretch" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The line: what lies along a stretch
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-sequence-view-which-bases" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The sequence view: which bases
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-figure-what-a-step-makes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A figure: what a step makes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-close-up-whether-the-clone-is-right" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A close-up: whether the clone is right
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-gel-which-bands-to-expect" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A gel: which bands to expect
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-plate-what-each-well-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A plate: what each well holds
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-circle-what-a-plasmid-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The circle: what a plasmid holds
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-line-what-lies-along-a-stretch" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The line: what lies along a stretch
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-sequence-view-which-bases" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The sequence view: which bases
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-figure-what-a-step-makes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A figure: what a step makes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-close-up-whether-the-clone-is-right" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A close-up: whether the clone is right
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-gel-which-bands-to-expect" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A gel: which bands to expect
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-plate-what-each-well-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A plate: what each well holds
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="choose-a-drawing">Choose a drawing<a class="headerlink" href="#choose-a-drawing" title="Permanent link">&para;</a></h1>
+<p>molviz makes seven drawings. Three are views of one record: the circle, the line and the
+sequence view. The other four are a figure, a close-up, a gel and a plate. Each one answers its
+own question, so start from the question your reader asks.</p>
+<table>
+<thead>
+<tr>
+<th>Your reader asks</th>
+<th>Draw</th>
+<th>The call</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What does the plasmid hold, and where?</td>
+<td>the circle</td>
+<td><code>molviz.draw(record)</code></td>
+</tr>
+<tr>
+<td>What lies along this stretch?</td>
+<td>the line</td>
+<td><code>molviz.draw(record, span=...)</code></td>
+</tr>
+<tr>
+<td>Which bases, exactly?</td>
+<td>the sequence view</td>
+<td><code>molviz.draw(record, span=..., sequence_view=True)</code></td>
+</tr>
+<tr>
+<td>What does this step of the protocol make?</td>
+<td>a figure</td>
+<td><code>molviz.draw_figure(records)</code></td>
+</tr>
+<tr>
+<td>Does the clone match at this base?</td>
+<td>a close-up</td>
+<td><code>molviz.draw(checked, span=..., sequence_view=True)</code></td>
+</tr>
+<tr>
+<td>Which bands should the gel show?</td>
+<td>a gel</td>
+<td><code>molviz.draw_gel(gel)</code></td>
+</tr>
+<tr>
+<td>What does each well hold?</td>
+<td>a plate</td>
+<td><code>molviz.draw_plate(plate)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Each call takes its input as a Python dict, like the record you type in
+<a href="../first-map/">the tutorial</a>, and <code>draw_figure</code> takes a list of records. Each call returns a
+drawing, which <a href="../../api/#molviz.Drawing.write"><code>write</code></a> saves as a page or a file. In your own
+web page, the <code>molviz</code> object that the viewer script gives the page makes the same drawings
+with <code>draw</code>, <code>drawFigure</code>, <code>drawGel</code> and <code>drawPlate</code>, which the
+<a href="../../reference/javascript/#draw-into-an-element">JavaScript API</a> lists.
+<a href="../../explanation/outputs/">Pages, files and still drawings</a> says which drawings a reader can
+zoom and switch, and which output suits which use.</p>
+<p>The examples below draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. The
+plate comes from AP-1, a project that builds a library of clones on 96-well and 384-well plates.
+The viewer draws each example in your browser when the page opens.</p>
+<h2 id="the-circle-what-a-plasmid-holds">The circle: what a plasmid holds<a class="headerlink" href="#the-circle-what-a-plasmid-holds" title="Permanent link">&para;</a></h2>
+<p>The circle draws a circular record whole, as a ring, so a reader sees the whole plasmid at once.
+Each feature is an arrow along its strand. Primers sit where they bind, and the enzymes that
+cut the plasmid once mark their cut sites. A circular record drawn whole opens on the circle, so
+the call needs no options.</p>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">drawing</span> <span class="o">=</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+</code></pre></div>
+<p><a href="../../how-to/what-a-map-shows/">Choose what a map shows</a> leaves out kinds, feature types and
+enzymes, and lights the names that matter.</p>
+<h2 id="the-line-what-lies-along-a-stretch">The line: what lies along a stretch<a class="headerlink" href="#the-line-what-lies-along-a-stretch" title="Permanent link">&para;</a></h2>
+<p>The line draws a record, or a span of it, along a straight line, numbered as the record numbers
+it. It suits a linear molecule, such as a PCR product, and a part of a plasmid, such as an
+insert with the primers around it. Here is the GFP insert and what flanks it, bases 341 to 1210.</p>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"span": {"start": 340, "end": 1210}}
+</script>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">drawing</span> <span class="o">=</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">span</span><span class="o">=</span><span class="p">{</span><span class="s2">"start"</span><span class="p">:</span> <span class="mi">340</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="mi">1210</span><span class="p">})</span>
+</code></pre></div>
+<p>A span counts bases from 0 and leaves out the base at <code>end</code>, so this span holds bases 341 to
+1210 as the line numbers them. Any span shorter than the whole record draws as a line. To draw
+a whole circular record as a line, pass <code>map="line"</code>.
+<a href="../../how-to/what-a-map-shows/#draw-a-stretch-of-the-record">Draw a stretch of the record</a>
+gives the steps, a span across the origin included.</p>
+<h2 id="the-sequence-view-which-bases">The sequence view: which bases<a class="headerlink" href="#the-sequence-view-which-bases" title="Permanent link">&para;</a></h2>
+<p>The sequence view draws the bases of both strands in rows. Features are bars under the bases,
+with the amino acids of each CDS over them. Primers sit above and below the strands, and cut
+sites cross them. Use it to show where a primer anneals, where an enzyme cuts or how a junction
+reads. Draw it over a short span, because a whole plasmid makes many rows. Here is the start of
+GFP, where the ATGA junction joins it to the vector.</p>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"span": {"start": 380, "end": 440}, "sequence_view": true}
+</script>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">drawing</span> <span class="o">=</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">span</span><span class="o">=</span><span class="p">{</span><span class="s2">"start"</span><span class="p">:</span> <span class="mi">380</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="mi">440</span><span class="p">},</span> <span class="n">sequence_view</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>On a page, the sequence view sits beside the map or under it. In a PDF, its rows follow the map
+on pages of their own. <a href="../../how-to/show-the-bases/">Show the bases</a> sets the span, the row
+length and the strands.</p>
+<h2 id="a-figure-what-a-step-makes">A figure: what a step makes<a class="headerlink" href="#a-figure-what-a-step-makes" title="Permanent link">&para;</a></h2>
+<p>A figure is a still drawing of one record, or of several stacked top to bottom. It goes beside
+a step of a protocol. A figure draws every record with the same options, so stacked records line
+up, such as a vector before and after a part goes in. This figure shows the Golden
+Gate product. It asks for BbsI, the enzyme of the Golden Gate step. BbsI no longer cuts the
+product, so the figure marks no BbsI site. It also lights both junctions.</p>
+<div data-molviz="figure">
+<script type="application/json" data-figure>
+[
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+]
+</script>
+<script type="application/json" data-options>
+{"enzymes": ["BbsI"], "highlight": ["ATGA junction", "TGGC junction"]}
+</script>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">drawing</span> <span class="o">=</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw_figure</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">record</span><span class="p">],</span> <span class="n">enzymes</span><span class="o">=</span><span class="p">[</span><span class="s2">"BbsI"</span><span class="p">],</span> <span class="n">highlight</span><span class="o">=</span><span class="p">[</span><span class="s2">"ATGA junction"</span><span class="p">,</span> <span class="s2">"TGGC junction"</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><a href="../../how-to/stack-records/">Stack records into a figure</a> stacks the two PCR products over the
+plasmid they make.</p>
+<h2 id="a-close-up-whether-the-clone-is-right">A close-up: whether the clone is right<a class="headerlink" href="#a-close-up-whether-the-clone-is-right" title="Permanent link">&para;</a></h2>
+<p>A close-up is a still drawing of a few dozen bases around one disagreement, a place where a
+read differs from the record it should match. It draws the line and the sequence view over that
+span, with the reads on it. Here, one consensus read covers all of pUC19-GFP. At base 696,
+inside GFP, the record holds A and the read holds G.</p>
+<p>A close-up has no call of its own. It is the checked record drawn over a short span, with the
+sequence view in one row.</p>
+<div data-molviz data-still>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ],
+ "reads": [
+  {
+   "name": "consensus.fasta",
+   "start": 0,
+   "end": 3347,
+   "strand": 1
+  }
+ ],
+ "disagreements": [
+  {
+   "name": "696 A>G",
+   "start": 695,
+   "end": 696,
+   "bases": "G",
+   "reads": [
+    "consensus.fasta"
+   ],
+   "color": "#cc3311"
+  },
+  {
+   "name": "2687 C>T",
+   "start": 2686,
+   "end": 2687,
+   "bases": "T",
+   "reads": [
+    "consensus.fasta"
+   ],
+   "color": "#bbbbbb"
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"span": {"start": 665, "end": 726}, "sequence_view": true, "bases_per_row": 61, "kinds_off": ["cuts"], "highlight": ["696 A>G", "consensus.fasta"]}
+</script>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">drawing</span> <span class="o">=</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span>
+    <span class="n">checked</span><span class="p">,</span>
+    <span class="n">span</span><span class="o">=</span><span class="p">{</span><span class="s2">"start"</span><span class="p">:</span> <span class="mi">665</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="mi">726</span><span class="p">},</span>
+    <span class="n">sequence_view</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">bases_per_row</span><span class="o">=</span><span class="mi">61</span><span class="p">,</span>
+    <span class="n">kinds_off</span><span class="o">=</span><span class="p">[</span><span class="s2">"cuts"</span><span class="p">],</span>
+    <span class="n">highlight</span><span class="o">=</span><span class="p">[</span><span class="s2">"696 A&gt;G"</span><span class="p">,</span> <span class="s2">"consensus.fasta"</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">drawing</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"696.svg"</span><span class="p">)</span>
+</code></pre></div>
+<p>Here <code>checked</code> is the record with its reads and disagreements. A close-up goes into an SVG,
+PNG or PDF file, or into a page as the SVG text from <code>drawing.still_svg()</code>. In your own page,
+the <a href="../../reference/javascript/#still-svg"><code>stillSvg</code></a> call of the <code>molviz</code> object returns the
+same SVG.
+<a href="../../how-to/check-a-clone/">Check a clone against its reads</a> adds the reads and draws a
+close-up of each disagreement.</p>
+<h2 id="a-gel-which-bands-to-expect">A gel: which bands to expect<a class="headerlink" href="#a-gel-which-bands-to-expect" title="Permanent link">&para;</a></h2>
+<p>A gel is a simulated agarose gel, with a ladder, sample lanes and each band at its size. It
+holds no record, because your code works out the sizes. Here is the colony PCR that checks
+pUC19-GFP, with a correct clone beside the empty vector.</p>
+<div data-molviz="gel">
+<script type="application/json" data-gel>
+{
+ "title": "Colony PCR",
+ "ladder": {
+  "name": "NEB 100 bp DNA Ladder (N3231)",
+  "bands": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1200,
+   1517
+  ]
+ },
+ "lanes": [
+  {
+   "name": "Correct clone",
+   "bands": [
+    160,
+    838
+   ]
+  },
+  {
+   "name": "Empty vector",
+   "bands": [
+    177
+   ]
+  }
+ ]
+}
+
+</script>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">drawing</span> <span class="o">=</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw_gel</span><span class="p">(</span><span class="n">gel</span><span class="p">)</span>
+</code></pre></div>
+<p><code>draw_gel</code> takes no options. <a href="../../how-to/draw-a-gel/">Draw a gel</a> writes this gel down
+and draws it.</p>
+<h2 id="a-plate-what-each-well-holds">A plate: what each well holds<a class="headerlink" href="#a-plate-what-each-well-holds" title="Permanent link">&para;</a></h2>
+<p>A plate is a grid of wells, each with what it holds, given as text. Up to ten different
+contents each get a colour and a line of the legend. Past ten, every filled well takes one
+colour, and the legend counts the contents. Rest the pointer on a well to see what it holds.
+Here is AP-1's first plate of picked colonies, which has 384 wells. Each colour marks one quarter
+of the plate, and each quarter goes into a 96-well plate of its own.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "picked 1",
+ "rows": 16,
+ "columns": 24,
+ "wells": {
+  "A1": "quarter 1",
+  "A2": "quarter 2",
+  "A3": "quarter 1",
+  "A4": "quarter 2",
+  "A5": "quarter 1",
+  "A6": "quarter 2",
+  "A7": "quarter 1",
+  "A8": "quarter 2",
+  "A9": "quarter 1",
+  "A10": "quarter 2",
+  "A11": "quarter 1",
+  "A12": "quarter 2",
+  "A13": "quarter 1",
+  "A14": "quarter 2",
+  "A15": "quarter 1",
+  "A16": "quarter 2",
+  "A17": "quarter 1",
+  "A18": "quarter 2",
+  "A19": "quarter 1",
+  "A20": "quarter 2",
+  "A21": "quarter 1",
+  "A22": "quarter 2",
+  "A23": "quarter 1",
+  "A24": "quarter 2",
+  "B1": "quarter 3",
+  "B3": "quarter 3",
+  "B5": "quarter 3",
+  "B7": "quarter 3",
+  "B9": "quarter 3",
+  "B11": "quarter 3",
+  "B13": "quarter 3",
+  "B15": "quarter 3",
+  "B17": "quarter 3",
+  "B19": "quarter 3",
+  "B21": "quarter 3",
+  "B23": "quarter 3",
+  "C1": "quarter 1",
+  "C2": "quarter 2",
+  "C3": "quarter 1",
+  "C4": "quarter 2",
+  "C5": "quarter 1",
+  "C6": "quarter 2",
+  "C7": "quarter 1",
+  "C8": "quarter 2",
+  "C9": "quarter 1",
+  "C10": "quarter 2",
+  "C11": "quarter 1",
+  "C12": "quarter 2",
+  "C13": "quarter 1",
+  "C14": "quarter 2",
+  "C15": "quarter 1",
+  "C16": "quarter 2",
+  "C17": "quarter 1",
+  "C18": "quarter 2",
+  "C19": "quarter 1",
+  "C20": "quarter 2",
+  "C21": "quarter 1",
+  "C22": "quarter 2",
+  "C23": "quarter 1",
+  "C24": "quarter 2",
+  "D1": "quarter 3",
+  "D3": "quarter 3",
+  "D5": "quarter 3",
+  "D7": "quarter 3",
+  "D9": "quarter 3",
+  "D11": "quarter 3",
+  "D13": "quarter 3",
+  "D15": "quarter 3",
+  "D17": "quarter 3",
+  "D19": "quarter 3",
+  "D21": "quarter 3",
+  "D23": "quarter 3",
+  "E1": "quarter 1",
+  "E2": "quarter 2",
+  "E3": "quarter 1",
+  "E4": "quarter 2",
+  "E5": "quarter 1",
+  "E6": "quarter 2",
+  "E7": "quarter 1",
+  "E8": "quarter 2",
+  "E9": "quarter 1",
+  "E10": "quarter 2",
+  "E11": "quarter 1",
+  "E12": "quarter 2",
+  "E13": "quarter 1",
+  "E14": "quarter 2",
+  "E15": "quarter 1",
+  "E16": "quarter 2",
+  "E17": "quarter 1",
+  "E18": "quarter 2",
+  "E19": "quarter 1",
+  "E20": "quarter 2",
+  "E21": "quarter 1",
+  "E22": "quarter 2",
+  "E23": "quarter 1",
+  "E24": "quarter 2",
+  "F1": "quarter 3",
+  "F3": "quarter 3",
+  "F5": "quarter 3",
+  "F7": "quarter 3",
+  "F9": "quarter 3",
+  "F11": "quarter 3",
+  "F13": "quarter 3",
+  "F15": "quarter 3",
+  "F17": "quarter 3",
+  "F19": "quarter 3",
+  "F21": "quarter 3",
+  "F23": "quarter 3",
+  "G1": "quarter 1",
+  "G2": "quarter 2",
+  "G3": "quarter 1",
+  "G4": "quarter 2",
+  "G5": "quarter 1",
+  "G6": "quarter 2",
+  "G7": "quarter 1",
+  "G8": "quarter 2",
+  "G9": "quarter 1",
+  "G10": "quarter 2",
+  "G11": "quarter 1",
+  "G12": "quarter 2",
+  "G13": "quarter 1",
+  "G14": "quarter 2",
+  "G15": "quarter 1",
+  "G16": "quarter 2",
+  "G17": "quarter 1",
+  "G18": "quarter 2",
+  "G19": "quarter 1",
+  "G20": "quarter 2",
+  "G21": "quarter 1",
+  "G22": "quarter 2",
+  "G23": "quarter 1",
+  "G24": "quarter 2",
+  "H1": "quarter 3",
+  "H3": "quarter 3",
+  "H5": "quarter 3",
+  "H7": "quarter 3",
+  "H9": "quarter 3",
+  "H11": "quarter 3",
+  "H13": "quarter 3",
+  "H15": "quarter 3",
+  "H17": "quarter 3",
+  "H19": "quarter 3",
+  "H21": "quarter 3",
+  "H23": "quarter 3",
+  "I1": "quarter 1",
+  "I2": "quarter 2",
+  "I3": "quarter 1",
+  "I4": "quarter 2",
+  "I5": "quarter 1",
+  "I6": "quarter 2",
+  "I7": "quarter 1",
+  "I8": "quarter 2",
+  "I9": "quarter 1",
+  "I10": "quarter 2",
+  "I11": "quarter 1",
+  "I12": "quarter 2",
+  "I13": "quarter 1",
+  "I14": "quarter 2",
+  "I15": "quarter 1",
+  "I16": "quarter 2",
+  "I17": "quarter 1",
+  "I18": "quarter 2",
+  "I19": "quarter 1",
+  "I20": "quarter 2",
+  "I21": "quarter 1",
+  "I22": "quarter 2",
+  "I23": "quarter 1",
+  "I24": "quarter 2",
+  "J1": "quarter 3",
+  "J3": "quarter 3",
+  "J5": "quarter 3",
+  "J7": "quarter 3",
+  "J9": "quarter 3",
+  "J11": "quarter 3",
+  "J13": "quarter 3",
+  "J15": "quarter 3",
+  "J17": "quarter 3",
+  "J19": "quarter 3",
+  "J21": "quarter 3",
+  "J23": "quarter 3",
+  "K1": "quarter 1",
+  "K2": "quarter 2",
+  "K3": "quarter 1",
+  "K4": "quarter 2",
+  "K5": "quarter 1",
+  "K6": "quarter 2",
+  "K7": "quarter 1",
+  "K8": "quarter 2",
+  "K9": "quarter 1",
+  "K10": "quarter 2",
+  "K11": "quarter 1",
+  "K12": "quarter 2",
+  "K13": "quarter 1",
+  "K14": "quarter 2",
+  "K15": "quarter 1",
+  "K16": "quarter 2",
+  "K17": "quarter 1",
+  "K18": "quarter 2",
+  "K19": "quarter 1",
+  "K20": "quarter 2",
+  "K21": "quarter 1",
+  "K22": "quarter 2",
+  "K23": "quarter 1",
+  "K24": "quarter 2",
+  "L1": "quarter 3",
+  "L3": "quarter 3",
+  "L5": "quarter 3",
+  "L7": "quarter 3",
+  "L9": "quarter 3",
+  "L11": "quarter 3",
+  "L13": "quarter 3",
+  "L15": "quarter 3",
+  "L17": "quarter 3",
+  "L19": "quarter 3",
+  "L21": "quarter 3",
+  "L23": "quarter 3",
+  "M1": "quarter 1",
+  "M2": "quarter 2",
+  "M3": "quarter 1",
+  "M4": "quarter 2",
+  "M5": "quarter 1",
+  "M6": "quarter 2",
+  "M7": "quarter 1",
+  "M8": "quarter 2",
+  "M9": "quarter 1",
+  "M10": "quarter 2",
+  "M11": "quarter 1",
+  "M12": "quarter 2",
+  "M13": "quarter 1",
+  "M14": "quarter 2",
+  "M15": "quarter 1",
+  "M16": "quarter 2",
+  "M17": "quarter 1",
+  "M18": "quarter 2",
+  "M19": "quarter 1",
+  "M20": "quarter 2",
+  "M21": "quarter 1",
+  "M22": "quarter 2",
+  "M23": "quarter 1",
+  "M24": "quarter 2",
+  "N1": "quarter 3",
+  "N3": "quarter 3",
+  "N5": "quarter 3",
+  "N7": "quarter 3",
+  "N9": "quarter 3",
+  "N11": "quarter 3",
+  "N13": "quarter 3",
+  "N15": "quarter 3",
+  "N17": "quarter 3",
+  "N19": "quarter 3",
+  "N21": "quarter 3",
+  "N23": "quarter 3",
+  "O1": "quarter 1",
+  "O2": "quarter 2",
+  "O3": "quarter 1",
+  "O4": "quarter 2",
+  "O5": "quarter 1",
+  "O6": "quarter 2",
+  "O7": "quarter 1",
+  "O8": "quarter 2",
+  "O9": "quarter 1",
+  "O10": "quarter 2",
+  "O11": "quarter 1",
+  "O12": "quarter 2",
+  "O13": "quarter 1",
+  "O14": "quarter 2",
+  "O15": "quarter 1",
+  "O16": "quarter 2",
+  "O17": "quarter 1",
+  "O18": "quarter 2",
+  "O19": "quarter 1",
+  "O20": "quarter 2",
+  "O21": "quarter 1",
+  "O22": "quarter 2",
+  "O23": "quarter 1",
+  "O24": "quarter 2",
+  "P1": "quarter 3",
+  "P3": "quarter 3",
+  "P5": "quarter 3",
+  "P7": "quarter 3",
+  "P9": "quarter 3",
+  "P11": "quarter 3",
+  "P13": "quarter 3",
+  "P15": "quarter 3",
+  "P17": "quarter 3",
+  "P19": "quarter 3",
+  "P21": "quarter 3",
+  "P23": "quarter 3"
+ }
+}
+
+</script>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">drawing</span> <span class="o">=</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw_plate</span><span class="p">(</span><span class="n">plate</span><span class="p">)</span>
+</code></pre></div>
+<p><code>draw_plate</code> takes no options. molviz draws a stamp, which moves a pattern of wells from one
+plate into another, as two plates: the one it takes from and the one it fills.
+<a href="../../how-to/draw-a-plate/">Draw a plate and a stamp</a> builds this plate and a stamp from it.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>
