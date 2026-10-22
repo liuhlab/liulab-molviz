@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { expect, test } from "vitest";
-import { plateSvg } from "../../src/viewer/drawing";
+import { plateSvg } from "../../src/viewer/index";
 import { checkPlate } from "../../src/viewer/plate";
 
 const plates = import.meta.glob("../plates/*.json", {

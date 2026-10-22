@@ -3,13 +3,13 @@ import type { Font, PathCommand } from "opentype.js/dist/opentype.mjs";
 import { expect, test, vi } from "vitest";
 import { readFace } from "../../scripts/font-tables";
 import { FACES, type Face, type Place, places } from "../../src/viewer/faces";
-import { twoDecimals } from "../../src/viewer/scene";
 import {
 	figureStillSvg,
 	gelStillSvg,
 	plateStillSvg,
 	stillSvg,
-} from "../../src/viewer/still";
+} from "../../src/viewer/index";
+import { twoDecimals } from "../../src/viewer/scene";
 import { outlineOf } from "../../src/viewer/text";
 
 const recorded = vi.hoisted(() => ({

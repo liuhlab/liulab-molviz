@@ -1,19 +1,38 @@
-/** An input drawn as SVG text, with no DOM. */
+/**
+ * An input laid out, and written as SVG text with no DOM: as a file, every letter an outline,
+ * with its PDF pages, or as a still drawing, with real text.
+ */
 
-import { type CircleScene, layoutCircle } from "./circle";
-import { checkGel } from "./gel";
-import { layoutGel } from "./gel-layout";
+import { boxOf } from "./bounds";
 import { type Hidden, notice } from "./labels";
-import { type LineScene, layoutLine } from "./line";
-import { WIDTH } from "./map";
-import { checkOptions, type Options } from "./options";
-import { rowPages, stacked } from "./pages";
-import { checkPlate } from "./plate";
-import { layoutPlate } from "./plate-layout";
-import { check, type Record } from "./record";
-import type { MapScene, Scene } from "./scene";
-import { layoutSequence, type SequenceScene } from "./sequence";
-import { toSvg } from "./svg";
+import { type Box, moved, type Scene, type Shape } from "./scene";
+import { toStill, toSvg } from "./svg";
+
+/** Where an input is laid out: for a `page`, or else for a file. */
+export interface Where {
+	readonly page: boolean;
+}
+
+/** An input laid out, as each writer takes it. */
+export interface Layout {
+	/** The whole drawing. */
+	readonly scene: Scene;
+	/** One scene per PDF page, or null when the whole drawing is the one page. */
+	readonly pages: readonly Scene[] | null;
+	/** The labels left out because they would overlap. */
+	readonly hidden: readonly Hidden[];
+}
+
+/** One input, as the input table holds it: how to check it, and how to lay it out. */
+export interface Input<T> {
+	/** Return `input` typed, or throw one FormatError naming every problem by its path. */
+	check(input: unknown): T;
+	/**
+	 * Lay `input` out with `options`, for a page or a file as `where` says. Throws one
+	 * FormatError naming every problem in the options.
+	 */
+	layout(input: T, options: unknown, where: Where): Layout;
+}
 
 /** What each call that draws as SVG text returns. */
 export interface Drawing {
@@ -27,119 +46,95 @@ export interface Drawing {
 	readonly notice: string;
 }
 
-/** A record laid out: its map, and its sequence view if the options draw one. */
-export interface Views {
-	readonly map: MapScene;
-	readonly sequence: SequenceScene | null;
-}
-
 /**
- * Check `record`, then `options` against it, and lay the record out on the map they name.
- * Throws one FormatError naming every problem in the record, or else in the options.
+ * What each call that draws a still SVG returns. Its SVG is laid out as the file's, with each
+ * text a `<text>` and each hover a `<title>`; it draws in the viewer's faces only on a page that
+ * holds the font rules.
  */
-export function prepare(record: unknown, options: unknown): MapScene {
-	return prepareViews(record, options).map;
-}
+export type Still = Omit<Drawing, "pages">;
 
-/** `prepare`, with the sequence view laid out too if `options` draw it, for a `page` or a file. */
-export function prepareViews(
-	record: unknown,
-	options: unknown,
-	where: { page?: boolean } = {},
-): Views {
-	const checked = check(record);
-	return layoutViews(checked, checkOptions(options, checked, where));
-}
-
-/** Lay `record`'s map out as `options` say, and its sequence view if they draw one. */
-export function layoutViews(record: Record, options: Options): Views {
+/** `layout` as SVG text, every letter an outline, with its PDF pages. */
+export function fileDrawing({ scene, pages, hidden }: Layout): Drawing {
+	const svg = toSvg(scene);
 	return {
-		map: layoutMap(record, options),
-		sequence: options.sequence_view ? layoutSequence(record, options) : null,
+		svg,
+		hidden,
+		notice: notice(hidden),
+		pages: pages === null ? [svg] : pages.map(toSvg),
+	};
+}
+
+/** `layout` as a still SVG. */
+export function stillDrawing({ scene, hidden }: Layout): Still {
+	return { svg: toStill(scene), hidden, notice: notice(hidden) };
+}
+
+/** `under` set below `top`, the narrower centred on the wider, their extents touching. */
+export function stacked(top: Scene, under: Scene): Scene {
+	const a = top.extent;
+	const b = under.extent;
+	const width = Math.max(a.width, b.width);
+	const left = a.x - (width - a.width) / 2;
+	const dx = left + (width - b.width) / 2 - b.x;
+	const dy = a.y + a.height - b.y;
+	return {
+		extent: { x: left, y: a.y, width, height: a.height + b.height },
+		shapes: [...top.shapes, ...under.shapes.map((s) => moved(s, dx, dy))],
 	};
 }
 
 /**
- * Lay `record` out on the map `options` name, `zoom` times its opening size, the circle's origin
- * turned `turn` degrees clockwise from the top.
+ * The sequence view as PDF pages, each as wide as the view and holding whole rows, as many as
+ * fit in √2 times that width with the view's margin around them. A row taller than that stands
+ * alone.
  */
-export function layoutMap(
-	record: Record,
-	options: Options,
-	{
-		zoom = 1,
-		turn = 0,
-	}: { readonly zoom?: number; readonly turn?: number } = {},
-): LineScene | CircleScene {
-	return options.map === "circle"
-		? layoutCircle(record, options, turn, zoom)
-		: layoutLine(record, options, WIDTH * zoom);
+export function rowPages(
+	view: Scene & { readonly rows: readonly Box[] },
+): Scene[] {
+	const { extent, rows } = view;
+	const margin = rows[0].y - extent.y;
+	const tall = extent.width * Math.SQRT2;
+	const groups: Box[][] = [];
+	for (const row of rows) {
+		const page = groups.at(-1);
+		if (page && bottom(row) + margin - (page[0].y - margin) <= tall) {
+			page.push(row);
+		} else {
+			groups.push([row]);
+		}
+	}
+	// A shape is on the page whose rows hold its middle, cut halfway between the pages' rows.
+	const cuts = groups
+		.slice(1)
+		.map((page, i) => (bottom(groups[i].at(-1) as Box) + page[0].y) / 2);
+	const shapes = groups.map((): Shape[] => []);
+	for (const shape of view.shapes) {
+		const y = middle(shape);
+		let page = 0;
+		while (page < cuts.length && y >= cuts[page]) page++;
+		shapes[page].push(shape);
+	}
+	return groups.map((page, i) => {
+		const top = page[0].y - margin;
+		return {
+			extent: {
+				x: extent.x,
+				y: top,
+				width: extent.width,
+				height: bottom(page.at(-1) as Box) + margin - top,
+			},
+			shapes: shapes[i],
+		};
+	});
 }
 
-/** Check `gel` and lay it out. Throws one FormatError naming every problem in the gel. */
-export function prepareGel(gel: unknown): Scene {
-	return layoutGel(checkGel(gel));
+function bottom(box: Box): number {
+	return box.y + box.height;
 }
 
-/** Check `plate` and lay it out. Throws one FormatError naming every problem in the plate. */
-export function preparePlate(plate: unknown): Scene {
-	return layoutPlate(checkPlate(plate));
-}
-
-/** `views` as one scene, the sequence view under the map, hiding what the map hides. */
-export function stackedViews({ map, sequence }: Views): MapScene {
-	return sequence === null
-		? map
-		: { ...stacked(map, sequence), hidden: map.hidden };
-}
-
-/** `scene` written by `write`, with the labels it left out and their notice. */
-export function drawn(
-	scene: Scene | MapScene,
-	write: (scene: Scene) => string,
-): Omit<Drawing, "pages"> {
-	const hidden = "hidden" in scene ? scene.hidden : [];
-	return { svg: write(scene), hidden, notice: notice(hidden) };
-}
-
-/**
- * Draw `record` with `options` as SVG text, every letter an outline, the sequence view under
- * the map. A PDF has the map on its first page and the view's rows on the pages after. Throws
- * one FormatError naming every problem in the record, or else in the options.
- */
-export function svg(record: unknown, options: unknown = {}): Drawing {
-	const views = prepareViews(record, options);
-	return toDrawing(
-		stackedViews(views),
-		views.sequence === null ? null : [views.map, ...rowPages(views.sequence)],
-	);
-}
-
-/**
- * Draw `gel` as SVG text, every letter an outline. Ladder sizes that would crowd are left out
- * and not counted, so `hidden` stays empty. Throws one FormatError naming every problem in the
- * gel.
- */
-export function gelSvg(gel: unknown): Drawing {
-	return toDrawing(prepareGel(gel));
-}
-
-/**
- * Draw `plate` as SVG text, every letter an outline. Throws one FormatError naming every
- * problem in the plate.
- */
-export function plateSvg(plate: unknown): Drawing {
-	return toDrawing(preparePlate(plate));
-}
-
-/** `scene` as SVG text, every letter an outline, with its PDF `pages`, or else as one page. */
-export function toDrawing(
-	scene: Scene | MapScene,
-	pages: readonly Scene[] | null = null,
-): Drawing {
-	const drawing = drawn(scene, toSvg);
-	return {
-		...drawing,
-		pages: pages === null ? [drawing.svg] : pages.map(toSvg),
-	};
+/** How far down the middle of `shape` lies. */
+function middle(shape: Shape): number {
+	if (shape.shape === "line") return (shape.y1 + shape.y2) / 2;
+	const box = boxOf(shape);
+	return box ? box.y + box.height / 2 : 0;
 }

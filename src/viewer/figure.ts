@@ -6,22 +6,16 @@
  */
 
 import * as v from "valibot";
-import {
-	type Drawing,
-	layoutViews,
-	stackedViews,
-	toDrawing,
-	type Views,
-} from "./drawing";
+import { type Input, rowPages, type Where } from "./drawing";
 import type { Face } from "./faces";
 import { list, orThrow, type Problem, parse } from "./format";
 import { MARGIN, NAME_SIZE } from "./map";
 import { type Options, parsedOptions } from "./options";
-import { rowPages } from "./pages";
 import { MUTED } from "./paint";
 import { type Record, recordSchemaOf } from "./record";
 import { type MapScene, moved, type Scene, type Shape } from "./scene";
 import { baseline, height } from "./text";
+import { layoutViews, stackedViews, type Views } from "./views";
 
 /** The face of a stacked record's name, set at `NAME_SIZE` in `MUTED`. */
 const NAME_FACE: Face = "sans-bold";
@@ -60,65 +54,33 @@ type Part = Pick<FigureRecord, "name" | "circle"> & {
 	readonly scene: Scene | MapScene;
 };
 
-/** Check `records`, then `options` against each, for a `page` or a file, and lay each out. */
-function prepareRecords(
-	records: unknown,
-	options: unknown,
-	where: { page?: boolean } = {},
-): FigureRecord[] {
-	const checked = checkFigure(records);
-	const each = checkEach(options, checked, where);
-	return checked.map((record, i) => ({
-		name: record.name,
-		views: layoutViews(record, each[i]),
-		circle: each[i].map === "circle",
-	}));
-}
+/** The figure as an input: its records stacked, each laid out as the record is. */
+export const figureInput: Input<Record[]> = {
+	check: checkFigure,
+	layout(records, options, where) {
+		const each = checkEach(options, records, where);
+		const laid = records.map((record, i) => ({
+			name: record.name,
+			views: layoutViews(record, each[i]),
+			circle: each[i].map === "circle",
+		}));
+		const scene = stackRecords(
+			laid.map((one) => ({ ...one, scene: stackedViews(one.views) })),
+			laid.length > 1,
+		);
+		return { scene, pages: pagesOf(laid), hidden: scene.hidden };
+	},
+};
 
-/** `records` stacked, each as `svg` draws it. */
-function figureScene(records: readonly FigureRecord[]): MapScene {
-	return stackRecords(
-		records.map((one) => ({ ...one, scene: stackedViews(one.views) })),
-		records.length > 1,
-	);
-}
-
-/**
- * Check `records`, then `options` against each, and lay the records out stacked, each as `svg`
- * draws it, or on a `page` as `draw` does.
- */
-export function prepareFigure(
-	records: unknown,
-	options: unknown,
-	where: { page?: boolean } = {},
-): MapScene {
-	return figureScene(prepareRecords(records, options, where));
-}
-
-/** A figure laid out as a file draws it. */
-export interface FigureFile {
-	/** The whole drawing. */
-	readonly scene: MapScene;
-	/** One scene per PDF page, or null when the whole drawing is the one page. */
-	readonly pages: readonly Scene[] | null;
-}
-
-/** `prepareFigure` for a file, with a PDF's pages when the records draw their sequence views. */
-export function prepareFigureFile(
-	records: unknown,
-	options: unknown,
-): FigureFile {
-	const prepared = prepareRecords(records, options);
-	const scene = figureScene(prepared);
-	if (prepared.every(({ views }) => views.sequence === null)) {
-		return { scene, pages: null };
-	}
-	const named = prepared.length > 1;
+/** The PDF pages of `records`, or null when none draws its sequence view. */
+function pagesOf(records: readonly FigureRecord[]): Scene[] | null {
+	if (records.every(({ views }) => views.sequence === null)) return null;
+	const named = records.length > 1;
 	const maps = stackRecords(
-		prepared.map((one) => ({ ...one, scene: one.views.map })),
+		records.map((one) => ({ ...one, scene: one.views.map })),
 		named,
 	);
-	const rows = prepared.flatMap(({ name, views }) => {
+	const rows = records.flatMap(({ name, views }) => {
 		if (views.sequence === null) return [];
 		const [first, ...rest] = rowPages(views.sequence);
 		return [
@@ -126,16 +88,7 @@ export function prepareFigureFile(
 			...rest,
 		];
 	});
-	return { scene, pages: [maps, ...rows] };
-}
-
-/**
- * Draw `records` stacked, each with `options`, as SVG text, every letter an outline. Throws one
- * FormatError naming every problem in the records, or else in the options.
- */
-export function figureSvg(records: unknown, options: unknown = {}): Drawing {
-	const { scene, pages } = prepareFigureFile(records, options);
-	return toDrawing(scene, pages);
+	return [maps, ...rows];
 }
 
 /**
@@ -146,7 +99,7 @@ export function figureSvg(records: unknown, options: unknown = {}): Drawing {
 function checkEach(
 	input: unknown,
 	records: readonly Record[],
-	{ page = false }: { page?: boolean },
+	{ page }: Where,
 ): Options[] {
 	const checked: Options[] = [];
 	const problems = new Map<string, { problem: Problem; which: number[] }>();

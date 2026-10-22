@@ -5,7 +5,6 @@
  */
 
 import { aroundBoxes } from "./bounds";
-import { layoutMap } from "./drawing";
 import { hoverBox } from "./hover";
 import type { MapGeometry } from "./map";
 import type { Options } from "./options";
@@ -29,6 +28,7 @@ import type { Box, MapScene, Scene } from "./scene";
 import type { Selection } from "./selection";
 import { BOTH_STRANDS, ITEM, SELECTED, TOP_STRAND, toElement } from "./svg";
 import { families } from "./text";
+import { layoutMap } from "./views";
 
 /** The style element holding the frames' rules, shared by every frame on a page. */
 const STYLE_ID = "molviz-frame";

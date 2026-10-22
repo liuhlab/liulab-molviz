@@ -1,8 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { draw } from "../../src/viewer/draw";
-import { svg } from "../../src/viewer/drawing";
 import { displayScale, type Frame } from "../../src/viewer/frame";
+import { draw, svg } from "../../src/viewer/index";
 import ap1File from "../records/ap1-product.json";
 import trace from "../records/trace-3730.json";
 import { input, opened } from "./live";

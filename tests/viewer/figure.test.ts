@@ -1,21 +1,9 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { drawFigure } from "../../src/viewer/draw";
-import {
-	prepare,
-	prepareViews,
-	stackedViews,
-	svg,
-} from "../../src/viewer/drawing";
-import {
-	checkFigure,
-	figureSvg,
-	prepareFigure,
-	prepareFigureFile,
-} from "../../src/viewer/figure";
-
+import { type Layout, rowPages } from "../../src/viewer/drawing";
+import { checkFigure, figureInput } from "../../src/viewer/figure";
 import { FormatError } from "../../src/viewer/format";
-import { rowPages } from "../../src/viewer/pages";
+import { drawFigure, figureSvg, svg } from "../../src/viewer/index";
 import { DIM, INK } from "../../src/viewer/paint";
 import { check } from "../../src/viewer/record";
 import {
@@ -25,6 +13,7 @@ import {
 	type Shape,
 } from "../../src/viewer/scene";
 import { height, measure, metrics } from "../../src/viewer/text";
+import { prepare, prepareViews, stackedViews } from "../../src/viewer/views";
 import ap1 from "../records/ap1-product.json";
 
 /** A linear record `length` bases long, with one CDS called `feature` near its start. */
@@ -113,7 +102,17 @@ const viewed = {
 	bases_per_row: 20,
 };
 
-describe("prepareFigure", () => {
+/** `records` checked and laid out as a figure with `options`, as a file draws them. */
+function laidOut(records: unknown, options: unknown): Layout {
+	return figureInput.layout(checkFigure(records), options, { page: false });
+}
+
+/** The scene of `records` laid out as a figure with `options`. */
+function figureScene(records: unknown, options: unknown): Scene {
+	return laidOut(records, options).scene;
+}
+
+describe("the figure's layout", () => {
 	const options = { span: { start: 0, end: 100 } };
 
 	test.each([
@@ -123,7 +122,7 @@ describe("prepareFigure", () => {
 	])(
 		"stacks the records in order, each as it draws alone moved down only: %s",
 		(_, records, options) => {
-			const figure = prepareFigure(records, options);
+			const figure = figureScene(records, options);
 			const [top, bottom] = records.map((r) =>
 				stackedViews(prepareViews(r, options)),
 			);
@@ -141,7 +140,7 @@ describe("prepareFigure", () => {
 	);
 
 	test("centres a circle on the lines it stacks with, which keep their x", () => {
-		const figure = prepareFigure([firstRing, second], {});
+		const figure = figureScene([firstRing, second], {});
 		const [top, bottom] = [firstRing, second].map((r) => prepare(r, {}));
 		const drawn = figure.shapes.filter(
 			(s) => !("fill" in s && s.fill === MUTED),
@@ -157,7 +156,7 @@ describe("prepareFigure", () => {
 	});
 
 	test("sets each name above its record at the left edge, 12 points under the record before", () => {
-		const figure = prepareFigure([first, second], options);
+		const figure = figureScene([first, second], options);
 		const [top, bottom] = [first, second].map((r) => prepare(r, options));
 		const dy = said(figure, "round 2", INK).y - said(bottom, "round 2", INK).y;
 		const [above, below] = ["round 1", "round 2"].map((name) => {
@@ -186,29 +185,26 @@ describe("prepareFigure", () => {
 
 	test("lights a name in the record that has it, dims the other whole, and moves nothing", () => {
 		const records = [first, second];
-		const lit = prepareFigure(records, { ...options, highlight: ["LACZ"] });
+		const lit = figureScene(records, { ...options, highlight: ["LACZ"] });
 		const arrows = lit.shapes.flatMap((s) =>
 			s.shape === "polygon" ? [s.fill] : [],
 		);
 		expect(arrows).toEqual(["#77aadd", DIM]);
 		const unpainted = (scene: Scene) =>
 			scene.shapes.map((s) => ({ ...s, fill: null, stroke: null }));
-		expect(unpainted(lit)).toEqual(unpainted(prepareFigure(records, options)));
+		expect(unpainted(lit)).toEqual(unpainted(figureScene(records, options)));
 	});
 });
 
-describe("prepareFigureFile", () => {
+describe("the figure's PDF pages", () => {
 	test("has no pages of its own when no record draws its sequence view", () => {
 		const options = { span: { start: 0, end: 100 } };
-		expect(prepareFigureFile([first, second], options)).toEqual({
-			scene: prepareFigure([first, second], options),
-			pages: null,
-		});
+		expect(laidOut([first, second], options).pages).toBeNull();
 	});
 
 	test("puts the maps on page 1, as the figure draws them without the sequence view", () => {
-		const { pages } = prepareFigureFile([first, second], viewed);
-		const maps = prepareFigure([first, second], {
+		const { pages } = laidOut([first, second], viewed);
+		const maps = figureScene([first, second], {
 			...viewed,
 			sequence_view: false,
 		});
@@ -219,7 +215,7 @@ describe("prepareFigureFile", () => {
 	});
 
 	test("then each record's rows in record order, the first page of each under its name", () => {
-		const { pages } = prepareFigureFile([first, second], viewed);
+		const { pages } = laidOut([first, second], viewed);
 		const rows = [first, second].map((r) => {
 			const { sequence } = prepareViews(r, viewed);
 			return sequence ? rowPages(sequence) : [];
@@ -273,7 +269,7 @@ describe("figureSvg", () => {
 			[...alone, ...alone].map((name) => ["cuts", name]),
 		);
 		expect(drawn.notice).toBe("12 cut sites are hidden");
-		const notices = prepareFigure(records, every).shapes.filter(
+		const notices = figureScene(records, every).shapes.filter(
 			(s) => s.shape === "text" && s.text === "6 cut sites are hidden",
 		);
 		expect(notices).toHaveLength(2);

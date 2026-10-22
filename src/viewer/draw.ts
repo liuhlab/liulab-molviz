@@ -1,13 +1,11 @@
 /** An input drawn live into an element of a page. */
 
 import { addCaption } from "./caption";
-import { prepareGel, preparePlate } from "./drawing";
-import { prepareFigure } from "./figure";
+import type { Layout } from "./drawing";
 import { type Frame, openFrame } from "./frame";
 import { addLinks } from "./link";
 import { checkOptions, type Options } from "./options";
 import { check, type Record } from "./record";
-import type { Scene } from "./scene";
 import { toElement } from "./svg";
 import { switches } from "./switches";
 import { fontFaceCss } from "./text";
@@ -29,7 +27,7 @@ export interface LiveDrawing {
  * leaves the view out. Throws one FormatError naming every problem in the record, or else in the
  * options.
  */
-export function draw(
+export function drawRecord(
 	element: Element,
 	record: unknown,
 	options: unknown = {},
@@ -59,43 +57,13 @@ export function openRecord(
 }
 
 /**
- * Draw `records` stacked, each with `options`, into `element`, after what it holds, its letters
- * as real text. A still drawing, with no switches. A span past the sequence view's limit leaves
- * the view out. Throws one FormatError naming every problem in the records, or else in the
- * options.
- */
-export function drawFigure(
-	element: Element,
-	records: unknown,
-	options: unknown = {},
-): LiveDrawing {
-	return drawScene(element, prepareFigure(records, options, { page: true }));
-}
-
-/**
- * Draw `gel` into `element`, after what it holds, its letters as real text. Throws one
- * FormatError naming every problem in the gel.
- */
-export function drawGel(element: Element, gel: unknown): LiveDrawing {
-	return drawScene(element, prepareGel(gel));
-}
-
-/**
- * Draw `plate` into `element`, after what it holds, its letters as real text. Throws one
- * FormatError naming every problem in the plate.
- */
-export function drawPlate(element: Element, plate: unknown): LiveDrawing {
-	return drawScene(element, preparePlate(plate));
-}
-
-/**
- * Draw `scene` into `element`, after what it holds, as its still drawing draws, declaring the
+ * Draw `layout` into `element`, after what it holds, as its still drawing draws, declaring the
  * faces if no drawing has.
  */
-function drawScene(element: Element, scene: Scene): LiveDrawing {
+export function drawLayout(element: Element, layout: Layout): LiveDrawing {
 	const document = element.ownerDocument;
 	declareFaces(document);
-	const svg = toElement(scene, document, { tips: false });
+	const svg = toElement(layout.scene, document, { tips: false });
 	element.append(svg);
 	return { destroy: () => svg.remove() };
 }

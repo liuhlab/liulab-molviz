@@ -1,7 +1,5 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { draw } from "../../src/viewer/draw";
-import { layoutMap } from "../../src/viewer/drawing";
 import {
 	anchored,
 	beforePaint,
@@ -10,10 +8,12 @@ import {
 	openFrame,
 } from "../../src/viewer/frame";
 import { rowHolding } from "../../src/viewer/geometry";
+import { draw } from "../../src/viewer/index";
 import { checkOptions } from "../../src/viewer/options";
 import { VIEWS_APART } from "../../src/viewer/pane";
 import { check } from "../../src/viewer/record";
 import { layoutSequence } from "../../src/viewer/sequence";
+import { layoutMap } from "../../src/viewer/views";
 import {
 	circular,
 	hoverBoxOf,
