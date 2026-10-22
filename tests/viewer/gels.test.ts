@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { expect, test } from "vitest";
-import { gelSvg } from "../../src/viewer/drawing";
 import { checkGel } from "../../src/viewer/gel";
+import { gelSvg } from "../../src/viewer/index";
 
 const gels = import.meta.glob("../gels/*.json", {
 	eager: true,

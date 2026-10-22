@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import { prepare, prepareViews } from "../../src/viewer/drawing";
 import {
 	disagreementLabel,
 	type Hidden,
@@ -15,6 +14,7 @@ import {
 import { check } from "../../src/viewer/record";
 import { leftEdge, type Shape } from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
+import { prepare, prepareViews } from "../../src/viewer/views";
 import backbone from "../records/puc19-backbone-amplicon.json";
 
 /** A hidden label of `kind` named `name`, at the record's start. */

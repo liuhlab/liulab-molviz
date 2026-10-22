@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
 import { aroundBoxes } from "../../src/viewer/bounds";
-import { layoutMap } from "../../src/viewer/drawing";
 import type { Frame } from "../../src/viewer/frame";
 import { turnBy } from "../../src/viewer/turn";
+import { layoutMap } from "../../src/viewer/views";
 import {
 	hoverBoxOf,
 	input,

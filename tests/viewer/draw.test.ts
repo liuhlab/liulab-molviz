@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, test } from "vitest";
-import { draw, drawGel, drawPlate } from "../../src/viewer/draw";
 import { FormatError } from "../../src/viewer/format";
+import { draw, drawGel, drawPlate } from "../../src/viewer/index";
 import { families, fontFaceCss } from "../../src/viewer/text";
 import { hoverBoxOf, spot } from "./live";
 

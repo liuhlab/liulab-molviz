@@ -1,11 +1,11 @@
 /// <reference types="vite/client" />
 import { describe, expect, test } from "vitest";
-import { prepare } from "../../src/viewer/drawing";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
 import type { Box, Shape } from "../../src/viewer/scene";
 import { layoutSequence, type SequenceScene } from "../../src/viewer/sequence";
 import { height, measure } from "../../src/viewer/text";
+import { prepare } from "../../src/viewer/views";
 
 /** The Sanger trace's records, read forward and reversed. */
 const TRACES = import.meta.glob("../records/trace-3730*.json", {

@@ -4,6 +4,7 @@
  */
 
 import * as v from "valibot";
+import type { Input } from "./drawing";
 import { exact, list, PositiveInteger, parse, Text } from "./format";
 import {
 	LEADING,
@@ -36,6 +37,12 @@ export type Gel = v.InferOutput<typeof gelSchema>;
 export function checkGel(input: unknown): Gel {
 	return parse(gelSchema, input, { name: "gel" });
 }
+
+/** The gel as an input, laid out with no options and the same for a page or a file. */
+export const gelInput: Input<Gel> = {
+	check: checkGel,
+	layout: (gel) => ({ scene: layoutGel(gel), pages: null, hidden: [] }),
+};
 
 /** The size of every text but the title. */
 const TEXT_SIZE = 10;

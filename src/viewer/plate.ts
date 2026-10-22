@@ -5,6 +5,7 @@
  */
 
 import * as v from "valibot";
+import type { Input } from "./drawing";
 import { exact, keyed, PositiveInteger, parse, Text } from "./format";
 import {
 	INK,
@@ -107,6 +108,12 @@ export type Plate = v.InferOutput<ReturnType<typeof plateSchema>>;
 export function checkPlate(input: unknown): Plate {
 	return parse(plateSchema(sizeOf(input)), input, { name: "plate" });
 }
+
+/** The plate as an input, laid out with no options and the same for a page or a file. */
+export const plateInput: Input<Plate> = {
+	check: checkPlate,
+	layout: (plate) => ({ scene: layoutPlate(plate), pages: null, hidden: [] }),
+};
 
 /** The widest the grid is laid out, its margins included, before its wells shrink to fit. */
 const MAX_WIDTH = 540;

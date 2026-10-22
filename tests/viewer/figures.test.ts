@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { expect, test } from "vitest";
-import { figureSvg } from "../../src/viewer/figure";
+import { figureSvg } from "../../src/viewer/index";
 
 /** A test figure: the records it stacks, by file name, and the options they share. */
 interface Figure {
