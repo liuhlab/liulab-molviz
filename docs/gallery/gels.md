@@ -1,18 +1,19 @@
+---
+search:
+  exclude: true
+---
+
 # Gels
 
-This page draws each test gel in your browser when the page opens. It uses the same viewer the
-Python package carries, so what you see here is what a page written by the package shows.
+This page draws every test gel once, at its defaults, so that you can check a change to a
+drawing here. The gels are the files in `tests/gels/` in the repo. Most are the example gels of
+mbio, the lab's tools for cloning, and the last two are made by hand.
 
-The gels are the files in `tests/gels/` in the repo. Most are the example gels of mbio, the
-lab's tools for cloning, and the note under each one says what it shows. Two are made by hand,
-at the end.
-
-Rest the pointer on a band to see its size. If a gel cannot be drawn, its place on the page
-says why.
+If a gel cannot be drawn, its place on the page says why.
 
 ## ap1-pcr1-any-batch
 
-The first of two gels from mbio's ap1 project, with one lane.
+The first of two gels from mbio's AP-1 project, with one lane.
 
 <div data-molviz="gel">
 <script type="application/json" data-gel>
@@ -92,8 +93,7 @@ The PCR product of mbio's restriction cloning example, in one lane.
 
 ## restriction-digests
 
-The digests of the restriction example. The pUC19 lane has a 2 bp band, far below the ladder's
-smallest.
+The digests of the restriction example. The pUC19 lane has a 2 bp band, far below the ladder's smallest.
 
 <div data-molviz="gel">
 <script type="application/json" data-gel>
@@ -123,8 +123,7 @@ The restriction example's diagnostic digest. Its pUC19 lane has the 2 bp band to
 
 ## pcr-test-expected-bands
 
-From mbio's tests. It has the only one of mbio's lanes with no band, and the only ladder listed
-largest first.
+From mbio's tests. It has the only lane with no band, and the only ladder listed largest first.
 
 <div data-molviz="gel">
 <script type="application/json" data-gel>
@@ -144,8 +143,7 @@ Made by hand. Every band is one size, so all of them sit in the middle of the ge
 
 ## long-names
 
-Made by hand. A long title, ladder name and lane name, which wrap, and a word too long for any
-line. It also has a lane with no band.
+Made by hand. A long title, ladder name and lane name wrap, one word is too long for any line, and one lane has no band.
 
 <div data-molviz="gel">
 <script type="application/json" data-gel>
