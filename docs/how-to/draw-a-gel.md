@@ -26,7 +26,7 @@ colony_pcr = {
 }
 ```
 
-The title is optional.
+The title is optional. The [gel format](../reference/gel.md) lists every key.
 
 ## Draw it and write a file
 

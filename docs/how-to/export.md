@@ -51,7 +51,7 @@ Pick the format by where the drawing goes:
 
 The ending is read in any case, so `.PDF` works too. Any other ending raises `ValueError`.
 
-A file has no bar of switches. It shows the record with the options you passed to `draw`.
+A file has no bar of switches. It shows the record with the [options](../api.md#options) you passed to `draw`.
 
 ## Set the PNG's resolution
 

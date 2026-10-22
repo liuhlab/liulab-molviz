@@ -137,3 +137,5 @@ document.getElementById("gel").insertAdjacentHTML("beforeend", svg);
 Don't call `molviz.svg`, `molviz.gelSvg`, `molviz.plateSvg` or `molviz.figureSvg` in a page.
 They write the SVG for a file, which needs letter outlines that a page doesn't load, so they
 throw an error.
+
+The [JavaScript API](../reference/javascript.md) lists every name on the global `molviz`.
