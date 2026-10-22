@@ -7,6 +7,12 @@ sets one.
 
 ## [Unreleased]
 
+### Changed
+
+- A plate is drawn inside a rounded border that holds its wells, row letters and column
+  numbers, as a real plate's rim does. Its title and legend stay outside the border. The wells
+  keep their size, so the drawing grows a little to hold the border.
+
 ## [2026.10.0] - 2026-10-20
 
 ### Added
