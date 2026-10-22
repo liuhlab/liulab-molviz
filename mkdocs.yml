@@ -21,6 +21,11 @@ nav:
   - Home: index.md
   - Reference:
       - Python API: api.md
+  - Explanation:
+      - What molviz draws and what you hand it: explanation/what-molviz-draws.md
+      - How a drawing stays readable: explanation/readable.md
+      - Pages, files and still drawings: explanation/outputs.md
+      - Coordinates: explanation/coordinates.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not
 # taken from what a strict mkdocs build used to do:
