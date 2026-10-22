@@ -74,7 +74,7 @@ The tables on this page and the gel, plate and figure pages use these types.
 | `primers` | list of [primers](#primers) | no | `[]` | The primers, each drawn at every site it binds. |
 | `cuts` | list of [cuts](#cuts) | no | `[]` | One item for each enzyme cutting at one place. molviz draws only the cuts listed here. |
 | `insertions` | list of [insertions](#insertions) | no | `[]` | Points where bases are added. |
-| `reads` | list of [reads](#reads) | no | `[]` | Sequencing results, each over the bases it trusts. No two reads share a name. |
+| `reads` | list of [reads](#reads) | no | `[]` | The reads, each drawn over the bases it trusts. No two reads share a name. |
 | `disagreements` | list of [disagreements](#disagreements) | no | `[]` | Places where the reads differ from the record. |
 | `tracks` | list of [tracks](#tracks) | no | `[]` | Curves sampled along the bases, such as a Sanger trace. |
 
@@ -216,7 +216,8 @@ pUC19-GFP's verification record holds one read and two disagreements, each a sin
 ## Tracks
 
 Each item of `tracks` is a set of named curves sampled alike along the bases, such as the four
-channels of a Sanger trace. The sequence view draws each track under the rows its peaks reach.
+channels of a Sanger trace. A sample is one point along the curves, and each curve holds one
+number for each sample. The sequence view draws each track under the rows its peaks reach.
 
 | Key | Type | Required | Default | Meaning |
 | --- | --- | --- | --- | --- |

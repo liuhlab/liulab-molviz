@@ -28,13 +28,16 @@ it. The switches above the map show it as a line, or show its bases.
 molviz is on PyPI as `liulab-molviz`. To add it to a [pixi](https://pixi.sh) project, run:
 
 ```bash
+pixi add python=3.13
 pixi add --pypi liulab-molviz
 ```
 
+Add Python first, because pixi needs Python to install a package from PyPI.
+
 ## Go further
 
-- [Draw your first plasmid map](get-started/first-map.md) installs molviz and draws a plasmid
-  you type, one step at a time.
+- [The tutorial](get-started/first-map.md) installs molviz and draws a plasmid you type as a
+  circle, one step at a time.
 - [Choose a drawing](get-started/choose-a-drawing.md) says which drawing answers which
   question, and links to the guide for each one.
 - The [record format](reference/record.md) lists every key a record holds. The

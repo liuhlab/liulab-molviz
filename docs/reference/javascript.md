@@ -83,7 +83,8 @@ Each returns an object with four keys:
 | `hidden` | array of objects | The labels left out because they would overlap, as [Hidden labels](#hidden-labels) describes. |
 | `notice` | string | The hidden-label notice as a sentence, such as `3 cut sites and 1 primer are hidden`. It is empty when nothing hides. |
 
-A gel's `hidden` and a plate's `hidden` are `[]`, and their `notice` is `""`.
+A gel's `hidden` and a plate's `hidden` are `[]`, and their `notice` is `""`, even when a gel
+leaves out the label of a crowded ladder size.
 
 Each throws a `FormatError` as the draw calls do. It also throws one when `sequence_view` is
 `true` for a span of more than `SEQUENCE_VIEW_LIMIT` bases.
@@ -137,8 +138,7 @@ molviz.declareFaces(document)
 Adds the font rules to `document` once, as a `<style id="molviz-fonts">` element at the end of
 its `<head>`. A second call finds that element and does nothing. Returns `undefined`.
 
-Every draw call calls it. A script that writes still SVGs into a page can call it too, in place
-of writing the font rules itself.
+Every draw call calls it.
 
 ## calls
 

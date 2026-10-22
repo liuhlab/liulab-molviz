@@ -64,8 +64,8 @@ A well that is not in `wells` is empty and drawn grey.
 
 Each different contents takes a colour, given out in reading order: across the first row, then
 the next. A legend under the plate gives each colour's contents. A plate with more than ten
-different contents draws every well that holds something in one colour, and its legend gives
-only the count.
+different contents draws every well that holds something in one colour, and its legend has one
+line that gives the count, such as `11 different contents, all one colour`.
 
 ## Stamps
 

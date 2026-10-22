@@ -44,7 +44,7 @@ draws at most 100,000 bases, the value of
 [`molviz.SEQUENCE_VIEW_LIMIT`](../api.md#molviz.SEQUENCE_VIEW_LIMIT). For a longer record,
 give a span, or `draw` raises `ValueError`.
 
-## Show only the bases you need
+## Narrow the view to a span
 
 A whole plasmid fills many rows. To show fewer, give a `span` too. This span holds the M13 site,
 the ATGA junction and the start of GFP, with GFP's first amino acids over its codons:
@@ -65,7 +65,7 @@ molviz.draw(record, span={"start": 340, "end": 520}, sequence_view=True).write("
 The map draws the same span as a line. On a circular record, a span may run across the origin,
 as [Choose what a map shows](what-a-map-shows.md) explains.
 
-## Set how many bases a row holds
+## Set the row length
 
 Unless you set `bases_per_row`, a row on a page holds as many bases as fit its width, from 20 to
 100 in steps of 10. A file, a still drawing or a figure holds 60 bases to a row.
@@ -118,7 +118,8 @@ To print the bases, write the drawing as a PDF:
 molviz.draw(record, sequence_view=True).write("pUC19-GFP.pdf")
 ```
 
-The PDF holds the drawing from the first step. The map is on the first page, and the rows are
-on the pages after it. Each of those pages is as wide as the rows, and holds as many whole rows
-as fit a page the shape of A4. An SVG or a PNG holds the map and the rows as one tall drawing.
+The PDF holds the drawing from the first step, and it opens in its own viewer, so this page
+doesn't draw it. The map is on the first page, and the rows are on the pages after it. Each of
+those pages is as wide as the rows, and holds as many whole rows as fit a page the shape of
+A4. An SVG or a PNG holds the map and the rows as one tall drawing.
 [Export SVG, PNG and PDF](export.md) gives the other formats.

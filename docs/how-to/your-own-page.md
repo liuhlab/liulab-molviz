@@ -77,14 +77,22 @@ The other inputs have draw calls of their own: `molviz.drawGel(element, gel)`,
 2. Write each drawing's [`still_svg()`](../api.md#molviz.Drawing.still_svg) into the page as it
    is.
 
-This writes a page that holds a gel and a plate, `colony_pcr` from
-[Draw a gel](draw-a-gel.md) and `picked` from [Draw a plate and a stamp](draw-a-plate.md):
+This writes a page that holds a gel and a plate: the colony PCR from
+[Draw a gel](draw-a-gel.md) and plate picked 1 from [Draw a plate and a stamp](draw-a-plate.md).
+Save their files,
+[`golden-gate-colony-pcr.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/gels/golden-gate-colony-pcr.json)
+and
+[`ap1-picked-1.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/plates/ap1-picked-1.json),
+beside your script.
 
 ```python
+import json
 from pathlib import Path
 
 import molviz
 
+colony_pcr = json.loads(Path("golden-gate-colony-pcr.json").read_text())
+picked = json.loads(Path("ap1-picked-1.json").read_text())
 drawings = [molviz.draw_gel(colony_pcr), molviz.draw_plate(picked)]
 stills = "\n".join(drawing.still_svg() for drawing in drawings)
 page = f"""<!doctype html>
@@ -127,8 +135,12 @@ copy only makes the page larger.
 A page that carries the viewer can make still drawings itself. Each input has a
 [still call](../reference/javascript.md#still-svg): `molviz.stillSvg(record, options)`,
 `molviz.gelStillSvg(gel)`, `molviz.plateStillSvg(plate)` and
-`molviz.figureStillSvg(records, options)`. Each returns an object whose `svg` is the SVG text. Call [`molviz.declareFaces(document)`](../reference/javascript.md#declarefaces) once, to
-add the font rules to the page:
+`molviz.figureStillSvg(records, options)`. Each returns an object whose `svg` is the SVG text.
+Call [`molviz.declareFaces(document)`](../reference/javascript.md#declarefaces) once, to add the
+font rules to the page.
+
+In this code, the variable `gel` holds the colony PCR gel, parsed from
+`golden-gate-colony-pcr.json`. The code draws it into the element whose id is `gel`:
 
 ```js
 const { svg } = molviz.gelStillSvg(gel);
@@ -136,8 +148,16 @@ molviz.declareFaces(document);
 document.getElementById("gel").insertAdjacentHTML("beforeend", svg);
 ```
 
+The element then holds this still drawing:
+
+<div data-molviz="gel" data-still>
+<script type="application/json" data-gel>
+--8<-- "tests/gels/golden-gate-colony-pcr.json"
+</script>
+</div>
+
 Don't call `molviz.svg`, `molviz.gelSvg`, `molviz.plateSvg` or `molviz.figureSvg` in a page.
 They write the [SVG for a file](../reference/javascript.md#file-svg), which needs letter
 outlines that a page doesn't load, so they throw an error.
 
-The [JavaScript API](../reference/javascript.md) lists every name on the global `molviz`.
+The [JavaScript API](../reference/javascript.md) lists every name on the `molviz` object.

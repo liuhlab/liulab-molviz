@@ -235,7 +235,7 @@ Made by hand. Ten different contents, the most that each take a colour of their 
 
 ## eleven-contents
 
-Made by hand. Eleven, so every used well takes one colour and the drawing counts them in place of the legend.
+Made by hand. Eleven, so every used well takes one colour and the legend's one line counts them.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>

@@ -41,7 +41,8 @@ ladder.
 | `bands` | list of integers, each 1 or more, at least one | yes | | The ladder's band sizes in base pairs. |
 
 The drawing marks the ladder's lane `L` and writes the ladder's sizes beside the gel. It leaves
-out a size that would crowd the one above it.
+out the label of a size that would crowd the one above it, and does not count it. It still
+draws that size's band.
 
 ## Lanes
 

@@ -9,11 +9,12 @@ This guide draws plates from AP-1, a project that builds a library of clones on 
 ## Name what each well holds
 
 Write the plate as a Python dict: its rows, its columns, and `wells`, which maps each well's name
-to its contents. A well left out is empty. Rows are lettered from A, and past Z they go on as AA,
-AB and so on. The [plate format](../reference/plate.md) lists every key.
+to its contents. A well left out is empty. Rows are lettered from A, and past Z they take two
+letters, starting with AA and AB. The [plate format](../reference/plate.md) lists every key.
 
-AP-1's plate picked 1 is a 384-well plate filled in quarters. Its quarters interleave: quarter 1
-holds A1, A3 and so on, quarter 2 holds A2, A4 and so on, and quarter 3 holds B1, B3 and so on.
+AP-1's plate picked 1 is a 384-well plate filled in quarters. Each quarter takes every second
+row and every second column. Quarter 1 holds the odd columns of rows A, C, E to O. Quarter 2
+holds the even columns of those rows. Quarter 3 holds the odd columns of rows B, D, F to P.
 Quarter 4 is empty.
 
 ```python

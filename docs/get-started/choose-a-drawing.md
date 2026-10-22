@@ -15,11 +15,13 @@ own question, so start from the question your reader asks.
 | What does each well hold? | a plate | `molviz.draw_plate(plate)` |
 
 Each call takes its input as a Python dict, like the record you type in
-[Draw your first plasmid map](first-map.md), and `draw_figure` takes a list of records. Each
-call returns a drawing, which [`write`](../api.md#molviz.Drawing.write) saves as a page or a
-file. In your own web page, the global `molviz` makes the same drawings with `draw`,
-`drawFigure`, `drawGel` and `drawPlate`, which the
+[the tutorial](first-map.md), and `draw_figure` takes a list of records. Each call returns a
+drawing, which [`write`](../api.md#molviz.Drawing.write) saves as a page or a file. In your own
+web page, the `molviz` object that the viewer script gives the page makes the same drawings
+with `draw`, `drawFigure`, `drawGel` and `drawPlate`, which the
 [JavaScript API](../reference/javascript.md#draw-into-an-element) lists.
+[Pages, files and still drawings](../explanation/outputs.md) says which drawings a reader can
+zoom and switch, and which output suits which use.
 
 The examples below draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. The
 plate comes from AP-1, a project that builds a library of clones on 96-well and 384-well plates.
@@ -99,7 +101,7 @@ length and the strands.
 
 A figure is a still drawing of one record, or of several stacked top to bottom. It goes beside
 a step of a protocol. A figure draws every record with the same options, so stacked records line
-up. Stack a vector before and after a part goes in, for example. This figure shows the Golden
+up, such as a vector before and after a part goes in. This figure shows the Golden
 Gate product. It asks for BbsI, the enzyme of the Golden Gate step. BbsI no longer cuts the
 product, so the figure marks no BbsI site. It also lights both junctions.
 
@@ -130,9 +132,8 @@ read differs from the record it should match. It draws the line and the sequence
 span, with the reads on it. Here, one consensus read covers all of pUC19-GFP. At base 696,
 inside GFP, the record holds A and the read holds G.
 
-A close-up needs no call of its own. Draw the checked record over 30 bases on each side of the
-disagreement, with the sequence view in one row. Light the disagreement and the read, and leave
-the cut sites off.
+A close-up has no call of its own. It is the checked record drawn over a short span, with the
+sequence view in one row.
 
 <div data-molviz data-still>
 <script type="application/json" data-record>
@@ -155,9 +156,10 @@ drawing = molviz.draw(
 drawing.write("696.svg")
 ```
 
-Here `checked` is the record with its reads and disagreements. Write a close-up as an SVG, PNG
-or PDF file, or take its SVG text from `drawing.still_svg()`. In your own page, the global's
-[`stillSvg`](../reference/javascript.md#still-svg) returns the same SVG.
+Here `checked` is the record with its reads and disagreements. A close-up goes into an SVG,
+PNG or PDF file, or into a page as the SVG text from `drawing.still_svg()`. In your own page,
+the [`stillSvg`](../reference/javascript.md#still-svg) call of the `molviz` object returns the
+same SVG.
 [Check a clone against its reads](../how-to/check-a-clone.md) adds the reads and draws a
 close-up of each disagreement.
 
@@ -201,15 +203,3 @@ drawing = molviz.draw_plate(plate)
 `draw_plate` takes no options. molviz draws a stamp, which moves a pattern of wells from one
 plate into another, as two plates: the one it takes from and the one it fills.
 [Draw a plate and a stamp](../how-to/draw-a-plate.md) builds this plate and a stamp from it.
-
-## Live or still
-
-The circle, the line and the sequence view are three views of one record. On a page that
-`write` makes, the viewer draws the record, and a reader can switch views, zoom and select
-bases. A figure, a close-up, a gel and a plate are still drawings. The viewer draws each one
-once, and a reader can't zoom it or switch its view, so it fits a report or a protocol. `write`
-also saves every drawing as an SVG, PNG or PDF file.
-
-[Export SVG, PNG and PDF](../how-to/export.md) writes the files, and
-[Put drawings in your own page](../how-to/your-own-page.md) puts live and still drawings in a
-page you build. [Pages, files and still drawings](../explanation/outputs.md) compares them.

@@ -1,9 +1,10 @@
 # How a drawing stays readable
 
-A plasmid map can hold more than fits on it: a dozen features, as many primers, and a cut site
-for every enzyme that cuts. molviz never lets two labels overlap, and it never leaves a label
-out without saying so. This page gives the rules a drawing keeps, so that you know what to
-trust in it and how to tell what it left out.
+A map can hold more than fits on it: a dozen features, as many primers, and a cut site for
+every enzyme that cuts. molviz never lets two labels overlap. A map never leaves a label out
+without saying so, and the sequence view leaves none out. A gel is the one exception, because
+it may leave out a ladder size's label without counting it. This page gives the rules a drawing
+keeps, so that you know what to trust in it and how to tell what it left out.
 
 ## No label overlaps another
 
@@ -39,6 +40,14 @@ The sequence view hides no label at all.
 On a page, a hidden label can come back. Zoom in, and the map is laid out larger. Switch off a
 kind you don't need, and its room goes to the rest. The notice counts again each time. A file
 is laid out once, at its own size, so what it hides stays hidden, and `hidden` lists it.
+
+## A gel leaves out a crowded size
+
+A gel writes each ladder size beside the gel, at the height where its band runs. Two sizes can
+run closer than a line of text. Then the gel leaves out the smaller size's label, and it does
+not count it, so the drawing's `hidden` stays empty. The gel still draws the band, and on a
+page, resting the pointer on the band shows its size. A sample lane's bands and the legend's
+lines never hide.
 
 ## A highlight moves nothing
 

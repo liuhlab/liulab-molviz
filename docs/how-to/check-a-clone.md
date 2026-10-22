@@ -54,8 +54,9 @@ Give a disagreement its place in one of two ways:
   bases the reads add.
 
 The name and the colour are yours. molviz writes the name as you give it, so `696 A>G` counts
-from 1, as a reader does. Here red marks a change in a region that fails, and grey marks one
-outside every region checked. A disagreement with no colour is grey.
+from 1, as a reader does. Here the code checks some regions of the plasmid, such as GFP, and a
+region fails when a read disagrees inside it. Red marks a change in a region that fails, and
+grey marks one outside every region checked. A disagreement with no colour is grey.
 
 [`molviz.check`](../api.md#molviz.check) raises `ValueError` if the record breaks the format,
 such as a disagreement that names a read the record doesn't hold. The record format lists every
@@ -80,8 +81,8 @@ molviz.draw(record, kinds_off=["cuts"], highlight=lit).write("verification.html"
 </script>
 </div>
 
-The read is the ring just outside the backbone. Each disagreement is a bar among the features,
-in its own colour.
+The read is the ring just outside the double line that stands for the plasmid's two strands.
+Each disagreement is a bar among the features, in its own colour.
 
 ## Draw a close-up of each disagreement
 
@@ -131,12 +132,9 @@ SVG text. [Put drawings in your own page](your-own-page.md) shows how.
 ## Add a trace
 
 A Sanger read's trace is a track. Your code reads it from the sequencer's `.ab1` file and adds
-it to the record's [`tracks`](../reference/record.md#tracks). A track holds:
-
-- `name`, the track's name.
-- `curves`, four lists of numbers, one for each of `A`, `C`, `G` and `T`, all the same length.
-- `peaks`, pairs of a sample and a base, with the base counted from 0. Each pair ties one sample
-  of the curves to the base it was read as. The samples rise from one pair to the next.
+it to the record's `tracks`. A track holds a curve for each of A, C, G and T, all measured at
+the same points, called samples. Its peaks tie a sample to the base it was read as. The record
+format's [tracks](../reference/record.md#tracks) give each key.
 
 pUC19-GFP's consensus read has no trace, so this step draws
 [`trace-3730.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/trace-3730.json). It holds 120 bases from one Sanger read, with one

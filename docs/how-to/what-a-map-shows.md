@@ -1,10 +1,10 @@
 # Choose what a map shows
 
-A map draws all that a record holds: its features, its primers, the cut sites of each enzyme
-that cuts it once, and its insertions, reads, disagreements and traces. This guide leaves out
-what your reader doesn't need, picks the enzymes, draws a stretch of the record, and lights the
-names that matter. Each option sets what the drawing starts with. On a page, the reader can
-still change it with the switches above the map.
+A map draws its record's features and primers, the cut sites of each enzyme that cuts it
+once, and its insertions, reads and disagreements. A track's curves show only in the sequence
+view. This guide leaves out what your reader doesn't need, picks the enzymes, draws a stretch
+of the record, and lights the names that matter. Each option sets what the drawing starts
+with. On a page, the reader can still change it with the switches above the map.
 
 The examples draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. Save
 its record, [`puc19-gfp-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json), beside your script, and load
@@ -63,7 +63,7 @@ molviz.draw(record, types_off=["primer_bind", "misc_feature"]).write("fewer-feat
 `types_off` starts as `["source"]`, and your list replaces it. If the record has a `source`
 feature that you want left out, name `source` in your list too.
 
-## Choose the enzymes
+## Name the enzymes to draw
 
 A map draws the cut sites of each enzyme that cuts the record once. To draw other enzymes, name
 them in `enzymes`. BsaI cuts pUC19-GFP twice, so its sites are left out until you name it:
@@ -164,12 +164,14 @@ An enzyme lights every site it cuts. A name matches in any case. If a name match
 the record, `draw` raises `ValueError` with the message
 `options.highlight[0]: names nothing in the record`.
 
-## Read the labels that are hidden
+## Find the hidden labels
 
 Where labels would overlap, a drawing hides some of them and counts them in a notice at the
-bottom right of the map. Labels hide when you ask for more than fits. AP-1's product,
-[`ap1-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/ap1-product.json), holds cuts for 14 enzymes. Drawn on the circle
-with all of them, some of its cut-site labels hide:
+bottom right of the map. Labels hide when you ask for more than fits. pUC19-GFP hides nothing,
+even with every enzyme, so this step draws AP-1's product,
+[`ap1-product.json`](https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/ap1-product.json),
+which holds cuts for 14 enzymes. Drawn on the circle with all of them, some of its cut-site
+labels hide:
 
 ```python
 ap1 = json.loads(Path("ap1-product.json").read_text())
@@ -193,9 +195,8 @@ It prints:
 ```
 
 The drawing's [`notice`](../api.md#molviz.Drawing) is the sentence that the drawing shows, and
-it is empty when nothing hides. `hidden` lists each label left out by its `kind` and its `name`. A cut site, an insertion, or a
-disagreement at a point gives its place as `at`, the count of bases before it. Anything else
-gives its place as `spans`, a list of `start` and `end` pairs. Both count as the record does.
+`hidden` lists each hidden label in the shape that
+[Hidden labels](../reference/javascript.md#hidden-labels) gives.
 
 On a page, rest the pointer on the notice to list the hidden labels. The page lays the labels
 out again each time the reader turns the circle or flips a switch, so the count can change:

@@ -54,7 +54,7 @@ legend under the gel names each lane and its sizes. Rest the pointer on a band t
 The gel spans the sizes it holds. Its largest band sits at the top and its smallest near the
 foot, spaced by the [logarithm of their size](../reference/gel.md#where-a-band-runs), as a
 real gel runs them. If a ladder size's label would crowd the one above it, molviz leaves the
-label off but still draws the band.
+label off without counting it, but still draws the band.
 
 `draw_gel` takes no options. molviz draws a gel the same in a file and on a page.
 
@@ -66,7 +66,24 @@ If you expect no band in a lane, such as a water control, give the lane an empty
 colony_pcr["lanes"].append({"name": "Water", "bands": []})
 ```
 
-Its line in the legend reads "no band".
+The gel now has a third lane, and its line in the legend reads "no band":
+
+<div data-molviz="gel">
+<script type="application/json" data-gel>
+{
+  "title": "Colony PCR",
+  "ladder": {
+    "name": "NEB 100 bp DNA Ladder (N3231)",
+    "bands": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1517]
+  },
+  "lanes": [
+    {"name": "Correct clone", "bands": [160, 838]},
+    {"name": "Empty vector", "bands": [177]},
+    {"name": "Water", "bands": []}
+  ]
+}
+</script>
+</div>
 
 ## Check a gel before you draw it
 
