@@ -522,17 +522,17 @@ describe("the still SVG of a record with its sequence view", () => {
 	});
 });
 
-test("the record hides labels, so the notice is drawn", () => {
+test("a still SVG of a record that hides labels draws the notice", () => {
 	expect(stillSvg(ap1, every).notice).not.toBe("");
 });
 
-test("the circle sets a name along an arc as real text, a letter at a place", () => {
+test("a still SVG of the circle sets a name along an arc as real text, a letter at a place", () => {
 	const { svg: written } = stillSvg(puc19);
 	expect(written).toMatch(/<text [^>]*rotate="[^"]*"[^>]*>[^<]+<\/text>/);
 	expect(written).not.toContain("<use ");
 });
 
-test("draws with no page to draw in", () => {
+test("a still SVG draws with no page to draw in", () => {
 	expect(typeof document).toBe("undefined");
 	expect(gelStillSvg(goldenGate).svg).toMatch(/^<svg /);
 });
@@ -565,11 +565,14 @@ test.each([
 		call: () => plateStillSvg({ rows: 2, columns: 3, wells: { C1: "water" } }),
 		problem: "wells.C1: not on the plate, which runs A1 to B3",
 	},
-])("throws the input's FormatError: $problem", ({ call, problem }) => {
-	expect(call).toThrow(new FormatError(problem));
-});
+])(
+	"a still call throws the input's FormatError: $problem",
+	({ call, problem }) => {
+		expect(call).toThrow(new FormatError(problem));
+	},
+);
 
-test("writes a name that holds markup as text, in a label and in a hover", () => {
+test("a still SVG writes a name that holds markup as text, in a label and in a hover", () => {
 	const name = "</svg><script>&";
 	const written = [
 		gelStillSvg({
