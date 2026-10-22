@@ -58,7 +58,8 @@ from 1, as a reader does. Here red marks a change in a region that fails, and gr
 outside every region checked. A disagreement with no colour is grey.
 
 `molviz.check` raises `ValueError` if the record breaks the format, such as a disagreement that
-names a read the record doesn't hold.
+names a read the record doesn't hold. [The record format](../reference/record.md#reads) lists
+every key of a read and a disagreement.
 
 ## Draw the map
 

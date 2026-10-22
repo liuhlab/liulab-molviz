@@ -27,7 +27,8 @@ product = load("puc19-gfp-product")
 
 Each step shows its code, then the figure that code makes, drawn here from the same records and
 options. A figure takes the options that `draw` takes, which
-[the options table](../api.md#options) lists.
+[the options table](../api.md#options) lists. [The figure format](../reference/figure.md) says
+what a figure holds.
 
 ## Draw one record
 

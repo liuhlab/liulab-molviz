@@ -138,7 +138,8 @@ molviz.draw(record, span={"start": 3100, "end": 3500}).write("origin-span.html")
 </div>
 
 A span runs at most once round the record. The circle draws a record whole, so `map="circle"`
-with a shorter span is an error.
+with a shorter span is an error. [Coordinates](../reference/record.md#coordinates) in the record
+format gives the rules for counting bases.
 
 ## Light the names that matter
 
