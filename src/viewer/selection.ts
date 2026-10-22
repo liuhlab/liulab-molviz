@@ -1,17 +1,12 @@
 /** What a page has selected, as data: from a click on an item or a drag, and what it says. */
 
 import { folded } from "./format";
-import type { Hidden } from "./labels";
+import { type Hidden, type ItemKey, itemKey } from "./labels";
 import { hulls, pointText, spansText, turns } from "./pieces";
 import { type Bounds, type Record, recordBounds, type Span } from "./record";
 
 /** An item a reader may select, as its label lists it once it hides. */
 export type Item = Hidden;
-
-declare const KEY: unique symbol;
-
-/** The key an item is known by in every view: the item as text, as `itemKey` writes it. */
-export type ItemKey = string & { readonly [KEY]: true };
 
 /** The kinds of item over spans, and at a point. */
 const OVER_SPANS = new Set(["features", "primers", "reads", "disagreements"]);
@@ -42,20 +37,6 @@ function isItem(read: unknown): read is Item {
 export type Selection =
 	| { readonly spans: readonly Span[]; readonly item: ItemKey | null }
 	| { readonly at: number; readonly item: ItemKey };
-
-/** The key `item` is known by in every view. */
-export function itemKey(item: Item): ItemKey {
-	const { kind, name } = item;
-	return JSON.stringify(
-		"at" in item
-			? { kind, name, at: item.at }
-			: {
-					kind,
-					name,
-					spans: item.spans.map(({ start, end }) => ({ start, end })),
-				},
-	) as ItemKey;
-}
 
 /** The item `key` names; throws if it names none. */
 function itemOf(key: string): Item {

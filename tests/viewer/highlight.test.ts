@@ -1,10 +1,9 @@
 /// <reference types="vite/client" />
 import { describe, expect, test } from "vitest";
-import type { MapScene } from "../../src/viewer/labels";
 import { layoutLine } from "../../src/viewer/line";
 import { answersTo, checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
-import type { Shape } from "../../src/viewer/scene";
+import type { MapScene, Shape } from "../../src/viewer/scene";
 
 const records = import.meta.glob("../records/*.json", {
 	eager: true,

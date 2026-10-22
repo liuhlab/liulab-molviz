@@ -4,6 +4,7 @@ import { cutSites } from "../../src/viewer/cuts";
 import {
 	disagreementLabel,
 	insertionLabel,
+	itemKey,
 	type Label,
 	primerLabel,
 	readLabel,
@@ -17,7 +18,6 @@ import {
 	dragFrom,
 	dragged,
 	dragTo,
-	itemKey,
 	itemSelection,
 	turnTo,
 } from "../../src/viewer/selection";

@@ -27,7 +27,6 @@ import {
 	itemShapes,
 	LABEL_SIZE,
 	type Label,
-	type MapScene,
 	PAD_Y,
 	SMALL_SIZE,
 } from "./labels";
@@ -53,7 +52,7 @@ import type { Options } from "./options";
 import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "./paint";
 import { pieces, points, spanText } from "./pieces";
 import { type Bounds, type Record, recordBounds, type Span } from "./record";
-import type { Box, Shape } from "./scene";
+import type { Box, MapScene, Shape } from "./scene";
 import { shownBars, shownCuts, shownMarks, shownSites } from "./shown";
 import { type Anchored, labelsAbove } from "./staircase";
 import { baseline, height, measure } from "./text";

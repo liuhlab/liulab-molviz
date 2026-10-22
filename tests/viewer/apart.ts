@@ -2,6 +2,8 @@
 
 import { describe, expect, test } from "vitest";
 import { boxOf } from "../../src/viewer/bounds";
+import { LABEL_SIZE, PAD_X, PAD_Y } from "../../src/viewer/labels";
+import { LEADER, LEADER_WIDTH } from "../../src/viewer/paint";
 import { check, type Record } from "../../src/viewer/record";
 import type { Box, Scene, Shape } from "../../src/viewer/scene";
 import { baseline, height, measure } from "../../src/viewer/text";
@@ -23,8 +25,8 @@ export interface LabelOnLeader {
 function isLeader(shape: Shape): shape is Line {
 	return (
 		shape.shape === "line" &&
-		shape.stroke === "#7f7f7f" &&
-		shape.strokeWidth === 0.8
+		shape.stroke === LEADER &&
+		shape.strokeWidth === LEADER_WIDTH
 	);
 }
 
@@ -34,7 +36,7 @@ export function leaders(scene: Scene): Line[] {
 }
 
 function isLabelText(shape: Shape): shape is Text {
-	return shape.shape === "text" && shape.size === 11.5 && !shape.rotate;
+	return shape.shape === "text" && shape.size === LABEL_SIZE && !shape.rotate;
 }
 
 /** Each label on a leader as the shapes that draw it: its leader's lines, then its box or text. */
@@ -69,13 +71,13 @@ function labelBox(parts: readonly (Rect | Text)[]): Box {
 	const [first] = parts;
 	if (first.shape === "rect") return first;
 	const last = parts[parts.length - 1] as Text;
-	const tall = height("sans", 11.5) + 2;
-	const x = first.x - 3;
-	const middle = first.y - baseline("sans", 11.5, 0);
+	const tall = height("sans", LABEL_SIZE) + 2 * PAD_Y;
+	const x = first.x - PAD_X;
+	const middle = first.y - baseline("sans", LABEL_SIZE, 0);
 	return {
 		x,
 		y: middle - tall / 2,
-		width: last.x + measure(last.text, last.face, 11.5) + 3 - x,
+		width: last.x + measure(last.text, last.face, LABEL_SIZE) + PAD_X - x,
 		height: tall,
 	};
 }

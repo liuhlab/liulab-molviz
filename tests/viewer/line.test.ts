@@ -1,10 +1,14 @@
 import { describe, expect, test } from "vitest";
-import type { MapScene } from "../../src/viewer/labels";
 import { layoutLine } from "../../src/viewer/line";
 import { WIDTH } from "../../src/viewer/map";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
-import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
+import {
+	leftEdge,
+	type MapScene,
+	type Scene,
+	type Shape,
+} from "../../src/viewer/scene";
 import { measure, metrics } from "../../src/viewer/text";
 import colourTestFile from "../records/colour-test.json";
 import backboneFile from "../records/puc19-backbone-amplicon.json";

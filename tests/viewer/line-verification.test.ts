@@ -1,9 +1,8 @@
 import { describe, expect, test } from "vitest";
-import type { MapScene } from "../../src/viewer/labels";
 import { layoutLine } from "../../src/viewer/line";
 import { checkOptions } from "../../src/viewer/options";
 import { check } from "../../src/viewer/record";
-import type { Scene, Shape } from "../../src/viewer/scene";
+import type { MapScene, Scene, Shape } from "../../src/viewer/scene";
 import { measure } from "../../src/viewer/text";
 import verifiedFile from "../records/puc19-gfp-verification.json";
 

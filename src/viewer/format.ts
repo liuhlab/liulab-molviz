@@ -151,3 +151,29 @@ export function parse<S extends v.GenericSchema>(
 ): v.InferOutput<S> {
 	return orThrow(parsed(schema, input, naming));
 }
+
+/** A key to a part of a value: an object's key or a list's index. */
+export type Key = string | number;
+
+/** A problem a `rule` finds: the keys to the part it concerns, and the message. */
+export type RuleProblem = readonly [keys: readonly Key[], message: string];
+
+/**
+ * A rule across the parts of a well-formed value, which reports each problem at the part it
+ * concerns.
+ */
+export function rule<T>(find: (value: T) => Iterable<RuleProblem>) {
+	return v.rawCheck<T>(({ dataset, addIssue }) => {
+		if (!dataset.typed) return;
+		for (const [keys, message] of find(dataset.value)) {
+			const path: v.UnknownPathItem[] = [];
+			let input: unknown = dataset.value;
+			for (const key of keys) {
+				const value = (input as { [key: Key]: unknown })[key];
+				path.push({ type: "unknown", origin: "value", input, key, value });
+				input = value;
+			}
+			addIssue({ message, path: path as [v.UnknownPathItem] });
+		}
+	});
+}

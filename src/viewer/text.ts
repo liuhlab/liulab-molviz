@@ -9,8 +9,6 @@ import sansUrl from "./fonts/sans.woff2?inline";
 import sansBoldUrl from "./fonts/sans-bold.woff2?inline";
 import { twoDecimals } from "./scene";
 
-export type { Face } from "./faces";
-
 /** The family a page declares each face under. No installed font has one, so none stands in. */
 export const families: Record<Face, string> = {
 	sans: "molviz Sans",

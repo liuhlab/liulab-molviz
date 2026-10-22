@@ -24,7 +24,6 @@ import {
 	type Label,
 	labelShapes,
 	labelSize,
-	type MapScene,
 	PAD_X,
 	PAD_Y,
 	SMALL_SIZE,
@@ -64,7 +63,7 @@ import {
 } from "./paint";
 import { hull } from "./pieces";
 import type { Record, Span } from "./record";
-import type { Box, PathCommand, Shape } from "./scene";
+import type { Box, MapScene, PathCommand, Shape } from "./scene";
 import {
 	type Aligned,
 	type Mark,

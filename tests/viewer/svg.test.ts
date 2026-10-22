@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
 import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
-import { units } from "../../src/viewer/faces";
+import { type Face, units } from "../../src/viewer/faces";
+import { itemKey } from "../../src/viewer/labels";
 import type { Scene, Shape } from "../../src/viewer/scene";
-import { itemKey } from "../../src/viewer/selection";
 import { toElement, toStill, toSvg } from "../../src/viewer/svg";
-import { type Face, glyphs, measure, outlineOf } from "../../src/viewer/text";
+import { glyphs, measure, outlineOf } from "../../src/viewer/text";
 
 const scene: Scene = {
 	extent: { x: -16, y: -30.5, width: 752, height: 120.25 },
