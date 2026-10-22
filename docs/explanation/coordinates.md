@@ -4,7 +4,8 @@ A record counts its bases from 0, and a span `{start, end}` holds the bases from
 `end`, but not the base at `end`. A reader never sees these numbers. Every label and every hover
 counts from 1 and includes both ends, as SnapGene and GenBank do. molviz writes them that way.
 This page explains why the record counts one way and the drawing another, and how a span
-crosses the origin of a circular record.
+crosses the origin of a circular record. The [record format](../reference/record.md#coordinates)
+states each rule in full.
 
 ## A span counts from 0 and stops before its end
 

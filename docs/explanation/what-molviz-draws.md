@@ -17,7 +17,8 @@ A record holds the bases and every item drawn on them, each one already worked o
 - Reads, the places where a read disagrees with the record, and a Sanger trace's curves come
   from your sequencing analysis.
 
-molviz draws each item where the record puts it. It does not look for more.
+molviz draws each item where the record puts it. It does not look for more. The
+[record format](../reference/record.md) lists every key a record can hold.
 
 ## See it on a small record
 
@@ -95,7 +96,9 @@ it, even if the codons say otherwise.
 A gel takes the size of each band in each lane. molviz does not digest a record or run a PCR to
 find them. Your code works out the sizes, and molviz draws where each size runs on the gel. A
 plate takes what each well holds, as text. A stamp, which moves wells from one plate into
-another, is two plates you build: the one it takes from and the one it fills.
+another, is two plates you build: the one it takes from and the one it fills. The
+[gel format](../reference/gel.md) and the [plate format](../reference/plate.md) list what each
+holds.
 
 ## One check, in Python and in the browser
 

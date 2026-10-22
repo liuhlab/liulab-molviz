@@ -58,7 +58,9 @@ font rules serves every still drawing on the page.
 `still_svg()` returns a drawing in this form. It suits a page that holds many drawings, such as
 a protocol with a figure beside each step. Each drawing adds only its own SVG to the page, and the
 page carries no viewer. To draw a record live in your own page instead, put the viewer's script,
-which `molviz.viewer_script()` returns, into the page and call the viewer's draw function.
+which `molviz.viewer_script()` returns, into the page and call the viewer's draw function. The
+[JavaScript API](../reference/javascript.md) lists the viewer's calls, its still ones
+included.
 
 The first map below is live: try its switches. The second is the same record as a still
 drawing.

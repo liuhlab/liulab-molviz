@@ -20,7 +20,12 @@ site_description: "Draws DNA sequences and plasmids in the browser, from data a 
 nav:
   - Home: index.md
   - Reference:
+      - Record format: reference/record.md
+      - Gel format: reference/gel.md
+      - Plate format: reference/plate.md
+      - Figure format: reference/figure.md
       - Python API: api.md
+      - JavaScript API: reference/javascript.md
   - Explanation:
       - What molviz draws and what you hand it: explanation/what-molviz-draws.md
       - How a drawing stays readable: explanation/readable.md

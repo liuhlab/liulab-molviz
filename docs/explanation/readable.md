@@ -72,7 +72,8 @@ lit. Every arrow and label stays in place.
 
 A feature takes its colour from its type. Coding sequences are blue, promoters and other
 regulatory parts orange, terminators pink and origins yellow. Other groups of types have colours
-of their own, and a type in no group is light grey. The colours come from Paul Tol's light
+of their own, and a type in no group is light grey. The
+[record format](../reference/record.md#colours-by-type) lists the types in each group. The colours come from Paul Tol's light
 scheme. It is made so that readers with colour blindness can tell its colours apart, and so that
 black text reads on each of them.
 
