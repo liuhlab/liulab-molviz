@@ -22,8 +22,20 @@ nav:
   - Get started:
       - Draw your first plasmid map: get-started/first-map.md
       - Choose a drawing: get-started/choose-a-drawing.md
+  - How-to guides:
+      - Gels and plates:
+          - Draw a gel: how-to/draw-a-gel.md
+          - Draw a plate and a stamp: how-to/draw-a-plate.md
+      - Output:
+          - Export SVG, PNG and PDF: how-to/export.md
+          - Put drawings in your own page: how-to/your-own-page.md
   - Reference:
+      - Record format: reference/record.md
+      - Gel format: reference/gel.md
+      - Plate format: reference/plate.md
+      - Figure format: reference/figure.md
       - Python API: api.md
+      - JavaScript API: reference/javascript.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not
 # taken from what a strict mkdocs build used to do:
