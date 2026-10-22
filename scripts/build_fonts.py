@@ -57,9 +57,9 @@ def subset_to(font: Any, unicodes: list[int], options: Any) -> None:
 
 
 def main() -> None:
-    """Write each subset into ``src/viewer/fonts/`` as TTF and WOFF2, replacing what is there."""
+    """Write each subset into ``src/viewer/text/fonts/`` as TTF and WOFF2, replacing what is there."""
     source = Path(sys.prefix) / "fonts"
-    target = Path(__file__).resolve().parents[1] / "src" / "viewer" / "fonts"
+    target = Path(__file__).resolve().parents[1] / "src" / "viewer" / "text" / "fonts"
     for name, face in FACES.items():
         options = subset_options()
         font = subset.load_font(source / name, options)

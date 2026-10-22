@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import type { FormatError } from "../../src/viewer/format";
+import type { FormatError } from "../../src/viewer/format/format";
 import { checkGel, layoutGel } from "../../src/viewer/gel";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
-import { measure } from "../../src/viewer/text";
+import { measure } from "../../src/viewer/text/text";
 import longNames from "../gels/long-names.json";
 import oneSize from "../gels/one-size.json";
 import pcrTest from "../gels/pcr-test-expected-bands.json";

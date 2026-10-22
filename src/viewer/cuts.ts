@@ -1,10 +1,10 @@
 /** A record's cuts: counted per enzyme over the whole record, and merged into cut sites. */
 
-import type { Face } from "./faces";
-import { folded } from "./format";
+import { folded } from "./format/format";
+import type { Record } from "./format/record";
 import { type Label, labelOf, type Run, tipOf } from "./labels";
 import { ENZYME } from "./paint";
-import type { Record } from "./record";
+import type { Face } from "./text/faces";
 
 /** How many times each enzyme cuts `record`, in the order the cuts first name them. */
 export function cutCounts(record: Record): Map<string, number> {

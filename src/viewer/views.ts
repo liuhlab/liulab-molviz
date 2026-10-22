@@ -1,13 +1,13 @@
 /** A record laid out as its views: the map, and the sequence view under it if the options draw one. */
 
-import { type CircleScene, layoutCircle } from "./circle";
 import { type Input, rowPages, stacked, type Where } from "./drawing";
-import { type LineScene, layoutLine } from "./line";
-import { WIDTH } from "./map";
-import { checkOptions, type Options } from "./options";
-import { check, type Record } from "./record";
+import { checkOptions, type Options } from "./format/options";
+import { check, type Record } from "./format/record";
+import { type CircleScene, layoutCircle } from "./map/circle";
+import { type LineScene, layoutLine } from "./map/line";
+import { WIDTH } from "./map/map";
 import type { MapScene } from "./scene";
-import { layoutSequence, type SequenceScene } from "./sequence";
+import { layoutSequence, type SequenceScene } from "./sequence/view";
 
 /** A record laid out: its map, and its sequence view if the options draw one. */
 export interface Views {

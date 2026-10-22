@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { layoutCircle } from "../../src/viewer/circle";
-import { layoutLine } from "../../src/viewer/line";
-import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
+import { checkOptions } from "../../src/viewer/format/options";
+import { check } from "../../src/viewer/format/record";
+import { layoutCircle } from "../../src/viewer/map/circle";
+import { layoutLine } from "../../src/viewer/map/line";
 import { prepare } from "../../src/viewer/views";
 
 const good = { name: "p", circular: false, bases: "ACGT".repeat(25) };

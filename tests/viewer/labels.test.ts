@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { check } from "../../src/viewer/format/record";
 import {
 	disagreementLabel,
 	type Hidden,
@@ -11,9 +12,8 @@ import {
 	noticeShapes,
 	readLabel,
 } from "../../src/viewer/labels";
-import { check } from "../../src/viewer/record";
 import { leftEdge, type Shape } from "../../src/viewer/scene";
-import { measure, metrics } from "../../src/viewer/text";
+import { measure, metrics } from "../../src/viewer/text/text";
 import { prepare, prepareViews } from "../../src/viewer/views";
 import backbone from "../records/puc19-backbone-amplicon.json";
 

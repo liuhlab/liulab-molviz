@@ -1,5 +1,7 @@
 /** Labels set above the line in a staircase, each on a leader down to what it names. */
 
+import type { Options } from "./format/options";
+import type { Bounds, Record } from "./format/record";
 import {
 	GAP,
 	hidingOrder,
@@ -9,9 +11,7 @@ import {
 	labelSize,
 	SPACING,
 } from "./labels";
-import type { Options } from "./options";
 import { LEADER, LEADER_WIDTH } from "./paint";
-import type { Bounds, Record } from "./record";
 import type { Box, Shape } from "./scene";
 
 /** How far above the line a box may reach, at any length of line, unless told otherwise. */

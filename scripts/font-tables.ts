@@ -12,7 +12,7 @@ import {
 } from "opentype.js/dist/opentype.mjs";
 import type { Plugin } from "vite";
 
-const FOLDER = "src/viewer/fonts";
+const FOLDER = "src/viewer/text/fonts";
 
 const FONTS = "virtual:molviz-fonts";
 const OUTLINES = "virtual:molviz-outlines";

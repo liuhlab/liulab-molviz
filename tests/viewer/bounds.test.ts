@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { boxOf } from "../../src/viewer/bounds";
 import type { Box } from "../../src/viewer/scene";
-import { measure, metrics } from "../../src/viewer/text";
+import { measure, metrics } from "../../src/viewer/text/text";
 
 function near(box: Box | null, expected: Box): void {
 	expect(box).not.toBeNull();

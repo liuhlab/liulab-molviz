@@ -2,11 +2,11 @@
 
 import { describe, expect, test } from "vitest";
 import { boxOf } from "../../src/viewer/bounds";
+import { check, type Record } from "../../src/viewer/format/record";
 import { LABEL_SIZE, PAD_X, PAD_Y } from "../../src/viewer/labels";
 import { LEADER, LEADER_WIDTH } from "../../src/viewer/paint";
-import { check, type Record } from "../../src/viewer/record";
 import type { Box, Scene, Shape } from "../../src/viewer/scene";
-import { baseline, height, measure } from "../../src/viewer/text";
+import { baseline, height, measure } from "../../src/viewer/text/text";
 import { enzymeChoices, type RecordFile } from "./records";
 import { crosses, overlap, segment, TOUCH } from "./round";
 

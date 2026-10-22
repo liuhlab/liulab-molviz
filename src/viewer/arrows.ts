@@ -1,5 +1,12 @@
 /** Arrows along a line or a row, and a feature's bars of them: tiers, outlines and names. */
 
+import type { Options } from "./format/options";
+import {
+	type Feature,
+	type Record,
+	recordBounds,
+	type Span,
+} from "./format/record";
 import {
 	disagreementLabel,
 	LABEL_SIZE,
@@ -9,7 +16,6 @@ import {
 	PAD_Y,
 	tipOf,
 } from "./labels";
-import type { Options } from "./options";
 import {
 	CONNECTOR,
 	CONNECTOR_WIDTH,
@@ -21,9 +27,8 @@ import {
 	textColor,
 } from "./paint";
 import { type Piece, spansText } from "./pieces";
-import { type Feature, type Record, recordBounds, type Span } from "./record";
 import type { Shape } from "./scene";
-import { baseline, height, measure } from "./text";
+import { baseline, height, measure } from "./text/text";
 
 // A feature's arrow: the shaft's thickness, how far a head reaches beyond the shaft, the least room
 // between two bars in a tier, and between tiers.

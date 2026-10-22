@@ -1,16 +1,16 @@
 /** An input drawn live into an element of a page. */
 
-import { addCaption } from "./caption";
 import type { Layout } from "./drawing";
-import { type Frame, openFrame } from "./frame";
-import { addLinks } from "./link";
-import { checkOptions, type Options } from "./options";
-import { check, type Record } from "./record";
+import { checkOptions, type Options } from "./format/options";
+import { check, type Record } from "./format/record";
+import { addCaption } from "./page/caption";
+import { type Frame, openFrame } from "./page/frame";
+import { addLinks } from "./page/link";
+import { switches } from "./page/switches";
+import { addTurn } from "./page/turn";
+import { addZoom } from "./page/zoom";
 import { toElement } from "./svg";
-import { switches } from "./switches";
-import { fontFaceCss } from "./text";
-import { addTurn } from "./turn";
-import { addZoom } from "./zoom";
+import { fontFaceCss } from "./text/text";
 
 /** The style element declaring the viewer's faces, shared by every drawing on a page. */
 const FONTS = "molviz-fonts";

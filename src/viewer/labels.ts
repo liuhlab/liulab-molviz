@@ -1,7 +1,13 @@
 /** A map's labels, the key of the item each names, the order they hide in, and their notice. */
 
-import type { Face } from "./faces";
-import type { Kind } from "./options";
+import type { Kind } from "./format/options";
+import type {
+	Bounds,
+	Disagreement,
+	Insertion,
+	Read,
+	Span,
+} from "./format/record";
 import {
 	DISAGREEMENT,
 	INK,
@@ -15,9 +21,9 @@ import {
 	unlit,
 } from "./paint";
 import { pointText, spanText } from "./pieces";
-import type { Bounds, Disagreement, Insertion, Read, Span } from "./record";
 import type { Box, Shape } from "./scene";
-import { baseline, height, measure } from "./text";
+import type { Face } from "./text/faces";
+import { baseline, height, measure } from "./text/text";
 
 /** A label's size of text, and the small text of a map's ruler, title and notice. */
 export const LABEL_SIZE = 11.5;
