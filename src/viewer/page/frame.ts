@@ -228,12 +228,14 @@ export function fieldset(
 
 /**
  * Draw `record` as `options` say into a frame added at the end of `element`, its bar empty for
- * the controls.
+ * the controls. With `fit`, the sequence view's rows fit its room rather than holding
+ * `options.bases_per_row`, which a print still holds.
  */
 export function openFrame(
 	element: Element,
 	record: Record,
 	options: Options,
+	fit = false,
 ): Frame {
 	const document = element.ownerDocument;
 	declareStyle(document);
@@ -257,7 +259,7 @@ export function openFrame(
 		maps: { circle: opening(), line: opening() },
 		selection: null,
 	};
-	const pane = openPane(root, record, () => state.options);
+	const pane = openPane(root, record, () => state.options, fit);
 	root.append(pane.element);
 	const listeners: (() => void)[] = [];
 	const changed = () => {

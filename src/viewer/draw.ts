@@ -1,7 +1,7 @@
 /** An input drawn live into an element of a page. */
 
 import type { Layout } from "./drawing";
-import { checkOptions, type Options } from "./format/options";
+import { checkOptions, type Options, rowsLeftOut } from "./format/options";
 import { check, type Record } from "./format/record";
 import { addCaption } from "./page/caption";
 import { type Frame, openFrame } from "./page/frame";
@@ -23,9 +23,9 @@ export interface LiveDrawing {
 
 /**
  * Draw `record` with `options` into `element`, after what it holds, its letters as real text: a
- * bar of controls, the map, and the sequence view under it. A span past the sequence view's limit
- * leaves the view out. Throws one FormatError naming every problem in the record, or else in the
- * options.
+ * bar of controls, the map, and the sequence view beside or under it, its rows fitting the room
+ * unless the options give their length. A span past the sequence view's limit leaves the view
+ * out. Throws one FormatError naming every problem in the record, or else in the options.
  */
 export function drawRecord(
 	element: Element,
@@ -35,19 +35,22 @@ export function drawRecord(
 	const checked = check(record);
 	const checkedOptions = checkOptions(options, checked, { page: true });
 	declareFaces(element.ownerDocument);
-	return { destroy: openRecord(element, checked, checkedOptions).destroy };
+	const fit = rowsLeftOut(options);
+	return { destroy: openRecord(element, checked, checkedOptions, fit).destroy };
 }
 
 /**
  * Open `record` with `options` in a frame added at the end of `element`, with its controls: the
- * switches, the zoom and the turn, its views linked, and the caption of their selection.
+ * switches, the zoom and the turn, its views linked, and the caption of their selection. With
+ * `fit`, the sequence view's rows fit the room.
  */
 export function openRecord(
 	element: Element,
 	record: Record,
 	options: Options,
+	fit = false,
 ): Frame {
-	const frame = openFrame(element, record, options);
+	const frame = openFrame(element, record, options, fit);
 	switches(frame);
 	addZoom(frame);
 	addTurn(frame);

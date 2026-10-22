@@ -161,6 +161,13 @@ export function parsedOptions(
 	});
 }
 
+/** Whether `input`, as options are given, leaves `bases_per_row` out, for a page to fit. */
+export function rowsLeftOut(input: unknown): boolean {
+	return (
+		(input as { bases_per_row?: unknown } | null)?.bases_per_row === undefined
+	);
+}
+
 /**
  * The names a highlight may give for `record`, each `folded`: its features', primers',
  * insertions', reads', disagreements' and tracks', and each enzyme with a cut in it.

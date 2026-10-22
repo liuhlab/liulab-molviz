@@ -7,6 +7,13 @@ sets one.
 
 ## [Unreleased]
 
+### Changed
+
+- On a page, the sequence view's rows fit the width they have when `bases_per_row` is left
+  out: as many bases as fit, in steps of 10, from 20 to 100. The view sits beside the map once
+  a row of 60 fits there. A row length the caller gives is kept, and shrunk to a page too
+  narrow for it. Files, still drawings, figures and print keep 60 bases a row.
+
 ## [2026.10.0] - 2026-10-20
 
 ### Added

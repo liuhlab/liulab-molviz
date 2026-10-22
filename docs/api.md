@@ -61,7 +61,7 @@ out takes its default.
 | `enzymes` | The enzymes whose cut sites are drawn. A name matches in any case. A name that does not cut the record is ignored. | each enzyme that cuts the record once |
 | `highlight` | The names to light up: a feature, a primer, an insertion, a read, a disagreement, a track, or an enzyme, which lights every site it cuts. All else turns one pale grey, and nothing moves. Where labels crowd, a lit label is the last to hide. A name in any case matches. A name that matches nothing in the record is an error. | `[]` |
 | `sequence_view` | Draws the sequence view under the map: the bases in rows, on both strands, with each thing drawn on them at its bases. A PDF has the map on its first page and the rows on the pages after. It draws at most `SEQUENCE_VIEW_LIMIT` bases, 100,000, so past that `true` is an error. | `false` |
-| `bases_per_row` | How many bases a row of the sequence view holds. The last row may hold fewer. | `60` |
+| `bases_per_row` | How many bases a row of the sequence view holds. The last row may hold fewer. Left out, a page fits its rows to the width it has, from 20 to 100 bases in steps of 10. A page shrinks a row too wide for it. | fits the width on a page, 60 in a file |
 | `bottom_strand` | Whether the sequence view draws the bottom strand under the top one. | `true` |
 
 ## A page of your own

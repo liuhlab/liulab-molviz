@@ -1,7 +1,7 @@
 /** What the tests of a live page share: records opened in frames, and the hands that work them. */
 
 import { openRecord } from "../../src/viewer/draw";
-import { checkOptions } from "../../src/viewer/format/options";
+import { checkOptions, rowsLeftOut } from "../../src/viewer/format/options";
 import { check } from "../../src/viewer/format/record";
 import type { Frame } from "../../src/viewer/page/frame";
 import { hoverBox } from "../../src/viewer/page/hover";
@@ -45,6 +45,7 @@ export function opened(record: unknown, options: unknown = {}): Frame {
 		spot(),
 		checked,
 		checkOptions(options, checked, { page: true }),
+		rowsLeftOut(options),
 	);
 }
 
