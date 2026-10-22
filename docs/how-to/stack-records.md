@@ -151,3 +151,4 @@ the first of them under the record's name.
 A figure writes the same files as a single record: `.svg`, `.png` and `.pdf`. Its `.html` page
 holds the still drawing and no viewer, so a reader can't zoom it or flip a switch. To put a
 figure in a page of your own, use `still_svg()`, which returns the drawing as SVG text.
+[Put drawings in your own page](your-own-page.md) shows how.

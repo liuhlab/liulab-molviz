@@ -124,7 +124,7 @@ These are the two close-ups, drawn as still drawings:
 
 The read marks the base where it disagrees in red, whatever the colour of the disagreement's
 bar. To put a close-up in a page of your own, use `close_up.still_svg()`, which returns the same
-drawing as SVG text.
+drawing as SVG text. [Put drawings in your own page](your-own-page.md) shows how.
 
 ## Add a trace
 
