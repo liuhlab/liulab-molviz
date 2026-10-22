@@ -19,6 +19,13 @@ site_description: "Draws DNA sequences and plasmids in the browser, from data a 
 # human-facing but stays out of the nav on purpose, and out of search by its front matter.
 nav:
   - Home: index.md
+  - How-to guides:
+      - Gels and plates:
+          - Draw a gel: how-to/draw-a-gel.md
+          - Draw a plate and a stamp: how-to/draw-a-plate.md
+      - Output:
+          - Export SVG, PNG and PDF: how-to/export.md
+          - Put drawings in your own page: how-to/your-own-page.md
   - Reference:
       - Record format: reference/record.md
       - Gel format: reference/gel.md
