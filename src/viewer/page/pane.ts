@@ -42,9 +42,10 @@ export interface Pane {
 	shown(): SequenceShown | null;
 	/**
 	 * Show the sequence view as the options say, beside a map `map` CSS pixels wide at 1× or
-	 * under it, as the room allows or, `printing`, under at full size with rows as a file's; laid
-	 * out again only for another row length or other options it reads. With `still`, as a circle
-	 * turns, it stays where it sits. Returns whether it was drawn anew.
+	 * under it, as the room allows or, `printing`, under at full size with rows as a file's; drawn
+	 * again only for another row length or other options it reads, and each row length laid out
+	 * once for the options. With `still`, as a circle turns, it stays where it sits. Returns
+	 * whether it was drawn anew.
 	 */
 	arrange(
 		map: number,
@@ -67,13 +68,12 @@ interface SequenceDrawn extends SequenceShown {
 
 /**
  * The sequence view's pane of `record` for the frame `root`, drawing it as `options` say each
- * time it is asked, its rows fitted to the room with `fit`. A hover over a base says its position.
+ * time it is asked. A hover over a base says its position.
  */
 export function openPane(
 	root: HTMLElement,
 	record: Record,
 	options: () => Options,
-	fit = false,
 ): Pane {
 	const document = root.ownerDocument;
 	const element = document.createElement("div");
@@ -84,9 +84,10 @@ export function openPane(
 	element.append(bar);
 
 	let drawn: SequenceDrawn | null = null;
-	/** Where the sequence view sits while it shows, and how wide each row length lays it out. */
+	/** Where the sequence view sits while it shows. */
 	let arranged: Arrangement | null = null;
-	let widths = { for: "", of: new Map<number, number>() };
+	/** The view laid out for the options it last read, by how many bases a row holds. */
+	let laid = { for: "", by: new Map<number, SequenceScene>() };
 	const scale = () => arranged?.scale ?? 1;
 	/** The first base of the pane's top row, as the reader's scrolling last left it. */
 	let heading: number | null = null;
@@ -152,16 +153,14 @@ export function openPane(
 				return false;
 			}
 			const key = sequenceKey(given);
-			if (widths.for !== key) widths = { for: key, of: new Map() };
-			const laid = new Map<number, SequenceScene>();
-			const view = (perRow: number) => {
-				const known = widths.of.get(perRow);
-				if (known !== undefined) return known;
-				const scene = paneLayout(record, given, perRow);
-				laid.set(perRow, scene);
-				widths.of.set(perRow, scene.extent.width);
-				return scene.extent.width;
+			if (laid.for !== key) laid = { for: key, by: new Map() };
+			const { by } = laid;
+			const sceneOf = (perRow: number) => {
+				const scene = by.get(perRow) ?? paneLayout(record, given, perRow);
+				by.set(perRow, scene);
+				return scene;
 			};
+			const viewWidth = (perRow: number) => sceneOf(perRow).extent.width;
 			// A print lays the view out as before the page has a width.
 			const room = printing ? 0 : root.clientWidth - gutter();
 			const next =
@@ -170,8 +169,8 @@ export function openPane(
 					: arrange(
 							room,
 							VIEWS_APART,
-							{ map, view },
-							fit ? undefined : given.bases_per_row,
+							{ map, view: viewWidth },
+							given.bases_per_row,
 						);
 			const { perRow } = next;
 			const anew = drawn?.for !== key || drawn.perRow !== perRow;
@@ -179,7 +178,7 @@ export function openPane(
 			arranged = next;
 			root.classList.toggle(BESIDE, next.place === "beside");
 			if (anew || drawn === null) {
-				const scene = laid.get(perRow) ?? paneLayout(record, given, perRow);
+				const scene = sceneOf(perRow);
 				const svg = toElement(scene, document);
 				if (drawn) drawn.svg.replaceWith(svg);
 				else element.append(svg);

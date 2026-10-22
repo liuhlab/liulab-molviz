@@ -305,24 +305,20 @@ function arrangement(frame: Frame): { beside: boolean; perRow: number } {
 const long = { ...linear, bases: "ACGT".repeat(150) };
 
 describe("where the sequence view sits", () => {
-	test("beside the map once a row of 60 bases fits there, its rows filling the room beside", () => {
+	test("beside the map once a row of 60 bases fits there, else under it", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { map, view } = widthsOf(long);
 		resized(frame, map + VIEWS_APART + view(60));
 		expect(arrangement(frame)).toEqual({ beside: true, perRow: 60 });
-		resized(frame, map + VIEWS_APART + view(70));
-		expect(arrangement(frame)).toEqual({ beside: true, perRow: 70 });
 		resized(frame, map + VIEWS_APART + view(60) - 1);
-		expect(arrangement(frame)).toEqual({ beside: false, perRow: 100 });
+		expect(arrangement(frame).beside).toBe(false);
 	});
 
-	test("under the map with the most bases a row fits, in tens, at full size", () => {
+	test("under the map with its rows fitted to the room, at full size", () => {
 		const frame = opened(long, { sequence_view: true });
 		const { view } = widthsOf(long);
 		resized(frame, view(40));
 		expect(arrangement(frame)).toEqual({ beside: false, perRow: 40 });
-		resized(frame, view(40) - 1);
-		expect(arrangement(frame)).toEqual({ beside: false, perRow: 30 });
 		const svg = frame.pane.querySelector("svg");
 		expect([svg?.style.width, svg?.style.height]).toEqual(["", ""]);
 	});

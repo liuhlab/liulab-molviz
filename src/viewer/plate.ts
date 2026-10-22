@@ -156,12 +156,12 @@ const EMPTY = "#f4f4f4";
 const RULE = "#bbbbbb";
 const RULE_WIDTH = 0.4;
 
-// The border, a plate's rim: how far it stands off the wells and their labels, its corners'
-// radius, and its stroke.
-const RIM_PAD = 8;
-const RIM_CORNER = 8;
-const RIM = RULE;
-const RIM_WIDTH = 1;
+// The border: how far it stands off the wells and their labels, its corners' radius, and its
+// stroke.
+const BORDER_PAD = 8;
+const BORDER_CORNER = 8;
+const BORDER = RULE;
+const BORDER_WIDTH = 1;
 
 // The legend: how far under the grid, its text's size and leading, a swatch's diameter, the
 // room between a swatch and its text, and between two entries side by side.
@@ -235,11 +235,11 @@ export function layoutPlate(plate: Plate): Scene {
 		return drawn;
 	};
 	// The border's place, with the grid's top left at the origin.
-	const rim = aroundBoxes(
+	const border = aroundBoxes(
 		grid(0, 0).flatMap((s) => boxOf(s) ?? []),
-		RIM_PAD,
+		BORDER_PAD,
 	);
-	const width = Math.max(MIN_WIDTH, MARGIN + rim.width + MARGIN);
+	const width = Math.max(MIN_WIDTH, MARGIN + border.width + MARGIN);
 
 	const shapes: Shape[] = [];
 	const title = wrap(
@@ -256,23 +256,23 @@ export function layoutPlate(plate: Plate): Scene {
 		MARGIN,
 		MARGIN,
 	);
-	const rimTop = titleEnd + (title.length ? TITLE_GAP : 0);
+	const borderTop = titleEnd + (title.length ? TITLE_GAP : 0);
 	shapes.push({
 		shape: "rect",
 		x: MARGIN,
-		y: rimTop,
-		width: rim.width,
-		height: rim.height,
-		corner: RIM_CORNER,
+		y: borderTop,
+		width: border.width,
+		height: border.height,
+		corner: BORDER_CORNER,
 		fill: "none",
-		stroke: RIM,
-		strokeWidth: RIM_WIDTH,
+		stroke: BORDER,
+		strokeWidth: BORDER_WIDTH,
 	});
-	shapes.push(...grid(MARGIN - rim.x, rimTop - rim.y));
-	const rimEnd = rimTop + rim.height;
+	shapes.push(...grid(MARGIN - border.x, borderTop - border.y));
+	const borderEnd = borderTop + border.height;
 	const bottom = entries.length
-		? legend(shapes, entries, rimEnd + LEGEND_GAP, width - 2 * MARGIN)
-		: rimEnd;
+		? legend(shapes, entries, borderEnd + LEGEND_GAP, width - 2 * MARGIN)
+		: borderEnd;
 	return { extent: { x: 0, y: 0, width, height: bottom + MARGIN }, shapes };
 }
 

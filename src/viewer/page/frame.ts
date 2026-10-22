@@ -228,14 +228,12 @@ export function fieldset(
 
 /**
  * Draw `record` as `options` say into a frame added at the end of `element`, its bar empty for
- * the controls. With `fit`, the sequence view's rows fit its room rather than holding
- * `options.bases_per_row`, which a print still holds.
+ * the controls.
  */
 export function openFrame(
 	element: Element,
 	record: Record,
 	options: Options,
-	fit = false,
 ): Frame {
 	const document = element.ownerDocument;
 	declareStyle(document);
@@ -259,7 +257,7 @@ export function openFrame(
 		maps: { circle: opening(), line: opening() },
 		selection: null,
 	};
-	const pane = openPane(root, record, () => state.options, fit);
+	const pane = openPane(root, record, () => state.options);
 	root.append(pane.element);
 	const listeners: (() => void)[] = [];
 	const changed = () => {
@@ -359,8 +357,8 @@ export function openFrame(
 		return scene;
 	};
 
-	// A print shows the sequence view under the map with full rows, and a zoomed map at 1×; after it the
-	// map gets its zoom and scroll back.
+	// A print shows the sequence view under the map with rows as a file's, and a zoomed map at 1×;
+	// after it the map gets its zoom and scroll back.
 	let printed: { zoom: number; left: number; top: number } | null = null;
 	const beforePrint = () => {
 		printing = true;

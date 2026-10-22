@@ -37,6 +37,12 @@ const OnOff = v.boolean("must be true or false");
 /** The most bases of a span the sequence view draws. */
 export const LIMIT = 100_000;
 
+/**
+ * How many bases a row of the sequence view holds with `bases_per_row` left out, save where a
+ * record's frame on a page fits its rows to its width.
+ */
+export const BASES_PER_ROW = 60;
+
 /** Where a record is drawn: on a `page` or else in a file, among the records drawn `together`. */
 interface Where {
 	readonly page: boolean;
@@ -94,8 +100,12 @@ function optionsSchema(record: Record, { page, together }: Where) {
 		 * page leaves it out, and for a file it is an error.
 		 */
 		sequence_view: v.optional(OnOff, false),
-		/** How many bases a row of the sequence view holds, the last row perhaps fewer. */
-		bases_per_row: v.optional(PositiveInteger, 60),
+		/**
+		 * How many bases a row of the sequence view holds, the last row perhaps fewer. Left out, a
+		 * record's frame on a page fits its rows to its width, and any other drawing holds
+		 * `BASES_PER_ROW`.
+		 */
+		bases_per_row: v.optional(PositiveInteger),
 		/** Whether the sequence view draws the bottom strand under the top. */
 		bottom_strand: v.optional(OnOff, true),
 	});
@@ -134,7 +144,7 @@ function grouped(n: number): string {
 	return String(n).replace(/\B(?=(\d{3})+$)/g, ",");
 }
 
-/** A drawing's options, with each one left out at its default. */
+/** A drawing's options, with each one left out at its default; `bases_per_row` has none. */
 export type Options = v.InferOutput<ReturnType<typeof optionsSchema>>;
 
 /**
@@ -161,11 +171,9 @@ export function parsedOptions(
 	});
 }
 
-/** Whether `input`, as options are given, leaves `bases_per_row` out, for a page to fit. */
-export function rowsLeftOut(input: unknown): boolean {
-	return (
-		(input as { bases_per_row?: unknown } | null)?.bases_per_row === undefined
-	);
+/** How many bases a row of the sequence view laid out with `options` holds. */
+export function basesPerRow({ bases_per_row }: Options): number {
+	return bases_per_row ?? BASES_PER_ROW;
 }
 
 /**

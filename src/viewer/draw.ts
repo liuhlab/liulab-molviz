@@ -1,7 +1,7 @@
 /** An input drawn live into an element of a page. */
 
 import type { Layout } from "./drawing";
-import { checkOptions, type Options, rowsLeftOut } from "./format/options";
+import { checkOptions, type Options } from "./format/options";
 import { check, type Record } from "./format/record";
 import { addCaption } from "./page/caption";
 import { type Frame, openFrame } from "./page/frame";
@@ -35,22 +35,19 @@ export function drawRecord(
 	const checked = check(record);
 	const checkedOptions = checkOptions(options, checked, { page: true });
 	declareFaces(element.ownerDocument);
-	const fit = rowsLeftOut(options);
-	return { destroy: openRecord(element, checked, checkedOptions, fit).destroy };
+	return { destroy: openRecord(element, checked, checkedOptions).destroy };
 }
 
 /**
  * Open `record` with `options` in a frame added at the end of `element`, with its controls: the
- * switches, the zoom and the turn, its views linked, and the caption of their selection. With
- * `fit`, the sequence view's rows fit the room.
+ * switches, the zoom and the turn, its views linked, and the caption of their selection.
  */
 export function openRecord(
 	element: Element,
 	record: Record,
 	options: Options,
-	fit = false,
 ): Frame {
-	const frame = openFrame(element, record, options, fit);
+	const frame = openFrame(element, record, options);
 	switches(frame);
 	addZoom(frame);
 	addTurn(frame);

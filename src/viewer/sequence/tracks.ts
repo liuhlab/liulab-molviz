@@ -1,6 +1,6 @@
 /** The sequence view's tracks: each a strip of curves under the rows its peaks reach. */
 
-import type { Options } from "../format/options";
+import { basesPerRow, type Options } from "../format/options";
 import {
 	type Bounds,
 	type Record,
@@ -42,7 +42,8 @@ export interface Sampled {
  * reaches, in the record's order.
  */
 export function sampledRows(record: Record, options: Options): Sampled[][] {
-	const { span, bases_per_row: perRow } = options;
+	const { span } = options;
+	const perRow = basesPerRow(options);
 	const rows: Sampled[][] = Array.from(
 		{ length: Math.ceil((span.end - span.start) / perRow) },
 		() => [],
