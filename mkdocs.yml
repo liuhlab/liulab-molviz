@@ -26,7 +26,12 @@ nav:
           - Check a clone against its reads: how-to/check-a-clone.md
           - Stack records into a figure: how-to/stack-records.md
   - Reference:
+      - Record format: reference/record.md
+      - Gel format: reference/gel.md
+      - Plate format: reference/plate.md
+      - Figure format: reference/figure.md
       - Python API: api.md
+      - JavaScript API: reference/javascript.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not
 # taken from what a strict mkdocs build used to do:
