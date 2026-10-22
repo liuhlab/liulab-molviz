@@ -1,25 +1,21 @@
+---
+search:
+  exclude: true
+---
+
 # Plates
 
-This page draws each test plate in your browser when the page opens. It uses the same viewer the
-Python package carries, so what you see here is what a page written by the package shows.
-
-The plates are the files in `tests/plates/` in the repo. Most are the example plates of mbio,
-the lab's tools for cloning, and the note under each one says what it shows. Six are made by
-hand, at the end.
-
-Each different text a well holds is its contents. Up to ten contents each take a colour of their
-own and a line of the legend. Past ten, every used well takes one colour, and the drawing gives
-the count where the legend would be. An empty well is light grey.
+This page draws every test plate once, at its defaults, so that you can check a change to a
+drawing here. The plates are the files in `tests/plates/` in the repo. Most are the example
+plates of mbio, the lab's tools for cloning, and the last six are made by hand.
 
 A stamp moves one pattern of wells from one plate into another. Each stamp gives two plates,
-"From" and "Into", and each well it touches holds the stamp's title.
-
-Rest the pointer on a well to see its name and what it holds. If a plate cannot be drawn, its
-place on the page says why.
+the one it takes from and the one it fills. If a plate cannot be drawn, its place on the page
+says why.
 
 ## ap1-part-carrier-plate
 
-From mbio's ap1 project: a 96-well plate with a different part in each of 72 wells.
+From mbio's AP-1 project: a 96-well plate with a different part in each of 72 wells.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -59,8 +55,7 @@ The working copy of the primer stock plate: the same 74 primers in the same well
 
 ## ap1-picked-1
 
-A 384-well plate in quarters, with three of its four quarters filled. The quarters take turns
-along each row and down each column, so the colours mix.
+A 384-well plate in quarters, with three of its four quarters filled.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -110,8 +105,7 @@ A 1,536-well plate with every well empty, so it has no legend.
 
 ## ap1-stock-into-primer-working-plate-1-from
 
-One of the project's four stamps, which copies the primer stock plate into the working
-plate. This is the plate it takes from.
+The plate a stamp takes from, as it copies the primer stock plate into the working plate.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -121,7 +115,7 @@ plate. This is the plate it takes from.
 
 ## ap1-stock-into-primer-working-plate-1-into
 
-The same stamp's plate it fills, well for well.
+The plate the same stamp fills, well for well.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -151,8 +145,7 @@ The same stamp fills all 96 wells of index 1.
 
 ## ap1-sample-a-quarter-of-picked-1-into-index-2-from
 
-A stamp that takes the second quarter of picked 1, the wells one column to the right of the
-first quarter's.
+A stamp that takes the second quarter of picked 1, one column to the right of the first.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -172,8 +165,7 @@ The same stamp fills all 96 wells of index 2.
 
 ## ap1-sample-a-quarter-of-picked-1-into-index-3-from
 
-A stamp that takes the third quarter of picked 1, the wells one row down from the first
-quarter's.
+A stamp that takes the third quarter of picked 1, one row down from the first.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -193,8 +185,7 @@ The same stamp fills all 96 wells of index 3.
 
 ## ap1-readback-picked-1
 
-From mbio's ap1-readback protocol: a 384-well plate with its first quarter full, and 32 of the
-96 wells in its second quarter filled.
+From mbio's AP-1 readback protocol: a 384-well plate with its first quarter full, and 32 wells of its second quarter filled.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -204,7 +195,7 @@ From mbio's ap1-readback protocol: a 384-well plate with its first quarter full,
 
 ## ap1-readback-index-2
 
-A 96-well plate a third full, with a different pair of primers in each of 32 wells.
+A 96-well plate with a different pair of primers in each of its first 32 wells.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -214,9 +205,7 @@ A 96-well plate a third full, with a different pair of primers in each of 32 wel
 
 ## ap1-readback-sample-a-quarter-of-picked-1-into-index-2-from
 
-The protocol has two stamps. The first, into index 1, is the same as the ap1 project's stamp into
-index 1, so it is not drawn again. This is the second, which takes the 32 filled wells of the
-second quarter of picked 1.
+A stamp that takes the 32 filled wells of the second quarter of picked 1.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -236,8 +225,7 @@ The same stamp fills the first 32 wells of index 2.
 
 ## ten-contents
 
-Made by hand. Ten different contents, the most that each take a colour of their own and a line
-of the legend.
+Made by hand. Ten different contents, the most that each take a colour of their own and a line of the legend.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>
@@ -247,8 +235,7 @@ of the legend.
 
 ## eleven-contents
 
-Made by hand. Eleven, so every used well takes one colour and the drawing counts them in place
-of the legend.
+Made by hand. Eleven, so every used well takes one colour and the legend's one line counts them.
 
 <div data-molviz="plate">
 <script type="application/json" data-plate>

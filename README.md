@@ -74,6 +74,21 @@ pixi run check
 That runs the linters, the type checker and the tests. It reports every failure at once, so read to
 the bottom before you fix anything.
 
+## Where things live
+
+| Path | What it holds |
+| --- | --- |
+| `src/molviz/` | the Python package |
+| `src/viewer/` | the viewer, in TypeScript |
+| `tests/` | the tests, and the test records, figures, gels and plates |
+| `docs/` | the docs site |
+| `scripts/check.sh` | the gate every commit has to pass |
+| `GLOSSARY.md` | the glossary: the words this repo uses |
+
+Some notes are for coding agents, not for people: conventions under `docs/agents/`,
+decision records under `docs/adr/`, and research notes under `docs/research/`. The site
+publishes them, but leaves them out of its menu and its search box.
+
 ## Read the docs
 
 The site is at <https://liuhlab.github.io/liulab-molviz/>.

@@ -22,7 +22,7 @@ Six more are made by hand:
 | File | What it covers |
 | --- | --- |
 | `ten-contents.json` | Ten different contents, the most that each take a colour of their own and a line of the legend. |
-| `eleven-contents.json` | Eleven, so every used well takes one colour and the drawing counts them in place of the legend. |
+| `eleven-contents.json` | Eleven, so every used well takes one colour and the legend's one line counts them. |
 | `strip.json` | A strip of 8 tubes: one row. |
 | `one-well.json` | One well, the narrowest a drawing gets, under a title that wraps. |
 | `sparse-1536.json` | A 1,536-well plate, rows A to AF, with a few wells filled. |
