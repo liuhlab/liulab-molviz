@@ -1,5 +1,7 @@
-/** A map's labels, the order they hide in, and the notice that counts them. */
+/** A map's labels, the key of the item each names, the order they hide in, and their notice. */
 
+import type { Face } from "./faces";
+import type { Kind } from "./options";
 import {
 	DISAGREEMENT,
 	INK,
@@ -14,9 +16,8 @@ import {
 } from "./paint";
 import { pointText, spanText } from "./pieces";
 import type { Bounds, Disagreement, Insertion, Read, Span } from "./record";
-import type { Box, Scene, Shape } from "./scene";
-import { itemKey } from "./selection";
-import { baseline, type Face, height, measure } from "./text";
+import type { Box, Shape } from "./scene";
+import { baseline, height, measure } from "./text";
 
 /** A label's size of text, and the small text of a map's ruler, title and notice. */
 export const LABEL_SIZE = 11.5;
@@ -31,19 +32,6 @@ export const GAP = 10;
 
 /** The least room between two labels' boxes. */
 export const SPACING = 2;
-
-/** Each kind a record holds, by its list's key in the record. */
-export const KINDS = [
-	"features",
-	"primers",
-	"cuts",
-	"insertions",
-	"reads",
-	"disagreements",
-	"tracks",
-] as const;
-
-export type Kind = (typeof KINDS)[number];
 
 /** The kinds a map labels: all but tracks. */
 export type LabelKind = Exclude<Kind, "tracks">;
@@ -64,9 +52,23 @@ export type Hidden =
 	  }
 	| { readonly kind: AtPoint; readonly name: string; readonly at: number };
 
-/** A map laid out, and the labels it left out. */
-export interface MapScene extends Scene {
-	readonly hidden: readonly Hidden[];
+declare const KEY: unique symbol;
+
+/** The key an item is known by in every view: the item as text, as `itemKey` writes it. */
+export type ItemKey = string & { readonly [KEY]: true };
+
+/** The key `item` is known by in every view. */
+export function itemKey(item: Hidden): ItemKey {
+	const { kind, name } = item;
+	return JSON.stringify(
+		"at" in item
+			? { kind, name, at: item.at }
+			: {
+					kind,
+					name,
+					spans: item.spans.map(({ start, end }) => ({ start, end })),
+				},
+	) as ItemKey;
 }
 
 /** A stretch of a label's text in one face. */

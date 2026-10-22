@@ -13,15 +13,15 @@ import {
 	toDrawing,
 	type Views,
 } from "./drawing";
+import type { Face } from "./faces";
 import { list, orThrow, type Problem, parse } from "./format";
-import type { MapScene } from "./labels";
 import { MARGIN, NAME_SIZE } from "./map";
 import { type Options, parsedOptions } from "./options";
 import { rowPages } from "./pages";
 import { MUTED } from "./paint";
 import { type Record, recordSchemaOf } from "./record";
-import { moved, type Scene, type Shape } from "./scene";
-import { baseline, type Face, height } from "./text";
+import { type MapScene, moved, type Scene, type Shape } from "./scene";
+import { baseline, height } from "./text";
 
 /** The face of a stacked record's name, set at `NAME_SIZE` in `MUTED`. */
 const NAME_FACE: Face = "sans-bold";

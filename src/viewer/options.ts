@@ -14,10 +14,23 @@ import {
 	type Parsed,
 	PositiveInteger,
 	parsed,
+	rule,
 	Text,
 } from "./format";
-import { KINDS } from "./labels";
-import { type Record, recordBounds, rule, type Span, span } from "./record";
+import { type Record, recordBounds, type Span, span } from "./record";
+
+/** Each kind a record holds, by its list's key in the record. */
+export const KINDS = [
+	"features",
+	"primers",
+	"cuts",
+	"insertions",
+	"reads",
+	"disagreements",
+	"tracks",
+] as const;
+
+export type Kind = (typeof KINDS)[number];
 
 const OnOff = v.boolean("must be true or false");
 

@@ -6,8 +6,7 @@
 import { byName, cutCounts } from "./cuts";
 import { folded } from "./format";
 import { type Frame, fieldset } from "./frame";
-import { KINDS, type Kind } from "./labels";
-import { LIMIT, type Options } from "./options";
+import { KINDS, type Kind, LIMIT, type Options } from "./options";
 
 /** What a kind's switch says, where that is not its key capitalised. */
 const SAID: { readonly [K in Kind]?: string } = { cuts: "Cut sites" };

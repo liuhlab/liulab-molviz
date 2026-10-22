@@ -1,10 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { boxOf } from "../../src/viewer/bounds";
 import { layoutCircle } from "../../src/viewer/circle";
-import { type Hidden, type MapScene, notice } from "../../src/viewer/labels";
+import { type Hidden, notice } from "../../src/viewer/labels";
 import { checkOptions } from "../../src/viewer/options";
 import { check, type Record } from "../../src/viewer/record";
-import type { Box, PathCommand, Scene, Shape } from "../../src/viewer/scene";
+import type {
+	Box,
+	MapScene,
+	PathCommand,
+	Scene,
+	Shape,
+} from "../../src/viewer/scene";
 import { baseline, height, measure, metrics } from "../../src/viewer/text";
 import ap1File from "../records/ap1-product.json";
 import colourTestFile from "../records/colour-test.json";

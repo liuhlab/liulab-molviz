@@ -3,7 +3,7 @@
  * with no font, or with its letters as real text, as elements of a page or as text for one.
  */
 
-import { units } from "./faces";
+import { type Face, units } from "./faces";
 import { GROUND } from "./paint";
 import {
 	leftEdge,
@@ -13,7 +13,6 @@ import {
 	twoDecimals,
 } from "./scene";
 import {
-	type Face,
 	families,
 	glyphs,
 	inFace,

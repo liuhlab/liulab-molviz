@@ -1,7 +1,17 @@
 /** The record format: what a caller hands the viewer. Its types come from these schemas. */
 
 import * as v from "valibot";
-import { exact, Integer, list, oneOf, parse, Text } from "./format";
+import {
+	exact,
+	Integer,
+	type Key,
+	list,
+	oneOf,
+	parse,
+	type RuleProblem,
+	rule,
+	Text,
+} from "./format";
 
 /** What a coordinate is checked against: its record's length, and whether it is circular. */
 export interface Bounds {
@@ -42,31 +52,6 @@ export function point({ length, circular }: Bounds) {
 	);
 }
 
-type Key = string | number;
-
-/** A problem found by a `rule`: the keys to the part it concerns, and the message. */
-type Problem = readonly [keys: readonly Key[], message: string];
-
-/**
- * A rule across the parts of a well-formed value, which reports each problem at the part it
- * concerns.
- */
-export function rule<T>(find: (value: T) => Iterable<Problem>) {
-	return v.rawCheck<T>(({ dataset, addIssue }) => {
-		if (!dataset.typed) return;
-		for (const [keys, message] of find(dataset.value)) {
-			const path: v.UnknownPathItem[] = [];
-			let input: unknown = dataset.value;
-			for (const key of keys) {
-				const value = (input as { [key: Key]: unknown })[key];
-				path.push({ type: "unknown", origin: "value", input, key, value });
-				input = value;
-			}
-			addIssue({ message, path: path as [v.UnknownPathItem] });
-		}
-	});
-}
-
 /** An `end` more than one turn past `start`, which `from` names, reported at `keys`. */
 function* pastOneTurn(
 	keys: readonly Key[],
@@ -74,7 +59,7 @@ function* pastOneTurn(
 	start: number,
 	end: number,
 	length: number,
-): Generator<Problem> {
+): Generator<RuleProblem> {
 	if (end - start > length) {
 		yield [keys, `must be at most ${from} + ${length}, one turn of the record`];
 	}
@@ -101,7 +86,7 @@ function* spanProblems(
 	{ length, circular }: Bounds,
 	start: number,
 	end: number,
-): Generator<Problem> {
+): Generator<RuleProblem> {
 	if (start >= end) yield [["end"], "must be greater than start"];
 	if (circular) yield* pastOneTurn(["end"], "start", start, end, length);
 }

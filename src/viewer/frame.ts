@@ -7,7 +7,6 @@
 import { aroundBoxes } from "./bounds";
 import { layoutMap } from "./drawing";
 import { hoverBox } from "./hover";
-import type { MapScene } from "./labels";
 import type { MapGeometry } from "./map";
 import type { Options } from "./options";
 import {
@@ -26,7 +25,7 @@ import {
 	VIEWS_APART,
 } from "./pane";
 import type { Record } from "./record";
-import type { Box, Scene } from "./scene";
+import type { Box, MapScene, Scene } from "./scene";
 import type { Selection } from "./selection";
 import { BOTH_STRANDS, ITEM, SELECTED, TOP_STRAND, toElement } from "./svg";
 import { families } from "./text";

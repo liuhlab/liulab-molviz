@@ -3,8 +3,8 @@
  * SVG or DOM in it.
  */
 
-import type { ItemKey } from "./selection";
-import type { Face } from "./text";
+import type { Face } from "./faces";
+import type { Hidden, ItemKey } from "./labels";
 
 /** A rectangle: its top-left corner, width and height. */
 export interface Box {
@@ -128,6 +128,11 @@ export interface Scene {
 	/** What the drawing covers, its margin included. */
 	readonly extent: Box;
 	readonly shapes: readonly Shape[];
+}
+
+/** A map laid out, and the labels it left out. */
+export interface MapScene extends Scene {
+	readonly hidden: readonly Hidden[];
 }
 
 /** Where a line of text `width` wide starts, from its `x` and its `anchor`. */

@@ -3,11 +3,12 @@
  * hidden-label notice's place, and where each sets the bases, in points, x to the right and y down.
  */
 
+import type { Face } from "./faces";
 import { type Label, noticeShapes, SMALL_SIZE } from "./labels";
 import { INK } from "./paint";
 import type { Span } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
-import { baseline, type Face, height } from "./text";
+import { baseline, height } from "./text";
 
 /** The line's length, unless a layout is given another. */
 export const WIDTH = 720;
