@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { boxOf } from "../../src/viewer/bounds";
 import type { FormatError } from "../../src/viewer/format/format";
 import {
 	checkPlate,
@@ -7,8 +8,14 @@ import {
 	wellAt,
 	wellName,
 } from "../../src/viewer/plate";
-import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
+import {
+	type Box,
+	leftEdge,
+	type Scene,
+	type Shape,
+} from "../../src/viewer/scene";
 import { measure } from "../../src/viewer/text/text";
+import pcr from "../plates/ap1-pcr2-plate.json";
 import eleven from "../plates/eleven-contents.json";
 import longLegend from "../plates/long-legend.json";
 import oneWell from "../plates/one-well.json";
@@ -310,8 +317,12 @@ describe("layoutPlate", () => {
 
 	test("names the rows A to Z, then AA on, each right-aligned left of its row", () => {
 		const scene = lay(sparse);
-		const [first] = wells(scene, 32 * 48);
-		const rows = texts(scene).filter((t) => t.x < first.x && t.y > first.y);
+		const grid = wells(scene, 32 * 48);
+		const [first] = grid;
+		const foot = Math.max(...grid.map((w) => w.y + w.height));
+		const rows = texts(scene).filter(
+			(t) => t.x < first.x && t.y > first.y && t.y < foot,
+		);
 		const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 		expect(rows.map((t) => t.text)).toEqual([
 			...letters,
@@ -330,9 +341,9 @@ describe("layoutPlate", () => {
 		expect(wells(twelve, 1)[0].width).toBeCloseTo(21.32);
 		expect(wells(wide, 1)[0].width).toBeCloseTo(17.06);
 		expect(wells(widest, 1)[0].width).toBeCloseTo(8.7);
-		expect(twelve.extent.width).toBeCloseTo(358);
-		expect(wide.extent.width).toBeCloseTo(540);
-		expect(lay({ rows: 1, columns: 96 }).extent.width).toBeCloseTo(540);
+		expect(twelve.extent.width).toBeCloseTo(361.73);
+		expect(wide.extent.width).toBeCloseTo(548.37);
+		expect(lay({ rows: 1, columns: 96 }).extent.width).toBeCloseTo(554.46);
 		for (const scene of [twelve, wide, widest]) {
 			const title = texts(scene).filter((t) => t.face === "sans-bold");
 			expect(title.map((t) => t.size)).toEqual([13]);
@@ -361,6 +372,57 @@ describe("layoutPlate", () => {
 		expect(title.map((t) => t.text).join(" ")).toBe(oneWell.title);
 		expect(inside(scene)).toBe(true);
 	});
+
+	test.each<[string, { rows: number; columns: number }]>([
+		["a 96-well plate", pcr],
+		["a 1,536-well plate", sparse],
+		["one well under a long title", oneWell],
+		["a long legend", longLegend],
+		["no title and no legend", { rows: 3, columns: 150 }],
+	])(
+		"draws a rounded border around the wells, row letters and column numbers of %s, and neither its title nor its legend",
+		(_, plate) => {
+			const scene = lay(plate);
+			const count = plate.rows * plate.columns;
+			const borders = scene.shapes.filter(
+				(s): s is Rect => s.shape === "rect" && s.corner * 2 !== s.width,
+			);
+			expect(borders).toHaveLength(1);
+			const [border] = borders;
+			expect(border.corner).toBeGreaterThan(0);
+			expect(border.fill).toBe("none");
+			const half = border.strokeWidth / 2;
+			const within = ({ x, y, width, height }: Box) =>
+				x >= border.x + half &&
+				y >= border.y + half &&
+				x + width <= border.x + border.width - half &&
+				y + height <= border.y + border.height - half;
+			const grid = wells(scene, count);
+			const foot = Math.max(...grid.map((w) => w.y + w.height));
+			const labels = texts(scene).filter(
+				(t) => t.face === "sans" && t.y < foot,
+			);
+			expect(labels.map((t) => t.text)).toEqual(
+				expect.arrayContaining(["1", "A"]),
+			);
+			for (const shape of [...grid, ...labels]) {
+				expect(within(boxOf(shape) as Box)).toBe(true);
+			}
+			for (const t of texts(scene).filter((t) => t.face === "sans-bold")) {
+				const { y, height } = boxOf(t) as Box;
+				expect(y + height).toBeLessThanOrEqual(border.y - half);
+			}
+			for (const shape of [
+				...legend(scene, count),
+				...swatches(scene, count),
+			]) {
+				expect((boxOf(shape) as Box).y).toBeGreaterThanOrEqual(
+					border.y + border.height + half,
+				);
+			}
+			expect(inside(scene)).toBe(true);
+		},
+	);
 
 	test("wraps a long legend entry past its swatch, and a word too long by its letters", () => {
 		const scene = lay(longLegend);

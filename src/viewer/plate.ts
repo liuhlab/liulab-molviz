@@ -5,6 +5,7 @@
  */
 
 import * as v from "valibot";
+import { aroundBoxes, boxOf } from "./bounds";
 import type { Input } from "./drawing";
 import { exact, keyed, PositiveInteger, parse, Text } from "./format/format";
 import {
@@ -115,7 +116,10 @@ export const plateInput: Input<Plate> = {
 	layout: (plate) => ({ scene: layoutPlate(plate), pages: null, hidden: [] }),
 };
 
-/** The widest the grid is laid out, its margins included, before its wells shrink to fit. */
+/**
+ * The widest the grid is laid out, a pitch for the row letters and the margins included, before
+ * its wells shrink to fit. The border's padding widens the drawing past it.
+ */
 const MAX_WIDTH = 540;
 /** The widest a well's pitch is, so a small plate does not draw a wall of discs. */
 const MAX_PITCH = 26;
@@ -152,6 +156,13 @@ const EMPTY = "#f4f4f4";
 const RULE = "#bbbbbb";
 const RULE_WIDTH = 0.4;
 
+// The border: how far it stands off the wells and their labels, its corners' radius, and its
+// stroke.
+const BORDER_PAD = 8;
+const BORDER_CORNER = 8;
+const BORDER = RULE;
+const BORDER_WIDTH = 1;
+
 // The legend: how far under the grid, its text's size and leading, a swatch's diameter, the
 // room between a swatch and its text, and between two entries side by side.
 const LEGEND_GAP = 8;
@@ -175,8 +186,8 @@ interface Well {
 }
 
 /**
- * Lay out `plate`: its title, its column numbers and row letters, every well, and under them
- * a legend of its contents, or past the palette's length a count of them.
+ * Lay out `plate`: its title, then a border around its column numbers, row letters and every
+ * well, and under it a legend of its contents, or past the palette's length a count of them.
  */
 export function layoutPlate(plate: Plate): Scene {
 	const { rows, columns } = plate;
@@ -196,13 +207,39 @@ export function layoutPlate(plate: Plate): Scene {
 	const well = pitch * (1 - WELL_GAP);
 	const size = Math.min(LABEL_MAX, Math.max(LABEL_MIN, pitch * LABEL_SIZE));
 	const letters = Array.from({ length: rows }, (_, row) => rowLabel(row));
-	const widest = letters.reduce(
-		(most, l) => Math.max(most, measure(l, "sans", size)),
-		0,
+
+	/** The column numbers, row letters and wells, the grid's top left at (`left`, `top`). */
+	const grid = (left: number, top: number): Shape[] => {
+		const drawn: Shape[] = [];
+		for (const number of numbered(columns, pitch, size)) {
+			const x = left + (number - 0.5) * pitch;
+			const y = top - COLUMN_RISE * pitch;
+			drawn.push(axisLabel(String(number), size, x, y, "middle"));
+		}
+		for (const { place, name, contents } of inReadingOrder(plate)) {
+			const { row, column } = place;
+			if (column === 0) {
+				const label = letters[row];
+				const x = left - ROW_GAP * pitch - measure(label, "sans", size);
+				const y = top + (row + ROW_DROP) * pitch;
+				drawn.push(axisLabel(label, size, x, y, "start"));
+			}
+			const [fill, title] =
+				contents === undefined
+					? [EMPTY, name]
+					: [fills.get(contents) ?? PALETTE[0], `${name}: ${contents}`];
+			const x = left + column * pitch + (pitch - well) / 2;
+			const y = top + row * pitch + (pitch - well) / 2;
+			drawn.push(disc(x, y, well, fill, title));
+		}
+		return drawn;
+	};
+	// The border's place, with the grid's top left at the origin.
+	const border = aroundBoxes(
+		grid(0, 0).flatMap((s) => boxOf(s) ?? []),
+		BORDER_PAD,
 	);
-	// The row letters take one pitch, or more where they need it.
-	const left = MARGIN + Math.max(pitch, ROW_GAP * pitch + widest);
-	const width = Math.max(MIN_WIDTH, left + columns * pitch + MARGIN);
+	const width = Math.max(MIN_WIDTH, MARGIN + border.width + MARGIN);
 
 	const shapes: Shape[] = [];
 	const title = wrap(
@@ -219,33 +256,23 @@ export function layoutPlate(plate: Plate): Scene {
 		MARGIN,
 		MARGIN,
 	);
-	const top = titleEnd + (title.length ? TITLE_GAP : 0) + pitch;
-
-	for (const number of numbered(columns, pitch, size)) {
-		const x = left + (number - 0.5) * pitch;
-		const y = top - COLUMN_RISE * pitch;
-		shapes.push(axisLabel(String(number), size, x, y, "middle"));
-	}
-	for (const { place, name, contents } of inReadingOrder(plate)) {
-		const { row, column } = place;
-		if (column === 0) {
-			const label = letters[row];
-			const x = left - ROW_GAP * pitch - measure(label, "sans", size);
-			const y = top + (row + ROW_DROP) * pitch;
-			shapes.push(axisLabel(label, size, x, y, "start"));
-		}
-		const [fill, title] =
-			contents === undefined
-				? [EMPTY, name]
-				: [fills.get(contents) ?? PALETTE[0], `${name}: ${contents}`];
-		const x = left + column * pitch + (pitch - well) / 2;
-		const y = top + row * pitch + (pitch - well) / 2;
-		shapes.push(disc(x, y, well, fill, title));
-	}
-	const grid = top + rows * pitch;
+	const borderTop = titleEnd + (title.length ? TITLE_GAP : 0);
+	shapes.push({
+		shape: "rect",
+		x: MARGIN,
+		y: borderTop,
+		width: border.width,
+		height: border.height,
+		corner: BORDER_CORNER,
+		fill: "none",
+		stroke: BORDER,
+		strokeWidth: BORDER_WIDTH,
+	});
+	shapes.push(...grid(MARGIN - border.x, borderTop - border.y));
+	const borderEnd = borderTop + border.height;
 	const bottom = entries.length
-		? legend(shapes, entries, grid + LEGEND_GAP, width - 2 * MARGIN)
-		: grid;
+		? legend(shapes, entries, borderEnd + LEGEND_GAP, width - 2 * MARGIN)
+		: borderEnd;
 	return { extent: { x: 0, y: 0, width, height: bottom + MARGIN }, shapes };
 }
 

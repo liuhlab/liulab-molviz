@@ -1,6 +1,7 @@
 /**
  * The sequence view's pane in a record's frame: its bar stuck at its top, then the view, beside
- * the map or under it, with full rows or half, keeping the row the reader scrolled to at its top.
+ * the map or under it, its rows fitted to the room or as given, keeping the row the reader
+ * scrolled to at its top.
  */
 
 import type { Options } from "../format/options";
@@ -9,7 +10,7 @@ import type { Box } from "../scene";
 import type { RowBox } from "../sequence/row";
 import { layoutSequence, type SequenceScene } from "../sequence/view";
 import { inPoints, toElement } from "../svg";
-import { type Arrangement, arrange, type RowLength } from "./arrange";
+import { type Arrangement, arrange } from "./arrange";
 import { rowBase, rowHolding } from "./geometry";
 import { hoverBox } from "./hover";
 
@@ -21,9 +22,6 @@ export const BESIDE = "beside";
 
 /** The room between a map and the sequence view beside it, in CSS pixels. */
 export const VIEWS_APART = 24;
-
-/** How a frame prints, and opens before its page is laid out. */
-const UNDER: Arrangement = { place: "under", rowLength: "full", scale: 1 };
 
 /** The sequence view as a frame shows it: its drawing on the page, and its rows. */
 export interface SequenceShown {
@@ -44,9 +42,10 @@ export interface Pane {
 	shown(): SequenceShown | null;
 	/**
 	 * Show the sequence view as the options say, beside a map `map` CSS pixels wide at 1× or
-	 * under it, with full rows or half, as the room allows or, `printing`, under with full rows;
-	 * laid out again only for other rows or other options it reads. With `still`, as a circle
-	 * turns, it stays where it sits. Returns whether it was drawn anew.
+	 * under it, as the room allows or, `printing`, under at full size with rows as a file's; drawn
+	 * again only for another row length or other options it reads, and each row length laid out
+	 * once for the options. With `still`, as a circle turns, it stays where it sits. Returns
+	 * whether it was drawn anew.
 	 */
 	arrange(
 		map: number,
@@ -85,9 +84,11 @@ export function openPane(
 	element.append(bar);
 
 	let drawn: SequenceDrawn | null = null;
-	/** Where the sequence view sits, and how wide its rows lay out for the options it last read. */
-	let arranged = UNDER;
-	let widths: { for: string; full?: number; half?: number } = { for: "" };
+	/** Where the sequence view sits while it shows. */
+	let arranged: Arrangement | null = null;
+	/** The view laid out for the options it last read, by how many bases a row holds. */
+	let laid = { for: "", by: new Map<number, SequenceScene>() };
+	const scale = () => arranged?.scale ?? 1;
 	/** The first base of the pane's top row, as the reader's scrolling last left it. */
 	let heading: number | null = null;
 
@@ -99,7 +100,7 @@ export function openPane(
 		if (drawn === null) return null;
 		const { rows, extent } = drawn;
 		// The bar is stuck at the pane's top, over the drawing's first `scrollTop` pixels.
-		const y = extent.y + element.scrollTop / arranged.scale;
+		const y = extent.y + element.scrollTop / scale();
 		return rows.find((row) => row.strands.rail > y) ?? rows.at(-1) ?? null;
 	};
 	/** Scroll the pane so the row holding the heading is its top row, unless it is already. */
@@ -109,8 +110,7 @@ export function openPane(
 		const { rows, extent } = drawn;
 		const row = rowHolding(rows, heading);
 		if (row === null || row === top) return;
-		element.scrollTop =
-			row === rows[0] ? 0 : (row.y - extent.y) * arranged.scale;
+		element.scrollTop = row === rows[0] ? 0 : (row.y - extent.y) * scale();
 	};
 	element.addEventListener("scroll", () => {
 		const top = topRow();
@@ -148,43 +148,37 @@ export function openPane(
 			element.hidden = !given.sequence_view;
 			showStrands();
 			if (!given.sequence_view) {
-				arranged = UNDER;
+				arranged = null;
 				root.classList.remove(BESIDE);
 				return false;
 			}
 			const key = sequenceKey(given);
-			if (widths.for !== key) widths = { for: key };
-			const laid = new Map<RowLength, SequenceScene>();
-			const widthOf = (rowLength: RowLength) => {
-				const known = widths[rowLength];
-				if (known !== undefined) return known;
-				const scene = paneLayout(record, given, rowLength);
-				laid.set(rowLength, scene);
-				widths[rowLength] = scene.extent.width;
-				return scene.extent.width;
+			if (laid.for !== key) laid = { for: key, by: new Map() };
+			const { by } = laid;
+			const sceneOf = (perRow: number) => {
+				const scene = by.get(perRow) ?? paneLayout(record, given, perRow);
+				by.set(perRow, scene);
+				return scene;
 			};
-			let next = printing ? UNDER : arranged;
-			if (!printing && !still) {
-				const room = root.clientWidth - gutter();
-				const full = widthOf("full");
-				// Told half rows take no room, `arrange` says whether they may; only then are they laid out.
-				next = arrange(room, VIEWS_APART, { map, full, half: 0 });
-				if (next.rowLength === "half") {
-					next = arrange(room, VIEWS_APART, {
-						map,
-						full,
-						half: widthOf("half"),
-					});
-				}
-			}
-			const perRow = perRowOf(given, next.rowLength);
+			const viewWidth = (perRow: number) => sceneOf(perRow).extent.width;
+			// A print lays the view out as before the page has a width.
+			const room = printing ? 0 : root.clientWidth - gutter();
+			const next =
+				still && arranged !== null
+					? arranged
+					: arrange(
+							room,
+							VIEWS_APART,
+							{ map, view: viewWidth },
+							given.bases_per_row,
+						);
+			const { perRow } = next;
 			const anew = drawn?.for !== key || drawn.perRow !== perRow;
-			const rescaled = next.scale !== arranged.scale;
+			const rescaled = next.scale !== scale();
 			arranged = next;
 			root.classList.toggle(BESIDE, next.place === "beside");
 			if (anew || drawn === null) {
-				const scene =
-					laid.get(next.rowLength) ?? paneLayout(record, given, next.rowLength);
+				const scene = sceneOf(perRow);
 				const svg = toElement(scene, document);
 				if (drawn) drawn.svg.replaceWith(svg);
 				else element.append(svg);
@@ -201,7 +195,7 @@ export function openPane(
 			return anew;
 		},
 		mapRoom: () =>
-			arranged.place === "beside" && drawn !== null
+			arranged?.place === "beside" && drawn !== null
 				? root.clientWidth -
 					VIEWS_APART -
 					drawn.extent.width * arranged.scale -
@@ -222,20 +216,15 @@ function sequenceKey(options: Options): string {
 	});
 }
 
-/** How many bases a row of the sequence view holds, with full rows or half. */
-function perRowOf({ bases_per_row }: Options, rowLength: RowLength): number {
-	return rowLength === "full" ? bases_per_row : Math.ceil(bases_per_row / 2);
-}
-
-/** The sequence view laid out for a pane, with both strands, and with full rows or half. */
+/** The sequence view laid out for a pane, with both strands, in rows of `perRow` bases. */
 function paneLayout(
 	record: Record,
 	options: Options,
-	rowLength: RowLength,
+	perRow: number,
 ): SequenceScene {
 	return layoutSequence(record, {
 		...options,
 		bottom_strand: true,
-		bases_per_row: perRowOf(options, rowLength),
+		bases_per_row: perRow,
 	});
 }

@@ -48,7 +48,6 @@ describe("checkOptions", () => {
 			enzymes: [],
 			highlight: [],
 			sequence_view: false,
-			bases_per_row: 60,
 			bottom_strand: true,
 		});
 	});

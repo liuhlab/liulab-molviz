@@ -2,13 +2,13 @@
 
 This page draws each test record with its sequence view, in your browser, when the page opens.
 The sequence view sits beside the map when the window has room for both at full size, and under
-it when it does not. If its rows are too wide, they hold half as many bases. A circular
-record's map is the circle. The page uses the same viewer the Python package carries, so what
-you see here is what a page written by the package shows.
+it when it does not. Its rows fill the width they have, from 20 to 100 bases in steps of 10. A
+circular record's map is the circle. The page uses the same viewer the Python package carries,
+so what you see here is what a page written by the package shows.
 
-The sequence view sets the bases in rows of 60. The top strand runs over the bottom strand,
-with a rail of ticks between them, one tick for each base. A number stands over every tenth
-base, and each row ends with the number of its last base. Under the bases, each feature is a
+The sequence view sets the bases in rows, 60 to a row in a file. The top strand runs over the
+bottom strand, with a rail of ticks between them, one tick for each base. A number stands over
+every tenth base, and each row ends with the number of its last base. Under the bases, each feature is a
 bar, with the amino acids of a CDS over it. Primers sit above and below the strands, and cut
 sites and insertions cross them. Nothing in the sequence view is hidden.
 
@@ -276,7 +276,7 @@ The same record with the bottom strand hidden. Tick Both strands to show it. The
 
 ## both-strands-and-insertions, 20 bases a row
 
-Rows of 20 bases instead of 60.
+Rows of 20 bases at every width.
 
 <div data-molviz>
 <script type="application/json" data-record>

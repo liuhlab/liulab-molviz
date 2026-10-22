@@ -23,9 +23,9 @@ export interface LiveDrawing {
 
 /**
  * Draw `record` with `options` into `element`, after what it holds, its letters as real text: a
- * bar of controls, the map, and the sequence view under it. A span past the sequence view's limit
- * leaves the view out. Throws one FormatError naming every problem in the record, or else in the
- * options.
+ * bar of controls, the map, and the sequence view beside or under it, its rows fitting the room
+ * unless the options give their length. A span past the sequence view's limit leaves the view
+ * out. Throws one FormatError naming every problem in the record, or else in the options.
  */
 export function drawRecord(
 	element: Element,
