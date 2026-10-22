@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { disagreementBars } from "../../src/viewer/arrows";
-import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
+import { checkOptions } from "../../src/viewer/format/options";
+import { check } from "../../src/viewer/format/record";
 
 describe("disagreementBars", () => {
 	const record = check({

@@ -10,6 +10,8 @@ import {
 	disagreementBars,
 } from "./arrows";
 import { type CutSite, cutSites } from "./cuts";
+import type { Options } from "./format/options";
+import { type Record, recordBounds, type Track } from "./format/record";
 import {
 	disagreementLabel,
 	insertionLabel,
@@ -17,8 +19,6 @@ import {
 	primerLabel,
 	readLabel,
 } from "./labels";
-import type { Options } from "./options";
-import { type Record, recordBounds, type Track } from "./record";
 
 /** Each feature, then each disagreement over a span, drawn as bars. */
 export function shownBars(record: Record, options: Options): ColoredFeature[] {

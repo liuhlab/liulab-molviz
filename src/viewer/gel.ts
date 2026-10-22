@@ -5,7 +5,7 @@
 
 import * as v from "valibot";
 import type { Input } from "./drawing";
-import { exact, list, PositiveInteger, parse, Text } from "./format";
+import { exact, list, PositiveInteger, parse, Text } from "./format/format";
 import {
 	LEADING,
 	lines,
@@ -16,7 +16,7 @@ import {
 } from "./furniture";
 import { MUTED } from "./paint";
 import type { Scene, Shape } from "./scene";
-import { measure, wrap } from "./text";
+import { measure, wrap } from "./text/text";
 
 const gelSchema = exact({
 	title: v.optional(Text),

@@ -2,17 +2,17 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { type Layout, rowPages } from "../../src/viewer/drawing";
 import { checkFigure, figureInput } from "../../src/viewer/figure";
-import { FormatError } from "../../src/viewer/format";
+import { FormatError } from "../../src/viewer/format/format";
+import { check } from "../../src/viewer/format/record";
 import { drawFigure, figureSvg, svg } from "../../src/viewer/index";
 import { DIM, INK } from "../../src/viewer/paint";
-import { check } from "../../src/viewer/record";
 import {
 	leftEdge,
 	moved,
 	type Scene,
 	type Shape,
 } from "../../src/viewer/scene";
-import { height, measure, metrics } from "../../src/viewer/text";
+import { height, measure, metrics } from "../../src/viewer/text/text";
 import { prepare, prepareViews, stackedViews } from "../../src/viewer/views";
 import ap1 from "../records/ap1-product.json";
 

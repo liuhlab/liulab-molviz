@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 import { describe, expect, test } from "vitest";
-import { layoutLine } from "../../src/viewer/line";
-import { answersTo, checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
+import { answersTo, checkOptions } from "../../src/viewer/format/options";
+import { check } from "../../src/viewer/format/record";
+import { layoutLine } from "../../src/viewer/map/line";
 import type { MapScene, Shape } from "../../src/viewer/scene";
 
 const records = import.meta.glob("../records/*.json", {

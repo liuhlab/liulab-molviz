@@ -2,7 +2,9 @@ import { Window } from "happy-dom";
 import { describe, expect, test } from "vitest";
 import { type Input, rowPages, stacked } from "../../src/viewer/drawing";
 import { figureInput } from "../../src/viewer/figure";
-import { FormatError } from "../../src/viewer/format";
+import { FormatError } from "../../src/viewer/format/format";
+import { checkOptions } from "../../src/viewer/format/options";
+import { check } from "../../src/viewer/format/record";
 import { gelInput } from "../../src/viewer/gel";
 import {
 	draw,
@@ -19,17 +21,15 @@ import {
 	stillSvg,
 	svg,
 } from "../../src/viewer/index";
-import { checkOptions } from "../../src/viewer/options";
 import { plateInput } from "../../src/viewer/plate";
-import { check } from "../../src/viewer/record";
 import {
 	type Box,
 	leftEdge,
 	type Scene,
 	type Shape,
 } from "../../src/viewer/scene";
-import { layoutSequence } from "../../src/viewer/sequence";
-import { measure, metrics, weights } from "../../src/viewer/text";
+import { layoutSequence } from "../../src/viewer/sequence/view";
+import { measure, metrics, weights } from "../../src/viewer/text/text";
 import { prepare, recordInput } from "../../src/viewer/views";
 import goldenGate from "../gels/golden-gate-pcr-products.json";
 import pcrPlate from "../plates/ap1-pcr2-plate.json";

@@ -1,8 +1,8 @@
 /** What the gel and plate drawings share: their margin, least width, title and ink, and lines. */
 
-import type { Face } from "./faces";
 import type { Shape } from "./scene";
-import { baseline } from "./text";
+import type { Face } from "./text/faces";
+import { baseline } from "./text/text";
 
 export const MARGIN = 10;
 /** The least width a drawing takes, so a narrow one still has room for its title and legend. */

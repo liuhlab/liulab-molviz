@@ -1,7 +1,7 @@
 /** The box each shape of a scene covers. */
 
 import { type Box, leftEdge, type PathCommand, type Shape } from "./scene";
-import { height, measure, metrics, textWidth } from "./text";
+import { height, measure, metrics, textWidth } from "./text/text";
 
 type Point = readonly [x: number, y: number];
 type Arc = Extract<PathCommand, readonly ["A", ...unknown[]]>;

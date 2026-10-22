@@ -1,0 +1,420 @@
+/**
+ * The line: a record, or a span of it, laid out as a scene of shapes and text in points, x to
+ * the right and y down, the line running right from (0, 0).
+ */
+
+import {
+	type Arrow,
+	type Bar,
+	barShapes,
+	barsOf,
+	headsOn,
+	isUnder,
+	OVERHANG,
+	outline,
+	overhang,
+	PRIMER_GAP,
+	PRIMER_SHAFT,
+	pack,
+	places,
+	SHAFT,
+	TIER_GAP,
+} from "../arrows";
+import { aroundBoxes, boxOf } from "../bounds";
+import type { Options } from "../format/options";
+import {
+	type Bounds,
+	type Record,
+	recordBounds,
+	type Span,
+} from "../format/record";
+import {
+	GAP,
+	hiddenOf,
+	itemShapes,
+	LABEL_SIZE,
+	type Label,
+	PAD_Y,
+	SMALL_SIZE,
+} from "../labels";
+import { INK, INSERTION_WIDTH, OUTLINE_WIDTH, shaded } from "../paint";
+import { pieces, points, spanText } from "../pieces";
+import type { Box, MapScene, Shape } from "../scene";
+import { shownBars, shownCuts, shownMarks, shownSites } from "../shown";
+import {
+	type Along,
+	type Anchored,
+	labelsAbove,
+	type Shelf,
+} from "../staircase";
+import { baseline, height, measure } from "../text/text";
+import {
+	BACKBONE,
+	CLEAR,
+	INSERTION_REACH,
+	type LineGeometry,
+	lineX,
+	MARGIN,
+	noticeUnder,
+	ORIGIN_TICK,
+	ORIGIN_TICK_WIDTH,
+	STRANDS_APART,
+	TICK,
+	TICK_WIDTH,
+	tickStep,
+	titleLines,
+	titleShapes,
+	WIDTH,
+} from "./map";
+
+// The dots at an end: where the first sits beyond the line, how far apart they are, and their size.
+const DOT_START = 7;
+const DOT_STEP = 6;
+const DOT = 1.8;
+
+/** The backbone's top edge, where a leader from the backbone starts. */
+const BACKBONE_TOP = -BACKBONE / 2;
+
+/**
+ * The line's shelves, in the order they draw and their labels gather, the first lowest at one x:
+ * bars, sites, marks at a point, and cut sites. Tracks draw nothing on the line.
+ */
+const SHELVES: readonly ((along: Along) => Shelf)[] = [
+	bars,
+	sites,
+	marks,
+	cuts,
+];
+
+/** The line laid out, and where it sets the bases. */
+export interface LineScene extends MapScene {
+	readonly geometry: LineGeometry;
+}
+
+/** Lay out `record` as a line `width` long, drawn as `options` say. */
+export function layoutLine(
+	record: Record,
+	options: Options,
+	width = WIDTH,
+): LineScene {
+	const { span } = options;
+	const { start, end } = span;
+	const bounds = recordBounds(record);
+	const { length } = bounds;
+	const axis = { span, width };
+	const at = (position: number) => lineX(axis, position);
+	const along: Along = { record, options, bounds, start, end, at };
+	const drawn = SHELVES.map((shelf) => shelf(along));
+	const shapes: Shape[] = [
+		...backbone(width),
+		...ends(
+			record.circular || start > 0,
+			record.circular || end < length,
+			width,
+		),
+		...ruler(span, bounds, at, width),
+		...drawn.flatMap((one) => one.shapes),
+	];
+	const top = Math.min(BACKBONE_TOP, ...drawn.flatMap((one) => one.top ?? []));
+	const above = labelsAbove(
+		drawn.flatMap((one) => one.labels),
+		top,
+		{
+			inPlace: drawn.flatMap((one) => one.inPlace ?? []),
+			tips: true,
+		},
+	);
+	shapes.push(...above.shapes);
+	const bottom = Math.max(
+		rulerBottom(),
+		...drawn.flatMap((one) => one.bottom ?? []),
+	);
+	const covers = drawn.flatMap((one) => one.covers ?? []);
+	shapes.push(...title(record.name, length, span, bottom + GAP, width));
+	const boxes = [...above.boxes, ...covers];
+	shapes.push(...noticeUnder(above.hidden, extent(shapes, width, boxes)));
+	return {
+		extent: extent(shapes, width, boxes),
+		shapes,
+		hidden: above.hidden.map(hiddenOf),
+		geometry: {
+			map: "line",
+			...axis,
+			top: Math.min(top, ...covers.map((box) => box.y)),
+			bottom: Math.max(bottom, ...covers.map((box) => box.y + box.height)),
+		},
+	};
+}
+
+/** Where the ruler's numbers end, under the backbone. */
+function rulerBottom(): number {
+	return (
+		STRANDS_APART + BACKBONE / 2 + TICK + 2 * PAD_Y + height("sans", SMALL_SIZE)
+	);
+}
+
+/**
+ * Each feature, then each disagreement over a span, as arrows packed in tiers under the ruler,
+ * its name inside them, under them, or boxed above the line.
+ */
+function bars({ record, options, bounds, at }: Along): Shelf {
+	const laid: Bar[] = [];
+	for (const { feature, label, segments } of shownBars(record, options)) {
+		const found = pieces(segments, options.span, bounds);
+		laid.push(
+			...barsOf(feature, label, found, at).filter((bar) => bar.arrows.length),
+		);
+	}
+	const tiers = pack(laid);
+	const placed = places(laid, tiers);
+	const named = new Set(tiers.filter((_, i) => isUnder(placed[i])));
+	const lineHeight = height("sans", LABEL_SIZE);
+	let y = rulerBottom();
+	const middles: number[] = [];
+	for (let tier = 0; tier <= Math.max(-1, ...tiers); tier++) {
+		y += TIER_GAP;
+		middles.push(y + OVERHANG + SHAFT / 2);
+		y += 2 * OVERHANG + SHAFT;
+		if (named.has(tier)) y += PAD_Y + lineHeight;
+	}
+	const shapes = laid.flatMap((bar, i) =>
+		itemShapes(barShapes(bar, middles[tiers[i]], placed[i], false), bar.label),
+	);
+	const labels = laid.flatMap((bar, i) =>
+		placed[i] === "boxed"
+			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: BACKBONE_TOP }]
+			: [],
+	);
+	const inPlace = laid.flatMap((bar, i) =>
+		placed[i] && placed[i] !== "boxed" ? [bar.label] : [],
+	);
+	return { shapes, labels, inPlace, bottom: y };
+}
+
+/** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
+function cuts({ record, options, bounds, at }: Along): Shelf {
+	const labels = shownCuts(record, options).flatMap((site) =>
+		points(site.at, options.span, bounds).map((point) => ({
+			label: site.label,
+			x: at(point),
+			foot: BACKBONE_TOP,
+		})),
+	);
+	return { shapes: [], labels };
+}
+
+/**
+ * Each primer site, then each read, as a thin arrow above the backbone, its head at the 3' end,
+ * in rows packed by start, labelled by its name and the bases it spans.
+ */
+function sites({ record, options, bounds, at }: Along): Shelf {
+	const reach = overhang(PRIMER_SHAFT);
+	const step = PRIMER_SHAFT + 2 * reach + PRIMER_GAP;
+	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_SHAFT / 2;
+	const drawn: { arrow: Arrow; label: Label }[] = [];
+	for (const { start, end, strand, label } of shownSites(record, options)) {
+		const { color } = label;
+		const colored = [{ start, end, color }];
+		const [headStart, headEnd] = headsOn(strand);
+		for (const piece of pieces(colored, options.span, bounds)) {
+			const arrow: Arrow = {
+				start: at(piece.start),
+				end: at(piece.end),
+				color,
+				headStart: piece.starts && headStart,
+				headEnd: piece.ends && headEnd,
+				cutStart: piece.cutStart,
+				cutEnd: piece.cutEnd,
+			};
+			drawn.push({ arrow, label });
+		}
+	}
+	const middles = pack(drawn.map(({ arrow }) => arrow)).map(
+		(row) => first - row * step,
+	);
+	const tops = middles.map((middle) => middle - PRIMER_SHAFT / 2 - reach);
+	const shapes = drawn.flatMap(({ arrow, label }, i) =>
+		itemShapes(
+			[
+				{
+					shape: "polygon",
+					points: outline(arrow, middles[i], PRIMER_SHAFT),
+					fill: arrow.color,
+					stroke: shaded(arrow.color),
+					strokeWidth: OUTLINE_WIDTH,
+				},
+			],
+			label,
+		),
+	);
+	const labels = drawn.map(({ arrow, label }, i) => ({
+		label,
+		x: (arrow.start + arrow.end) / 2,
+		foot: tops[i],
+	}));
+	return { shapes, labels, top: Math.min(...tops) };
+}
+
+/**
+ * Each insertion, then each disagreement at a point, as a bar across both strands at its point
+ * in its colour, labelled with what the insertion adds or the disagreement's name, its name and
+ * point on hover.
+ */
+function marks({ record, options, bounds, at }: Along): Shelf {
+	const shapes: Shape[] = [];
+	const labels: Anchored[] = [];
+	const covers: Box[] = [];
+	const [y1, y2] = [
+		BACKBONE_TOP - INSERTION_REACH,
+		STRANDS_APART + BACKBONE / 2 + INSERTION_REACH,
+	];
+	for (const { at: point, label, hover } of shownMarks(record, options)) {
+		const { color } = label;
+		for (const x of points(point, options.span, bounds).map(at)) {
+			shapes.push(
+				...itemShapes(
+					[
+						{
+							shape: "line",
+							x1: x,
+							y1,
+							x2: x,
+							y2,
+							stroke: color,
+							strokeWidth: INSERTION_WIDTH,
+							title: hover,
+						},
+					],
+					label,
+				),
+			);
+			covers.push({
+				x: x - INSERTION_WIDTH / 2,
+				y: y1,
+				width: INSERTION_WIDTH,
+				height: y2 - y1,
+			});
+			labels.push({ label, x, foot: BACKBONE_TOP });
+		}
+	}
+	return { shapes, labels, covers };
+}
+
+/** What `shapes`, a backbone `width` long and the boxes `more` cover, and `MARGIN` beyond. */
+function extent(
+	shapes: readonly Shape[],
+	width: number,
+	more: readonly Box[],
+): Box {
+	const boxes = [
+		{ x: 0, y: -BACKBONE / 2, width, height: STRANDS_APART + BACKBONE },
+		...shapes.flatMap((shape) => boxOf(shape) ?? []),
+		...more,
+	];
+	return aroundBoxes(boxes, MARGIN);
+}
+
+/**
+ * The ticks and numbers under the backbone. A tick marks the end of each base whose number is a
+ * multiple of the step, and a longer one the origin, where the span runs across it.
+ */
+function ruler(
+	{ start, end }: Span,
+	{ length, circular }: Bounds,
+	at: (position: number) => number,
+	width: number,
+): Shape[] {
+	const below = STRANDS_APART + BACKBONE / 2;
+	const middle = below + TICK + PAD_Y + height("sans", SMALL_SIZE) / 2;
+	const origin = circular && start < length && length < end ? at(length) : null;
+	const shapes: Shape[] = [];
+	const tick = (x: number, long: number, width: number) =>
+		shapes.push({
+			shape: "line",
+			x1: x,
+			y1: below,
+			x2: x,
+			y2: below + long,
+			stroke: INK,
+			strokeWidth: width,
+		});
+	if (origin !== null) tick(origin, ORIGIN_TICK, ORIGIN_TICK_WIDTH);
+	const step = tickStep(end - start, width);
+	let right = Number.NEGATIVE_INFINITY;
+	for (const offset of circular ? [0, length] : [0]) {
+		const first =
+			Math.floor((Math.max(start, offset) - offset) / step) * step + step;
+		const last = Math.min(end, offset + length);
+		for (let position = offset + first; position <= last; position += step) {
+			const x = at(position);
+			tick(x, TICK, TICK_WIDTH);
+			const text = String(position - offset);
+			const half = measure(text, "sans", SMALL_SIZE) / 2;
+			if (x - half < right + CLEAR) continue;
+			if (origin !== null && Math.abs(x - origin) < half + CLEAR) continue;
+			shapes.push({
+				shape: "text",
+				text,
+				face: "sans",
+				size: SMALL_SIZE,
+				x,
+				y: baseline("sans", SMALL_SIZE, middle),
+				anchor: "middle",
+				fill: INK,
+			});
+			right = x + half;
+		}
+	}
+	return shapes;
+}
+
+/**
+ * The record's name in bold over its length, or over the span drawn, from the height `top`,
+ * centred on a line `width` long.
+ */
+function title(
+	name: string,
+	length: number,
+	span: Span,
+	top: number,
+	width: number,
+): Shape[] {
+	const bases = span.end - span.start;
+	const whole = span.start === 0 && span.end === length;
+	const under = whole
+		? `${length} bp`
+		: `${spanText(span, length)} (${bases} bp)`;
+	return titleShapes(
+		titleLines(name.trim() ? [name] : [], under),
+		width / 2,
+		top,
+	);
+}
+
+function backbone(width: number): Shape[] {
+	return [0, STRANDS_APART].map((y) => ({
+		shape: "line",
+		x1: 0,
+		y1: y,
+		x2: width,
+		y2: y,
+		stroke: INK,
+		strokeWidth: BACKBONE,
+	}));
+}
+
+/** `• • •` beyond each end of a line `width` long that the molecule carries on past. */
+function ends(left: boolean, right: boolean, width: number): Shape[] {
+	const offsets = [0, 1, 2].map((i) => DOT_START + i * DOT_STEP);
+	const xs = [
+		...(left ? offsets.map((offset) => -offset) : []),
+		...(right ? offsets.map((offset) => width + offset) : []),
+	];
+	return xs.map((cx) => ({
+		shape: "circle",
+		cx,
+		cy: STRANDS_APART / 2,
+		r: DOT,
+		fill: INK,
+	}));
+}

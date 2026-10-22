@@ -6,7 +6,7 @@ import { join } from "node:path";
 import vm from "node:vm";
 import { OUTLINES_GLOBAL } from "virtual:molviz-fonts";
 import { expect, test, vi } from "vitest";
-import { WIDTH } from "../src/viewer/map";
+import { WIDTH } from "../src/viewer/map/map";
 
 const record = {
 	name: "pTest",

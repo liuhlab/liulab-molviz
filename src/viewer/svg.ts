@@ -3,7 +3,6 @@
  * with no font, or with its letters as real text, as elements of a page or as text for one.
  */
 
-import { type Face, units } from "./faces";
 import { GROUND } from "./paint";
 import {
 	leftEdge,
@@ -12,6 +11,7 @@ import {
 	type Shape,
 	twoDecimals,
 } from "./scene";
+import { type Face, units } from "./text/faces";
 import {
 	families,
 	glyphs,
@@ -19,7 +19,7 @@ import {
 	outlineOf,
 	textWidth,
 	weights,
-} from "./text";
+} from "./text/text";
 
 const NAMESPACE = "http://www.w3.org/2000/svg";
 // A use names its glyph by `xlink:href`, not SVG 2's `href`, which SVG 1.1 readers such as

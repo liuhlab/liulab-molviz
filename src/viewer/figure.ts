@@ -7,14 +7,14 @@
 
 import * as v from "valibot";
 import { type Input, rowPages, type Where } from "./drawing";
-import type { Face } from "./faces";
-import { list, orThrow, type Problem, parse } from "./format";
-import { MARGIN, NAME_SIZE } from "./map";
-import { type Options, parsedOptions } from "./options";
+import { list, orThrow, type Problem, parse } from "./format/format";
+import { type Options, parsedOptions } from "./format/options";
+import { type Record, recordSchemaOf } from "./format/record";
+import { MARGIN, NAME_SIZE } from "./map/map";
 import { MUTED } from "./paint";
-import { type Record, recordSchemaOf } from "./record";
 import { type MapScene, moved, type Scene, type Shape } from "./scene";
-import { baseline, height } from "./text";
+import type { Face } from "./text/faces";
+import { baseline, height } from "./text/text";
 import { layoutViews, stackedViews, type Views } from "./views";
 
 /** The face of a stacked record's name, set at `NAME_SIZE` in `MUTED`. */

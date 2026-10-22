@@ -6,7 +6,7 @@
 
 import * as v from "valibot";
 import type { Input } from "./drawing";
-import { exact, keyed, PositiveInteger, parse, Text } from "./format";
+import { exact, keyed, PositiveInteger, parse, Text } from "./format/format";
 import {
 	INK,
 	lines,
@@ -16,7 +16,7 @@ import {
 	TITLE_SIZE,
 } from "./furniture";
 import type { Scene, Shape } from "./scene";
-import { measure, wrap } from "./text";
+import { measure, wrap } from "./text/text";
 
 /** A well's place on its plate, each counted from 0. */
 export interface Place {

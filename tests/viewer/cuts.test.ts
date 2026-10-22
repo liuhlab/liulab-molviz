@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { cutSites } from "../../src/viewer/cuts";
-import { layoutLine } from "../../src/viewer/line";
-import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
+import { checkOptions } from "../../src/viewer/format/options";
+import { check } from "../../src/viewer/format/record";
+import { layoutLine } from "../../src/viewer/map/line";
 import type { Scene, Shape } from "../../src/viewer/scene";
-import { measure } from "../../src/viewer/text";
+import { measure } from "../../src/viewer/text/text";
 import colourTestFile from "../records/colour-test.json";
 import cutAtOriginFile from "../records/n-and-cut-at-origin.json";
 

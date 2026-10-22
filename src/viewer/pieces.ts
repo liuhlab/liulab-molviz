@@ -1,6 +1,6 @@
 /** Where an item lies along a span, counted as the span counts, and as a reader reads it. */
 
-import { type Bounds, runsOnFromStart, type Span } from "./record";
+import { type Bounds, runsOnFromStart, type Span } from "./format/record";
 
 /** What of a feature lies in the span: part of a segment, or of a gap between two. */
 export interface Piece {

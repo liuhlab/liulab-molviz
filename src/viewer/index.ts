@@ -11,10 +11,10 @@ import {
 	type Where,
 } from "./drawing";
 import { figureInput } from "./figure";
+import { LIMIT } from "./format/options";
 import { gelInput } from "./gel";
-import { LIMIT } from "./options";
 import { plateInput } from "./plate";
-import { fontFaceCss } from "./text";
+import { fontFaceCss } from "./text/text";
 import { recordInput } from "./views";
 
 /** A call that draws an input into an element of a page. */

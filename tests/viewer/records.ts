@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 /** The test records, for the tests that run over every one. */
 
-import type { check } from "../../src/viewer/record";
+import type { check } from "../../src/viewer/format/record";
 
 export type RecordFile = Parameters<typeof check>[0] & {
 	readonly circular: boolean;

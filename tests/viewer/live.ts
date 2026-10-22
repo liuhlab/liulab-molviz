@@ -1,10 +1,10 @@
 /** What the tests of a live page share: records opened in frames, and the hands that work them. */
 
 import { openRecord } from "../../src/viewer/draw";
-import type { Frame } from "../../src/viewer/frame";
-import { hoverBox } from "../../src/viewer/hover";
-import { checkOptions } from "../../src/viewer/options";
-import { check } from "../../src/viewer/record";
+import { checkOptions } from "../../src/viewer/format/options";
+import { check } from "../../src/viewer/format/record";
+import type { Frame } from "../../src/viewer/page/frame";
+import { hoverBox } from "../../src/viewer/page/hover";
 import type { Box } from "../../src/viewer/scene";
 import { toElement } from "../../src/viewer/svg";
 import { layoutMap } from "../../src/viewer/views";

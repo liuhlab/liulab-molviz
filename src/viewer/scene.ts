@@ -3,8 +3,8 @@
  * SVG or DOM in it.
  */
 
-import type { Face } from "./faces";
 import type { Hidden, ItemKey } from "./labels";
+import type { Face } from "./text/faces";
 
 /** A rectangle: its top-left corner, width and height. */
 export interface Box {

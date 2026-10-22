@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { FormatError } from "../../src/viewer/format";
+import type { FormatError } from "../../src/viewer/format/format";
 import {
 	checkPlate,
 	layoutPlate,
@@ -8,7 +8,7 @@ import {
 	wellName,
 } from "../../src/viewer/plate";
 import { leftEdge, type Scene, type Shape } from "../../src/viewer/scene";
-import { measure } from "../../src/viewer/text";
+import { measure } from "../../src/viewer/text/text";
 import eleven from "../plates/eleven-contents.json";
 import longLegend from "../plates/long-legend.json";
 import oneWell from "../plates/one-well.json";

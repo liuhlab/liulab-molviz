@@ -1,7 +1,7 @@
 /** The colours a map paints. Each is written `#rrggbb`. */
 
-import { folded } from "./format";
-import type { Feature } from "./record";
+import { folded } from "./format/format";
+import type { Feature } from "./format/record";
 
 /** The colour of each group of feature types, by the types it holds. */
 // Paul Tol's light scheme, with `#aa3377` from his bright scheme.
