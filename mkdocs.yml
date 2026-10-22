@@ -21,6 +21,7 @@ nav:
   - Home: index.md
   - Reference:
       - Python API: api.md
+      - JavaScript API: reference/javascript.md
 
 # What `--strict` catches. Every row was built against the pinned zensical and watched, not
 # taken from what a strict mkdocs build used to do:
