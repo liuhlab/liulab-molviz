@@ -26,8 +26,8 @@ import { MARGIN } from "./map";
 import type { Options } from "./options";
 import { INK, RAIL } from "./paint";
 import { pieces } from "./pieces";
-import { type Bounds, type Record, recordBounds } from "./record";
-import { CELL, type RowBox, type Strands } from "./row";
+import { type Record, recordBounds } from "./record";
+import { CELL, type RowBox, type RunOn, type Strands } from "./row";
 import {
 	type Box,
 	moved,
@@ -39,7 +39,12 @@ import { acrossStrands, sites } from "./sequence-kinds";
 import { type Sampled, sampledRows, strips } from "./sequence-tracks";
 import { chips } from "./sequence-translation";
 import { shownBars } from "./shown";
-import { type Anchored, labelsAbove } from "./staircase";
+import {
+	type Along,
+	type Anchored,
+	labelsAbove,
+	type Shelf,
+} from "./staircase";
 import { baseline, height, measure } from "./text";
 
 /** The size a base's letter is set at. */
@@ -62,37 +67,6 @@ const ROW_GAP = 16;
 export interface SequenceScene extends Scene {
 	readonly rows: readonly RowBox[];
 }
-
-/** One row of the view: what it is drawn against, and the bases it holds. */
-export interface Row {
-	readonly record: Record;
-	readonly options: Options;
-	readonly bounds: Bounds;
-	/** Its bases, counted as the span counts them. */
-	readonly start: number;
-	readonly end: number;
-	/** The x of a point between two bases, counted as the span counts. */
-	readonly at: (position: number) => number;
-}
-
-/** What a part of a row draws, and the labels it sets above the row. */
-export interface RowMarks {
-	readonly shapes: readonly Shape[];
-	readonly labels: readonly Anchored[];
-	/** What its marks cover that their shapes' boxes leave out, such as a line's stroke. */
-	readonly covers?: readonly Box[];
-}
-
-/** A shelf of a row, stacked under what lies above it: what it draws, and where it ends. */
-export interface Shelf extends RowMarks {
-	readonly bottom: number;
-}
-
-/**
- * The tier each item running on from one row into the next took, by the item: a bar by its
- * label, a primer site or a read by itself.
- */
-export type RunOn = Map<object, number>;
 
 /** Lay out the span `options` gives of `record` in rows of `options.bases_per_row` bases. */
 export function layoutSequence(
@@ -120,7 +94,7 @@ export function layoutSequence(
 	let top = 0;
 	for (const [i, start] of starts.entries()) {
 		const end = Math.min(start + perRow, span.end);
-		const row: Row = {
+		const row: Along = {
 			record,
 			options,
 			bounds,
@@ -168,7 +142,7 @@ export function layoutSequence(
  * they take, and the tier of each item running on into the row after.
  */
 function layoutRow(
-	row: Row,
+	row: Along,
 	shown: readonly ColoredFeature[],
 	sampled: readonly Sampled[],
 	before: RunOn,
@@ -238,11 +212,11 @@ function layoutRow(
  * the row before, `before`.
  */
 function bars(
-	row: Row,
+	row: Along,
 	shown: readonly ColoredFeature[],
 	before: RunOn,
 	top: number,
-): Shelf & { after: RunOn } {
+): Shelf & { bottom: number; after: RunOn } {
 	const { start, end, at, bounds, options } = row;
 	const found = shown.flatMap(({ feature, label, segments }, order) =>
 		barsOf(feature, label, pieces(segments, { start, end }, bounds), at).map(
@@ -299,7 +273,7 @@ function bars(
 }
 
 /** The number over each base of `row` the record numbers a multiple of ten, on `middle`. */
-function numbers({ start, end, at, bounds }: Row, middle: number): Shape[] {
+function numbers({ start, end, at, bounds }: Along, middle: number): Shape[] {
 	const shapes: Shape[] = [];
 	for (let position = start; position < end; position++) {
 		const n = (position % bounds.length) + 1;
@@ -322,7 +296,7 @@ function numbers({ start, end, at, bounds }: Row, middle: number): Shape[] {
  * The rail at the height `rail` along `row`, and its ticks as one path: one at each base, longer
  * where the record numbers it a multiple of five, and longer still at ten.
  */
-function railShapes({ start, end, at, bounds }: Row, rail: number): Shape[] {
+function railShapes({ start, end, at, bounds }: Along, rail: number): Shape[] {
 	const commands: PathCommand[] = [];
 	for (let position = start; position < end; position++) {
 		const n = (position % bounds.length) + 1;

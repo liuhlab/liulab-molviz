@@ -12,7 +12,7 @@ import {
 import { turns } from "./pieces";
 import type { Feature } from "./record";
 import type { Shape } from "./scene";
-import type { Row, Shelf } from "./sequence";
+import type { Along, Shelf } from "./staircase";
 import { baseline } from "./text";
 
 /** A chip's height, how far its point and notch reach along the row, and the room under it. */
@@ -40,9 +40,9 @@ interface Run {
 export function chips(
 	feature: Feature,
 	bar: Bar,
-	row: Row,
+	row: Along,
 	top: number,
-): Shelf {
+): Shelf & { bottom: number } {
 	const { translation } = feature;
 	if (translation === undefined) return { shapes: [], labels: [], bottom: top };
 	const shapes: Shape[] = [];
@@ -94,7 +94,7 @@ function runs(
 	{ segments, strand, codon_start = 1 }: Feature,
 	translation: string,
 	bar: Bar,
-	{ start, end, at, bounds }: Row,
+	{ start, end, at, bounds }: Along,
 ): Run[] {
 	const reverse = strand === -1;
 	const sign = reverse ? -1 : 1;

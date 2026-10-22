@@ -9,7 +9,9 @@ import {
 	labelSize,
 	SPACING,
 } from "./labels";
+import type { Options } from "./options";
 import { LEADER, LEADER_WIDTH } from "./paint";
+import type { Bounds, Record } from "./record";
 import type { Box, Shape } from "./scene";
 
 /** How far above the line a box may reach, at any length of line, unless told otherwise. */
@@ -27,6 +29,32 @@ export interface Anchored {
 	readonly label: Label;
 	readonly x: number;
 	readonly foot: number;
+}
+
+/** What a shelf of the line or of a row is drawn along. */
+export interface Along {
+	readonly record: Record;
+	readonly options: Options;
+	readonly bounds: Bounds;
+	/** The bases it holds, counted as the span counts them. */
+	readonly start: number;
+	readonly end: number;
+	/** The x of a point between two bases, counted as the span counts. */
+	readonly at: (position: number) => number;
+}
+
+/** What a shelf draws, and the labels it sets above the line. */
+export interface Shelf {
+	/** Its marks, in the order they are drawn. */
+	readonly shapes: readonly Shape[];
+	readonly labels: readonly Anchored[];
+	/** Its labels shown on what they name, which are never counted hidden. */
+	readonly inPlace?: readonly Label[];
+	/** What its marks cover that their shapes' boxes leave out, such as a bar's stroke. */
+	readonly covers?: readonly Box[];
+	/** How high its marks reach, and how low. */
+	readonly top?: number;
+	readonly bottom?: number;
 }
 
 /**

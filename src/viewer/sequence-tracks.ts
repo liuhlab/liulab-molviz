@@ -12,8 +12,8 @@ import {
 	type Track,
 } from "./record";
 import type { Box, PathCommand, Shape } from "./scene";
-import type { Row, Shelf } from "./sequence";
 import { shownTracks } from "./shown";
+import type { Along, Shelf } from "./staircase";
 import { baseline, height, measure } from "./text";
 
 // The room above a strip's name and under it, and the curves' height.
@@ -130,7 +130,7 @@ function beyond(end: Sample, inner: Sample): Sample {
  * its foot.
  */
 export function strips(
-	row: Row,
+	row: Along,
 	tracks: readonly Sampled[],
 	top: number,
 ): Shelf {

@@ -54,7 +54,12 @@ import { pieces, points, spanText } from "./pieces";
 import { type Bounds, type Record, recordBounds, type Span } from "./record";
 import type { Box, MapScene, Shape } from "./scene";
 import { shownBars, shownCuts, shownMarks, shownSites } from "./shown";
-import { type Anchored, labelsAbove } from "./staircase";
+import {
+	type Along,
+	type Anchored,
+	labelsAbove,
+	type Shelf,
+} from "./staircase";
 import { baseline, height, measure } from "./text";
 
 // The dots at an end: where the first sits beyond the line, how far apart they are, and their size.
@@ -62,45 +67,14 @@ const DOT_START = 7;
 const DOT_STEP = 6;
 const DOT = 1.8;
 
-/** What every kind is drawn against. */
-export interface Along {
-	readonly record: Record;
-	readonly options: Options;
-	readonly bounds: Bounds;
-	/** The x of a position counted as the span counts it. */
-	readonly at: (position: number) => number;
-	/** The backbone's top edge, where a leader from the backbone starts. */
-	readonly backboneTop: number;
-}
-
-/** What one shelf draws on the line. */
-export interface LineMarks {
-	/** Its marks, in the order they are drawn. */
-	readonly shapes: readonly Shape[];
-	/** Its labels, to set above the line. */
-	readonly labels: readonly Anchored[];
-	/** Its labels shown on what they name, which are never counted hidden. */
-	readonly inPlace?: readonly Label[];
-	/** How high its marks reach, which the labels clear, and how low, which the title clears. */
-	readonly top: number;
-	readonly bottom: number;
-	/** What its marks cover that their shapes' boxes leave out, such as a bar's stroke. */
-	readonly covers?: readonly Box[];
-}
-
-/** A shelf that draws nothing, which reaches no height either way: what each shelf starts from. */
-const NOTHING: LineMarks = {
-	shapes: [],
-	labels: [],
-	top: Number.POSITIVE_INFINITY,
-	bottom: Number.NEGATIVE_INFINITY,
-};
+/** The backbone's top edge, where a leader from the backbone starts. */
+const BACKBONE_TOP = -BACKBONE / 2;
 
 /**
  * The line's shelves, in the order they draw and their labels gather, the first lowest at one x:
  * bars, sites, marks at a point, and cut sites. Tracks draw nothing on the line.
  */
-const SHELVES: readonly ((along: Along) => LineMarks)[] = [
+const SHELVES: readonly ((along: Along) => Shelf)[] = [
 	bars,
 	sites,
 	marks,
@@ -124,8 +98,7 @@ export function layoutLine(
 	const { length } = bounds;
 	const axis = { span, width };
 	const at = (position: number) => lineX(axis, position);
-	const backboneTop = -BACKBONE / 2;
-	const along: Along = { record, options, bounds, at, backboneTop };
+	const along: Along = { record, options, bounds, start, end, at };
 	const drawn = SHELVES.map((shelf) => shelf(along));
 	const shapes: Shape[] = [
 		...backbone(width),
@@ -137,7 +110,7 @@ export function layoutLine(
 		...ruler(span, bounds, at, width),
 		...drawn.flatMap((one) => one.shapes),
 	];
-	const top = Math.min(backboneTop, ...drawn.map((one) => one.top));
+	const top = Math.min(BACKBONE_TOP, ...drawn.flatMap((one) => one.top ?? []));
 	const above = labelsAbove(
 		drawn.flatMap((one) => one.labels),
 		top,
@@ -147,7 +120,10 @@ export function layoutLine(
 		},
 	);
 	shapes.push(...above.shapes);
-	const bottom = Math.max(rulerBottom(), ...drawn.map((one) => one.bottom));
+	const bottom = Math.max(
+		rulerBottom(),
+		...drawn.flatMap((one) => one.bottom ?? []),
+	);
 	const covers = drawn.flatMap((one) => one.covers ?? []);
 	shapes.push(...title(record.name, length, span, bottom + GAP, width));
 	const boxes = [...above.boxes, ...covers];
@@ -176,7 +152,7 @@ function rulerBottom(): number {
  * Each feature, then each disagreement over a span, as arrows packed in tiers under the ruler,
  * its name inside them, under them, or boxed above the line.
  */
-function bars({ record, options, bounds, at, backboneTop }: Along): LineMarks {
+function bars({ record, options, bounds, at }: Along): Shelf {
 	const laid: Bar[] = [];
 	for (const { feature, label, segments } of shownBars(record, options)) {
 		const found = pieces(segments, options.span, bounds);
@@ -201,32 +177,32 @@ function bars({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 	);
 	const labels = laid.flatMap((bar, i) =>
 		placed[i] === "boxed"
-			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: backboneTop }]
+			? [{ label: bar.label, x: (bar.start + bar.end) / 2, foot: BACKBONE_TOP }]
 			: [],
 	);
 	const inPlace = laid.flatMap((bar, i) =>
 		placed[i] && placed[i] !== "boxed" ? [bar.label] : [],
 	);
-	return { ...NOTHING, shapes, labels, inPlace, bottom: y };
+	return { shapes, labels, inPlace, bottom: y };
 }
 
 /** Each cut site in the span, its label on a leader from the backbone's top at the cut. */
-function cuts({ record, options, bounds, at, backboneTop }: Along): LineMarks {
+function cuts({ record, options, bounds, at }: Along): Shelf {
 	const labels = shownCuts(record, options).flatMap((site) =>
 		points(site.at, options.span, bounds).map((point) => ({
 			label: site.label,
 			x: at(point),
-			foot: backboneTop,
+			foot: BACKBONE_TOP,
 		})),
 	);
-	return { ...NOTHING, labels };
+	return { shapes: [], labels };
 }
 
 /**
  * Each primer site, then each read, as a thin arrow above the backbone, its head at the 3' end,
  * in rows packed by start, labelled by its name and the bases it spans.
  */
-function sites({ record, options, bounds, at }: Along): LineMarks {
+function sites({ record, options, bounds, at }: Along): Shelf {
 	const reach = overhang(PRIMER_SHAFT);
 	const step = PRIMER_SHAFT + 2 * reach + PRIMER_GAP;
 	const first = -BACKBONE / 2 - PRIMER_GAP - reach - PRIMER_SHAFT / 2;
@@ -271,7 +247,7 @@ function sites({ record, options, bounds, at }: Along): LineMarks {
 		x: (arrow.start + arrow.end) / 2,
 		foot: tops[i],
 	}));
-	return { ...NOTHING, shapes, labels, top: Math.min(...tops) };
+	return { shapes, labels, top: Math.min(...tops) };
 }
 
 /**
@@ -279,12 +255,12 @@ function sites({ record, options, bounds, at }: Along): LineMarks {
  * in its colour, labelled with what the insertion adds or the disagreement's name, its name and
  * point on hover.
  */
-function marks({ record, options, bounds, at, backboneTop }: Along): LineMarks {
+function marks({ record, options, bounds, at }: Along): Shelf {
 	const shapes: Shape[] = [];
 	const labels: Anchored[] = [];
 	const covers: Box[] = [];
 	const [y1, y2] = [
-		backboneTop - INSERTION_REACH,
+		BACKBONE_TOP - INSERTION_REACH,
 		STRANDS_APART + BACKBONE / 2 + INSERTION_REACH,
 	];
 	for (const { at: point, label, hover } of shownMarks(record, options)) {
@@ -313,10 +289,10 @@ function marks({ record, options, bounds, at, backboneTop }: Along): LineMarks {
 				width: INSERTION_WIDTH,
 				height: y2 - y1,
 			});
-			labels.push({ label, x, foot: backboneTop });
+			labels.push({ label, x, foot: BACKBONE_TOP });
 		}
 	}
-	return { ...NOTHING, shapes, labels, covers };
+	return { shapes, labels, covers };
 }
 
 /** What `shapes`, a backbone `width` long and the boxes `more` cover, and `MARGIN` beyond. */

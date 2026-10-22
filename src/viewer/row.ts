@@ -1,4 +1,7 @@
-/** A row of the sequence view: the cell each base takes, and where the row and its strands lie. */
+/**
+ * A row of the sequence view: the cell each base takes, where the row and its strands lie, and
+ * the tiers of what runs on into the next row.
+ */
 
 import type { Box } from "./scene";
 
@@ -19,3 +22,9 @@ export interface Strands {
 	/** Nothing when the bottom strand is not drawn. */
 	readonly bottom: readonly [top: number, bottom: number] | null;
 }
+
+/**
+ * The tier each item running on from one row into the next took, by the item: a bar by its
+ * label, a primer site or a read by itself.
+ */
+export type RunOn = Map<object, number>;

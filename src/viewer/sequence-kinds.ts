@@ -24,11 +24,10 @@ import {
 	shaded,
 } from "./paint";
 import { isWhole, pieces, turns } from "./pieces";
-import type { Strands } from "./row";
+import type { RunOn, Strands } from "./row";
 import type { Box, Shape } from "./scene";
-import type { Row, RowMarks, RunOn, Shelf } from "./sequence";
 import { type Aligned, shownCuts, shownMarks, shownSites } from "./shown";
-import type { Anchored } from "./staircase";
+import type { Along, Anchored, Shelf } from "./staircase";
 
 /** The height of a row's top, where every leader from a label above it ends. */
 const ROW_TOP = 0;
@@ -53,7 +52,7 @@ const MARK_INSET = 2;
 const CUT_WIDTH = 1.2;
 
 /** The cut sites and marks in `row`, drawn through its `strands`. */
-export function acrossStrands(row: Row, strands: Strands): RowMarks {
+export function acrossStrands(row: Along, strands: Strands): Shelf {
 	const cut = cuts(row, strands);
 	const marked = marks(row, strands);
 	return {
@@ -87,11 +86,11 @@ interface InRow {
  * above the row where the row holds part of it.
  */
 export function sites(
-	row: Row,
+	row: Along,
 	top: number,
 	strand: 1 | -1,
 	before: RunOn,
-): Shelf & { after: RunOn } {
+): Shelf & { bottom: number; after: RunOn } {
 	const earlier = ({ aligned }: InRow) =>
 		before.get(aligned.item) ?? Number.MAX_SAFE_INTEGER;
 	const found = inRow(row, strand).sort(
@@ -153,7 +152,7 @@ export function sites(
 }
 
 /** What `row` holds of each primer site and read on `strand`, with its tail. */
-function inRow(row: Row, strand: 1 | -1): InRow[] {
+function inRow(row: Along, strand: 1 | -1): InRow[] {
 	const { record, options, bounds, at } = row;
 	const found: InRow[] = [];
 	for (const aligned of shownSites(record, options)) {
@@ -256,7 +255,7 @@ function tailShape(
  * and through the bottom strand where it cuts that, so its overhang shows. A cut is drawn in
  * every row its overhang reaches, and labelled in the row holding its top-strand cut.
  */
-function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
+function cuts(row: Along, { top, rail, bottom }: Strands): Shelf {
 	const { record, options, bounds, at } = row;
 	const on = new Set(options.enzymes.map(folded));
 	const floor = bottom ? bottom[1] : rail;
@@ -344,7 +343,7 @@ function cuts(row: Row, { top, rail, bottom }: Strands): RowMarks {
  * one, at its point, in the row holding the base after it. An insertion is labelled with what it
  * adds, a disagreement with its name; each has its name and point on hover.
  */
-function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
+function marks(row: Along, { top, rail, bottom }: Strands): Shelf {
 	const { record, options, bounds, at } = row;
 	const [y1, y2] = [top[0], bottom ? bottom[1] : rail];
 	const under = bottom ? { rail } : {};
@@ -391,7 +390,7 @@ function marks(row: Row, { top, rail, bottom }: Strands): RowMarks {
  * or at the two ends of a circle opened whole, the later row holds it if `after`, else the
  * earlier.
  */
-function holds(row: Row, p: number, after: boolean): boolean {
+function holds(row: Along, p: number, after: boolean): boolean {
 	const { start, end, options, bounds } = row;
 	const { span } = options;
 	if (p < start || p > end) return false;
