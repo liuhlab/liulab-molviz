@@ -1,50 +1,32 @@
-# API reference
+# Python API
 
-Built from the docstrings in `src/molviz/`, so this page and the code cannot drift apart.
-Write the docstring; this page follows.
-
-## The examples are tests
-
-`pixi run check` runs the `Examples` blocks in `src/molviz/`, so an example that no longer
-matches its code fails the tests.
-
-Write one where it makes the object easier to use, and leave it out where it would not.
-An example nobody keeps up to date is worse than none.
-
-Keep an example cheap, offline and deterministic. It has to give the same answer on any
-machine, with no network. A line that cannot do that needs `# doctest: +SKIP` at the end of
-that line.
-
-Two things about that marker are easy to get backwards:
-
-- It covers only the line it sits on. It does not carry to the line below. In a block that
-  mixes lines that run with lines that cannot, each line that cannot run needs its own.
-- A trailing comment written as plain prose looks just like a marker and is not one. Only
-  the `# doctest:` form is read as one.
+The `molviz` package's names, each as its docstring describes it. Import each one from
+`molviz`, as in `molviz.draw`. A page that draws in the browser calls the viewer itself,
+through the names on the [JavaScript API](reference/javascript.md) page.
 
 ## molviz
 
-::: molviz.viewer.viewer_script
-
-::: molviz.font_rules
-
 ::: molviz.check
-
-::: molviz.check_gel
-
-::: molviz.check_plate
 
 ::: molviz.draw
 
+::: molviz.Drawing
+
 ::: molviz.draw_figure
+
+::: molviz.check_gel
 
 ::: molviz.draw_gel
 
+::: molviz.check_plate
+
 ::: molviz.draw_plate
 
-::: molviz.Drawing
-
 ::: molviz.SEQUENCE_VIEW_LIMIT
+
+::: molviz.font_rules
+
+::: molviz.viewer.viewer_script
 
 ## Options
 
@@ -64,43 +46,15 @@ out takes its default.
 | `bases_per_row` | How many bases a row of the sequence view holds. The last row may hold fewer. | `60` |
 | `bottom_strand` | Whether the sequence view draws the bottom strand under the top one. | `true` |
 
-## A page of your own
-
-A page can show a drawing in two ways.
-
-- **Live.** Put `viewer_script()` in a `<script>` element once. Then call
-  `molviz.draw(element, record, options)` for each place on the page that shows a record. Each
-  gets a bar of controls above its map, which a print leaves out.
-- **Still.** Put `font_rules()` in a `<style>` element once. Then write each drawing's
-  `still_svg()` into the page as it is. The page needs no script. A still drawing looks the
-  same as a live one, and its hovers show, but a reader cannot change it.
-
-A page that does both needs no font rules, since `draw` adds them. Written anyway, they cost
-their size twice.
-
-molviz's own pages work the same way. A record's page draws it live. A gel's, a plate's or a
-figure's page holds its still drawing.
-
-```python
-import molviz
-
-drawings = [molviz.draw_gel(gel), molviz.draw_plate(plate)]
-page = f"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<style>{molviz.font_rules()}</style>
-</head>
-<body>
-{"".join(drawing.still_svg() for drawing in drawings)}
-</body>
-</html>
-"""
-```
-
 ## The command line
 
-The whole module, because typer makes every verb a plain function with a docstring, and
-`molviz.cli:app` — the object `[project.scripts]` registers — is built from them.
+Installing the package adds the `molviz` command. `molviz` with no command, or
+`molviz --help`, lists its commands.
 
-::: molviz.cli
+::: molviz.cli.version
+    options:
+      heading: "molviz version"
+      separate_signature: false
+      show_signature: false
+      show_source: false
+      show_symbol_type_heading: false
