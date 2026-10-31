@@ -7,6 +7,8 @@ sets one.
 
 ## [Unreleased]
 
+## [2026.10.1] - 2026-10-31
+
 ### Changed
 
 - A plate is drawn inside a rounded border that holds its wells, row letters and column
