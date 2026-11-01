@@ -1,4 +1,4 @@
-"""Write mbio's example inputs into ``tests/``, in the viewer's formats.
+"""Write mbio's example inputs into ``tests/``, in the viewer's formats, by mbio's converter.
 
 The records go to ``tests/records/``, and from mbio's protocol JSON the figures to
 ``tests/figures/``, the gels to ``tests/gels/`` and the plates to ``tests/plates/``. It runs in
@@ -7,9 +7,6 @@ mbio's environment, and ``tests/records/README.md`` has the command. Each input 
 imports must match that commit. Every record carries the cuts of all of mbio's enzymes. An
 input that repeats one already written, such as a plate two protocols declare alike, is written
 once. The hand-made records in ``tests/records/`` are not written here.
-
-A verification's reads and disagreements, and a trace's track, are what mbio's verification
-page draws of them, so this reads some of that page's private names.
 """
 
 import dataclasses
@@ -20,14 +17,18 @@ import re
 import subprocess
 import sys
 import tempfile
-from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
 import mbio  # pyright: ignore[reportMissingImports]
-from mbio.enzymes import enzymes  # pyright: ignore[reportMissingImports]
 from mbio.io import read_record  # pyright: ignore[reportMissingImports]
-from mbio.plot.layers import items, translation  # pyright: ignore[reportMissingImports]
+from mbio.plot.converter import molviz_record  # pyright: ignore[reportMissingImports]
+from mbio.protocol.converter import (  # pyright: ignore[reportMissingImports]
+    molviz_figure,
+    molviz_gel,
+    molviz_plate,
+    molviz_stamp,
+)
 from mbio.protocol.model import (  # pyright: ignore[reportMissingImports]
     read_project,
     read_protocol,
@@ -38,18 +39,19 @@ from mbio.sequence import (  # pyright: ignore[reportMissingImports]
     SequenceRecord,
     reverse_complement,
 )
-from mbio.sites import find_sites  # pyright: ignore[reportMissingImports]
 from mbio.verification import (  # pyright: ignore[reportMissingImports]
-    page,
     read_channels,
     read_trace,
     regions,
     verify,
 )
 from mbio.verification.cli import read_result  # pyright: ignore[reportMissingImports]
+from mbio.verification.converter import (  # pyright: ignore[reportMissingImports]
+    molviz_verification,
+)
 
 #: The mbio commit the records are read at. To move it, edit it and run this again.
-REVISION = "10e87856849e7d484f0274064b8ff96357a5f618"
+REVISION = "055ff01a4fc26b11d4527850e08671c508420551"
 
 #: Each record's file name in ``tests/records/``, and its input in mbio.
 RECORDS = {
@@ -102,9 +104,6 @@ FLANK = 60
 #: The base planted in place of each base.
 _REPLACEMENT = {"A": "C", "C": "G", "G": "T", "T": "A"}
 
-#: The bases of a trace's curves, in the order mbio's verification page gives the curves.
-_CURVE_BASES = ("A", "C", "G", "T")
-
 #: Each protocol or project in mbio whose steps hold gels, by the short name that starts each
 #: gel's file name in ``tests/gels/``. The gel's title ends it.
 GELS = {
@@ -122,130 +121,6 @@ PLATES = {
     "ap1": _AP1,
     "ap1-readback": "docs/examples/ap1-readback/protocol.json",
 }
-
-_HEX = re.compile(r"#[0-9a-fA-F]{6}")
-
-
-def _color(value: str | None) -> str | None:
-    """Return a file's colour in lower case, or ``None`` for none, SnapGene's ``noColor`` too."""
-    return value.lower() if value is not None and _HEX.fullmatch(value) else None
-
-
-def _span(span: Any) -> dict[str, Any]:
-    return {"start": int(span.start), "end": int(span.end)}
-
-
-def _codon_start(feature: Any) -> int:
-    """Return the base, 1 to 3, a CDS is read from: 1 when `/codon_start` is missing or invalid."""
-    try:
-        start = int(feature.qualifiers.get("codon_start", (1,))[0])
-    except (IndexError, ValueError):
-        return 1
-    return start if start in (1, 2, 3) else 1
-
-
-def _feature(feature: Any, record: Any) -> dict[str, Any]:
-    own = _color(feature.color)
-    segments = []
-    for segment in feature.segments:
-        written = _span(segment)
-        if (color := _color(segment.color)) and color != own:
-            written["color"] = color
-        segments.append(written)
-    out: dict[str, Any] = {
-        "name": feature.name,
-        "type": feature.type,
-        "strand": int(feature.strand),
-        "segments": segments,
-    }
-    if own:
-        out["color"] = own
-    # mbio translates a CDS only, and its translation is read from the bases, not the
-    # `/translation` qualifier, which goes stale on a joined feature.
-    if feature.type == "CDS" and (codons := translation(feature, record)):
-        out["translation"] = "".join(codon.amino_acid for codon in codons)
-        if (start := _codon_start(feature)) != 1:
-            out["codon_start"] = start
-    return out
-
-
-def _primers(record: Any) -> list[dict[str, Any]]:
-    out = [{"name": p.name, "bases": p.sequence, "sites": []} for p in record.primers]
-    sites = [(i, site) for i, primer in enumerate(record.primers) for site in primer.binding_sites]
-    # `items` gives one primer item per site, in the order the record lists them.
-    primer_items = items(record, features=False, cut_sites=False)
-    for (i, site), item in zip(sites, primer_items, strict=True):
-        written = _span(site) | {"strand": int(site.strand)}
-        if item.mismatches:
-            written["mismatches"] = list(item.mismatches)
-        out[i]["sites"].append(written)
-    return out
-
-
-def _cuts(record: Any) -> list[dict[str, Any]]:
-    # A site whose cut falls off a linear record cuts nothing, and mbio's map drops it.
-    return [
-        {
-            "enzyme": site.enzyme.name,
-            **_span(site),
-            "at": site.top_cut,
-            "stagger": site.enzyme.bottom_cut - site.enzyme.top_cut,
-        }
-        for site in find_sites(record, enzymes())
-        if site.cuts
-    ]
-
-
-def convert(record: Any) -> dict[str, Any]:
-    """Return an mbio ``SequenceRecord`` in the viewer's format, leaving out empty lists."""
-    out: dict[str, Any] = {
-        "name": record.name,
-        "circular": record.topology == "circular",
-        "bases": record.sequence,
-    }
-    for key, values in (
-        ("features", [_feature(feature, record) for feature in record.features]),
-        ("primers", _primers(record)),
-        ("cuts", _cuts(record)),
-    ):
-        if values:
-            out[key] = values
-    return out
-
-
-def convert_verification(record: Any, made: Any) -> dict[str, Any]:
-    """Return a verification's placed reads, and its disagreements as mbio's page draws them.
-
-    `made` is what mbio's ``verify`` made of results held against `record`. A disagreement
-    takes the page's name and its verdict's colour.
-    """
-    statuses = {one.name: one.status for one in made.checks}
-    reads = [
-        {"name": placed.result, **_span(placed.span), "strand": int(placed.strand)}
-        for placed in made.placements
-        if placed.strand is not None
-    ]
-    disagreements = [
-        {
-            "name": page._name(one, record),
-            **({"at": one.start} if one.kind == "insertion" else _span(one)),
-            "bases": one.bases,
-            "reads": list(one.results),
-            "color": page._VERDICT_COLORS[page._verdict(one, statuses)],
-        }
-        for one in made.disagreements
-    ]
-    return {"reads": reads, "disagreements": disagreements}
-
-
-def convert_track(track: Any) -> dict[str, Any]:
-    """Return an mbio ``Track`` of a trace's four channels in the viewer's format."""
-    curves = zip(_CURVE_BASES, track.curves, strict=True)
-    return {
-        "name": track.name,
-        "curves": {base: list(curve.values) for base, curve in curves},
-        "peaks": [list(peak) for peak in track.peaks],
-    }
 
 
 def _trace(name: str, path: Path, reverse: bool) -> dict[str, Any]:
@@ -266,12 +141,12 @@ def _trace(name: str, path: Path, reverse: bool) -> dict[str, Any]:
     record = SequenceRecord(own, name=name)
     whole = Feature("read", "misc_feature", (Segment(0, len(own)),))
     made = verify(record, (result,), (whole,))
-    [track] = page._tracks(record, (result,), made, (channels,))
+    [track] = molviz_verification(record, (result,), made, channels=(channels,))["tracks"]
     window = SequenceRecord(own[start:end], name=name)
     return (
-        convert(window)
-        | convert_verification(window, _cropped(made, start, end))
-        | {"tracks": [convert_track(_cropped_track(track, start, end))]}
+        molviz_record(window)
+        | molviz_verification(window, (result,), _cropped(made, start, end))
+        | {"tracks": [_cropped_track(track, start, end)]}
     )
 
 
@@ -297,129 +172,54 @@ def _cropped(made: Any, start: int, end: int) -> Any:
     return dataclasses.replace(made, placements=placements, disagreements=disagreements)
 
 
-def _cropped_track(track: Any, start: int, end: int) -> Any:
+def _cropped_track(track: dict[str, Any], start: int, end: int) -> dict[str, Any]:
     """Return a track's peaks over the bases from `start` to `end`, counted from `start`.
 
     The curves keep the samples from a step before the first of those peaks to a step after the
     last, more than a run of them draws.
     """
-    peaks = [(sample, base - start) for sample, base in track.peaks if start <= base < end]
+    peaks = [(sample, base - start) for sample, base in track["peaks"] if start <= base < end]
     (first, _), (second, _) = peaks[:2]
     (before, _), (final, _) = peaks[-2:]
     low = max(0, 2 * first - second)
     high = 2 * final - before + 1
-    curves = tuple(dataclasses.replace(c, values=c.values[low:high]) for c in track.curves)
-    moved = tuple((sample - low, base) for sample, base in peaks)
-    return dataclasses.replace(track, curves=curves, peaks=moved)
+    curves = {base: values[low:high] for base, values in track["curves"].items()}
+    moved = [[sample - low, base] for sample, base in peaks]
+    return track | {"curves": curves, "peaks": moved}
 
 
-def convert_figure(figure: dict[str, Any], folder: str) -> dict[str, Any]:
+def convert_figure(figure: Any, folder: str, repo: Path, scratch: Path) -> dict[str, Any]:
     """Return a figure from mbio's protocol JSON as its records' names and its options.
 
     Each record path resolves against `folder`, the protocol's folder in mbio, to a name in
-    `RECORDS`; any other record stops the script. ``linear`` becomes ``"map": "line"``. An
-    option at mbio's default is left out, and the caption and citation stay mbio's.
+    `RECORDS`; any other record stops the script. The options are mbio's converter's, and the
+    caption and citation stay mbio's.
     """
     names = {path: name for name, path in RECORDS.items()}
     records = []
-    for path in figure["records"]:
+    for path in figure.records:
         if (resolved := posixpath.normpath(posixpath.join(folder, path))) not in names:
             sys.exit(f"a figure draws {resolved}, which is not in RECORDS")
+        _show(repo, resolved, scratch)
         records.append(names[resolved])
-    options: dict[str, Any] = {"map": "line"} if figure.get("linear") else {}
-    if (span := figure.get("span")) is not None:
-        options["span"] = {"start": span[0], "end": span[1]}
-    if figure.get("sequence_view"):
-        options["sequence_view"] = True
-    if (enzymes := figure.get("enzymes")) is not None:
-        options["enzymes"] = enzymes
-    if highlight := figure.get("highlight"):
-        options["highlight"] = highlight
-    return {"records": records, "options": options}
+    return {"records": records, "options": molviz_figure(figure, scratch / folder)["options"]}
 
 
-def _figure(data: dict[str, Any], key: str) -> dict[str, Any]:
-    """Return the one figure of the step with ``key`` in a protocol, or in a project's protocols."""
-    protocols = data.get("protocols", [data])
-    steps = [step for protocol in protocols for step in protocol.get("steps", [])]
-    found = [
-        figure for step in steps if step.get("key") == key for figure in step.get("figures", [])
-    ]
+def _figure(protocols: tuple[Any, ...], key: str) -> Any:
+    """Return the one figure of the step with ``key`` in `protocols`."""
+    steps = [step for protocol in protocols for step in protocol.steps]
+    found = [figure for step in steps if step.key == key for figure in step.figures]
     if len(found) != 1:
         sys.exit(f"step {key!r} holds {len(found)} figures, not one")
     return found[0]
 
 
-def convert_gel(gel: dict[str, Any]) -> dict[str, Any]:
-    """Return a gel from mbio's protocol JSON in the viewer's format, leaving out an empty title.
-
-    ``bands_bp`` becomes ``bands``, and a lane's ``label`` becomes its ``name``.
-    """
-    # A hand-written mbio file may leave out a key that has a default, as mbio's reader allows.
-    out: dict[str, Any] = {"title": title} if (title := gel.get("title")) else {}
-    out["ladder"] = {"name": gel["ladder"]["name"], "bands": gel["ladder"]["bands_bp"]}
-    out["lanes"] = [
-        {"name": lane["label"], "bands": lane.get("bands_bp", [])} for lane in gel["lanes"]
-    ]
-    return out
-
-
-def _gels(data: dict[str, Any]) -> list[dict[str, Any]]:
-    """Return every gel of a protocol, or of each protocol in a project, in step order."""
-    protocols = data.get("protocols", [data])
-    steps = [step for protocol in protocols for step in protocol.get("steps", [])]
-    return [gel for step in steps for gel in step.get("gels", [])]
-
-
-def convert_plate(
-    plate: Any, title: str | None = None, wells: Mapping[str, str] | None = None
-) -> dict[str, Any]:
-    """Return an mbio ``Plate`` in the viewer's format, its wells in reading order.
-
-    The format becomes rows and columns. The title is the plate's name and the wells are
-    ``{**labels, **seating}``, as mbio's page draws them, unless `title` or `wells` is given.
-    A plate with no well filled has no ``wells``.
-    """
-    held = {**plate.labels, **plate.seating} if wells is None else wells
-    out: dict[str, Any] = {
-        "title": plate.name if title is None else title,
-        "rows": plate.rows,
-        "columns": plate.columns,
-    }
-    if held:
-        order = {name: i for i, name in enumerate(plate.well_names)}
-        out["wells"] = {name: held[name] for name in sorted(held, key=order.__getitem__)}
-    return out
-
-
-def _stamped(transfer: Any, plates: tuple[Any, ...]) -> list[dict[str, Any]]:
-    """Return the "From" and "Into" plates mbio's page draws for a transfer, or none.
-
-    mbio draws a transfer only where it is a stamp, both its plates are declared in `plates`,
-    and every well it touches is on its plate. Each touched well holds the transfer's title.
-    """
-    declared = {plate.name: plate for plate in plates}
-    source = declared.get(transfer.plates[0])
-    destination = declared.get(transfer.plates[-1])
-    if transfer.stamp is None or source is None or destination is None:
-        return []
-    title: str = transfer.title
-    taken: set[str] = {move.source.well for move in transfer.moves}
-    filled: set[str] = {move.destination.well for move in transfer.moves}
-    if not (taken <= set(source.well_names) and filled <= set(destination.well_names)):
-        return []
-    return [
-        convert_plate(source, f"From {source.name}", dict.fromkeys(taken, title)),
-        convert_plate(destination, f"Into {destination.name}", dict.fromkeys(filled, title)),
-    ]
-
-
 def _plates(protocol: Any) -> list[tuple[str, dict[str, Any]]]:
     """Return each plate a protocol declares, then both plates of each stamp, each with a name."""
-    out = [(_slug(plate.name), convert_plate(plate)) for plate in protocol.plates]
+    out = [(_slug(plate.name), molviz_plate(plate)) for plate in protocol.plates]
     for step in protocol.steps:
         for transfer in step.transfers:
-            pair = zip(("from", "into"), _stamped(transfer, protocol.plates), strict=False)
+            pair = zip(("from", "into"), molviz_stamp(transfer, protocol.plates), strict=False)
             out += [(_slug(f"{transfer.title} {side}"), plate) for side, plate in pair]
     return out
 
@@ -460,8 +260,12 @@ def _git(repo: Path, *args: str) -> bytes:
 
 
 def _show(repo: Path, path: str, scratch: Path) -> Path:
-    """Return a copy in ``scratch`` of mbio's file at ``path`` as it was at `REVISION`."""
-    copy = scratch / Path(path).name
+    """Return a copy of mbio's file at ``path`` as it was at `REVISION`, at that path in ``scratch``.
+
+    A figure's records are read relative to its protocol, so each copy keeps mbio's folders.
+    """
+    copy = scratch / path
+    copy.parent.mkdir(parents=True, exist_ok=True)
     copy.write_bytes(_git(repo, "show", f"{REVISION}:{path}"))
     return copy
 
@@ -484,17 +288,14 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as temporary:
         scratch = Path(temporary)
         for name, path in RECORDS.items():
-            data = convert(read_record(_show(repo, path, scratch)))
+            data = molviz_record(read_record(_show(repo, path, scratch)))
             if _write(tests / "records" / f"{name}.json", data, written):
                 _print_counts(name, data)
-        for name, (path, results) in VERIFICATIONS.items():
+        for name, (path, paths) in VERIFICATIONS.items():
             record = read_record(_show(repo, path, scratch))
-            made = verify(
-                record,
-                tuple(read_result(_show(repo, one, scratch)) for one in results),
-                regions(record),
-            )
-            data = convert(record) | convert_verification(record, made)
+            results = tuple(read_result(_show(repo, one, scratch)) for one in paths)
+            made = verify(record, results, regions(record))
+            data = molviz_record(record) | molviz_verification(record, results, made)
             if _write(tests / "records" / f"{name}.json", data, written):
                 _print_counts(name, data)
         for name, (path, reverse) in TRACES.items():
@@ -503,16 +304,16 @@ def main() -> None:
             if _write(tests / "records" / f"{name}.json", data, written, compact=True):
                 _print_counts(name, data)
         for name, (path, key) in FIGURES.items():
-            protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
-            figure = convert_figure(_figure(protocol, key), posixpath.dirname(path))
+            protocols = _protocols(_show(repo, path, scratch))
+            figure = convert_figure(_figure(protocols, key), posixpath.dirname(path), repo, scratch)
             if _write(tests / "figures" / f"{name}.json", figure, written):
                 print(f"{name}: {', '.join(figure['records'])}")
         for short, path in GELS.items():
-            protocol = json.loads(_show(repo, path, scratch).read_text(encoding="utf-8"))
-            for gel in _gels(protocol):
-                name = _slug(f"{short} {gel.get('title', '')}")
-                if _write(tests / "gels" / f"{name}.json", convert_gel(gel), written):
-                    print(f"{name}: {len(gel['lanes'])} lanes")
+            for protocol in _protocols(_show(repo, path, scratch)):
+                for gel in (gel for step in protocol.steps for gel in step.gels):
+                    name = _slug(f"{short} {gel.title}")
+                    if _write(tests / "gels" / f"{name}.json", molviz_gel(gel), written):
+                        print(f"{name}: {len(gel.lanes)} lanes")
         for short, path in PLATES.items():
             for protocol in _protocols(_show(repo, path, scratch)):
                 for slug, plate in _plates(protocol):
