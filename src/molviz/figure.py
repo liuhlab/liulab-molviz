@@ -29,6 +29,6 @@ def draw_figure(records: list[dict[str, Any]], **options: Any) -> Drawing:
     ...
     ValueError: options.highlight[0]: names nothing in any record
     """
-    drawn = call("figure", "svg", records, options)
+    call("figure", "check", records, options)
     title = ", ".join(record["name"] for record in records)
-    return Drawing("figure", records, drawn, title, options)
+    return Drawing("figure", records, title, options)

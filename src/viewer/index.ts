@@ -94,7 +94,10 @@ export const calls = Object.fromEntries(
 
 /** Each input's four calls, by their names on the global. */
 type Calls = {
-	readonly [Name in keyof Inputs as Inputs[Name]["calls"]["check"]]: Inputs[Name]["input"]["check"];
+	readonly [Name in keyof Inputs as Inputs[Name]["calls"]["check"]]: (
+		input: unknown,
+		options?: unknown,
+	) => ReturnType<Inputs[Name]["input"]["check"]>;
 } & {
 	readonly [Name in keyof Inputs as Inputs[Name]["calls"]["draw"]]: Draw;
 } & {
@@ -126,7 +129,12 @@ function laidOut(
 function built(entries: readonly Entry[]): Calls {
 	const made: { [name: string]: unknown } = {};
 	for (const { input, calls, draw } of entries) {
-		made[calls.check] = input.check;
+		// Given options, a check holds them to a file's rules, as Python's draw calls need.
+		made[calls.check] = (given: unknown, options?: unknown) => {
+			const checked = input.check(given);
+			if (options !== undefined) input.checkOptions?.(checked, options, FILE);
+			return checked;
+		};
 		made[calls.draw] =
 			draw ??
 			((element: Element, given: unknown, options: unknown = {}) =>

@@ -71,6 +71,9 @@ export function stackedViews({ map, sequence }: Views): MapScene {
  */
 export const recordInput: Input<Record> = {
 	check,
+	checkOptions(record, options, where) {
+		checkOptions(options, record, where);
+	},
 	layout(record, options, where) {
 		const views = layoutViews(record, checkOptions(options, record, where));
 		return {

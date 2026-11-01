@@ -7,6 +7,14 @@ sets one.
 
 ## [Unreleased]
 
+### Changed
+
+- `draw`, `draw_figure`, `draw_gel` and `draw_plate` check the input and the options at once,
+  and raise the same errors as before. They lay the drawing out for a file only when an
+  `.svg`, `.png` or `.pdf` file, `hidden` or `notice` needs it, and only once per drawing. A
+  caller that writes only `.html` pages no longer pays for that layout.
+- In the viewer, `check` and `checkFigure` check `options` too when given them.
+
 ## [2026.10.1] - 2026-10-31
 
 ### Changed

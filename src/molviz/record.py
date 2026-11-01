@@ -51,5 +51,5 @@ def draw(record: dict[str, Any], **options: Any) -> Drawing:
     ...
     ValueError: options.bogus: unknown key
     """
-    drawn = call("record", "svg", record, options)
-    return Drawing("record", record, drawn, record["name"], options)
+    call("record", "check", record, options)
+    return Drawing("record", record, record["name"], options)

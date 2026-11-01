@@ -37,6 +37,9 @@ each record of a figure.
 
 Each throws a [`FormatError`](#formaterror) when the input breaks its format.
 
+`check` and `checkFigure` also check `options` when they are given, as the file SVG calls do,
+without drawing. When the input is right, the error names every problem in the options instead.
+
 ### Draw into an element
 
 ```js
