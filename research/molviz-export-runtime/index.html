@@ -1,0 +1,1781 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/research/molviz-export-runtime/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Which runtime runs the viewer with no browser, and what turns its SVG into PNG and PDF - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#which-runtime-runs-the-viewer-with-no-browser-and-what-turns-its-svg-into-png-and-pdf" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Which runtime runs the viewer with no browser, and what turns its SVG into PNG and PDF
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. The answer
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-runtimes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Runtimes
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Runtimes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-a-bare-context-offers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What a bare context offers
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-same-bytes-from-every-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. The same bytes from every runtime
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-svg-to-png-and-pdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. SVG to PNG and PDF
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-why-not-the-others" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. Why not the others
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Open gaps
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sources
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="which-runtime-runs-the-viewer-with-no-browser-and-what-turns-its-svg-into-png-and-pdf">Which runtime runs the viewer with no browser, and what turns its SVG into PNG and PDF<a class="headerlink" href="#which-runtime-runs-the-viewer-with-no-browser-and-what-turns-its-svg-into-png-and-pdf" title="Permanent link">&para;</a></h1>
+<p>Research note written for <a href="https://github.com/liuhlab/liulab-molviz/issues/6">liulab-molviz#6</a> on
+2026-10-17. The Python package exports SVG, PNG and PDF with no browser. It must run the built
+viewer, the text <code>molviz.viewer_script()</code> returns: one IIFE that defines the global <code>molviz</code>, tested
+in Node's <code>vm</code> with an empty context, no DOM and no <code>require</code>. The runtime installs from PyPI on
+osx-arm64 and linux-64 for Python 3.13, and under pixi. A PNG or PDF draws every letter as an
+outline, and the same input writes the same bytes.</p>
+<p>Every claim is <strong>measured</strong> (installed and run in a scratch pixi workspace with Python 3.13 on
+osx-arm64), <strong>read</strong> (from the linked source) or <strong>inferred</strong>, and says which. Nothing was run on
+linux-64: its column comes from PyPI's file names and from pixi solving the lock for linux-64.
+Installed size is the sum of the files a distribution's <code>RECORD</code> lists, or a conda package's file
+list without symlinks. Memory is peak resident set size from <code>getrusage</code>; for an in-process
+runtime it includes Python's own 13 to 20 MB. Activity counts are PyPI releases and default-branch
+commits since 2025-10-17. Speed was not judged.</p>
+<h2 id="1-the-answer">1. The answer<a class="headerlink" href="#1-the-answer" title="Permanent link">&para;</a></h2>
+<p><strong>Run the viewer in <code>mini-racer</code>, V8 in a wheel, and convert with <code>vl-convert-python</code>, which mbio
+already depends on</strong> (measured and read, sections 2 to 5).</p>
+<ul>
+<li><code>mini-racer</code> gives a bare V8 context inside the Python process: the engine Node's <code>vm</code> tests use,
+  the same globals plus <code>setTimeout</code>, and WebAssembly. It returned <code>greet</code>'s string and wrote the same
+  SVG bytes as Node, Deno and QuickJS on two workloads. Its wheels are <code>py3-none</code>, so a new Python
+  should need no new wheel (inferred from the tag).</li>
+<li><code>vl-convert-python</code> writes PNG and PDF from the SVG string, each byte-identical across runs, with
+  no date in the PDF. Its PNG pixels equal resvg-py's and Typst's. For mbio it adds nothing; for
+  liulab-protein it adds 69.5 MB.</li>
+</ul>
+<p>Its real cons:</p>
+<ul>
+<li><strong>Weight.</strong> 63.7 MB for <code>mini-racer</code> plus 69.5 MB for <code>vl-convert-python</code>: 133.2 MB for a user
+  who has neither (measured). QuickJS does the viewer's job in 1.2 MB.</li>
+<li><strong>One maintainer, slowing.</strong> <code>mini-racer</code> has had no release since 2026-02-01; 5 releases and 21
+  commits in the year (measured through PyPI and the GitHub API). <code>vl-convert-python</code>'s last
+  release is 2026-01-21.</li>
+<li><strong>A process that never exits.</strong> A <code>MiniRacer()</code> left open keeps Python alive after the script
+  ends; <code>with MiniRacer() as ctx:</code> or <code>ctx.close()</code> exits cleanly (measured: both runs left open hung, both closed runs exited). The README
+  recommends the context manager "for more deterministic cleanup" (read).</li>
+<li><strong>Memory.</strong> On the large workload the Python process peaked at 322 MB with <code>mini-racer</code>, against
+  106 MB with QuickJS (measured). Either fits a modest computer.</li>
+<li><strong>PDF page size.</strong> vl-convert counts one SVG pixel as one point, so a 1200 px wide SVG becomes a
+  1200 pt page, 4/3 of its CSS size. <code>scale=0.75</code> and <code>width="900pt"</code> both left the page at
+  1200 × 2016 pt (measured). Typst gives 900 × 1512 pt. To fix it, the viewer would write the SVG
+  for PDF at 0.75 of its size (inferred, not tried).</li>
+<li><strong>PNG file size.</strong> For identical pixels vl-convert's PNG is 2,405,853 B and resvg-py's 517,195 B
+  (measured): it compresses less.</li>
+</ul>
+<p>If <code>mini-racer</code> stops being released, <strong>Deno</strong> is the fallback that keeps V8: published to PyPI by
+the Deno authors, 39 releases in the year, 81.0 MB, run as a subprocess (measured, read). If weight
+matters more than running the tests' engine, <strong>quickjs-ng</strong> at 1.2 MB, with no WebAssembly.</p>
+<h2 id="2-runtimes">2. Runtimes<a class="headerlink" href="#2-runtimes" title="Permanent link">&para;</a></h2>
+<p>The test: evaluate <code>viewer.js</code> as built today, then <code>molviz.greet("x")</code>. Every row that ran returned
+the string <code>'Hello, x!'</code>; the Node rows ran it in <code>vm.createContext(Object.create(null))</code> (measured).</p>
+<table>
+<thead>
+<tr>
+<th>Runtime</th>
+<th>Wheels, osx-arm64 / linux-64</th>
+<th>Installed</th>
+<th>Runs the viewer</th>
+<th>WebAssembly</th>
+<th>Licence</th>
+<th>Latest release; releases, commits in a year</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>mini-racer</strong> 0.14.1, V8 14.4.258.23</td>
+<td><code>py3-none</code> macosx_11_0_arm64 / manylinux_2_27</td>
+<td>63.7 MB</td>
+<td>Yes, in process</td>
+<td>Yes</td>
+<td>ISC</td>
+<td>2026-02-01; 5, 21; 218 stars</td>
+</tr>
+<tr>
+<td><strong>quickjs-ng</strong> 0.17.0.1 (Python wrapper of QuickJS-ng)</td>
+<td><code>cp310-abi3</code> macosx_11_0_arm64 / manylinux_2_17</td>
+<td>1.2 MB</td>
+<td>Yes, in process</td>
+<td>No</td>
+<td>MIT</td>
+<td>2026-10-01; 8, 2; 7 stars; repo created 2026-02-26</td>
+</tr>
+<tr>
+<td>dukpy 0.6.0, QuickJS inside</td>
+<td>one wheel per CPython 3.9 to 3.14, both platforms, manylinux_2_17</td>
+<td>12.1 MB</td>
+<td>Yes, in process</td>
+<td>No</td>
+<td>MIT</td>
+<td>2026-07-23; 2, 11; 534 stars</td>
+</tr>
+<tr>
+<td><strong>Deno</strong> 2.9.7, V8 15.0.245.2</td>
+<td><code>py3-none</code> macosx_11_0_arm64 / manylinux_2_27</td>
+<td>81.0 MB</td>
+<td>Yes, subprocess</td>
+<td>Yes</td>
+<td>MIT</td>
+<td>2026-09-17; 39</td>
+</tr>
+<tr>
+<td>Node 24.19.0 from <code>nodejs-wheel-binaries</code></td>
+<td><code>py2.py3-none</code> macosx_13_0_arm64 / manylinux_2_28</td>
+<td>197.6 MB</td>
+<td>Yes, subprocess</td>
+<td>Yes</td>
+<td>MIT</td>
+<td>2026-08-19; 20, 21; 28 stars</td>
+</tr>
+<tr>
+<td>Node 26.10.0 from conda-forge</td>
+<td>none: pixi or conda only</td>
+<td>126.4 MB over Python's own packages</td>
+<td>Yes, subprocess</td>
+<td>Yes</td>
+<td>MIT</td>
+<td>—</td>
+</tr>
+<tr>
+<td>pythonmonkey 1.4.1, SpiderMonkey</td>
+<td>cp38 to cp315, both</td>
+<td>—</td>
+<td><strong>Did not install</strong>: its dependency <code>pminit</code> has no wheel, and the wheel it built was rejected</td>
+<td>—</td>
+<td>MIT</td>
+<td>2026-10-16; 3</td>
+</tr>
+<tr>
+<td>quickjs 1.19.4 (the original wrapper)</td>
+<td>no cp313 wheel</td>
+<td>—</td>
+<td>Not tried</td>
+<td>—</td>
+<td>—</td>
+<td>2023-11-19; 0</td>
+</tr>
+<tr>
+<td>STPyV8 13.1.201.22</td>
+<td>cp313: macosx_14_0_arm64 / manylinux_2_31</td>
+<td>—</td>
+<td>Not tried</td>
+<td>—</td>
+<td>Apache-2.0</td>
+<td>2025-01-09; 0</td>
+</tr>
+</tbody>
+</table>
+<p>Notes on the rows, each measured unless marked:</p>
+<ul>
+<li><strong>pixi solved every installed row for linux-64</strong>, picking the wheels named above: the resolver
+  accepts them, but none was run there.</li>
+<li><strong>Node from conda-forge</strong> is 106.9 MB for <code>nodejs</code> plus 19.5 MB of ten libraries Python does not
+  already pull (libabseil, libcxx, libnghttp2, zstd and smaller). A pip-only user has no Node at
+  all, so the Python package could not rely on it. <code>nodejs-wheel-binaries</code> calls itself an
+  "unoffical Node.js package" (read: PyPI summary); 125 MB of its 197.6 MB is the <code>node</code> binary and
+  62 MB C headers.</li>
+<li><strong>Deno writes a cache folder when it runs</strong> (measured: <code>v8_code_cache_v2</code>,
+  <code>dep_analysis_cache_v2</code> and others appeared in an empty <code>DENO_DIR</code> after one <code>deno run -</code>). A
+  library calling it would point <code>DENO_DIR</code> somewhere it owns (inferred).</li>
+<li><strong>dukpy is QuickJS now</strong>: "The name comes from DukPy's original Duktape-based implementation and is
+  kept for package compatibility" (read: its PyPI description). It also ships TypeScript, Babel, LESS and React
+  scripts: 11 MB of its 12.1 MB (measured).</li>
+<li><strong>quickjs-ng builds its wheels on each upstream tag</strong>: version <code>X.Y.Z.P</code> is the upstream tag plus
+  a wrapper patch (read: <a href="https://github.com/genotrance/quickjs-ng">its README</a>). Upstream
+  <a href="https://github.com/quickjs-ng/quickjs">QuickJS-ng</a> has 3,966 stars and was pushed 2026-10-16
+  (measured through the GitHub API). It installs as the import name <code>quickjs</code>, the same as the
+  original wrapper (measured).</li>
+</ul>
+<h3 id="what-a-bare-context-offers">What a bare context offers<a class="headerlink" href="#what-a-bare-context-offers" title="Permanent link">&para;</a></h3>
+<p><code>typeof</code> of four globals in the context the viewer runs in (measured):</p>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th><code>WebAssembly</code></th>
+<th><code>TextDecoder</code></th>
+<th><code>atob</code></th>
+<th><code>setTimeout</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node <code>vm</code>, empty context (the tests)</td>
+<td>object</td>
+<td>undefined</td>
+<td>undefined</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>mini-racer</td>
+<td>object</td>
+<td>undefined</td>
+<td>undefined</td>
+<td>function</td>
+</tr>
+<tr>
+<td>Deno, global scope of <code>deno eval</code></td>
+<td>object</td>
+<td>function</td>
+<td>function</td>
+<td>function</td>
+</tr>
+<tr>
+<td>quickjs-ng</td>
+<td>undefined</td>
+<td>undefined</td>
+<td>function</td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>dukpy</td>
+<td>undefined</td>
+<td>undefined</td>
+<td>undefined</td>
+<td>undefined</td>
+</tr>
+</tbody>
+</table>
+<p><code>mini-racer</code> is the nearest to the tests' context. The viewer can use ECMAScript built-ins and,
+outside QuickJS, WebAssembly; anything else it brings itself. The font for opentype.js arrives as
+data, decoded by the viewer: the workload below carries its own base64 decoder for that reason.</p>
+<h2 id="3-the-same-bytes-from-every-runtime">3. The same bytes from every runtime<a class="headerlink" href="#3-the-same-bytes-from-every-runtime" title="Permanent link">&para;</a></h2>
+<p>A workload closer to the real viewer than <code>greet</code>: opentype.js 2.0.0's IIFE build, a TrueType font
+passed in as base64, and a function that draws a ring, coloured arcs, and every label and base as
+glyph outlines through <code>font.getPath(...).toPathData(2)</code>. The script is 1,278,565 B (measured).</p>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>SVG</th>
+<th>Runtimes that wrote it</th>
+<th>Same bytes</th>
+<th>Peak memory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>60 labels, 3,347 bases</td>
+<td>1,910,006 characters</td>
+<td>Node (conda), Node (wheel), Deno, mini-racer, quickjs-ng, dukpy</td>
+<td><strong>Yes</strong>, one SHA-256 for all six</td>
+<td>Node child 166 MB, Deno child 149 MB, mini-racer 151 MB, quickjs-ng 59 MB, dukpy 73 MB</td>
+</tr>
+<tr>
+<td>200 labels, 20,000 bases</td>
+<td>10,354,879 characters</td>
+<td>Node (conda), Deno, mini-racer, quickjs-ng</td>
+<td><strong>Yes</strong>, one SHA-256 for all four</td>
+<td>Node 315 MB, Deno 369 MB, mini-racer 322 MB, quickjs-ng 106 MB</td>
+</tr>
+</tbody>
+</table>
+<p>All measured on osx-arm64. <strong>Across platforms it is not measured.</strong> V8 compiles its own sine and
+cosine (<a href="https://github.com/v8/v8/blob/main/src/base/ieee754.cc"><code>src/base/ieee754.cc</code></a>: "adapted
+from fdlibm", <code>sin</code> calling LLVM's libc), while QuickJS-ng calls the C library's
+(<a href="https://github.com/quickjs-ng/quickjs/blob/master/quickjs.c"><code>quickjs.c</code></a>:
+<code>js_math_sin(double d) { return sin(d); }</code>) (read). So a V8 runtime should give the same digits on
+both platforms, and QuickJS on linux-64 may differ from osx-arm64 in the last digit of a
+coordinate, which <code>toFixed(2)</code> usually but not always hides (inferred).</p>
+<h2 id="4-svg-to-png-and-pdf">4. SVG to PNG and PDF<a class="headerlink" href="#4-svg-to-png-and-pdf" title="Permanent link">&para;</a></h2>
+<p>Input: the 1,910,006-character SVG above, 1200 × 2016 px, every letter an outline. PNG at twice
+that size. Each converter ran in two separate processes (measured).</p>
+<table>
+<thead>
+<tr>
+<th>Converter</th>
+<th>Formats</th>
+<th>Installed</th>
+<th>Same bytes, two runs</th>
+<th>PDF date</th>
+<th>PDF page</th>
+<th>PNG</th>
+<th>Licence</th>
+<th>Latest release; releases, commits in a year</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>vl-convert-python</strong> 1.9.0.post1</td>
+<td>PNG, PDF, JPEG</td>
+<td>69.5 MB</td>
+<td>PNG yes, PDF yes</td>
+<td>None: only <code>/Producer (svg2pdf)</code></td>
+<td>1200 × 2016 pt</td>
+<td>2,405,853 B</td>
+<td>BSD-3-Clause</td>
+<td>2026-01-21; 8, 77</td>
+</tr>
+<tr>
+<td>resvg-py 0.5.0</td>
+<td>PNG</td>
+<td>2.2 MB</td>
+<td>Yes</td>
+<td>—</td>
+<td>—</td>
+<td>517,195 B, same pixels as vl-convert</td>
+<td>MIT</td>
+<td>2026-08-24; 10, 157</td>
+</tr>
+<tr>
+<td>typst 0.15.0, an image in a one-line document</td>
+<td>PNG, PDF</td>
+<td>64.9 MB</td>
+<td>PNG yes; PDF <strong>only with <code>#set document(date: none)</code></strong></td>
+<td><code>/CreationDate</code>, <code>/ModDate</code> and <code>/ID</code> change each run unless set</td>
+<td>900 × 1512 pt</td>
+<td>Same pixels as resvg-py at 192 ppi</td>
+<td>Apache-2.0</td>
+<td>2026-06-16; 11, 50</td>
+</tr>
+<tr>
+<td>resvg-wasm 2.6.2 inside mini-racer and Node's <code>vm</code></td>
+<td>PNG</td>
+<td>2,478,606 B <code>.wasm</code> plus 8,587 B script</td>
+<td>Yes, and the same in both runtimes</td>
+<td>—</td>
+<td>—</td>
+<td>678,892 B; 24,419 of 9,676,800 pixels differ from resvg-py, by 1 level</td>
+<td>MPL-2.0</td>
+<td>2024-03-26</td>
+</tr>
+<tr>
+<td>PDFKit 0.20.2 with svg-to-pdfkit 0.1.8 in Node's <code>vm</code></td>
+<td>PDF</td>
+<td>—</td>
+<td><strong>Did not load</strong>: needs <code>TextEncoder</code>, then <code>URL</code> and <code>require("url")</code></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>MIT</td>
+<td>—</td>
+</tr>
+<tr>
+<td>svg2pdf-py 1.1.0</td>
+<td>PDF</td>
+<td>—</td>
+<td>Not run: its only linux-64 wheel needs glibc 2.35, and pixi failed to solve it for linux-64</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>MIT</td>
+<td>2026-06-02; 1</td>
+</tr>
+</tbody>
+</table>
+<p>Notes, each measured unless marked:</p>
+<ul>
+<li><strong>Both PDFs are vector with every letter an outline.</strong> pypdf finds no font, no image and no text
+  on the page of the vl-convert PDF or the Typst one.</li>
+<li><strong>The three Rust converters draw the same pixels.</strong> vl-convert, resvg-py and Typst at 192 ppi
+  differ in no pixel, so vl-convert rasterises with resvg (inferred); its PDF names svg2pdf as
+  <code>/Producer</code> (measured).</li>
+<li><strong>vl-convert's <code>scale</code> does not reach the PDF.</strong> <code>svg_to_pdf(svg, scale=0.75)</code> wrote the same bytes
+  as without it.</li>
+<li><strong>WebAssembly needs a shim in a bare V8.</strong> resvg-wasm throws "TextDecoder not available" without
+  one (read: its script); a 30-line UTF-8 <code>TextEncoder</code> and <code>TextDecoder</code> made it run in both
+  runtimes. It writes PNG only, and no in-runtime PDF route loaded, so this path still needs a
+  Python converter for PDF.</li>
+<li><strong>Memory.</strong> vl-convert peaked at 94 MB on this SVG and 242 MB on the 10 MB one, PNG and PDF both;
+  resvg-py at 102 MB and 294 MB; Typst at 371 MB on the large one, PNG and two PDFs.</li>
+<li><strong>vl-convert carries its own V8</strong> to run Vega, but its Python API offers no call that runs other
+  JavaScript (read: <code>dir(vl_convert)</code>), so it cannot run the viewer.</li>
+</ul>
+<h2 id="5-why-not-the-others">5. Why not the others<a class="headerlink" href="#5-why-not-the-others" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Choice</th>
+<th>Against it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>quickjs-ng</td>
+<td>A wrapper of one person, 7 stars, 2 commits in a year; a different engine from the tests'; no WebAssembly; the C library's <code>sin</code> (sections 2, 3)</td>
+</tr>
+<tr>
+<td>dukpy</td>
+<td>Same engine limits as quickjs-ng; a new wheel per CPython; ships transpilers molviz does not need</td>
+</tr>
+<tr>
+<td>Deno</td>
+<td>Subprocess, cache folder per run, 81.0 MB; the best-maintained, so the fallback</td>
+</tr>
+<tr>
+<td>Node in a wheel</td>
+<td>197.6 MB, unofficial; subprocess</td>
+</tr>
+<tr>
+<td>Node from conda-forge</td>
+<td>Absent for a pip-only user</td>
+</tr>
+<tr>
+<td>resvg-py</td>
+<td>PNG only: a PDF needs a second converter anyway</td>
+</tr>
+<tr>
+<td>typst</td>
+<td>64.9 MB, a document to compile, and a date to switch off; its PDF page size is the right one</td>
+</tr>
+<tr>
+<td>resvg-wasm</td>
+<td>PNG only, a polyfill, an MPL-2.0 file inside an MIT package, last release 2024-03-26</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-gaps">Open gaps<a class="headerlink" href="#open-gaps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Nothing ran on linux-64.</strong> Wheels and pixi's solve were checked; evaluation, conversion, memory
+  and identical bytes between the two platforms were not.</li>
+<li><strong>The real viewer is a placeholder.</strong> <code>greet</code> and the opentype.js workload stand in for the
+  layout; a bundle with d3 and rbush was not run.</li>
+<li><strong>pythonmonkey</strong> was not retried with a source build, and <strong>STPyV8</strong> was not installed.</li>
+<li><strong>svg2pdf-py</strong> was not run, nor checked for a date in its PDF.</li>
+<li><strong>No in-runtime PDF route</strong> worked; jsPDF with svg2pdf.js and Typst compiled to WebAssembly were not
+  tried.</li>
+<li><strong>mini-racer on Python 3.14</strong> was not run; the <code>py3-none</code> tag says it should load (inferred).</li>
+</ul>
+<h2 id="sources">Sources<a class="headerlink" href="#sources" title="Permanent link">&para;</a></h2>
+<p>All read or retrieved 2026-10-17.</p>
+<ul>
+<li>PyPI JSON for each package, files and metadata: <a href="https://pypi.org/project/mini-racer/">https://pypi.org/project/mini-racer/</a>,
+  <a href="https://pypi.org/project/quickjs-ng/">https://pypi.org/project/quickjs-ng/</a>, <a href="https://pypi.org/project/dukpy/">https://pypi.org/project/dukpy/</a>,
+  <a href="https://pypi.org/project/deno/">https://pypi.org/project/deno/</a>, <a href="https://pypi.org/project/nodejs-wheel-binaries/">https://pypi.org/project/nodejs-wheel-binaries/</a>,
+  <a href="https://pypi.org/project/pythonmonkey/">https://pypi.org/project/pythonmonkey/</a>, <a href="https://pypi.org/project/quickjs/">https://pypi.org/project/quickjs/</a>,
+  <a href="https://pypi.org/project/stpyv8/">https://pypi.org/project/stpyv8/</a>, <a href="https://pypi.org/project/vl-convert-python/">https://pypi.org/project/vl-convert-python/</a>,
+  <a href="https://pypi.org/project/resvg-py/">https://pypi.org/project/resvg-py/</a>, <a href="https://pypi.org/project/typst/">https://pypi.org/project/typst/</a>,
+  <a href="https://pypi.org/project/svg2pdf-py/">https://pypi.org/project/svg2pdf-py/</a></li>
+<li>Repositories, through the GitHub API: <a href="https://github.com/bpcreech/PyMiniRacer">https://github.com/bpcreech/PyMiniRacer</a>,
+  <a href="https://github.com/genotrance/quickjs-ng">https://github.com/genotrance/quickjs-ng</a>, <a href="https://github.com/quickjs-ng/quickjs">https://github.com/quickjs-ng/quickjs</a>,
+  <a href="https://github.com/amol-/dukpy">https://github.com/amol-/dukpy</a>, <a href="https://github.com/njzjz/nodejs-wheel">https://github.com/njzjz/nodejs-wheel</a>,
+  <a href="https://github.com/vega/vl-convert">https://github.com/vega/vl-convert</a>, <a href="https://github.com/baseplate-admin/resvg-py">https://github.com/baseplate-admin/resvg-py</a>,
+  <a href="https://github.com/messense/typst-py">https://github.com/messense/typst-py</a>, <a href="https://github.com/thx/resvg-js">https://github.com/thx/resvg-js</a></li>
+<li>V8 maths: <a href="https://github.com/v8/v8/blob/main/src/base/ieee754.cc">https://github.com/v8/v8/blob/main/src/base/ieee754.cc</a>; QuickJS-ng maths:
+  <a href="https://github.com/quickjs-ng/quickjs/blob/master/quickjs.c">https://github.com/quickjs-ng/quickjs/blob/master/quickjs.c</a></li>
+<li>npm builds from jsDelivr: opentype.js 2.0.0 <code>dist/opentype.min.js</code>; @resvg/resvg-wasm 2.6.2
+  <code>index.min.js</code> and <code>index_bg.wasm</code>; pdfkit 0.20.2 <code>js/pdfkit.standalone.js</code>; svg-to-pdfkit 0.1.8
+  <code>source.js</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3809 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/gallery/plates/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Plates - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#plates" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Plates
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-part-carrier-plate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-part-carrier-plate
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-pcr2-plate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-pcr2-plate
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-primer-stock-plate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-primer-stock-plate
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-primer-working-plate-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-primer-working-plate-1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-picked-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-picked-1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-index-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-index-1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-index-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-index-2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-index-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-index-3
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-lysate-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-lysate-1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-stock-into-primer-working-plate-1-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-stock-into-primer-working-plate-1-from
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-stock-into-primer-working-plate-1-into" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-stock-into-primer-working-plate-1-into
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-sample-a-quarter-of-picked-1-into-index-1-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-sample-a-quarter-of-picked-1-into-index-1-from
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-sample-a-quarter-of-picked-1-into-index-1-into" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-sample-a-quarter-of-picked-1-into-index-1-into
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-sample-a-quarter-of-picked-1-into-index-2-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-sample-a-quarter-of-picked-1-into-index-2-from
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-sample-a-quarter-of-picked-1-into-index-2-into" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-sample-a-quarter-of-picked-1-into-index-2-into
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-sample-a-quarter-of-picked-1-into-index-3-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-sample-a-quarter-of-picked-1-into-index-3-from
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-sample-a-quarter-of-picked-1-into-index-3-into" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-sample-a-quarter-of-picked-1-into-index-3-into
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-readback-picked-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-readback-picked-1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-readback-index-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-readback-index-2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-readback-sample-a-quarter-of-picked-1-into-index-2-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-readback-sample-a-quarter-of-picked-1-into-index-2-from
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ap1-readback-sample-a-quarter-of-picked-1-into-index-2-into" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ap1-readback-sample-a-quarter-of-picked-1-into-index-2-into
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ten-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ten-contents
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eleven-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        eleven-contents
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strip" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        strip
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-well" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        one-well
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sparse-1536" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        sparse-1536
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#long-legend" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        long-legend
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="plates">Plates<a class="headerlink" href="#plates" title="Permanent link">&para;</a></h1>
+<p>This page draws every test plate once, at its defaults, so that you can check a change to a
+drawing here. The plates are the files in <code>tests/plates/</code> in the repo. Most are the example
+plates of mbio, the lab's tools for cloning, and the last six are made by hand.</p>
+<p>A stamp moves one pattern of wells from one plate into another. Each stamp gives two plates,
+the one it takes from and the one it fills. If a plate cannot be drawn, its place on the page
+says why.</p>
+<h2 id="ap1-part-carrier-plate">ap1-part-carrier-plate<a class="headerlink" href="#ap1-part-carrier-plate" title="Permanent link">&para;</a></h2>
+<p>From mbio's AP-1 project: a 96-well plate with a different part in each of 72 wells.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "Part carrier plate",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "N_JUN",
+  "A2": "N_JUNB",
+  "A3": "N_JUND",
+  "A4": "N_ATF2",
+  "A5": "N_ATF3",
+  "A6": "N_ATF4",
+  "A7": "N_ATF5",
+  "A8": "N_ATF6",
+  "A9": "N_ATF6B",
+  "A10": "N_ATF7",
+  "A11": "N_BATF",
+  "A12": "N_BATF2",
+  "B1": "N_BATF3",
+  "B2": "N_JDP2",
+  "B3": "N_MAF",
+  "B4": "N_MAFA",
+  "B5": "N_MAFB",
+  "B6": "N_MAFF",
+  "B7": "N_MAFG",
+  "B8": "N_MAFK",
+  "B9": "N_FOS",
+  "B10": "N_FOSB",
+  "B11": "N_FOSL1",
+  "B12": "N_FOSL2",
+  "C1": "DBD_JUN",
+  "C2": "DBD_JUNB",
+  "C3": "DBD_JUND",
+  "C4": "DBD_ATF2",
+  "C5": "DBD_ATF3",
+  "C6": "DBD_ATF4",
+  "C7": "DBD_ATF5",
+  "C8": "DBD_ATF6",
+  "C9": "DBD_ATF6B",
+  "C10": "DBD_ATF7",
+  "C11": "DBD_BATF",
+  "C12": "DBD_BATF2",
+  "D1": "DBD_BATF3",
+  "D2": "DBD_JDP2",
+  "D3": "DBD_MAF",
+  "D4": "DBD_MAFA",
+  "D5": "DBD_MAFB",
+  "D6": "DBD_MAFF",
+  "D7": "DBD_MAFG",
+  "D8": "DBD_MAFK",
+  "D9": "DBD_FOS",
+  "D10": "DBD_FOSB",
+  "D11": "DBD_FOSL1",
+  "D12": "DBD_FOSL2",
+  "E1": "C_JUN",
+  "E2": "C_JUNB",
+  "E3": "C_JUND",
+  "E4": "C_ATF2",
+  "E5": "C_ATF3",
+  "E6": "C_ATF4",
+  "E7": "C_ATF5",
+  "E8": "C_ATF6",
+  "E9": "C_ATF6B",
+  "E10": "C_ATF7",
+  "E11": "C_BATF",
+  "E12": "C_BATF2",
+  "F1": "C_BATF3",
+  "F2": "C_JDP2",
+  "F3": "C_MAF",
+  "F4": "C_MAFA",
+  "F5": "C_MAFB",
+  "F6": "C_MAFF",
+  "F7": "C_MAFG",
+  "F8": "C_MAFK",
+  "F9": "C_FOS",
+  "F10": "C_FOSB",
+  "F11": "C_FOSL1",
+  "F12": "C_FOSL2"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-pcr2-plate">ap1-pcr2-plate<a class="headerlink" href="#ap1-pcr2-plate" title="Permanent link">&para;</a></h2>
+<p>The same 72 parts in the same wells, on the plate for the second PCR.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "PCR2 plate",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "N_JUN",
+  "A2": "N_JUNB",
+  "A3": "N_JUND",
+  "A4": "N_ATF2",
+  "A5": "N_ATF3",
+  "A6": "N_ATF4",
+  "A7": "N_ATF5",
+  "A8": "N_ATF6",
+  "A9": "N_ATF6B",
+  "A10": "N_ATF7",
+  "A11": "N_BATF",
+  "A12": "N_BATF2",
+  "B1": "N_BATF3",
+  "B2": "N_JDP2",
+  "B3": "N_MAF",
+  "B4": "N_MAFA",
+  "B5": "N_MAFB",
+  "B6": "N_MAFF",
+  "B7": "N_MAFG",
+  "B8": "N_MAFK",
+  "B9": "N_FOS",
+  "B10": "N_FOSB",
+  "B11": "N_FOSL1",
+  "B12": "N_FOSL2",
+  "C1": "DBD_JUN",
+  "C2": "DBD_JUNB",
+  "C3": "DBD_JUND",
+  "C4": "DBD_ATF2",
+  "C5": "DBD_ATF3",
+  "C6": "DBD_ATF4",
+  "C7": "DBD_ATF5",
+  "C8": "DBD_ATF6",
+  "C9": "DBD_ATF6B",
+  "C10": "DBD_ATF7",
+  "C11": "DBD_BATF",
+  "C12": "DBD_BATF2",
+  "D1": "DBD_BATF3",
+  "D2": "DBD_JDP2",
+  "D3": "DBD_MAF",
+  "D4": "DBD_MAFA",
+  "D5": "DBD_MAFB",
+  "D6": "DBD_MAFF",
+  "D7": "DBD_MAFG",
+  "D8": "DBD_MAFK",
+  "D9": "DBD_FOS",
+  "D10": "DBD_FOSB",
+  "D11": "DBD_FOSL1",
+  "D12": "DBD_FOSL2",
+  "E1": "C_JUN",
+  "E2": "C_JUNB",
+  "E3": "C_JUND",
+  "E4": "C_ATF2",
+  "E5": "C_ATF3",
+  "E6": "C_ATF4",
+  "E7": "C_ATF5",
+  "E8": "C_ATF6",
+  "E9": "C_ATF6B",
+  "E10": "C_ATF7",
+  "E11": "C_BATF",
+  "E12": "C_BATF2",
+  "F1": "C_BATF3",
+  "F2": "C_JDP2",
+  "F3": "C_MAF",
+  "F4": "C_MAFA",
+  "F5": "C_MAFB",
+  "F6": "C_MAFF",
+  "F7": "C_MAFG",
+  "F8": "C_MAFK",
+  "F9": "C_FOS",
+  "F10": "C_FOSB",
+  "F11": "C_FOSL1",
+  "F12": "C_FOSL2"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-primer-stock-plate">ap1-primer-stock-plate<a class="headerlink" href="#ap1-primer-stock-plate" title="Permanent link">&para;</a></h2>
+<p>A 96-well plate with a different primer in each of 74 wells.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "primer stock plate",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "OP107",
+  "A2": "OP1",
+  "A3": "OP146",
+  "A4": "OP2",
+  "A5": "OP3",
+  "A6": "OP4",
+  "A7": "OP5",
+  "A8": "OP6",
+  "A9": "OP11",
+  "A10": "OP12",
+  "A11": "OP13",
+  "A12": "OP14",
+  "B1": "OP15",
+  "B2": "OP16",
+  "B3": "OP17",
+  "B4": "OP18",
+  "B5": "OP20",
+  "B6": "OP21",
+  "B7": "OP22",
+  "B8": "OP23",
+  "B9": "OP24",
+  "B10": "OP25",
+  "B11": "OP26",
+  "B12": "OP27",
+  "C1": "OP28",
+  "C2": "OP29",
+  "C3": "OP30",
+  "C4": "OP31",
+  "C5": "OP32",
+  "C6": "OP33",
+  "C7": "OP34",
+  "C8": "OP35",
+  "C9": "OP36",
+  "C10": "OP37",
+  "C11": "OP38",
+  "C12": "OP39",
+  "D1": "OP40",
+  "D2": "OP41",
+  "D3": "OP42",
+  "D4": "OP43",
+  "D5": "OP44",
+  "D6": "OP45",
+  "D7": "OP46",
+  "D8": "OP47",
+  "D9": "OP48",
+  "D10": "OP49",
+  "D11": "OP50",
+  "D12": "OP51",
+  "E1": "OP52",
+  "E2": "OP53",
+  "E3": "OP54",
+  "E4": "OP55",
+  "E5": "OP56",
+  "E6": "OP57",
+  "E7": "OP58",
+  "E8": "OP59",
+  "E9": "OP60",
+  "E10": "OP61",
+  "E11": "OP62",
+  "E12": "OP63",
+  "F1": "OP64",
+  "F2": "OP65",
+  "F3": "OP67",
+  "F4": "OP68",
+  "F5": "OP69",
+  "F6": "OP70",
+  "F7": "OP71",
+  "F8": "OP73",
+  "F9": "OP74",
+  "F10": "OP75",
+  "F11": "OP77",
+  "F12": "OP78",
+  "G1": "OP79",
+  "G2": "OP80"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-primer-working-plate-1">ap1-primer-working-plate-1<a class="headerlink" href="#ap1-primer-working-plate-1" title="Permanent link">&para;</a></h2>
+<p>The working copy of the primer stock plate: the same 74 primers in the same wells.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "primer working plate 1",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "OP107",
+  "A2": "OP1",
+  "A3": "OP146",
+  "A4": "OP2",
+  "A5": "OP3",
+  "A6": "OP4",
+  "A7": "OP5",
+  "A8": "OP6",
+  "A9": "OP11",
+  "A10": "OP12",
+  "A11": "OP13",
+  "A12": "OP14",
+  "B1": "OP15",
+  "B2": "OP16",
+  "B3": "OP17",
+  "B4": "OP18",
+  "B5": "OP20",
+  "B6": "OP21",
+  "B7": "OP22",
+  "B8": "OP23",
+  "B9": "OP24",
+  "B10": "OP25",
+  "B11": "OP26",
+  "B12": "OP27",
+  "C1": "OP28",
+  "C2": "OP29",
+  "C3": "OP30",
+  "C4": "OP31",
+  "C5": "OP32",
+  "C6": "OP33",
+  "C7": "OP34",
+  "C8": "OP35",
+  "C9": "OP36",
+  "C10": "OP37",
+  "C11": "OP38",
+  "C12": "OP39",
+  "D1": "OP40",
+  "D2": "OP41",
+  "D3": "OP42",
+  "D4": "OP43",
+  "D5": "OP44",
+  "D6": "OP45",
+  "D7": "OP46",
+  "D8": "OP47",
+  "D9": "OP48",
+  "D10": "OP49",
+  "D11": "OP50",
+  "D12": "OP51",
+  "E1": "OP52",
+  "E2": "OP53",
+  "E3": "OP54",
+  "E4": "OP55",
+  "E5": "OP56",
+  "E6": "OP57",
+  "E7": "OP58",
+  "E8": "OP59",
+  "E9": "OP60",
+  "E10": "OP61",
+  "E11": "OP62",
+  "E12": "OP63",
+  "F1": "OP64",
+  "F2": "OP65",
+  "F3": "OP67",
+  "F4": "OP68",
+  "F5": "OP69",
+  "F6": "OP70",
+  "F7": "OP71",
+  "F8": "OP73",
+  "F9": "OP74",
+  "F10": "OP75",
+  "F11": "OP77",
+  "F12": "OP78",
+  "G1": "OP79",
+  "G2": "OP80"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-picked-1">ap1-picked-1<a class="headerlink" href="#ap1-picked-1" title="Permanent link">&para;</a></h2>
+<p>A 384-well plate in quarters, with three of its four quarters filled.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "picked 1",
+ "rows": 16,
+ "columns": 24,
+ "wells": {
+  "A1": "quarter 1",
+  "A2": "quarter 2",
+  "A3": "quarter 1",
+  "A4": "quarter 2",
+  "A5": "quarter 1",
+  "A6": "quarter 2",
+  "A7": "quarter 1",
+  "A8": "quarter 2",
+  "A9": "quarter 1",
+  "A10": "quarter 2",
+  "A11": "quarter 1",
+  "A12": "quarter 2",
+  "A13": "quarter 1",
+  "A14": "quarter 2",
+  "A15": "quarter 1",
+  "A16": "quarter 2",
+  "A17": "quarter 1",
+  "A18": "quarter 2",
+  "A19": "quarter 1",
+  "A20": "quarter 2",
+  "A21": "quarter 1",
+  "A22": "quarter 2",
+  "A23": "quarter 1",
+  "A24": "quarter 2",
+  "B1": "quarter 3",
+  "B3": "quarter 3",
+  "B5": "quarter 3",
+  "B7": "quarter 3",
+  "B9": "quarter 3",
+  "B11": "quarter 3",
+  "B13": "quarter 3",
+  "B15": "quarter 3",
+  "B17": "quarter 3",
+  "B19": "quarter 3",
+  "B21": "quarter 3",
+  "B23": "quarter 3",
+  "C1": "quarter 1",
+  "C2": "quarter 2",
+  "C3": "quarter 1",
+  "C4": "quarter 2",
+  "C5": "quarter 1",
+  "C6": "quarter 2",
+  "C7": "quarter 1",
+  "C8": "quarter 2",
+  "C9": "quarter 1",
+  "C10": "quarter 2",
+  "C11": "quarter 1",
+  "C12": "quarter 2",
+  "C13": "quarter 1",
+  "C14": "quarter 2",
+  "C15": "quarter 1",
+  "C16": "quarter 2",
+  "C17": "quarter 1",
+  "C18": "quarter 2",
+  "C19": "quarter 1",
+  "C20": "quarter 2",
+  "C21": "quarter 1",
+  "C22": "quarter 2",
+  "C23": "quarter 1",
+  "C24": "quarter 2",
+  "D1": "quarter 3",
+  "D3": "quarter 3",
+  "D5": "quarter 3",
+  "D7": "quarter 3",
+  "D9": "quarter 3",
+  "D11": "quarter 3",
+  "D13": "quarter 3",
+  "D15": "quarter 3",
+  "D17": "quarter 3",
+  "D19": "quarter 3",
+  "D21": "quarter 3",
+  "D23": "quarter 3",
+  "E1": "quarter 1",
+  "E2": "quarter 2",
+  "E3": "quarter 1",
+  "E4": "quarter 2",
+  "E5": "quarter 1",
+  "E6": "quarter 2",
+  "E7": "quarter 1",
+  "E8": "quarter 2",
+  "E9": "quarter 1",
+  "E10": "quarter 2",
+  "E11": "quarter 1",
+  "E12": "quarter 2",
+  "E13": "quarter 1",
+  "E14": "quarter 2",
+  "E15": "quarter 1",
+  "E16": "quarter 2",
+  "E17": "quarter 1",
+  "E18": "quarter 2",
+  "E19": "quarter 1",
+  "E20": "quarter 2",
+  "E21": "quarter 1",
+  "E22": "quarter 2",
+  "E23": "quarter 1",
+  "E24": "quarter 2",
+  "F1": "quarter 3",
+  "F3": "quarter 3",
+  "F5": "quarter 3",
+  "F7": "quarter 3",
+  "F9": "quarter 3",
+  "F11": "quarter 3",
+  "F13": "quarter 3",
+  "F15": "quarter 3",
+  "F17": "quarter 3",
+  "F19": "quarter 3",
+  "F21": "quarter 3",
+  "F23": "quarter 3",
+  "G1": "quarter 1",
+  "G2": "quarter 2",
+  "G3": "quarter 1",
+  "G4": "quarter 2",
+  "G5": "quarter 1",
+  "G6": "quarter 2",
+  "G7": "quarter 1",
+  "G8": "quarter 2",
+  "G9": "quarter 1",
+  "G10": "quarter 2",
+  "G11": "quarter 1",
+  "G12": "quarter 2",
+  "G13": "quarter 1",
+  "G14": "quarter 2",
+  "G15": "quarter 1",
+  "G16": "quarter 2",
+  "G17": "quarter 1",
+  "G18": "quarter 2",
+  "G19": "quarter 1",
+  "G20": "quarter 2",
+  "G21": "quarter 1",
+  "G22": "quarter 2",
+  "G23": "quarter 1",
+  "G24": "quarter 2",
+  "H1": "quarter 3",
+  "H3": "quarter 3",
+  "H5": "quarter 3",
+  "H7": "quarter 3",
+  "H9": "quarter 3",
+  "H11": "quarter 3",
+  "H13": "quarter 3",
+  "H15": "quarter 3",
+  "H17": "quarter 3",
+  "H19": "quarter 3",
+  "H21": "quarter 3",
+  "H23": "quarter 3",
+  "I1": "quarter 1",
+  "I2": "quarter 2",
+  "I3": "quarter 1",
+  "I4": "quarter 2",
+  "I5": "quarter 1",
+  "I6": "quarter 2",
+  "I7": "quarter 1",
+  "I8": "quarter 2",
+  "I9": "quarter 1",
+  "I10": "quarter 2",
+  "I11": "quarter 1",
+  "I12": "quarter 2",
+  "I13": "quarter 1",
+  "I14": "quarter 2",
+  "I15": "quarter 1",
+  "I16": "quarter 2",
+  "I17": "quarter 1",
+  "I18": "quarter 2",
+  "I19": "quarter 1",
+  "I20": "quarter 2",
+  "I21": "quarter 1",
+  "I22": "quarter 2",
+  "I23": "quarter 1",
+  "I24": "quarter 2",
+  "J1": "quarter 3",
+  "J3": "quarter 3",
+  "J5": "quarter 3",
+  "J7": "quarter 3",
+  "J9": "quarter 3",
+  "J11": "quarter 3",
+  "J13": "quarter 3",
+  "J15": "quarter 3",
+  "J17": "quarter 3",
+  "J19": "quarter 3",
+  "J21": "quarter 3",
+  "J23": "quarter 3",
+  "K1": "quarter 1",
+  "K2": "quarter 2",
+  "K3": "quarter 1",
+  "K4": "quarter 2",
+  "K5": "quarter 1",
+  "K6": "quarter 2",
+  "K7": "quarter 1",
+  "K8": "quarter 2",
+  "K9": "quarter 1",
+  "K10": "quarter 2",
+  "K11": "quarter 1",
+  "K12": "quarter 2",
+  "K13": "quarter 1",
+  "K14": "quarter 2",
+  "K15": "quarter 1",
+  "K16": "quarter 2",
+  "K17": "quarter 1",
+  "K18": "quarter 2",
+  "K19": "quarter 1",
+  "K20": "quarter 2",
+  "K21": "quarter 1",
+  "K22": "quarter 2",
+  "K23": "quarter 1",
+  "K24": "quarter 2",
+  "L1": "quarter 3",
+  "L3": "quarter 3",
+  "L5": "quarter 3",
+  "L7": "quarter 3",
+  "L9": "quarter 3",
+  "L11": "quarter 3",
+  "L13": "quarter 3",
+  "L15": "quarter 3",
+  "L17": "quarter 3",
+  "L19": "quarter 3",
+  "L21": "quarter 3",
+  "L23": "quarter 3",
+  "M1": "quarter 1",
+  "M2": "quarter 2",
+  "M3": "quarter 1",
+  "M4": "quarter 2",
+  "M5": "quarter 1",
+  "M6": "quarter 2",
+  "M7": "quarter 1",
+  "M8": "quarter 2",
+  "M9": "quarter 1",
+  "M10": "quarter 2",
+  "M11": "quarter 1",
+  "M12": "quarter 2",
+  "M13": "quarter 1",
+  "M14": "quarter 2",
+  "M15": "quarter 1",
+  "M16": "quarter 2",
+  "M17": "quarter 1",
+  "M18": "quarter 2",
+  "M19": "quarter 1",
+  "M20": "quarter 2",
+  "M21": "quarter 1",
+  "M22": "quarter 2",
+  "M23": "quarter 1",
+  "M24": "quarter 2",
+  "N1": "quarter 3",
+  "N3": "quarter 3",
+  "N5": "quarter 3",
+  "N7": "quarter 3",
+  "N9": "quarter 3",
+  "N11": "quarter 3",
+  "N13": "quarter 3",
+  "N15": "quarter 3",
+  "N17": "quarter 3",
+  "N19": "quarter 3",
+  "N21": "quarter 3",
+  "N23": "quarter 3",
+  "O1": "quarter 1",
+  "O2": "quarter 2",
+  "O3": "quarter 1",
+  "O4": "quarter 2",
+  "O5": "quarter 1",
+  "O6": "quarter 2",
+  "O7": "quarter 1",
+  "O8": "quarter 2",
+  "O9": "quarter 1",
+  "O10": "quarter 2",
+  "O11": "quarter 1",
+  "O12": "quarter 2",
+  "O13": "quarter 1",
+  "O14": "quarter 2",
+  "O15": "quarter 1",
+  "O16": "quarter 2",
+  "O17": "quarter 1",
+  "O18": "quarter 2",
+  "O19": "quarter 1",
+  "O20": "quarter 2",
+  "O21": "quarter 1",
+  "O22": "quarter 2",
+  "O23": "quarter 1",
+  "O24": "quarter 2",
+  "P1": "quarter 3",
+  "P3": "quarter 3",
+  "P5": "quarter 3",
+  "P7": "quarter 3",
+  "P9": "quarter 3",
+  "P11": "quarter 3",
+  "P13": "quarter 3",
+  "P15": "quarter 3",
+  "P17": "quarter 3",
+  "P19": "quarter 3",
+  "P21": "quarter 3",
+  "P23": "quarter 3"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-index-1">ap1-index-1<a class="headerlink" href="#ap1-index-1" title="Permanent link">&para;</a></h2>
+<p>A 96-well plate with a different pair of primers in every well.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "index 1",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "forward 1, reverse 1",
+  "A2": "forward 2, reverse 1",
+  "A3": "forward 3, reverse 1",
+  "A4": "forward 4, reverse 1",
+  "A5": "forward 5, reverse 1",
+  "A6": "forward 6, reverse 1",
+  "A7": "forward 7, reverse 1",
+  "A8": "forward 8, reverse 1",
+  "A9": "forward 9, reverse 1",
+  "A10": "forward 10, reverse 1",
+  "A11": "forward 11, reverse 1",
+  "A12": "forward 12, reverse 1",
+  "B1": "forward 13, reverse 1",
+  "B2": "forward 14, reverse 1",
+  "B3": "forward 15, reverse 1",
+  "B4": "forward 16, reverse 1",
+  "B5": "forward 17, reverse 1",
+  "B6": "forward 18, reverse 1",
+  "B7": "forward 19, reverse 1",
+  "B8": "forward 20, reverse 1",
+  "B9": "forward 21, reverse 1",
+  "B10": "forward 22, reverse 1",
+  "B11": "forward 23, reverse 1",
+  "B12": "forward 24, reverse 1",
+  "C1": "forward 25, reverse 1",
+  "C2": "forward 26, reverse 1",
+  "C3": "forward 27, reverse 1",
+  "C4": "forward 28, reverse 1",
+  "C5": "forward 29, reverse 1",
+  "C6": "forward 30, reverse 1",
+  "C7": "forward 31, reverse 1",
+  "C8": "forward 32, reverse 1",
+  "C9": "forward 33, reverse 1",
+  "C10": "forward 34, reverse 1",
+  "C11": "forward 35, reverse 1",
+  "C12": "forward 36, reverse 1",
+  "D1": "forward 37, reverse 1",
+  "D2": "forward 38, reverse 1",
+  "D3": "forward 39, reverse 1",
+  "D4": "forward 40, reverse 1",
+  "D5": "forward 41, reverse 1",
+  "D6": "forward 42, reverse 1",
+  "D7": "forward 43, reverse 1",
+  "D8": "forward 44, reverse 1",
+  "D9": "forward 45, reverse 1",
+  "D10": "forward 46, reverse 1",
+  "D11": "forward 47, reverse 1",
+  "D12": "forward 48, reverse 1",
+  "E1": "forward 49, reverse 1",
+  "E2": "forward 50, reverse 1",
+  "E3": "forward 51, reverse 1",
+  "E4": "forward 52, reverse 1",
+  "E5": "forward 53, reverse 1",
+  "E6": "forward 54, reverse 1",
+  "E7": "forward 55, reverse 1",
+  "E8": "forward 56, reverse 1",
+  "E9": "forward 57, reverse 1",
+  "E10": "forward 58, reverse 1",
+  "E11": "forward 59, reverse 1",
+  "E12": "forward 60, reverse 1",
+  "F1": "forward 61, reverse 1",
+  "F2": "forward 62, reverse 1",
+  "F3": "forward 63, reverse 1",
+  "F4": "forward 64, reverse 1",
+  "F5": "forward 65, reverse 1",
+  "F6": "forward 66, reverse 1",
+  "F7": "forward 67, reverse 1",
+  "F8": "forward 68, reverse 1",
+  "F9": "forward 69, reverse 1",
+  "F10": "forward 70, reverse 1",
+  "F11": "forward 71, reverse 1",
+  "F12": "forward 72, reverse 1",
+  "G1": "forward 73, reverse 1",
+  "G2": "forward 74, reverse 1",
+  "G3": "forward 75, reverse 1",
+  "G4": "forward 76, reverse 1",
+  "G5": "forward 77, reverse 1",
+  "G6": "forward 78, reverse 1",
+  "G7": "forward 79, reverse 1",
+  "G8": "forward 80, reverse 1",
+  "G9": "forward 81, reverse 1",
+  "G10": "forward 82, reverse 1",
+  "G11": "forward 83, reverse 1",
+  "G12": "forward 84, reverse 1",
+  "H1": "forward 85, reverse 1",
+  "H2": "forward 86, reverse 1",
+  "H3": "forward 87, reverse 1",
+  "H4": "forward 88, reverse 1",
+  "H5": "forward 89, reverse 1",
+  "H6": "forward 90, reverse 1",
+  "H7": "forward 91, reverse 1",
+  "H8": "forward 92, reverse 1",
+  "H9": "forward 93, reverse 1",
+  "H10": "forward 94, reverse 1",
+  "H11": "forward 95, reverse 1",
+  "H12": "forward 96, reverse 1"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-index-2">ap1-index-2<a class="headerlink" href="#ap1-index-2" title="Permanent link">&para;</a></h2>
+<p>The same, with the second reverse primer in every well.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "index 2",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "forward 1, reverse 2",
+  "A2": "forward 2, reverse 2",
+  "A3": "forward 3, reverse 2",
+  "A4": "forward 4, reverse 2",
+  "A5": "forward 5, reverse 2",
+  "A6": "forward 6, reverse 2",
+  "A7": "forward 7, reverse 2",
+  "A8": "forward 8, reverse 2",
+  "A9": "forward 9, reverse 2",
+  "A10": "forward 10, reverse 2",
+  "A11": "forward 11, reverse 2",
+  "A12": "forward 12, reverse 2",
+  "B1": "forward 13, reverse 2",
+  "B2": "forward 14, reverse 2",
+  "B3": "forward 15, reverse 2",
+  "B4": "forward 16, reverse 2",
+  "B5": "forward 17, reverse 2",
+  "B6": "forward 18, reverse 2",
+  "B7": "forward 19, reverse 2",
+  "B8": "forward 20, reverse 2",
+  "B9": "forward 21, reverse 2",
+  "B10": "forward 22, reverse 2",
+  "B11": "forward 23, reverse 2",
+  "B12": "forward 24, reverse 2",
+  "C1": "forward 25, reverse 2",
+  "C2": "forward 26, reverse 2",
+  "C3": "forward 27, reverse 2",
+  "C4": "forward 28, reverse 2",
+  "C5": "forward 29, reverse 2",
+  "C6": "forward 30, reverse 2",
+  "C7": "forward 31, reverse 2",
+  "C8": "forward 32, reverse 2",
+  "C9": "forward 33, reverse 2",
+  "C10": "forward 34, reverse 2",
+  "C11": "forward 35, reverse 2",
+  "C12": "forward 36, reverse 2",
+  "D1": "forward 37, reverse 2",
+  "D2": "forward 38, reverse 2",
+  "D3": "forward 39, reverse 2",
+  "D4": "forward 40, reverse 2",
+  "D5": "forward 41, reverse 2",
+  "D6": "forward 42, reverse 2",
+  "D7": "forward 43, reverse 2",
+  "D8": "forward 44, reverse 2",
+  "D9": "forward 45, reverse 2",
+  "D10": "forward 46, reverse 2",
+  "D11": "forward 47, reverse 2",
+  "D12": "forward 48, reverse 2",
+  "E1": "forward 49, reverse 2",
+  "E2": "forward 50, reverse 2",
+  "E3": "forward 51, reverse 2",
+  "E4": "forward 52, reverse 2",
+  "E5": "forward 53, reverse 2",
+  "E6": "forward 54, reverse 2",
+  "E7": "forward 55, reverse 2",
+  "E8": "forward 56, reverse 2",
+  "E9": "forward 57, reverse 2",
+  "E10": "forward 58, reverse 2",
+  "E11": "forward 59, reverse 2",
+  "E12": "forward 60, reverse 2",
+  "F1": "forward 61, reverse 2",
+  "F2": "forward 62, reverse 2",
+  "F3": "forward 63, reverse 2",
+  "F4": "forward 64, reverse 2",
+  "F5": "forward 65, reverse 2",
+  "F6": "forward 66, reverse 2",
+  "F7": "forward 67, reverse 2",
+  "F8": "forward 68, reverse 2",
+  "F9": "forward 69, reverse 2",
+  "F10": "forward 70, reverse 2",
+  "F11": "forward 71, reverse 2",
+  "F12": "forward 72, reverse 2",
+  "G1": "forward 73, reverse 2",
+  "G2": "forward 74, reverse 2",
+  "G3": "forward 75, reverse 2",
+  "G4": "forward 76, reverse 2",
+  "G5": "forward 77, reverse 2",
+  "G6": "forward 78, reverse 2",
+  "G7": "forward 79, reverse 2",
+  "G8": "forward 80, reverse 2",
+  "G9": "forward 81, reverse 2",
+  "G10": "forward 82, reverse 2",
+  "G11": "forward 83, reverse 2",
+  "G12": "forward 84, reverse 2",
+  "H1": "forward 85, reverse 2",
+  "H2": "forward 86, reverse 2",
+  "H3": "forward 87, reverse 2",
+  "H4": "forward 88, reverse 2",
+  "H5": "forward 89, reverse 2",
+  "H6": "forward 90, reverse 2",
+  "H7": "forward 91, reverse 2",
+  "H8": "forward 92, reverse 2",
+  "H9": "forward 93, reverse 2",
+  "H10": "forward 94, reverse 2",
+  "H11": "forward 95, reverse 2",
+  "H12": "forward 96, reverse 2"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-index-3">ap1-index-3<a class="headerlink" href="#ap1-index-3" title="Permanent link">&para;</a></h2>
+<p>The same, with the third reverse primer in every well.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "index 3",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "forward 1, reverse 3",
+  "A2": "forward 2, reverse 3",
+  "A3": "forward 3, reverse 3",
+  "A4": "forward 4, reverse 3",
+  "A5": "forward 5, reverse 3",
+  "A6": "forward 6, reverse 3",
+  "A7": "forward 7, reverse 3",
+  "A8": "forward 8, reverse 3",
+  "A9": "forward 9, reverse 3",
+  "A10": "forward 10, reverse 3",
+  "A11": "forward 11, reverse 3",
+  "A12": "forward 12, reverse 3",
+  "B1": "forward 13, reverse 3",
+  "B2": "forward 14, reverse 3",
+  "B3": "forward 15, reverse 3",
+  "B4": "forward 16, reverse 3",
+  "B5": "forward 17, reverse 3",
+  "B6": "forward 18, reverse 3",
+  "B7": "forward 19, reverse 3",
+  "B8": "forward 20, reverse 3",
+  "B9": "forward 21, reverse 3",
+  "B10": "forward 22, reverse 3",
+  "B11": "forward 23, reverse 3",
+  "B12": "forward 24, reverse 3",
+  "C1": "forward 25, reverse 3",
+  "C2": "forward 26, reverse 3",
+  "C3": "forward 27, reverse 3",
+  "C4": "forward 28, reverse 3",
+  "C5": "forward 29, reverse 3",
+  "C6": "forward 30, reverse 3",
+  "C7": "forward 31, reverse 3",
+  "C8": "forward 32, reverse 3",
+  "C9": "forward 33, reverse 3",
+  "C10": "forward 34, reverse 3",
+  "C11": "forward 35, reverse 3",
+  "C12": "forward 36, reverse 3",
+  "D1": "forward 37, reverse 3",
+  "D2": "forward 38, reverse 3",
+  "D3": "forward 39, reverse 3",
+  "D4": "forward 40, reverse 3",
+  "D5": "forward 41, reverse 3",
+  "D6": "forward 42, reverse 3",
+  "D7": "forward 43, reverse 3",
+  "D8": "forward 44, reverse 3",
+  "D9": "forward 45, reverse 3",
+  "D10": "forward 46, reverse 3",
+  "D11": "forward 47, reverse 3",
+  "D12": "forward 48, reverse 3",
+  "E1": "forward 49, reverse 3",
+  "E2": "forward 50, reverse 3",
+  "E3": "forward 51, reverse 3",
+  "E4": "forward 52, reverse 3",
+  "E5": "forward 53, reverse 3",
+  "E6": "forward 54, reverse 3",
+  "E7": "forward 55, reverse 3",
+  "E8": "forward 56, reverse 3",
+  "E9": "forward 57, reverse 3",
+  "E10": "forward 58, reverse 3",
+  "E11": "forward 59, reverse 3",
+  "E12": "forward 60, reverse 3",
+  "F1": "forward 61, reverse 3",
+  "F2": "forward 62, reverse 3",
+  "F3": "forward 63, reverse 3",
+  "F4": "forward 64, reverse 3",
+  "F5": "forward 65, reverse 3",
+  "F6": "forward 66, reverse 3",
+  "F7": "forward 67, reverse 3",
+  "F8": "forward 68, reverse 3",
+  "F9": "forward 69, reverse 3",
+  "F10": "forward 70, reverse 3",
+  "F11": "forward 71, reverse 3",
+  "F12": "forward 72, reverse 3",
+  "G1": "forward 73, reverse 3",
+  "G2": "forward 74, reverse 3",
+  "G3": "forward 75, reverse 3",
+  "G4": "forward 76, reverse 3",
+  "G5": "forward 77, reverse 3",
+  "G6": "forward 78, reverse 3",
+  "G7": "forward 79, reverse 3",
+  "G8": "forward 80, reverse 3",
+  "G9": "forward 81, reverse 3",
+  "G10": "forward 82, reverse 3",
+  "G11": "forward 83, reverse 3",
+  "G12": "forward 84, reverse 3",
+  "H1": "forward 85, reverse 3",
+  "H2": "forward 86, reverse 3",
+  "H3": "forward 87, reverse 3",
+  "H4": "forward 88, reverse 3",
+  "H5": "forward 89, reverse 3",
+  "H6": "forward 90, reverse 3",
+  "H7": "forward 91, reverse 3",
+  "H8": "forward 92, reverse 3",
+  "H9": "forward 93, reverse 3",
+  "H10": "forward 94, reverse 3",
+  "H11": "forward 95, reverse 3",
+  "H12": "forward 96, reverse 3"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-lysate-1">ap1-lysate-1<a class="headerlink" href="#ap1-lysate-1" title="Permanent link">&para;</a></h2>
+<p>A 1,536-well plate with every well empty, so it has no legend.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "lysate 1",
+ "rows": 32,
+ "columns": 48
+}
+
+</script>
+</div>
+
+<h2 id="ap1-stock-into-primer-working-plate-1-from">ap1-stock-into-primer-working-plate-1-from<a class="headerlink" href="#ap1-stock-into-primer-working-plate-1-from" title="Permanent link">&para;</a></h2>
+<p>The plate a stamp takes from, as it copies the primer stock plate into the working plate.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "From primer stock plate",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "Stock into primer working plate 1",
+  "A2": "Stock into primer working plate 1",
+  "A3": "Stock into primer working plate 1",
+  "A4": "Stock into primer working plate 1",
+  "A5": "Stock into primer working plate 1",
+  "A6": "Stock into primer working plate 1",
+  "A7": "Stock into primer working plate 1",
+  "A8": "Stock into primer working plate 1",
+  "A9": "Stock into primer working plate 1",
+  "A10": "Stock into primer working plate 1",
+  "A11": "Stock into primer working plate 1",
+  "A12": "Stock into primer working plate 1",
+  "B1": "Stock into primer working plate 1",
+  "B2": "Stock into primer working plate 1",
+  "B3": "Stock into primer working plate 1",
+  "B4": "Stock into primer working plate 1",
+  "B5": "Stock into primer working plate 1",
+  "B6": "Stock into primer working plate 1",
+  "B7": "Stock into primer working plate 1",
+  "B8": "Stock into primer working plate 1",
+  "B9": "Stock into primer working plate 1",
+  "B10": "Stock into primer working plate 1",
+  "B11": "Stock into primer working plate 1",
+  "B12": "Stock into primer working plate 1",
+  "C1": "Stock into primer working plate 1",
+  "C2": "Stock into primer working plate 1",
+  "C3": "Stock into primer working plate 1",
+  "C4": "Stock into primer working plate 1",
+  "C5": "Stock into primer working plate 1",
+  "C6": "Stock into primer working plate 1",
+  "C7": "Stock into primer working plate 1",
+  "C8": "Stock into primer working plate 1",
+  "C9": "Stock into primer working plate 1",
+  "C10": "Stock into primer working plate 1",
+  "C11": "Stock into primer working plate 1",
+  "C12": "Stock into primer working plate 1",
+  "D1": "Stock into primer working plate 1",
+  "D2": "Stock into primer working plate 1",
+  "D3": "Stock into primer working plate 1",
+  "D4": "Stock into primer working plate 1",
+  "D5": "Stock into primer working plate 1",
+  "D6": "Stock into primer working plate 1",
+  "D7": "Stock into primer working plate 1",
+  "D8": "Stock into primer working plate 1",
+  "D9": "Stock into primer working plate 1",
+  "D10": "Stock into primer working plate 1",
+  "D11": "Stock into primer working plate 1",
+  "D12": "Stock into primer working plate 1",
+  "E1": "Stock into primer working plate 1",
+  "E2": "Stock into primer working plate 1",
+  "E3": "Stock into primer working plate 1",
+  "E4": "Stock into primer working plate 1",
+  "E5": "Stock into primer working plate 1",
+  "E6": "Stock into primer working plate 1",
+  "E7": "Stock into primer working plate 1",
+  "E8": "Stock into primer working plate 1",
+  "E9": "Stock into primer working plate 1",
+  "E10": "Stock into primer working plate 1",
+  "E11": "Stock into primer working plate 1",
+  "E12": "Stock into primer working plate 1",
+  "F1": "Stock into primer working plate 1",
+  "F2": "Stock into primer working plate 1",
+  "F3": "Stock into primer working plate 1",
+  "F4": "Stock into primer working plate 1",
+  "F5": "Stock into primer working plate 1",
+  "F6": "Stock into primer working plate 1",
+  "F7": "Stock into primer working plate 1",
+  "F8": "Stock into primer working plate 1",
+  "F9": "Stock into primer working plate 1",
+  "F10": "Stock into primer working plate 1",
+  "F11": "Stock into primer working plate 1",
+  "F12": "Stock into primer working plate 1",
+  "G1": "Stock into primer working plate 1",
+  "G2": "Stock into primer working plate 1"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-stock-into-primer-working-plate-1-into">ap1-stock-into-primer-working-plate-1-into<a class="headerlink" href="#ap1-stock-into-primer-working-plate-1-into" title="Permanent link">&para;</a></h2>
+<p>The plate the same stamp fills, well for well.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "Into primer working plate 1",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "Stock into primer working plate 1",
+  "A2": "Stock into primer working plate 1",
+  "A3": "Stock into primer working plate 1",
+  "A4": "Stock into primer working plate 1",
+  "A5": "Stock into primer working plate 1",
+  "A6": "Stock into primer working plate 1",
+  "A7": "Stock into primer working plate 1",
+  "A8": "Stock into primer working plate 1",
+  "A9": "Stock into primer working plate 1",
+  "A10": "Stock into primer working plate 1",
+  "A11": "Stock into primer working plate 1",
+  "A12": "Stock into primer working plate 1",
+  "B1": "Stock into primer working plate 1",
+  "B2": "Stock into primer working plate 1",
+  "B3": "Stock into primer working plate 1",
+  "B4": "Stock into primer working plate 1",
+  "B5": "Stock into primer working plate 1",
+  "B6": "Stock into primer working plate 1",
+  "B7": "Stock into primer working plate 1",
+  "B8": "Stock into primer working plate 1",
+  "B9": "Stock into primer working plate 1",
+  "B10": "Stock into primer working plate 1",
+  "B11": "Stock into primer working plate 1",
+  "B12": "Stock into primer working plate 1",
+  "C1": "Stock into primer working plate 1",
+  "C2": "Stock into primer working plate 1",
+  "C3": "Stock into primer working plate 1",
+  "C4": "Stock into primer working plate 1",
+  "C5": "Stock into primer working plate 1",
+  "C6": "Stock into primer working plate 1",
+  "C7": "Stock into primer working plate 1",
+  "C8": "Stock into primer working plate 1",
+  "C9": "Stock into primer working plate 1",
+  "C10": "Stock into primer working plate 1",
+  "C11": "Stock into primer working plate 1",
+  "C12": "Stock into primer working plate 1",
+  "D1": "Stock into primer working plate 1",
+  "D2": "Stock into primer working plate 1",
+  "D3": "Stock into primer working plate 1",
+  "D4": "Stock into primer working plate 1",
+  "D5": "Stock into primer working plate 1",
+  "D6": "Stock into primer working plate 1",
+  "D7": "Stock into primer working plate 1",
+  "D8": "Stock into primer working plate 1",
+  "D9": "Stock into primer working plate 1",
+  "D10": "Stock into primer working plate 1",
+  "D11": "Stock into primer working plate 1",
+  "D12": "Stock into primer working plate 1",
+  "E1": "Stock into primer working plate 1",
+  "E2": "Stock into primer working plate 1",
+  "E3": "Stock into primer working plate 1",
+  "E4": "Stock into primer working plate 1",
+  "E5": "Stock into primer working plate 1",
+  "E6": "Stock into primer working plate 1",
+  "E7": "Stock into primer working plate 1",
+  "E8": "Stock into primer working plate 1",
+  "E9": "Stock into primer working plate 1",
+  "E10": "Stock into primer working plate 1",
+  "E11": "Stock into primer working plate 1",
+  "E12": "Stock into primer working plate 1",
+  "F1": "Stock into primer working plate 1",
+  "F2": "Stock into primer working plate 1",
+  "F3": "Stock into primer working plate 1",
+  "F4": "Stock into primer working plate 1",
+  "F5": "Stock into primer working plate 1",
+  "F6": "Stock into primer working plate 1",
+  "F7": "Stock into primer working plate 1",
+  "F8": "Stock into primer working plate 1",
+  "F9": "Stock into primer working plate 1",
+  "F10": "Stock into primer working plate 1",
+  "F11": "Stock into primer working plate 1",
+  "F12": "Stock into primer working plate 1",
+  "G1": "Stock into primer working plate 1",
+  "G2": "Stock into primer working plate 1"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-sample-a-quarter-of-picked-1-into-index-1-from">ap1-sample-a-quarter-of-picked-1-into-index-1-from<a class="headerlink" href="#ap1-sample-a-quarter-of-picked-1-into-index-1-from" title="Permanent link">&para;</a></h2>
+<p>A stamp that takes the first quarter of picked 1, every other well of every other row.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "From picked 1",
+ "rows": 16,
+ "columns": 24,
+ "wells": {
+  "A1": "Sample a quarter of picked 1 into index 1",
+  "A3": "Sample a quarter of picked 1 into index 1",
+  "A5": "Sample a quarter of picked 1 into index 1",
+  "A7": "Sample a quarter of picked 1 into index 1",
+  "A9": "Sample a quarter of picked 1 into index 1",
+  "A11": "Sample a quarter of picked 1 into index 1",
+  "A13": "Sample a quarter of picked 1 into index 1",
+  "A15": "Sample a quarter of picked 1 into index 1",
+  "A17": "Sample a quarter of picked 1 into index 1",
+  "A19": "Sample a quarter of picked 1 into index 1",
+  "A21": "Sample a quarter of picked 1 into index 1",
+  "A23": "Sample a quarter of picked 1 into index 1",
+  "C1": "Sample a quarter of picked 1 into index 1",
+  "C3": "Sample a quarter of picked 1 into index 1",
+  "C5": "Sample a quarter of picked 1 into index 1",
+  "C7": "Sample a quarter of picked 1 into index 1",
+  "C9": "Sample a quarter of picked 1 into index 1",
+  "C11": "Sample a quarter of picked 1 into index 1",
+  "C13": "Sample a quarter of picked 1 into index 1",
+  "C15": "Sample a quarter of picked 1 into index 1",
+  "C17": "Sample a quarter of picked 1 into index 1",
+  "C19": "Sample a quarter of picked 1 into index 1",
+  "C21": "Sample a quarter of picked 1 into index 1",
+  "C23": "Sample a quarter of picked 1 into index 1",
+  "E1": "Sample a quarter of picked 1 into index 1",
+  "E3": "Sample a quarter of picked 1 into index 1",
+  "E5": "Sample a quarter of picked 1 into index 1",
+  "E7": "Sample a quarter of picked 1 into index 1",
+  "E9": "Sample a quarter of picked 1 into index 1",
+  "E11": "Sample a quarter of picked 1 into index 1",
+  "E13": "Sample a quarter of picked 1 into index 1",
+  "E15": "Sample a quarter of picked 1 into index 1",
+  "E17": "Sample a quarter of picked 1 into index 1",
+  "E19": "Sample a quarter of picked 1 into index 1",
+  "E21": "Sample a quarter of picked 1 into index 1",
+  "E23": "Sample a quarter of picked 1 into index 1",
+  "G1": "Sample a quarter of picked 1 into index 1",
+  "G3": "Sample a quarter of picked 1 into index 1",
+  "G5": "Sample a quarter of picked 1 into index 1",
+  "G7": "Sample a quarter of picked 1 into index 1",
+  "G9": "Sample a quarter of picked 1 into index 1",
+  "G11": "Sample a quarter of picked 1 into index 1",
+  "G13": "Sample a quarter of picked 1 into index 1",
+  "G15": "Sample a quarter of picked 1 into index 1",
+  "G17": "Sample a quarter of picked 1 into index 1",
+  "G19": "Sample a quarter of picked 1 into index 1",
+  "G21": "Sample a quarter of picked 1 into index 1",
+  "G23": "Sample a quarter of picked 1 into index 1",
+  "I1": "Sample a quarter of picked 1 into index 1",
+  "I3": "Sample a quarter of picked 1 into index 1",
+  "I5": "Sample a quarter of picked 1 into index 1",
+  "I7": "Sample a quarter of picked 1 into index 1",
+  "I9": "Sample a quarter of picked 1 into index 1",
+  "I11": "Sample a quarter of picked 1 into index 1",
+  "I13": "Sample a quarter of picked 1 into index 1",
+  "I15": "Sample a quarter of picked 1 into index 1",
+  "I17": "Sample a quarter of picked 1 into index 1",
+  "I19": "Sample a quarter of picked 1 into index 1",
+  "I21": "Sample a quarter of picked 1 into index 1",
+  "I23": "Sample a quarter of picked 1 into index 1",
+  "K1": "Sample a quarter of picked 1 into index 1",
+  "K3": "Sample a quarter of picked 1 into index 1",
+  "K5": "Sample a quarter of picked 1 into index 1",
+  "K7": "Sample a quarter of picked 1 into index 1",
+  "K9": "Sample a quarter of picked 1 into index 1",
+  "K11": "Sample a quarter of picked 1 into index 1",
+  "K13": "Sample a quarter of picked 1 into index 1",
+  "K15": "Sample a quarter of picked 1 into index 1",
+  "K17": "Sample a quarter of picked 1 into index 1",
+  "K19": "Sample a quarter of picked 1 into index 1",
+  "K21": "Sample a quarter of picked 1 into index 1",
+  "K23": "Sample a quarter of picked 1 into index 1",
+  "M1": "Sample a quarter of picked 1 into index 1",
+  "M3": "Sample a quarter of picked 1 into index 1",
+  "M5": "Sample a quarter of picked 1 into index 1",
+  "M7": "Sample a quarter of picked 1 into index 1",
+  "M9": "Sample a quarter of picked 1 into index 1",
+  "M11": "Sample a quarter of picked 1 into index 1",
+  "M13": "Sample a quarter of picked 1 into index 1",
+  "M15": "Sample a quarter of picked 1 into index 1",
+  "M17": "Sample a quarter of picked 1 into index 1",
+  "M19": "Sample a quarter of picked 1 into index 1",
+  "M21": "Sample a quarter of picked 1 into index 1",
+  "M23": "Sample a quarter of picked 1 into index 1",
+  "O1": "Sample a quarter of picked 1 into index 1",
+  "O3": "Sample a quarter of picked 1 into index 1",
+  "O5": "Sample a quarter of picked 1 into index 1",
+  "O7": "Sample a quarter of picked 1 into index 1",
+  "O9": "Sample a quarter of picked 1 into index 1",
+  "O11": "Sample a quarter of picked 1 into index 1",
+  "O13": "Sample a quarter of picked 1 into index 1",
+  "O15": "Sample a quarter of picked 1 into index 1",
+  "O17": "Sample a quarter of picked 1 into index 1",
+  "O19": "Sample a quarter of picked 1 into index 1",
+  "O21": "Sample a quarter of picked 1 into index 1",
+  "O23": "Sample a quarter of picked 1 into index 1"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-sample-a-quarter-of-picked-1-into-index-1-into">ap1-sample-a-quarter-of-picked-1-into-index-1-into<a class="headerlink" href="#ap1-sample-a-quarter-of-picked-1-into-index-1-into" title="Permanent link">&para;</a></h2>
+<p>The same stamp fills all 96 wells of index 1.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "Into index 1",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "Sample a quarter of picked 1 into index 1",
+  "A2": "Sample a quarter of picked 1 into index 1",
+  "A3": "Sample a quarter of picked 1 into index 1",
+  "A4": "Sample a quarter of picked 1 into index 1",
+  "A5": "Sample a quarter of picked 1 into index 1",
+  "A6": "Sample a quarter of picked 1 into index 1",
+  "A7": "Sample a quarter of picked 1 into index 1",
+  "A8": "Sample a quarter of picked 1 into index 1",
+  "A9": "Sample a quarter of picked 1 into index 1",
+  "A10": "Sample a quarter of picked 1 into index 1",
+  "A11": "Sample a quarter of picked 1 into index 1",
+  "A12": "Sample a quarter of picked 1 into index 1",
+  "B1": "Sample a quarter of picked 1 into index 1",
+  "B2": "Sample a quarter of picked 1 into index 1",
+  "B3": "Sample a quarter of picked 1 into index 1",
+  "B4": "Sample a quarter of picked 1 into index 1",
+  "B5": "Sample a quarter of picked 1 into index 1",
+  "B6": "Sample a quarter of picked 1 into index 1",
+  "B7": "Sample a quarter of picked 1 into index 1",
+  "B8": "Sample a quarter of picked 1 into index 1",
+  "B9": "Sample a quarter of picked 1 into index 1",
+  "B10": "Sample a quarter of picked 1 into index 1",
+  "B11": "Sample a quarter of picked 1 into index 1",
+  "B12": "Sample a quarter of picked 1 into index 1",
+  "C1": "Sample a quarter of picked 1 into index 1",
+  "C2": "Sample a quarter of picked 1 into index 1",
+  "C3": "Sample a quarter of picked 1 into index 1",
+  "C4": "Sample a quarter of picked 1 into index 1",
+  "C5": "Sample a quarter of picked 1 into index 1",
+  "C6": "Sample a quarter of picked 1 into index 1",
+  "C7": "Sample a quarter of picked 1 into index 1",
+  "C8": "Sample a quarter of picked 1 into index 1",
+  "C9": "Sample a quarter of picked 1 into index 1",
+  "C10": "Sample a quarter of picked 1 into index 1",
+  "C11": "Sample a quarter of picked 1 into index 1",
+  "C12": "Sample a quarter of picked 1 into index 1",
+  "D1": "Sample a quarter of picked 1 into index 1",
+  "D2": "Sample a quarter of picked 1 into index 1",
+  "D3": "Sample a quarter of picked 1 into index 1",
+  "D4": "Sample a quarter of picked 1 into index 1",
+  "D5": "Sample a quarter of picked 1 into index 1",
+  "D6": "Sample a quarter of picked 1 into index 1",
+  "D7": "Sample a quarter of picked 1 into index 1",
+  "D8": "Sample a quarter of picked 1 into index 1",
+  "D9": "Sample a quarter of picked 1 into index 1",
+  "D10": "Sample a quarter of picked 1 into index 1",
+  "D11": "Sample a quarter of picked 1 into index 1",
+  "D12": "Sample a quarter of picked 1 into index 1",
+  "E1": "Sample a quarter of picked 1 into index 1",
+  "E2": "Sample a quarter of picked 1 into index 1",
+  "E3": "Sample a quarter of picked 1 into index 1",
+  "E4": "Sample a quarter of picked 1 into index 1",
+  "E5": "Sample a quarter of picked 1 into index 1",
+  "E6": "Sample a quarter of picked 1 into index 1",
+  "E7": "Sample a quarter of picked 1 into index 1",
+  "E8": "Sample a quarter of picked 1 into index 1",
+  "E9": "Sample a quarter of picked 1 into index 1",
+  "E10": "Sample a quarter of picked 1 into index 1",
+  "E11": "Sample a quarter of picked 1 into index 1",
+  "E12": "Sample a quarter of picked 1 into index 1",
+  "F1": "Sample a quarter of picked 1 into index 1",
+  "F2": "Sample a quarter of picked 1 into index 1",
+  "F3": "Sample a quarter of picked 1 into index 1",
+  "F4": "Sample a quarter of picked 1 into index 1",
+  "F5": "Sample a quarter of picked 1 into index 1",
+  "F6": "Sample a quarter of picked 1 into index 1",
+  "F7": "Sample a quarter of picked 1 into index 1",
+  "F8": "Sample a quarter of picked 1 into index 1",
+  "F9": "Sample a quarter of picked 1 into index 1",
+  "F10": "Sample a quarter of picked 1 into index 1",
+  "F11": "Sample a quarter of picked 1 into index 1",
+  "F12": "Sample a quarter of picked 1 into index 1",
+  "G1": "Sample a quarter of picked 1 into index 1",
+  "G2": "Sample a quarter of picked 1 into index 1",
+  "G3": "Sample a quarter of picked 1 into index 1",
+  "G4": "Sample a quarter of picked 1 into index 1",
+  "G5": "Sample a quarter of picked 1 into index 1",
+  "G6": "Sample a quarter of picked 1 into index 1",
+  "G7": "Sample a quarter of picked 1 into index 1",
+  "G8": "Sample a quarter of picked 1 into index 1",
+  "G9": "Sample a quarter of picked 1 into index 1",
+  "G10": "Sample a quarter of picked 1 into index 1",
+  "G11": "Sample a quarter of picked 1 into index 1",
+  "G12": "Sample a quarter of picked 1 into index 1",
+  "H1": "Sample a quarter of picked 1 into index 1",
+  "H2": "Sample a quarter of picked 1 into index 1",
+  "H3": "Sample a quarter of picked 1 into index 1",
+  "H4": "Sample a quarter of picked 1 into index 1",
+  "H5": "Sample a quarter of picked 1 into index 1",
+  "H6": "Sample a quarter of picked 1 into index 1",
+  "H7": "Sample a quarter of picked 1 into index 1",
+  "H8": "Sample a quarter of picked 1 into index 1",
+  "H9": "Sample a quarter of picked 1 into index 1",
+  "H10": "Sample a quarter of picked 1 into index 1",
+  "H11": "Sample a quarter of picked 1 into index 1",
+  "H12": "Sample a quarter of picked 1 into index 1"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-sample-a-quarter-of-picked-1-into-index-2-from">ap1-sample-a-quarter-of-picked-1-into-index-2-from<a class="headerlink" href="#ap1-sample-a-quarter-of-picked-1-into-index-2-from" title="Permanent link">&para;</a></h2>
+<p>A stamp that takes the second quarter of picked 1, one column to the right of the first.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "From picked 1",
+ "rows": 16,
+ "columns": 24,
+ "wells": {
+  "A2": "Sample a quarter of picked 1 into index 2",
+  "A4": "Sample a quarter of picked 1 into index 2",
+  "A6": "Sample a quarter of picked 1 into index 2",
+  "A8": "Sample a quarter of picked 1 into index 2",
+  "A10": "Sample a quarter of picked 1 into index 2",
+  "A12": "Sample a quarter of picked 1 into index 2",
+  "A14": "Sample a quarter of picked 1 into index 2",
+  "A16": "Sample a quarter of picked 1 into index 2",
+  "A18": "Sample a quarter of picked 1 into index 2",
+  "A20": "Sample a quarter of picked 1 into index 2",
+  "A22": "Sample a quarter of picked 1 into index 2",
+  "A24": "Sample a quarter of picked 1 into index 2",
+  "C2": "Sample a quarter of picked 1 into index 2",
+  "C4": "Sample a quarter of picked 1 into index 2",
+  "C6": "Sample a quarter of picked 1 into index 2",
+  "C8": "Sample a quarter of picked 1 into index 2",
+  "C10": "Sample a quarter of picked 1 into index 2",
+  "C12": "Sample a quarter of picked 1 into index 2",
+  "C14": "Sample a quarter of picked 1 into index 2",
+  "C16": "Sample a quarter of picked 1 into index 2",
+  "C18": "Sample a quarter of picked 1 into index 2",
+  "C20": "Sample a quarter of picked 1 into index 2",
+  "C22": "Sample a quarter of picked 1 into index 2",
+  "C24": "Sample a quarter of picked 1 into index 2",
+  "E2": "Sample a quarter of picked 1 into index 2",
+  "E4": "Sample a quarter of picked 1 into index 2",
+  "E6": "Sample a quarter of picked 1 into index 2",
+  "E8": "Sample a quarter of picked 1 into index 2",
+  "E10": "Sample a quarter of picked 1 into index 2",
+  "E12": "Sample a quarter of picked 1 into index 2",
+  "E14": "Sample a quarter of picked 1 into index 2",
+  "E16": "Sample a quarter of picked 1 into index 2",
+  "E18": "Sample a quarter of picked 1 into index 2",
+  "E20": "Sample a quarter of picked 1 into index 2",
+  "E22": "Sample a quarter of picked 1 into index 2",
+  "E24": "Sample a quarter of picked 1 into index 2",
+  "G2": "Sample a quarter of picked 1 into index 2",
+  "G4": "Sample a quarter of picked 1 into index 2",
+  "G6": "Sample a quarter of picked 1 into index 2",
+  "G8": "Sample a quarter of picked 1 into index 2",
+  "G10": "Sample a quarter of picked 1 into index 2",
+  "G12": "Sample a quarter of picked 1 into index 2",
+  "G14": "Sample a quarter of picked 1 into index 2",
+  "G16": "Sample a quarter of picked 1 into index 2",
+  "G18": "Sample a quarter of picked 1 into index 2",
+  "G20": "Sample a quarter of picked 1 into index 2",
+  "G22": "Sample a quarter of picked 1 into index 2",
+  "G24": "Sample a quarter of picked 1 into index 2",
+  "I2": "Sample a quarter of picked 1 into index 2",
+  "I4": "Sample a quarter of picked 1 into index 2",
+  "I6": "Sample a quarter of picked 1 into index 2",
+  "I8": "Sample a quarter of picked 1 into index 2",
+  "I10": "Sample a quarter of picked 1 into index 2",
+  "I12": "Sample a quarter of picked 1 into index 2",
+  "I14": "Sample a quarter of picked 1 into index 2",
+  "I16": "Sample a quarter of picked 1 into index 2",
+  "I18": "Sample a quarter of picked 1 into index 2",
+  "I20": "Sample a quarter of picked 1 into index 2",
+  "I22": "Sample a quarter of picked 1 into index 2",
+  "I24": "Sample a quarter of picked 1 into index 2",
+  "K2": "Sample a quarter of picked 1 into index 2",
+  "K4": "Sample a quarter of picked 1 into index 2",
+  "K6": "Sample a quarter of picked 1 into index 2",
+  "K8": "Sample a quarter of picked 1 into index 2",
+  "K10": "Sample a quarter of picked 1 into index 2",
+  "K12": "Sample a quarter of picked 1 into index 2",
+  "K14": "Sample a quarter of picked 1 into index 2",
+  "K16": "Sample a quarter of picked 1 into index 2",
+  "K18": "Sample a quarter of picked 1 into index 2",
+  "K20": "Sample a quarter of picked 1 into index 2",
+  "K22": "Sample a quarter of picked 1 into index 2",
+  "K24": "Sample a quarter of picked 1 into index 2",
+  "M2": "Sample a quarter of picked 1 into index 2",
+  "M4": "Sample a quarter of picked 1 into index 2",
+  "M6": "Sample a quarter of picked 1 into index 2",
+  "M8": "Sample a quarter of picked 1 into index 2",
+  "M10": "Sample a quarter of picked 1 into index 2",
+  "M12": "Sample a quarter of picked 1 into index 2",
+  "M14": "Sample a quarter of picked 1 into index 2",
+  "M16": "Sample a quarter of picked 1 into index 2",
+  "M18": "Sample a quarter of picked 1 into index 2",
+  "M20": "Sample a quarter of picked 1 into index 2",
+  "M22": "Sample a quarter of picked 1 into index 2",
+  "M24": "Sample a quarter of picked 1 into index 2",
+  "O2": "Sample a quarter of picked 1 into index 2",
+  "O4": "Sample a quarter of picked 1 into index 2",
+  "O6": "Sample a quarter of picked 1 into index 2",
+  "O8": "Sample a quarter of picked 1 into index 2",
+  "O10": "Sample a quarter of picked 1 into index 2",
+  "O12": "Sample a quarter of picked 1 into index 2",
+  "O14": "Sample a quarter of picked 1 into index 2",
+  "O16": "Sample a quarter of picked 1 into index 2",
+  "O18": "Sample a quarter of picked 1 into index 2",
+  "O20": "Sample a quarter of picked 1 into index 2",
+  "O22": "Sample a quarter of picked 1 into index 2",
+  "O24": "Sample a quarter of picked 1 into index 2"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-sample-a-quarter-of-picked-1-into-index-2-into">ap1-sample-a-quarter-of-picked-1-into-index-2-into<a class="headerlink" href="#ap1-sample-a-quarter-of-picked-1-into-index-2-into" title="Permanent link">&para;</a></h2>
+<p>The same stamp fills all 96 wells of index 2.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "Into index 2",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "Sample a quarter of picked 1 into index 2",
+  "A2": "Sample a quarter of picked 1 into index 2",
+  "A3": "Sample a quarter of picked 1 into index 2",
+  "A4": "Sample a quarter of picked 1 into index 2",
+  "A5": "Sample a quarter of picked 1 into index 2",
+  "A6": "Sample a quarter of picked 1 into index 2",
+  "A7": "Sample a quarter of picked 1 into index 2",
+  "A8": "Sample a quarter of picked 1 into index 2",
+  "A9": "Sample a quarter of picked 1 into index 2",
+  "A10": "Sample a quarter of picked 1 into index 2",
+  "A11": "Sample a quarter of picked 1 into index 2",
+  "A12": "Sample a quarter of picked 1 into index 2",
+  "B1": "Sample a quarter of picked 1 into index 2",
+  "B2": "Sample a quarter of picked 1 into index 2",
+  "B3": "Sample a quarter of picked 1 into index 2",
+  "B4": "Sample a quarter of picked 1 into index 2",
+  "B5": "Sample a quarter of picked 1 into index 2",
+  "B6": "Sample a quarter of picked 1 into index 2",
+  "B7": "Sample a quarter of picked 1 into index 2",
+  "B8": "Sample a quarter of picked 1 into index 2",
+  "B9": "Sample a quarter of picked 1 into index 2",
+  "B10": "Sample a quarter of picked 1 into index 2",
+  "B11": "Sample a quarter of picked 1 into index 2",
+  "B12": "Sample a quarter of picked 1 into index 2",
+  "C1": "Sample a quarter of picked 1 into index 2",
+  "C2": "Sample a quarter of picked 1 into index 2",
+  "C3": "Sample a quarter of picked 1 into index 2",
+  "C4": "Sample a quarter of picked 1 into index 2",
+  "C5": "Sample a quarter of picked 1 into index 2",
+  "C6": "Sample a quarter of picked 1 into index 2",
+  "C7": "Sample a quarter of picked 1 into index 2",
+  "C8": "Sample a quarter of picked 1 into index 2",
+  "C9": "Sample a quarter of picked 1 into index 2",
+  "C10": "Sample a quarter of picked 1 into index 2",
+  "C11": "Sample a quarter of picked 1 into index 2",
+  "C12": "Sample a quarter of picked 1 into index 2",
+  "D1": "Sample a quarter of picked 1 into index 2",
+  "D2": "Sample a quarter of picked 1 into index 2",
+  "D3": "Sample a quarter of picked 1 into index 2",
+  "D4": "Sample a quarter of picked 1 into index 2",
+  "D5": "Sample a quarter of picked 1 into index 2",
+  "D6": "Sample a quarter of picked 1 into index 2",
+  "D7": "Sample a quarter of picked 1 into index 2",
+  "D8": "Sample a quarter of picked 1 into index 2",
+  "D9": "Sample a quarter of picked 1 into index 2",
+  "D10": "Sample a quarter of picked 1 into index 2",
+  "D11": "Sample a quarter of picked 1 into index 2",
+  "D12": "Sample a quarter of picked 1 into index 2",
+  "E1": "Sample a quarter of picked 1 into index 2",
+  "E2": "Sample a quarter of picked 1 into index 2",
+  "E3": "Sample a quarter of picked 1 into index 2",
+  "E4": "Sample a quarter of picked 1 into index 2",
+  "E5": "Sample a quarter of picked 1 into index 2",
+  "E6": "Sample a quarter of picked 1 into index 2",
+  "E7": "Sample a quarter of picked 1 into index 2",
+  "E8": "Sample a quarter of picked 1 into index 2",
+  "E9": "Sample a quarter of picked 1 into index 2",
+  "E10": "Sample a quarter of picked 1 into index 2",
+  "E11": "Sample a quarter of picked 1 into index 2",
+  "E12": "Sample a quarter of picked 1 into index 2",
+  "F1": "Sample a quarter of picked 1 into index 2",
+  "F2": "Sample a quarter of picked 1 into index 2",
+  "F3": "Sample a quarter of picked 1 into index 2",
+  "F4": "Sample a quarter of picked 1 into index 2",
+  "F5": "Sample a quarter of picked 1 into index 2",
+  "F6": "Sample a quarter of picked 1 into index 2",
+  "F7": "Sample a quarter of picked 1 into index 2",
+  "F8": "Sample a quarter of picked 1 into index 2",
+  "F9": "Sample a quarter of picked 1 into index 2",
+  "F10": "Sample a quarter of picked 1 into index 2",
+  "F11": "Sample a quarter of picked 1 into index 2",
+  "F12": "Sample a quarter of picked 1 into index 2",
+  "G1": "Sample a quarter of picked 1 into index 2",
+  "G2": "Sample a quarter of picked 1 into index 2",
+  "G3": "Sample a quarter of picked 1 into index 2",
+  "G4": "Sample a quarter of picked 1 into index 2",
+  "G5": "Sample a quarter of picked 1 into index 2",
+  "G6": "Sample a quarter of picked 1 into index 2",
+  "G7": "Sample a quarter of picked 1 into index 2",
+  "G8": "Sample a quarter of picked 1 into index 2",
+  "G9": "Sample a quarter of picked 1 into index 2",
+  "G10": "Sample a quarter of picked 1 into index 2",
+  "G11": "Sample a quarter of picked 1 into index 2",
+  "G12": "Sample a quarter of picked 1 into index 2",
+  "H1": "Sample a quarter of picked 1 into index 2",
+  "H2": "Sample a quarter of picked 1 into index 2",
+  "H3": "Sample a quarter of picked 1 into index 2",
+  "H4": "Sample a quarter of picked 1 into index 2",
+  "H5": "Sample a quarter of picked 1 into index 2",
+  "H6": "Sample a quarter of picked 1 into index 2",
+  "H7": "Sample a quarter of picked 1 into index 2",
+  "H8": "Sample a quarter of picked 1 into index 2",
+  "H9": "Sample a quarter of picked 1 into index 2",
+  "H10": "Sample a quarter of picked 1 into index 2",
+  "H11": "Sample a quarter of picked 1 into index 2",
+  "H12": "Sample a quarter of picked 1 into index 2"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-sample-a-quarter-of-picked-1-into-index-3-from">ap1-sample-a-quarter-of-picked-1-into-index-3-from<a class="headerlink" href="#ap1-sample-a-quarter-of-picked-1-into-index-3-from" title="Permanent link">&para;</a></h2>
+<p>A stamp that takes the third quarter of picked 1, one row down from the first.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "From picked 1",
+ "rows": 16,
+ "columns": 24,
+ "wells": {
+  "B1": "Sample a quarter of picked 1 into index 3",
+  "B3": "Sample a quarter of picked 1 into index 3",
+  "B5": "Sample a quarter of picked 1 into index 3",
+  "B7": "Sample a quarter of picked 1 into index 3",
+  "B9": "Sample a quarter of picked 1 into index 3",
+  "B11": "Sample a quarter of picked 1 into index 3",
+  "B13": "Sample a quarter of picked 1 into index 3",
+  "B15": "Sample a quarter of picked 1 into index 3",
+  "B17": "Sample a quarter of picked 1 into index 3",
+  "B19": "Sample a quarter of picked 1 into index 3",
+  "B21": "Sample a quarter of picked 1 into index 3",
+  "B23": "Sample a quarter of picked 1 into index 3",
+  "D1": "Sample a quarter of picked 1 into index 3",
+  "D3": "Sample a quarter of picked 1 into index 3",
+  "D5": "Sample a quarter of picked 1 into index 3",
+  "D7": "Sample a quarter of picked 1 into index 3",
+  "D9": "Sample a quarter of picked 1 into index 3",
+  "D11": "Sample a quarter of picked 1 into index 3",
+  "D13": "Sample a quarter of picked 1 into index 3",
+  "D15": "Sample a quarter of picked 1 into index 3",
+  "D17": "Sample a quarter of picked 1 into index 3",
+  "D19": "Sample a quarter of picked 1 into index 3",
+  "D21": "Sample a quarter of picked 1 into index 3",
+  "D23": "Sample a quarter of picked 1 into index 3",
+  "F1": "Sample a quarter of picked 1 into index 3",
+  "F3": "Sample a quarter of picked 1 into index 3",
+  "F5": "Sample a quarter of picked 1 into index 3",
+  "F7": "Sample a quarter of picked 1 into index 3",
+  "F9": "Sample a quarter of picked 1 into index 3",
+  "F11": "Sample a quarter of picked 1 into index 3",
+  "F13": "Sample a quarter of picked 1 into index 3",
+  "F15": "Sample a quarter of picked 1 into index 3",
+  "F17": "Sample a quarter of picked 1 into index 3",
+  "F19": "Sample a quarter of picked 1 into index 3",
+  "F21": "Sample a quarter of picked 1 into index 3",
+  "F23": "Sample a quarter of picked 1 into index 3",
+  "H1": "Sample a quarter of picked 1 into index 3",
+  "H3": "Sample a quarter of picked 1 into index 3",
+  "H5": "Sample a quarter of picked 1 into index 3",
+  "H7": "Sample a quarter of picked 1 into index 3",
+  "H9": "Sample a quarter of picked 1 into index 3",
+  "H11": "Sample a quarter of picked 1 into index 3",
+  "H13": "Sample a quarter of picked 1 into index 3",
+  "H15": "Sample a quarter of picked 1 into index 3",
+  "H17": "Sample a quarter of picked 1 into index 3",
+  "H19": "Sample a quarter of picked 1 into index 3",
+  "H21": "Sample a quarter of picked 1 into index 3",
+  "H23": "Sample a quarter of picked 1 into index 3",
+  "J1": "Sample a quarter of picked 1 into index 3",
+  "J3": "Sample a quarter of picked 1 into index 3",
+  "J5": "Sample a quarter of picked 1 into index 3",
+  "J7": "Sample a quarter of picked 1 into index 3",
+  "J9": "Sample a quarter of picked 1 into index 3",
+  "J11": "Sample a quarter of picked 1 into index 3",
+  "J13": "Sample a quarter of picked 1 into index 3",
+  "J15": "Sample a quarter of picked 1 into index 3",
+  "J17": "Sample a quarter of picked 1 into index 3",
+  "J19": "Sample a quarter of picked 1 into index 3",
+  "J21": "Sample a quarter of picked 1 into index 3",
+  "J23": "Sample a quarter of picked 1 into index 3",
+  "L1": "Sample a quarter of picked 1 into index 3",
+  "L3": "Sample a quarter of picked 1 into index 3",
+  "L5": "Sample a quarter of picked 1 into index 3",
+  "L7": "Sample a quarter of picked 1 into index 3",
+  "L9": "Sample a quarter of picked 1 into index 3",
+  "L11": "Sample a quarter of picked 1 into index 3",
+  "L13": "Sample a quarter of picked 1 into index 3",
+  "L15": "Sample a quarter of picked 1 into index 3",
+  "L17": "Sample a quarter of picked 1 into index 3",
+  "L19": "Sample a quarter of picked 1 into index 3",
+  "L21": "Sample a quarter of picked 1 into index 3",
+  "L23": "Sample a quarter of picked 1 into index 3",
+  "N1": "Sample a quarter of picked 1 into index 3",
+  "N3": "Sample a quarter of picked 1 into index 3",
+  "N5": "Sample a quarter of picked 1 into index 3",
+  "N7": "Sample a quarter of picked 1 into index 3",
+  "N9": "Sample a quarter of picked 1 into index 3",
+  "N11": "Sample a quarter of picked 1 into index 3",
+  "N13": "Sample a quarter of picked 1 into index 3",
+  "N15": "Sample a quarter of picked 1 into index 3",
+  "N17": "Sample a quarter of picked 1 into index 3",
+  "N19": "Sample a quarter of picked 1 into index 3",
+  "N21": "Sample a quarter of picked 1 into index 3",
+  "N23": "Sample a quarter of picked 1 into index 3",
+  "P1": "Sample a quarter of picked 1 into index 3",
+  "P3": "Sample a quarter of picked 1 into index 3",
+  "P5": "Sample a quarter of picked 1 into index 3",
+  "P7": "Sample a quarter of picked 1 into index 3",
+  "P9": "Sample a quarter of picked 1 into index 3",
+  "P11": "Sample a quarter of picked 1 into index 3",
+  "P13": "Sample a quarter of picked 1 into index 3",
+  "P15": "Sample a quarter of picked 1 into index 3",
+  "P17": "Sample a quarter of picked 1 into index 3",
+  "P19": "Sample a quarter of picked 1 into index 3",
+  "P21": "Sample a quarter of picked 1 into index 3",
+  "P23": "Sample a quarter of picked 1 into index 3"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-sample-a-quarter-of-picked-1-into-index-3-into">ap1-sample-a-quarter-of-picked-1-into-index-3-into<a class="headerlink" href="#ap1-sample-a-quarter-of-picked-1-into-index-3-into" title="Permanent link">&para;</a></h2>
+<p>The same stamp fills all 96 wells of index 3.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "Into index 3",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "Sample a quarter of picked 1 into index 3",
+  "A2": "Sample a quarter of picked 1 into index 3",
+  "A3": "Sample a quarter of picked 1 into index 3",
+  "A4": "Sample a quarter of picked 1 into index 3",
+  "A5": "Sample a quarter of picked 1 into index 3",
+  "A6": "Sample a quarter of picked 1 into index 3",
+  "A7": "Sample a quarter of picked 1 into index 3",
+  "A8": "Sample a quarter of picked 1 into index 3",
+  "A9": "Sample a quarter of picked 1 into index 3",
+  "A10": "Sample a quarter of picked 1 into index 3",
+  "A11": "Sample a quarter of picked 1 into index 3",
+  "A12": "Sample a quarter of picked 1 into index 3",
+  "B1": "Sample a quarter of picked 1 into index 3",
+  "B2": "Sample a quarter of picked 1 into index 3",
+  "B3": "Sample a quarter of picked 1 into index 3",
+  "B4": "Sample a quarter of picked 1 into index 3",
+  "B5": "Sample a quarter of picked 1 into index 3",
+  "B6": "Sample a quarter of picked 1 into index 3",
+  "B7": "Sample a quarter of picked 1 into index 3",
+  "B8": "Sample a quarter of picked 1 into index 3",
+  "B9": "Sample a quarter of picked 1 into index 3",
+  "B10": "Sample a quarter of picked 1 into index 3",
+  "B11": "Sample a quarter of picked 1 into index 3",
+  "B12": "Sample a quarter of picked 1 into index 3",
+  "C1": "Sample a quarter of picked 1 into index 3",
+  "C2": "Sample a quarter of picked 1 into index 3",
+  "C3": "Sample a quarter of picked 1 into index 3",
+  "C4": "Sample a quarter of picked 1 into index 3",
+  "C5": "Sample a quarter of picked 1 into index 3",
+  "C6": "Sample a quarter of picked 1 into index 3",
+  "C7": "Sample a quarter of picked 1 into index 3",
+  "C8": "Sample a quarter of picked 1 into index 3",
+  "C9": "Sample a quarter of picked 1 into index 3",
+  "C10": "Sample a quarter of picked 1 into index 3",
+  "C11": "Sample a quarter of picked 1 into index 3",
+  "C12": "Sample a quarter of picked 1 into index 3",
+  "D1": "Sample a quarter of picked 1 into index 3",
+  "D2": "Sample a quarter of picked 1 into index 3",
+  "D3": "Sample a quarter of picked 1 into index 3",
+  "D4": "Sample a quarter of picked 1 into index 3",
+  "D5": "Sample a quarter of picked 1 into index 3",
+  "D6": "Sample a quarter of picked 1 into index 3",
+  "D7": "Sample a quarter of picked 1 into index 3",
+  "D8": "Sample a quarter of picked 1 into index 3",
+  "D9": "Sample a quarter of picked 1 into index 3",
+  "D10": "Sample a quarter of picked 1 into index 3",
+  "D11": "Sample a quarter of picked 1 into index 3",
+  "D12": "Sample a quarter of picked 1 into index 3",
+  "E1": "Sample a quarter of picked 1 into index 3",
+  "E2": "Sample a quarter of picked 1 into index 3",
+  "E3": "Sample a quarter of picked 1 into index 3",
+  "E4": "Sample a quarter of picked 1 into index 3",
+  "E5": "Sample a quarter of picked 1 into index 3",
+  "E6": "Sample a quarter of picked 1 into index 3",
+  "E7": "Sample a quarter of picked 1 into index 3",
+  "E8": "Sample a quarter of picked 1 into index 3",
+  "E9": "Sample a quarter of picked 1 into index 3",
+  "E10": "Sample a quarter of picked 1 into index 3",
+  "E11": "Sample a quarter of picked 1 into index 3",
+  "E12": "Sample a quarter of picked 1 into index 3",
+  "F1": "Sample a quarter of picked 1 into index 3",
+  "F2": "Sample a quarter of picked 1 into index 3",
+  "F3": "Sample a quarter of picked 1 into index 3",
+  "F4": "Sample a quarter of picked 1 into index 3",
+  "F5": "Sample a quarter of picked 1 into index 3",
+  "F6": "Sample a quarter of picked 1 into index 3",
+  "F7": "Sample a quarter of picked 1 into index 3",
+  "F8": "Sample a quarter of picked 1 into index 3",
+  "F9": "Sample a quarter of picked 1 into index 3",
+  "F10": "Sample a quarter of picked 1 into index 3",
+  "F11": "Sample a quarter of picked 1 into index 3",
+  "F12": "Sample a quarter of picked 1 into index 3",
+  "G1": "Sample a quarter of picked 1 into index 3",
+  "G2": "Sample a quarter of picked 1 into index 3",
+  "G3": "Sample a quarter of picked 1 into index 3",
+  "G4": "Sample a quarter of picked 1 into index 3",
+  "G5": "Sample a quarter of picked 1 into index 3",
+  "G6": "Sample a quarter of picked 1 into index 3",
+  "G7": "Sample a quarter of picked 1 into index 3",
+  "G8": "Sample a quarter of picked 1 into index 3",
+  "G9": "Sample a quarter of picked 1 into index 3",
+  "G10": "Sample a quarter of picked 1 into index 3",
+  "G11": "Sample a quarter of picked 1 into index 3",
+  "G12": "Sample a quarter of picked 1 into index 3",
+  "H1": "Sample a quarter of picked 1 into index 3",
+  "H2": "Sample a quarter of picked 1 into index 3",
+  "H3": "Sample a quarter of picked 1 into index 3",
+  "H4": "Sample a quarter of picked 1 into index 3",
+  "H5": "Sample a quarter of picked 1 into index 3",
+  "H6": "Sample a quarter of picked 1 into index 3",
+  "H7": "Sample a quarter of picked 1 into index 3",
+  "H8": "Sample a quarter of picked 1 into index 3",
+  "H9": "Sample a quarter of picked 1 into index 3",
+  "H10": "Sample a quarter of picked 1 into index 3",
+  "H11": "Sample a quarter of picked 1 into index 3",
+  "H12": "Sample a quarter of picked 1 into index 3"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-readback-picked-1">ap1-readback-picked-1<a class="headerlink" href="#ap1-readback-picked-1" title="Permanent link">&para;</a></h2>
+<p>From mbio's AP-1 readback protocol: a 384-well plate with its first quarter full, and 32 wells of its second quarter filled.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "picked 1",
+ "rows": 16,
+ "columns": 24,
+ "wells": {
+  "A1": "quarter 1",
+  "A2": "quarter 2",
+  "A3": "quarter 1",
+  "A4": "quarter 2",
+  "A5": "quarter 1",
+  "A6": "quarter 2",
+  "A7": "quarter 1",
+  "A8": "quarter 2",
+  "A9": "quarter 1",
+  "A10": "quarter 2",
+  "A11": "quarter 1",
+  "A12": "quarter 2",
+  "A13": "quarter 1",
+  "A14": "quarter 2",
+  "A15": "quarter 1",
+  "A16": "quarter 2",
+  "A17": "quarter 1",
+  "A18": "quarter 2",
+  "A19": "quarter 1",
+  "A20": "quarter 2",
+  "A21": "quarter 1",
+  "A22": "quarter 2",
+  "A23": "quarter 1",
+  "A24": "quarter 2",
+  "C1": "quarter 1",
+  "C2": "quarter 2",
+  "C3": "quarter 1",
+  "C4": "quarter 2",
+  "C5": "quarter 1",
+  "C6": "quarter 2",
+  "C7": "quarter 1",
+  "C8": "quarter 2",
+  "C9": "quarter 1",
+  "C10": "quarter 2",
+  "C11": "quarter 1",
+  "C12": "quarter 2",
+  "C13": "quarter 1",
+  "C14": "quarter 2",
+  "C15": "quarter 1",
+  "C16": "quarter 2",
+  "C17": "quarter 1",
+  "C18": "quarter 2",
+  "C19": "quarter 1",
+  "C20": "quarter 2",
+  "C21": "quarter 1",
+  "C22": "quarter 2",
+  "C23": "quarter 1",
+  "C24": "quarter 2",
+  "E1": "quarter 1",
+  "E2": "quarter 2",
+  "E3": "quarter 1",
+  "E4": "quarter 2",
+  "E5": "quarter 1",
+  "E6": "quarter 2",
+  "E7": "quarter 1",
+  "E8": "quarter 2",
+  "E9": "quarter 1",
+  "E10": "quarter 2",
+  "E11": "quarter 1",
+  "E12": "quarter 2",
+  "E13": "quarter 1",
+  "E14": "quarter 2",
+  "E15": "quarter 1",
+  "E16": "quarter 2",
+  "E17": "quarter 1",
+  "E19": "quarter 1",
+  "E21": "quarter 1",
+  "E23": "quarter 1",
+  "G1": "quarter 1",
+  "G3": "quarter 1",
+  "G5": "quarter 1",
+  "G7": "quarter 1",
+  "G9": "quarter 1",
+  "G11": "quarter 1",
+  "G13": "quarter 1",
+  "G15": "quarter 1",
+  "G17": "quarter 1",
+  "G19": "quarter 1",
+  "G21": "quarter 1",
+  "G23": "quarter 1",
+  "I1": "quarter 1",
+  "I3": "quarter 1",
+  "I5": "quarter 1",
+  "I7": "quarter 1",
+  "I9": "quarter 1",
+  "I11": "quarter 1",
+  "I13": "quarter 1",
+  "I15": "quarter 1",
+  "I17": "quarter 1",
+  "I19": "quarter 1",
+  "I21": "quarter 1",
+  "I23": "quarter 1",
+  "K1": "quarter 1",
+  "K3": "quarter 1",
+  "K5": "quarter 1",
+  "K7": "quarter 1",
+  "K9": "quarter 1",
+  "K11": "quarter 1",
+  "K13": "quarter 1",
+  "K15": "quarter 1",
+  "K17": "quarter 1",
+  "K19": "quarter 1",
+  "K21": "quarter 1",
+  "K23": "quarter 1",
+  "M1": "quarter 1",
+  "M3": "quarter 1",
+  "M5": "quarter 1",
+  "M7": "quarter 1",
+  "M9": "quarter 1",
+  "M11": "quarter 1",
+  "M13": "quarter 1",
+  "M15": "quarter 1",
+  "M17": "quarter 1",
+  "M19": "quarter 1",
+  "M21": "quarter 1",
+  "M23": "quarter 1",
+  "O1": "quarter 1",
+  "O3": "quarter 1",
+  "O5": "quarter 1",
+  "O7": "quarter 1",
+  "O9": "quarter 1",
+  "O11": "quarter 1",
+  "O13": "quarter 1",
+  "O15": "quarter 1",
+  "O17": "quarter 1",
+  "O19": "quarter 1",
+  "O21": "quarter 1",
+  "O23": "quarter 1"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-readback-index-2">ap1-readback-index-2<a class="headerlink" href="#ap1-readback-index-2" title="Permanent link">&para;</a></h2>
+<p>A 96-well plate with a different pair of primers in each of its first 32 wells.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "index 2",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "forward 1, reverse 2",
+  "A2": "forward 2, reverse 2",
+  "A3": "forward 3, reverse 2",
+  "A4": "forward 4, reverse 2",
+  "A5": "forward 5, reverse 2",
+  "A6": "forward 6, reverse 2",
+  "A7": "forward 7, reverse 2",
+  "A8": "forward 8, reverse 2",
+  "A9": "forward 9, reverse 2",
+  "A10": "forward 10, reverse 2",
+  "A11": "forward 11, reverse 2",
+  "A12": "forward 12, reverse 2",
+  "B1": "forward 13, reverse 2",
+  "B2": "forward 14, reverse 2",
+  "B3": "forward 15, reverse 2",
+  "B4": "forward 16, reverse 2",
+  "B5": "forward 17, reverse 2",
+  "B6": "forward 18, reverse 2",
+  "B7": "forward 19, reverse 2",
+  "B8": "forward 20, reverse 2",
+  "B9": "forward 21, reverse 2",
+  "B10": "forward 22, reverse 2",
+  "B11": "forward 23, reverse 2",
+  "B12": "forward 24, reverse 2",
+  "C1": "forward 25, reverse 2",
+  "C2": "forward 26, reverse 2",
+  "C3": "forward 27, reverse 2",
+  "C4": "forward 28, reverse 2",
+  "C5": "forward 29, reverse 2",
+  "C6": "forward 30, reverse 2",
+  "C7": "forward 31, reverse 2",
+  "C8": "forward 32, reverse 2"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-readback-sample-a-quarter-of-picked-1-into-index-2-from">ap1-readback-sample-a-quarter-of-picked-1-into-index-2-from<a class="headerlink" href="#ap1-readback-sample-a-quarter-of-picked-1-into-index-2-from" title="Permanent link">&para;</a></h2>
+<p>A stamp that takes the 32 filled wells of the second quarter of picked 1.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "From picked 1",
+ "rows": 16,
+ "columns": 24,
+ "wells": {
+  "A2": "Sample a quarter of picked 1 into index 2",
+  "A4": "Sample a quarter of picked 1 into index 2",
+  "A6": "Sample a quarter of picked 1 into index 2",
+  "A8": "Sample a quarter of picked 1 into index 2",
+  "A10": "Sample a quarter of picked 1 into index 2",
+  "A12": "Sample a quarter of picked 1 into index 2",
+  "A14": "Sample a quarter of picked 1 into index 2",
+  "A16": "Sample a quarter of picked 1 into index 2",
+  "A18": "Sample a quarter of picked 1 into index 2",
+  "A20": "Sample a quarter of picked 1 into index 2",
+  "A22": "Sample a quarter of picked 1 into index 2",
+  "A24": "Sample a quarter of picked 1 into index 2",
+  "C2": "Sample a quarter of picked 1 into index 2",
+  "C4": "Sample a quarter of picked 1 into index 2",
+  "C6": "Sample a quarter of picked 1 into index 2",
+  "C8": "Sample a quarter of picked 1 into index 2",
+  "C10": "Sample a quarter of picked 1 into index 2",
+  "C12": "Sample a quarter of picked 1 into index 2",
+  "C14": "Sample a quarter of picked 1 into index 2",
+  "C16": "Sample a quarter of picked 1 into index 2",
+  "C18": "Sample a quarter of picked 1 into index 2",
+  "C20": "Sample a quarter of picked 1 into index 2",
+  "C22": "Sample a quarter of picked 1 into index 2",
+  "C24": "Sample a quarter of picked 1 into index 2",
+  "E2": "Sample a quarter of picked 1 into index 2",
+  "E4": "Sample a quarter of picked 1 into index 2",
+  "E6": "Sample a quarter of picked 1 into index 2",
+  "E8": "Sample a quarter of picked 1 into index 2",
+  "E10": "Sample a quarter of picked 1 into index 2",
+  "E12": "Sample a quarter of picked 1 into index 2",
+  "E14": "Sample a quarter of picked 1 into index 2",
+  "E16": "Sample a quarter of picked 1 into index 2"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ap1-readback-sample-a-quarter-of-picked-1-into-index-2-into">ap1-readback-sample-a-quarter-of-picked-1-into-index-2-into<a class="headerlink" href="#ap1-readback-sample-a-quarter-of-picked-1-into-index-2-into" title="Permanent link">&para;</a></h2>
+<p>The same stamp fills the first 32 wells of index 2.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "Into index 2",
+ "rows": 8,
+ "columns": 12,
+ "wells": {
+  "A1": "Sample a quarter of picked 1 into index 2",
+  "A2": "Sample a quarter of picked 1 into index 2",
+  "A3": "Sample a quarter of picked 1 into index 2",
+  "A4": "Sample a quarter of picked 1 into index 2",
+  "A5": "Sample a quarter of picked 1 into index 2",
+  "A6": "Sample a quarter of picked 1 into index 2",
+  "A7": "Sample a quarter of picked 1 into index 2",
+  "A8": "Sample a quarter of picked 1 into index 2",
+  "A9": "Sample a quarter of picked 1 into index 2",
+  "A10": "Sample a quarter of picked 1 into index 2",
+  "A11": "Sample a quarter of picked 1 into index 2",
+  "A12": "Sample a quarter of picked 1 into index 2",
+  "B1": "Sample a quarter of picked 1 into index 2",
+  "B2": "Sample a quarter of picked 1 into index 2",
+  "B3": "Sample a quarter of picked 1 into index 2",
+  "B4": "Sample a quarter of picked 1 into index 2",
+  "B5": "Sample a quarter of picked 1 into index 2",
+  "B6": "Sample a quarter of picked 1 into index 2",
+  "B7": "Sample a quarter of picked 1 into index 2",
+  "B8": "Sample a quarter of picked 1 into index 2",
+  "B9": "Sample a quarter of picked 1 into index 2",
+  "B10": "Sample a quarter of picked 1 into index 2",
+  "B11": "Sample a quarter of picked 1 into index 2",
+  "B12": "Sample a quarter of picked 1 into index 2",
+  "C1": "Sample a quarter of picked 1 into index 2",
+  "C2": "Sample a quarter of picked 1 into index 2",
+  "C3": "Sample a quarter of picked 1 into index 2",
+  "C4": "Sample a quarter of picked 1 into index 2",
+  "C5": "Sample a quarter of picked 1 into index 2",
+  "C6": "Sample a quarter of picked 1 into index 2",
+  "C7": "Sample a quarter of picked 1 into index 2",
+  "C8": "Sample a quarter of picked 1 into index 2"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="ten-contents">ten-contents<a class="headerlink" href="#ten-contents" title="Permanent link">&para;</a></h2>
+<p>Made by hand. Ten different contents, the most that each take a colour of their own and a line of the legend.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "ten contents, each its own colour",
+ "rows": 2,
+ "columns": 6,
+ "wells": {
+  "A1": "forward 1, reverse 1",
+  "A2": "forward 2, reverse 1",
+  "A3": "forward 3, reverse 1",
+  "A4": "forward 4, reverse 1",
+  "A5": "forward 1, reverse 2",
+  "A6": "forward 2, reverse 2",
+  "B1": "forward 3, reverse 2",
+  "B2": "forward 4, reverse 2",
+  "B3": "water",
+  "B4": "positive control"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="eleven-contents">eleven-contents<a class="headerlink" href="#eleven-contents" title="Permanent link">&para;</a></h2>
+<p>Made by hand. Eleven, so every used well takes one colour and the legend's one line counts them.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "eleven contents, all one colour",
+ "rows": 2,
+ "columns": 6,
+ "wells": {
+  "A1": "clone 1",
+  "A2": "clone 2",
+  "A3": "clone 3",
+  "A4": "clone 4",
+  "A5": "clone 5",
+  "A6": "clone 6",
+  "B1": "clone 7",
+  "B2": "clone 8",
+  "B3": "clone 9",
+  "B4": "clone 10",
+  "B5": "clone 11"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="strip">strip<a class="headerlink" href="#strip" title="Permanent link">&para;</a></h2>
+<p>Made by hand. A strip of 8 tubes: one row.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "strip of 8 tubes",
+ "rows": 1,
+ "columns": 8,
+ "wells": {
+  "A1": "sample 1",
+  "A2": "sample 2",
+  "A3": "sample 3",
+  "A4": "sample 4",
+  "A7": "water",
+  "A8": "positive control"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="one-well">one-well<a class="headerlink" href="#one-well" title="Permanent link">&para;</a></h2>
+<p>Made by hand. One well, the narrowest a drawing gets, under a title that wraps.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "One tube of the positive control, kept apart from the strip",
+ "rows": 1,
+ "columns": 1,
+ "wells": {
+  "A1": "positive control"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="sparse-1536">sparse-1536<a class="headerlink" href="#sparse-1536" title="Permanent link">&para;</a></h2>
+<p>Made by hand. A 1,536-well plate, rows A to AF, with a few wells filled.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "lysate 1, with its corners and middle filled",
+ "rows": 32,
+ "columns": 48,
+ "wells": {
+  "A1": "positive control",
+  "A48": "positive control",
+  "P24": "sample",
+  "Q25": "sample",
+  "AF1": "no-template control",
+  "AF48": "no-template control"
+ }
+}
+
+</script>
+</div>
+
+<h2 id="long-legend">long-legend<a class="headerlink" href="#long-legend" title="Permanent link">&para;</a></h2>
+<p>Made by hand. Legend entries too long for one line, one of them a word too long for any line.</p>
+<div data-molviz="plate">
+<script type="application/json" data-plate>
+{
+ "title": "colony PCR with long notes",
+ "rows": 2,
+ "columns": 4,
+ "wells": {
+  "A1": "forward 1, reverse 1",
+  "A2": "water",
+  "A3": "no-template control, with water in place of the colony lysate from the second transformation",
+  "A4": "positive control",
+  "B1": "pUC19-GFP-with-a-very-long-unbroken-construct-name-from-a-database"
+ }
+}
+
+</script>
+</div>
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>
