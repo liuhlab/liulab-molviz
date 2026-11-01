@@ -4,12 +4,13 @@ import json
 import re
 import struct
 from pathlib import Path
+from typing import Any
 from xml.etree import ElementTree
 
 import pytest
 
 import molviz
-from molviz import Drawing, font_rules, viewer_script
+from molviz import Drawing, _runtime, font_rules, viewer_script
 
 ROOT = Path(__file__).parents[1]
 
@@ -100,6 +101,37 @@ DRAWS = [
 # drawing and no viewer.
 LIVE = [draw for draw in DRAWS if draw.id in ("record", "record with its sequence view")]
 STILL = [draw for draw in DRAWS if draw not in LIVE]
+
+
+@pytest.fixture
+def viewer_calls(monkeypatch) -> list[str]:
+    """Each call into the viewer from here on, such as ``check`` or ``svg``, in order."""
+    made: list[str] = []
+    real = _runtime.call_json
+
+    def watched(name: str, function: str, arguments: str) -> Any:
+        made.append(function)
+        return real(name, function, arguments)
+
+    monkeypatch.setattr(_runtime, "call_json", watched)
+    return made
+
+
+@pytest.mark.parametrize(("draw", "data", "page_title"), DRAWS)
+def test_writing_only_a_page_lays_out_no_file(
+    tmp_path, viewer_calls, draw, data, page_title
+) -> None:
+    draw(data).write(tmp_path / "page.html")
+    assert "check" in viewer_calls
+    assert "svg" not in viewer_calls
+
+
+def test_a_drawing_lays_out_once_for_every_file(tmp_path, viewer_calls) -> None:
+    drawing = molviz.draw(DRAWN, sequence_view=True)
+    for ending in (".svg", ".png", ".pdf"):
+        drawing.write(tmp_path / f"map{ending}")
+    assert (drawing.hidden, drawing.notice) == ([], "")
+    assert viewer_calls.count("svg") == 1
 
 
 @pytest.mark.parametrize(("draw", "data", "page_title"), DRAWS)

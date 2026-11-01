@@ -57,6 +57,9 @@ type Part = Pick<FigureRecord, "name" | "circle"> & {
 /** The figure as an input: its records stacked, each laid out as the record is. */
 export const figureInput: Input<Record[]> = {
 	check: checkFigure,
+	checkOptions(records, options, where) {
+		checkEach(options, records, where);
+	},
 	layout(records, options, where) {
 		const each = checkEach(options, records, where);
 		const laid = records.map((record, i) => ({

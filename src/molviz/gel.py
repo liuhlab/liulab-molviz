@@ -49,5 +49,5 @@ def draw_gel(gel: dict[str, Any]) -> Drawing:
     ... }
     >>> draw_gel(gel).write("gel.pdf")  # doctest: +SKIP
     """
-    drawn = call("gel", "svg", gel)
-    return Drawing("gel", gel, drawn, gel.get("title") or "Gel")
+    call("gel", "check", gel)
+    return Drawing("gel", gel, gel.get("title") or "Gel")

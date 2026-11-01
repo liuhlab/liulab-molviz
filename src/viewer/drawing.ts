@@ -23,10 +23,15 @@ export interface Layout {
 	readonly hidden: readonly Hidden[];
 }
 
-/** One input, as the input table holds it: how to check it, and how to lay it out. */
+/** One input, as the input table holds it: how to check it and its options, and how to lay it out. */
 export interface Input<T> {
 	/** Return `input` typed, or throw one FormatError naming every problem by its path. */
 	check(input: unknown): T;
+	/**
+	 * Throw one FormatError naming every problem in `options` for laying `input` out as `where`
+	 * says, as `layout` would, without laying out. Absent where the options are ignored.
+	 */
+	checkOptions?(input: T, options: unknown, where: Where): void;
 	/**
 	 * Lay `input` out with `options`, for a page or a file as `where` says. Throws one
 	 * FormatError naming every problem in the options.

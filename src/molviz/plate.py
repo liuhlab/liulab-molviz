@@ -44,5 +44,5 @@ def draw_plate(plate: dict[str, Any]) -> Drawing:
     >>> plate = {"title": "picked 1", "rows": 8, "columns": 12, "wells": {"A1": "water"}}
     >>> draw_plate(plate).write("plate.pdf")  # doctest: +SKIP
     """
-    drawn = call("plate", "svg", plate)
-    return Drawing("plate", plate, drawn, plate.get("title") or "Plate")
+    call("plate", "check", plate)
+    return Drawing("plate", plate, plate.get("title") or "Plate")

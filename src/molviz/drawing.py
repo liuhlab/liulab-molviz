@@ -6,11 +6,13 @@ import json
 import math
 import re
 from collections.abc import Sequence
+from functools import cached_property
 from os import PathLike
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
-from molviz._runtime import call_json, calls, font_rules
+from molviz import _runtime
+from molviz._runtime import calls, font_rules
 from molviz.viewer import viewer_script
 
 # The largest PNG drawn: past this many pixels a side, vl-convert places shapes off where they
@@ -24,41 +26,64 @@ _POINTS_PER_INCH = 72
 _LIVE = frozenset({"record"})
 
 
+class _FileDrawing(TypedDict):
+    """What the viewer's ``svg`` call returns: the SVG, one SVG per PDF page, and the labels."""
+
+    svg: str
+    pages: list[str]
+    hidden: list[dict[str, Any]]
+    notice: str
+
+
 class Drawing:
     """An input drawn, as each of molviz's draw calls returns it. A caller never makes one.
 
-    Attributes
-    ----------
-    hidden : list[dict[str, Any]]
-        The labels left out because they would overlap: of what a file draws at full size, or
-        of what a page opens on. Each is the viewer's ``Hidden``, defined in its
-        ``labels.ts``: its ``kind``, ``name``, and ``spans`` or, for a cut site, an insertion
-        or a disagreement at a point, its point ``at``.
-    notice : str
-        The sentence that counts the hidden labels by kind, worded by the viewer, such as
-        "3 cut sites and 1 primer are hidden". Empty when nothing hides.
+    It lays out its file drawing the first time a ``.svg``, ``.png`` or ``.pdf`` file,
+    ``hidden`` or ``notice`` needs it, and only once.
     """
 
     def __init__(
         self,
         name: str,
         data: dict[str, Any] | list[dict[str, Any]],
-        drawn: dict[str, Any],
         title: str,
         options: dict[str, Any] | None = None,
     ) -> None:
-        # `drawn` is the viewer's drawing of `data`, the input called `name`. A page titled
-        # `title` hands that input's draw call `data`, then any `options`.
+        # `data` is the input called `name`, already checked. A page titled `title` hands that
+        # input's draw call `data`, then any `options`.
         self._name = name
         # Each argument of the draw call by its block's id on a page. As text, so a change the
-        # caller makes to an input afterwards never reaches the page.
+        # caller makes to an input afterwards never reaches the page or a file.
         given = {name: data} if options is None else {name: data, "options": options}
         self._arguments = {block: _json(value) for block, value in given.items()}
         self._title = title
-        self._svg: str = drawn["svg"]
-        self._pages: list[str] = drawn["pages"]
-        self.hidden: list[dict[str, Any]] = drawn["hidden"]
-        self.notice: str = drawn["notice"]
+
+    @property
+    def hidden(self) -> list[dict[str, Any]]:
+        """The labels left out because they would overlap.
+
+        They are of what a file draws at full size, or of what a page opens on. Each is the
+        viewer's ``Hidden``, defined in its ``labels.ts``: its ``kind``, ``name``, and ``spans``
+        or, for a cut site, an insertion or a disagreement at a point, its point ``at``.
+        """
+        return self._drawn["hidden"]
+
+    @property
+    def notice(self) -> str:
+        """The sentence that counts the hidden labels by kind, worded by the viewer.
+
+        Such as "3 cut sites and 1 primer are hidden". Empty when nothing hides.
+        """
+        return self._drawn["notice"]
+
+    @cached_property
+    def _drawn(self) -> _FileDrawing:
+        """The viewer's file drawing, laid out on first read."""
+        return _runtime.call_json(self._name, "svg", self._arguments_json())
+
+    def _arguments_json(self) -> str:
+        """Return the draw call's arguments, as one JSON array."""
+        return f"[{','.join(self._arguments.values())}]"
 
     def write(self, path: str | PathLike[str], dpi: float = 300) -> None:
         """Write the drawing to ``path``, in the format its ending names, in any case.
@@ -85,9 +110,9 @@ class Drawing:
                     page = _still_page(self._title, self.still_svg())
                 path.write_bytes(page.encode())
             case ".svg":
-                path.write_bytes(self._svg.encode())
+                path.write_bytes(self._drawn["svg"].encode())
             case ".png":
-                most = _most_dpi(self._svg)
+                most = _most_dpi(self._drawn["svg"])
                 if dpi > most:
                     raise ValueError(
                         f"cannot write {path!s}: a PNG of this drawing is drawn at up to "
@@ -96,10 +121,10 @@ class Drawing:
                 import vl_convert
 
                 # vl-convert ships no type stub, so pyright cannot see its functions.
-                png = vl_convert.svg_to_png(self._svg, ppi=dpi)  # pyright: ignore[reportAttributeAccessIssue]
+                png = vl_convert.svg_to_png(self._drawn["svg"], ppi=dpi)  # pyright: ignore[reportAttributeAccessIssue]
                 path.write_bytes(png)
             case ".pdf":
-                path.write_bytes(_pdf(self._pages))
+                path.write_bytes(_pdf(self._drawn["pages"]))
             case _:
                 raise ValueError(
                     f"cannot write {path!s}: its ending must be .html, .svg, .png or .pdf"
@@ -112,8 +137,7 @@ class Drawing:
         its measured width, and each hover is a ``<title>``. It draws in the viewer's faces
         only on a page that writes ``font_rules()`` once, in a ``<style>`` element.
         """
-        arguments = f"[{','.join(self._arguments.values())}]"
-        return call_json(self._name, "still", arguments)["svg"]
+        return _runtime.call_json(self._name, "still", self._arguments_json())["svg"]
 
 
 def _most_dpi(svg: str) -> float:
