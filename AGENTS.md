@@ -14,11 +14,10 @@ reasons.
 
 - **Views, in order:** a record as circle, line and sequence view; figures; verification;
   gels; plates.
-- **The look.** SnapGene Viewer is the reference. The map keeps SnapGene's labels; the
-  sequence view and its interactions copy SeqViz.
+- **The look.** SnapGene Viewer is the reference, not mbio's old drawings. The map keeps
+  SnapGene's labels; the sequence view and its interactions copy SeqViz.
 - **The core** is molviz's own framework-free SVG layout on small d3 modules and rbush, not a
-  viewer package. opentype.js runs only in the build and its tests. mbio's Python layout is not
-  ported.
+  viewer package. opentype.js runs only in the build and its tests.
 - **Reader promises.** All nine in section 5 of
   [the drawings note](docs/research/molviz-mbio-drawings.md)
   hold. A crowded label is hidden and counted.
