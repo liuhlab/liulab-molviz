@@ -9,7 +9,7 @@ from collections.abc import Sequence
 from functools import cached_property
 from os import PathLike
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 from molviz import _runtime
 from molviz._runtime import calls, font_rules
@@ -24,6 +24,15 @@ _POINTS_PER_INCH = 72
 
 # The inputs whose page draws live, with the viewer; any other's page holds its still drawing.
 _LIVE = frozenset({"record"})
+
+
+class _FileDrawing(TypedDict):
+    """What the viewer's ``svg`` call returns: the SVG, one SVG per PDF page, and the labels."""
+
+    svg: str
+    pages: list[str]
+    hidden: list[dict[str, Any]]
+    notice: str
 
 
 class Drawing:
@@ -68,11 +77,11 @@ class Drawing:
         return self._drawn["notice"]
 
     @cached_property
-    def _drawn(self) -> dict[str, Any]:
-        """The viewer's file drawing: ``svg``, its PDF ``pages``, ``hidden`` and ``notice``."""
-        return _runtime.call_json(self._name, "svg", self._array())
+    def _drawn(self) -> _FileDrawing:
+        """The viewer's file drawing, laid out on first read."""
+        return _runtime.call_json(self._name, "svg", self._arguments_json())
 
-    def _array(self) -> str:
+    def _arguments_json(self) -> str:
         """Return the draw call's arguments, as one JSON array."""
         return f"[{','.join(self._arguments.values())}]"
 
@@ -128,7 +137,7 @@ class Drawing:
         its measured width, and each hover is a ``<title>``. It draws in the viewer's faces
         only on a page that writes ``font_rules()`` once, in a ``<style>`` element.
         """
-        return _runtime.call_json(self._name, "still", self._array())["svg"]
+        return _runtime.call_json(self._name, "still", self._arguments_json())["svg"]
 
 
 def _most_dpi(svg: str) -> float:
