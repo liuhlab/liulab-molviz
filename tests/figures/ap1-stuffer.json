@@ -3,11 +3,11 @@
   "ap1-block-vector-1"
  ],
  "options": {
-  "map": "line",
   "span": {
    "start": 346,
    "end": 424
   },
+  "map": "line",
   "sequence_view": true,
   "enzymes": [
    "BbsI",

@@ -4,11 +4,11 @@
   "ap1-round-1"
  ],
  "options": {
-  "map": "line",
   "span": {
    "start": 280,
    "end": 1262
   },
+  "map": "line",
   "enzymes": [
    "BbsI",
    "BsaI"

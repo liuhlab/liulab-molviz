@@ -3,11 +3,11 @@
   "ap1-block-vector-1"
  ],
  "options": {
-  "map": "line",
   "span": {
    "start": 280,
    "end": 490
   },
+  "map": "line",
   "highlight": [
    "internal stuffer"
   ]

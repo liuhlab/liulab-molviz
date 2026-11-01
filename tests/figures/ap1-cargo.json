@@ -3,11 +3,11 @@
   "ap1-product"
  ],
  "options": {
-  "map": "line",
   "span": {
    "start": 346,
    "end": 398
   },
+  "map": "line",
   "sequence_view": true,
   "enzymes": [
    "BsaI"
