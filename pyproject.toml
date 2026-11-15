@@ -84,9 +84,7 @@ biome = "*"
 
 [tool.pixi.feature.test.dependencies]
 pytest = "*"
-# Declared here too, not inherited: the tests run conformance, and a test environment shaped
-# differently from this one would import-error on every test.
-pyyaml = "*"
+pytest-timeout = "*"
 
 # Exact: at 0.0.x nothing promises the next patch is compatible.
 [tool.pixi.feature.docs.dependencies]
@@ -115,11 +113,10 @@ brotli-python = "*"
 [tool.pixi.feature.fonts.tasks]
 build-fonts = "python scripts/build_fonts.py"
 
-# `default` takes `test` so pyright can resolve pytest, and not `docs`, which exists so that
-# exactly one CI job installs it.
+# `default` takes `test` so pyright can resolve pytest, and not `docs`, so `pixi run check`
+# never installs the site builder.
 [tool.pixi.environments]
 default = { features = ["test"], solve-group = "default" }
-test = { features = ["test"], solve-group = "default" }
 docs = { features = ["docs"], solve-group = "default" }
 fonts = { features = ["fonts"], no-default-feature = true }
 
@@ -130,6 +127,8 @@ fmt-check = "ruff format --check ."
 typecheck = "pyright"
 # The tests read the built viewer, as a caller of the package does.
 test = { cmd = "pytest", depends-on = ["build-js"] }
+# A plain command line, which `tests/test_time_limits.py` reads, so it builds nothing first.
+test-slow = "pytest -m slow"
 build = { cmd = "python -m build", depends-on = ["build-js"] }
 # `.`, never an absolute path: an absolute path matches no `.vale.ini` section and exits 0.
 # The globs stop vale walking trees it never lints — check.sh runs steps concurrently, and a
@@ -162,7 +161,10 @@ same-digests = "diff -u"
 check-static = { cmd = "bash scripts/check.sh lint fmt-check typecheck vale markdownlint conformance lint-js typecheck-js", depends-on = [
     "install-js",
 ] }
-check = { depends-on = ["check-static", "test", "test-js"] }
+# `test` and `test-js` run whatever the steps before them returned; `depends-on` would skip
+# them. After `check-static`, not beside it, so pytest's time limits and vale's walk of `tests/`
+# never share the machine. pixi's task shell has `$?` and subshells but no arithmetic.
+check = "pixi run check-static; static=$?; pixi run test; tests=$?; pixi run test-js && (exit $tests) && exit $static"
 
 # ============================== ruff ==============================
 
@@ -208,7 +210,7 @@ convention = "numpy"
 
 [tool.pyright]
 # `scripts` and `skills` included: CI and conformance execute those files.
-include = ["src", "tests", "scripts", "skills"]
+include = ["src", "tests", "scripts", "skills", "conftest.py"]
 exclude = ["**/__pycache__", "**/.pixi"]
 venvPath = ".pixi/envs"
 venv = "default"
@@ -223,8 +225,8 @@ useLibraryCodeForTypes = true
 reportMissingTypeStubs = "none"
 
 # `tests/` back to plain `standard`. A fixture's type is pytest's, not the author's, and a
-# test signature promises a caller nothing: the rule fired four times on twenty lines of
-# correct test code and caught nothing (#65). `src` keeps it. Do not delete this block.
+# test signature promises a caller nothing, so in `tests/` the rule fires on correct code and
+# catches nothing. `src` keeps it. Do not delete this block.
 [[tool.pyright.executionEnvironments]]
 root = "tests"
 reportMissingParameterType = "none"
@@ -237,17 +239,24 @@ reportMissingParameterType = "none"
 testpaths = ["tests", "src"]
 # `--continue-on-collection-errors` because collecting `src` IMPORTS every module in it. A
 # module needing an absent optional dependency — a plotting path, a CUDA path, a
-# platform-specific binding — used to abort collection and run zero tests. It now costs one
-# error. Measured: the run still exits non-zero, and a drifted example still fails (#66).
+# platform-specific binding — would otherwise abort collection and run zero tests. With the
+# flag it costs one error: the run still exits non-zero, and a drifted example still fails.
 addopts = [
     "-ra",
     "--strict-markers",
     "--strict-config",
     "--doctest-modules",
     "--continue-on-collection-errors",
+    "-m",
+    "not slow",
 ]
 xfail_strict = true
 filterwarnings = ["error"]
+# The two time limits, here and nowhere else: conformance fails a copy in a workflow, a task or
+# a test. `conftest.py` reads `suite_budget`; pytest-timeout reads `timeout`, which covers a
+# test's setup, call and teardown. A test marked `slow` is held to neither.
+timeout = 2
+suite_budget = 45
 
 # ============================== liulab ==============================
 # Read by `scripts/conformance.py`; its docstring has the rules.

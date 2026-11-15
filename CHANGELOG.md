@@ -14,6 +14,9 @@ sets one.
   `.svg`, `.png` or `.pdf` file, `hidden` or `notice` needs it, and only once per drawing. A
   caller that writes only `.html` pages no longer pays for that layout.
 - In the viewer, `check` and `checkFigure` check `options` too when given them.
+- For contributors: one test may take at most 2 seconds and a whole test run at most 45. A
+  test marked `slow` is exempt and runs only with `pixi run test-slow`. The checks on GitHub
+  run as one job, only on a pull request that is ready for review.
 
 ## [2026.10.1] - 2026-10-31
 
