@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 import molviz
 
 SCRIPT = Path(__file__).parents[2] / "scripts" / "digest_drawings.py"
@@ -42,6 +44,7 @@ def digest(drawing: molviz.Drawing, path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+@pytest.mark.slow
 def test_each_input_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None:
     for folder, inputs in INPUTS.items():
         (tmp_path / folder).mkdir()
