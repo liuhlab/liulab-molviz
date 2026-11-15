@@ -57,7 +57,7 @@ jobs:
           # hatch-vcs reads the newest tag, so a shallow clone would stamp a released commit
           # as a dev build.
           fetch-depth: 0
-      - uses: prefix-dev/setup-pixi@v0.10.2
+      - uses: prefix-dev/setup-pixi@v0.11.3
         with:
           # `docs` is the one environment `default` does not cover: it holds the site builder.
           environments: default docs
@@ -110,7 +110,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: prefix-dev/setup-pixi@v0.10.2
+      - uses: prefix-dev/setup-pixi@v0.11.3
         with:
           locked: true
       - run: pixi run digest-drawings -- osx-arm64.sha256
