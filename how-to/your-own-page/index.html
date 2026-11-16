@@ -1,0 +1,2230 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/how-to/your-own-page/">
+      
+      
+        <link rel="prev" href="../export/">
+      
+      
+        <link rel="next" href="../../reference/record/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Put drawings in your own page - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#put-drawings-in-your-own-page" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Put drawings in your own page
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#draw-live-with-the-viewer" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Draw live with the viewer
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-still-drawings-with-the-font-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Write still drawings with the font rules
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#make-a-still-drawing-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Make a still drawing in the browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#draw-live-with-the-viewer" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Draw live with the viewer
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-still-drawings-with-the-font-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Write still drawings with the font rules
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#make-a-still-drawing-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Make a still drawing in the browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="put-drawings-in-your-own-page">Put drawings in your own page<a class="headerlink" href="#put-drawings-in-your-own-page" title="Permanent link">&para;</a></h1>
+<p>Put molviz's drawings in a page you build, such as a report that holds a map, a gel and a plate.
+The page needs no build step and no network. Show each drawing in one of two ways:</p>
+<ul>
+<li><strong>Live</strong>, with the viewer. The reader can turn and zoom a map, switch its views and read its
+  bases. The page carries the viewer's script.</li>
+<li><strong>Still</strong>, as SVG written into the page. It looks the same as a live drawing, and its hovers
+  show, but the reader can't change it. The page needs no script.</li>
+</ul>
+<p>For one drawing on a page of its own, <code>drawing.write("name.html")</code> is enough. See
+<a href="../export/">Export SVG, PNG and PDF</a>.</p>
+<h2 id="draw-live-with-the-viewer">Draw live with the viewer<a class="headerlink" href="#draw-live-with-the-viewer" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Put <a href="../../api/#molviz.viewer.viewer_script"><code>viewer_script()</code></a> in a <code>&lt;script&gt;</code> element,
+   once.</li>
+<li>After it, call <a href="../../reference/javascript/#draw-into-an-element"><code>molviz.draw(element, record, options)</code></a>
+   for each record. The drawing is added at the end of the element.</li>
+</ol>
+<p>This Python writes a page that draws pUC19-GFP live. Save its record,
+<a href="https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json"><code>puc19-gfp-product.json</code></a>, beside your script.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">molviz</span>
+
+<span class="n">record</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"puc19-gfp-product.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"map"</span><span class="p">:</span> <span class="s2">"line"</span><span class="p">,</span> <span class="s2">"highlight"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"GFP"</span><span class="p">]}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">script_json</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return value as JSON that a &lt;script&gt; element holds safely."""</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"&lt;"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">u003c"</span><span class="p">)</span>
+
+
+<span class="n">page</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""&lt;!doctype html&gt;</span>
+<span class="s2">&lt;html lang="en"&gt;</span>
+<span class="s2">&lt;head&gt;</span>
+<span class="s2">&lt;meta charset="utf-8"&gt;</span>
+<span class="s2">&lt;title&gt;pUC19-GFP&lt;/title&gt;</span>
+<span class="s2">&lt;/head&gt;</span>
+<span class="s2">&lt;body&gt;</span>
+<span class="s2">&lt;div id="map"&gt;&lt;/div&gt;</span>
+<span class="s2">&lt;script&gt;</span><span class="si">{</span><span class="n">molviz</span><span class="o">.</span><span class="n">viewer_script</span><span class="p">()</span><span class="si">}</span><span class="s2">&lt;/script&gt;</span>
+<span class="s2">&lt;script&gt;</span>
+<span class="s2">molviz.draw(document.getElementById("map"), </span><span class="si">{</span><span class="n">script_json</span><span class="p">(</span><span class="n">record</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">script_json</span><span class="p">(</span><span class="n">options</span><span class="p">)</span><span class="si">}</span><span class="s2">);</span>
+<span class="s2">&lt;/script&gt;</span>
+<span class="s2">&lt;/body&gt;</span>
+<span class="s2">&lt;/html&gt;</span>
+<span class="s2">"""</span>
+<span class="n">Path</span><span class="p">(</span><span class="s2">"puc19-gfp-page.html"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+</code></pre></div>
+<p><code>script_json</code> writes each <code>&lt;</code> as an escape, so that a name holding <code>&lt;/script&gt;</code> can't end the
+script early. The page draws this:</p>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"map": "line", "highlight": ["GFP"]}
+</script>
+</div>
+
+<p>Each record has a bar of switches above its map. A print of the page leaves the bar out.</p>
+<p>The other inputs have draw calls of their own: <code>molviz.drawGel(element, gel)</code>,
+<code>molviz.drawPlate(element, plate)</code> and <code>molviz.drawFigure(element, records, options)</code>.</p>
+<h2 id="write-still-drawings-with-the-font-rules">Write still drawings with the font rules<a class="headerlink" href="#write-still-drawings-with-the-font-rules" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Put <a href="../../api/#molviz.font_rules"><code>font_rules()</code></a> in a <code>&lt;style&gt;</code> element, once.</li>
+<li>Write each drawing's <a href="../../api/#molviz.Drawing.still_svg"><code>still_svg()</code></a> into the page as it
+   is.</li>
+</ol>
+<p>This writes a page that holds a gel and a plate: the colony PCR from
+<a href="../draw-a-gel/">Draw a gel</a> and plate picked 1 from <a href="../draw-a-plate/">Draw a plate and a stamp</a>.
+Save their files,
+<a href="https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/gels/golden-gate-colony-pcr.json"><code>golden-gate-colony-pcr.json</code></a>
+and
+<a href="https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/plates/ap1-picked-1.json"><code>ap1-picked-1.json</code></a>,
+beside your script.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">molviz</span>
+
+<span class="n">colony_pcr</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"golden-gate-colony-pcr.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">picked</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"ap1-picked-1.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">drawings</span> <span class="o">=</span> <span class="p">[</span><span class="n">molviz</span><span class="o">.</span><span class="n">draw_gel</span><span class="p">(</span><span class="n">colony_pcr</span><span class="p">),</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw_plate</span><span class="p">(</span><span class="n">picked</span><span class="p">)]</span>
+<span class="n">stills</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">drawing</span><span class="o">.</span><span class="n">still_svg</span><span class="p">()</span> <span class="k">for</span> <span class="n">drawing</span> <span class="ow">in</span> <span class="n">drawings</span><span class="p">)</span>
+<span class="n">page</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""&lt;!doctype html&gt;</span>
+<span class="s2">&lt;html lang="en"&gt;</span>
+<span class="s2">&lt;head&gt;</span>
+<span class="s2">&lt;meta charset="utf-8"&gt;</span>
+<span class="s2">&lt;title&gt;Colony PCR&lt;/title&gt;</span>
+<span class="s2">&lt;style&gt;</span><span class="si">{</span><span class="n">molviz</span><span class="o">.</span><span class="n">font_rules</span><span class="p">()</span><span class="si">}</span><span class="s2">&lt;/style&gt;</span>
+<span class="s2">&lt;/head&gt;</span>
+<span class="s2">&lt;body&gt;</span>
+<span class="si">{</span><span class="n">stills</span><span class="si">}</span>
+<span class="s2">&lt;/body&gt;</span>
+<span class="s2">&lt;/html&gt;</span>
+<span class="s2">"""</span>
+<span class="n">Path</span><span class="p">(</span><span class="s2">"colony-pcr-page.html"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+</code></pre></div>
+<p>The page shows these:</p>
+<div data-molviz="gel" data-still>
+<script type="application/json" data-gel>
+{
+ "title": "Colony PCR",
+ "ladder": {
+  "name": "NEB 100 bp DNA Ladder (N3231)",
+  "bands": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1200,
+   1517
+  ]
+ },
+ "lanes": [
+  {
+   "name": "Correct clone",
+   "bands": [
+    160,
+    838
+   ]
+  },
+  {
+   "name": "Empty vector",
+   "bands": [
+    177
+   ]
+  }
+ ]
+}
+
+</script>
+</div>
+
+<div data-molviz="plate" data-still>
+<script type="application/json" data-plate>
+{
+ "title": "picked 1",
+ "rows": 16,
+ "columns": 24,
+ "wells": {
+  "A1": "quarter 1",
+  "A2": "quarter 2",
+  "A3": "quarter 1",
+  "A4": "quarter 2",
+  "A5": "quarter 1",
+  "A6": "quarter 2",
+  "A7": "quarter 1",
+  "A8": "quarter 2",
+  "A9": "quarter 1",
+  "A10": "quarter 2",
+  "A11": "quarter 1",
+  "A12": "quarter 2",
+  "A13": "quarter 1",
+  "A14": "quarter 2",
+  "A15": "quarter 1",
+  "A16": "quarter 2",
+  "A17": "quarter 1",
+  "A18": "quarter 2",
+  "A19": "quarter 1",
+  "A20": "quarter 2",
+  "A21": "quarter 1",
+  "A22": "quarter 2",
+  "A23": "quarter 1",
+  "A24": "quarter 2",
+  "B1": "quarter 3",
+  "B3": "quarter 3",
+  "B5": "quarter 3",
+  "B7": "quarter 3",
+  "B9": "quarter 3",
+  "B11": "quarter 3",
+  "B13": "quarter 3",
+  "B15": "quarter 3",
+  "B17": "quarter 3",
+  "B19": "quarter 3",
+  "B21": "quarter 3",
+  "B23": "quarter 3",
+  "C1": "quarter 1",
+  "C2": "quarter 2",
+  "C3": "quarter 1",
+  "C4": "quarter 2",
+  "C5": "quarter 1",
+  "C6": "quarter 2",
+  "C7": "quarter 1",
+  "C8": "quarter 2",
+  "C9": "quarter 1",
+  "C10": "quarter 2",
+  "C11": "quarter 1",
+  "C12": "quarter 2",
+  "C13": "quarter 1",
+  "C14": "quarter 2",
+  "C15": "quarter 1",
+  "C16": "quarter 2",
+  "C17": "quarter 1",
+  "C18": "quarter 2",
+  "C19": "quarter 1",
+  "C20": "quarter 2",
+  "C21": "quarter 1",
+  "C22": "quarter 2",
+  "C23": "quarter 1",
+  "C24": "quarter 2",
+  "D1": "quarter 3",
+  "D3": "quarter 3",
+  "D5": "quarter 3",
+  "D7": "quarter 3",
+  "D9": "quarter 3",
+  "D11": "quarter 3",
+  "D13": "quarter 3",
+  "D15": "quarter 3",
+  "D17": "quarter 3",
+  "D19": "quarter 3",
+  "D21": "quarter 3",
+  "D23": "quarter 3",
+  "E1": "quarter 1",
+  "E2": "quarter 2",
+  "E3": "quarter 1",
+  "E4": "quarter 2",
+  "E5": "quarter 1",
+  "E6": "quarter 2",
+  "E7": "quarter 1",
+  "E8": "quarter 2",
+  "E9": "quarter 1",
+  "E10": "quarter 2",
+  "E11": "quarter 1",
+  "E12": "quarter 2",
+  "E13": "quarter 1",
+  "E14": "quarter 2",
+  "E15": "quarter 1",
+  "E16": "quarter 2",
+  "E17": "quarter 1",
+  "E18": "quarter 2",
+  "E19": "quarter 1",
+  "E20": "quarter 2",
+  "E21": "quarter 1",
+  "E22": "quarter 2",
+  "E23": "quarter 1",
+  "E24": "quarter 2",
+  "F1": "quarter 3",
+  "F3": "quarter 3",
+  "F5": "quarter 3",
+  "F7": "quarter 3",
+  "F9": "quarter 3",
+  "F11": "quarter 3",
+  "F13": "quarter 3",
+  "F15": "quarter 3",
+  "F17": "quarter 3",
+  "F19": "quarter 3",
+  "F21": "quarter 3",
+  "F23": "quarter 3",
+  "G1": "quarter 1",
+  "G2": "quarter 2",
+  "G3": "quarter 1",
+  "G4": "quarter 2",
+  "G5": "quarter 1",
+  "G6": "quarter 2",
+  "G7": "quarter 1",
+  "G8": "quarter 2",
+  "G9": "quarter 1",
+  "G10": "quarter 2",
+  "G11": "quarter 1",
+  "G12": "quarter 2",
+  "G13": "quarter 1",
+  "G14": "quarter 2",
+  "G15": "quarter 1",
+  "G16": "quarter 2",
+  "G17": "quarter 1",
+  "G18": "quarter 2",
+  "G19": "quarter 1",
+  "G20": "quarter 2",
+  "G21": "quarter 1",
+  "G22": "quarter 2",
+  "G23": "quarter 1",
+  "G24": "quarter 2",
+  "H1": "quarter 3",
+  "H3": "quarter 3",
+  "H5": "quarter 3",
+  "H7": "quarter 3",
+  "H9": "quarter 3",
+  "H11": "quarter 3",
+  "H13": "quarter 3",
+  "H15": "quarter 3",
+  "H17": "quarter 3",
+  "H19": "quarter 3",
+  "H21": "quarter 3",
+  "H23": "quarter 3",
+  "I1": "quarter 1",
+  "I2": "quarter 2",
+  "I3": "quarter 1",
+  "I4": "quarter 2",
+  "I5": "quarter 1",
+  "I6": "quarter 2",
+  "I7": "quarter 1",
+  "I8": "quarter 2",
+  "I9": "quarter 1",
+  "I10": "quarter 2",
+  "I11": "quarter 1",
+  "I12": "quarter 2",
+  "I13": "quarter 1",
+  "I14": "quarter 2",
+  "I15": "quarter 1",
+  "I16": "quarter 2",
+  "I17": "quarter 1",
+  "I18": "quarter 2",
+  "I19": "quarter 1",
+  "I20": "quarter 2",
+  "I21": "quarter 1",
+  "I22": "quarter 2",
+  "I23": "quarter 1",
+  "I24": "quarter 2",
+  "J1": "quarter 3",
+  "J3": "quarter 3",
+  "J5": "quarter 3",
+  "J7": "quarter 3",
+  "J9": "quarter 3",
+  "J11": "quarter 3",
+  "J13": "quarter 3",
+  "J15": "quarter 3",
+  "J17": "quarter 3",
+  "J19": "quarter 3",
+  "J21": "quarter 3",
+  "J23": "quarter 3",
+  "K1": "quarter 1",
+  "K2": "quarter 2",
+  "K3": "quarter 1",
+  "K4": "quarter 2",
+  "K5": "quarter 1",
+  "K6": "quarter 2",
+  "K7": "quarter 1",
+  "K8": "quarter 2",
+  "K9": "quarter 1",
+  "K10": "quarter 2",
+  "K11": "quarter 1",
+  "K12": "quarter 2",
+  "K13": "quarter 1",
+  "K14": "quarter 2",
+  "K15": "quarter 1",
+  "K16": "quarter 2",
+  "K17": "quarter 1",
+  "K18": "quarter 2",
+  "K19": "quarter 1",
+  "K20": "quarter 2",
+  "K21": "quarter 1",
+  "K22": "quarter 2",
+  "K23": "quarter 1",
+  "K24": "quarter 2",
+  "L1": "quarter 3",
+  "L3": "quarter 3",
+  "L5": "quarter 3",
+  "L7": "quarter 3",
+  "L9": "quarter 3",
+  "L11": "quarter 3",
+  "L13": "quarter 3",
+  "L15": "quarter 3",
+  "L17": "quarter 3",
+  "L19": "quarter 3",
+  "L21": "quarter 3",
+  "L23": "quarter 3",
+  "M1": "quarter 1",
+  "M2": "quarter 2",
+  "M3": "quarter 1",
+  "M4": "quarter 2",
+  "M5": "quarter 1",
+  "M6": "quarter 2",
+  "M7": "quarter 1",
+  "M8": "quarter 2",
+  "M9": "quarter 1",
+  "M10": "quarter 2",
+  "M11": "quarter 1",
+  "M12": "quarter 2",
+  "M13": "quarter 1",
+  "M14": "quarter 2",
+  "M15": "quarter 1",
+  "M16": "quarter 2",
+  "M17": "quarter 1",
+  "M18": "quarter 2",
+  "M19": "quarter 1",
+  "M20": "quarter 2",
+  "M21": "quarter 1",
+  "M22": "quarter 2",
+  "M23": "quarter 1",
+  "M24": "quarter 2",
+  "N1": "quarter 3",
+  "N3": "quarter 3",
+  "N5": "quarter 3",
+  "N7": "quarter 3",
+  "N9": "quarter 3",
+  "N11": "quarter 3",
+  "N13": "quarter 3",
+  "N15": "quarter 3",
+  "N17": "quarter 3",
+  "N19": "quarter 3",
+  "N21": "quarter 3",
+  "N23": "quarter 3",
+  "O1": "quarter 1",
+  "O2": "quarter 2",
+  "O3": "quarter 1",
+  "O4": "quarter 2",
+  "O5": "quarter 1",
+  "O6": "quarter 2",
+  "O7": "quarter 1",
+  "O8": "quarter 2",
+  "O9": "quarter 1",
+  "O10": "quarter 2",
+  "O11": "quarter 1",
+  "O12": "quarter 2",
+  "O13": "quarter 1",
+  "O14": "quarter 2",
+  "O15": "quarter 1",
+  "O16": "quarter 2",
+  "O17": "quarter 1",
+  "O18": "quarter 2",
+  "O19": "quarter 1",
+  "O20": "quarter 2",
+  "O21": "quarter 1",
+  "O22": "quarter 2",
+  "O23": "quarter 1",
+  "O24": "quarter 2",
+  "P1": "quarter 3",
+  "P3": "quarter 3",
+  "P5": "quarter 3",
+  "P7": "quarter 3",
+  "P9": "quarter 3",
+  "P11": "quarter 3",
+  "P13": "quarter 3",
+  "P15": "quarter 3",
+  "P17": "quarter 3",
+  "P19": "quarter 3",
+  "P21": "quarter 3",
+  "P23": "quarter 3"
+ }
+}
+
+</script>
+</div>
+
+<p>The font rules load molviz's fonts from the page itself. Without them, the browser draws the
+text in a font of its own, which may not fit the space laid out for it.</p>
+<p>If the page also draws live, leave the font rules out. Each draw call adds them, and a second
+copy only makes the page larger.</p>
+<h2 id="make-a-still-drawing-in-the-browser">Make a still drawing in the browser<a class="headerlink" href="#make-a-still-drawing-in-the-browser" title="Permanent link">&para;</a></h2>
+<p>A page that carries the viewer can make still drawings itself. Each input has a
+<a href="../../reference/javascript/#still-svg">still call</a>: <code>molviz.stillSvg(record, options)</code>,
+<code>molviz.gelStillSvg(gel)</code>, <code>molviz.plateStillSvg(plate)</code> and
+<code>molviz.figureStillSvg(records, options)</code>. Each returns an object whose <code>svg</code> is the SVG text.
+Call <a href="../../reference/javascript/#declarefaces"><code>molviz.declareFaces(document)</code></a> once, to add the
+font rules to the page.</p>
+<p>In this code, the variable <code>gel</code> holds the colony PCR gel, parsed from
+<code>golden-gate-colony-pcr.json</code>. The code draws it into the element whose id is <code>gel</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">svg</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">molviz</span><span class="p">.</span><span class="nx">gelStillSvg</span><span class="p">(</span><span class="nx">gel</span><span class="p">);</span>
+<span class="nx">molviz</span><span class="p">.</span><span class="nx">declareFaces</span><span class="p">(</span><span class="nb">document</span><span class="p">);</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"gel"</span><span class="p">).</span><span class="nx">insertAdjacentHTML</span><span class="p">(</span><span class="s2">"beforeend"</span><span class="p">,</span><span class="w"> </span><span class="nx">svg</span><span class="p">);</span>
+</code></pre></div>
+<p>The element then holds this still drawing:</p>
+<div data-molviz="gel" data-still>
+<script type="application/json" data-gel>
+{
+ "title": "Colony PCR",
+ "ladder": {
+  "name": "NEB 100 bp DNA Ladder (N3231)",
+  "bands": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1200,
+   1517
+  ]
+ },
+ "lanes": [
+  {
+   "name": "Correct clone",
+   "bands": [
+    160,
+    838
+   ]
+  },
+  {
+   "name": "Empty vector",
+   "bands": [
+    177
+   ]
+  }
+ ]
+}
+
+</script>
+</div>
+
+<p>Don't call <code>molviz.svg</code>, <code>molviz.gelSvg</code>, <code>molviz.plateSvg</code> or <code>molviz.figureSvg</code> in a page.
+They write the <a href="../../reference/javascript/#file-svg">SVG for a file</a>, which needs letter
+outlines that a page doesn't load, so they throw an error.</p>
+<p>The <a href="../../reference/javascript/">JavaScript API</a> lists every name on the <code>molviz</code> object.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,4684 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/how-to/what-a-map-shows/">
+      
+      
+        <link rel="prev" href="../../get-started/choose-a-drawing/">
+      
+      
+        <link rel="next" href="../show-the-bases/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Choose what a map shows - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#choose-what-a-map-shows" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Choose what a map shows
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#leave-out-a-kind" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Leave out a kind
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#leave-out-feature-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Leave out feature types
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#name-the-enzymes-to-draw" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Name the enzymes to draw
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#draw-the-record-as-a-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Draw the record as a line
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#draw-a-stretch-of-the-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Draw a stretch of the record
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#light-the-names-that-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Light the names that matter
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#find-the-hidden-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Find the hidden labels
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#leave-out-a-kind" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Leave out a kind
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#leave-out-feature-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Leave out feature types
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#name-the-enzymes-to-draw" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Name the enzymes to draw
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#draw-the-record-as-a-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Draw the record as a line
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#draw-a-stretch-of-the-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Draw a stretch of the record
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#light-the-names-that-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Light the names that matter
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#find-the-hidden-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Find the hidden labels
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="choose-what-a-map-shows">Choose what a map shows<a class="headerlink" href="#choose-what-a-map-shows" title="Permanent link">&para;</a></h1>
+<p>A map draws its record's features and primers, the cut sites of each enzyme that cuts it
+once, and its insertions, reads and disagreements. A track's curves show only in the sequence
+view. This guide leaves out what your reader doesn't need, picks the enzymes, draws a stretch
+of the record, and lights the names that matter. Each option sets what the drawing starts
+with. On a page, the reader can still change it with the switches above the map.</p>
+<p>The examples draw pUC19-GFP, the pUC19 vector with GFP put in by Golden Gate assembly. Save
+its record, <a href="https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/puc19-gfp-product.json"><code>puc19-gfp-product.json</code></a>, beside your script, and load
+it once:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">molviz</span>
+
+<span class="n">record</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"puc19-gfp-product.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+</code></pre></div>
+<p>Each step shows its code, then the drawing it makes, drawn here from the same record and
+options. <a href="../../api/#options">The options table</a> lists every option with its default.</p>
+<h2 id="leave-out-a-kind">Leave out a kind<a class="headerlink" href="#leave-out-a-kind" title="Permanent link">&para;</a></h2>
+<p>To leave out everything of one kind, name the kind in <code>kinds_off</code>. The kinds are <code>features</code>,
+<code>primers</code>, <code>cuts</code>, <code>insertions</code>, <code>reads</code>, <code>disagreements</code> and <code>tracks</code>. This map leaves out the
+primers:</p>
+<div class="highlight"><pre><span></span><code><span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">kinds_off</span><span class="o">=</span><span class="p">[</span><span class="s2">"primers"</span><span class="p">])</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"no-primers.html"</span><span class="p">)</span>
+</code></pre></div>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"kinds_off": ["primers"]}
+</script>
+</div>
+
+<h2 id="leave-out-feature-types">Leave out feature types<a class="headerlink" href="#leave-out-feature-types" title="Permanent link">&para;</a></h2>
+<p>To leave out features by their type, name the types in <code>types_off</code>. This map leaves out the M13
+sites, which are <code>primer_bind</code> features, and the MCS and the two junctions, which are
+<code>misc_feature</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">types_off</span><span class="o">=</span><span class="p">[</span><span class="s2">"primer_bind"</span><span class="p">,</span> <span class="s2">"misc_feature"</span><span class="p">])</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"fewer-features.html"</span><span class="p">)</span>
+</code></pre></div>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"types_off": ["primer_bind", "misc_feature"]}
+</script>
+</div>
+
+<p><code>types_off</code> starts as <code>["source"]</code>, and your list replaces it. If the record has a <code>source</code>
+feature that you want left out, name <code>source</code> in your list too.</p>
+<h2 id="name-the-enzymes-to-draw">Name the enzymes to draw<a class="headerlink" href="#name-the-enzymes-to-draw" title="Permanent link">&para;</a></h2>
+<p>A map draws the cut sites of each enzyme that cuts the record once. To draw other enzymes, name
+them in <code>enzymes</code>. BsaI cuts pUC19-GFP twice, so its sites are left out until you name it:</p>
+<div class="highlight"><pre><span></span><code><span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">enzymes</span><span class="o">=</span><span class="p">[</span><span class="s2">"BsaI"</span><span class="p">])</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"bsai.html"</span><span class="p">)</span>
+</code></pre></div>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"enzymes": ["BsaI"]}
+</script>
+</div>
+
+<p>Your list replaces the default, so this map draws BsaI's sites and no others. A name matches in
+any case. molviz draws only the <a href="../../reference/record/#cuts">cuts</a> that your record lists, so
+an enzyme with no cut in the record draws nothing.</p>
+<h2 id="draw-the-record-as-a-line">Draw the record as a line<a class="headerlink" href="#draw-the-record-as-a-line" title="Permanent link">&para;</a></h2>
+<p>A circular record drawn whole opens on the circle. To draw it as a line, set <code>map</code> to <code>"line"</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="nb">map</span><span class="o">=</span><span class="s2">"line"</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"line.html"</span><span class="p">)</span>
+</code></pre></div>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
+</div>
+
+<h2 id="draw-a-stretch-of-the-record">Draw a stretch of the record<a class="headerlink" href="#draw-a-stretch-of-the-record" title="Permanent link">&para;</a></h2>
+<p>To draw only some of the bases, give a <code>span</code> with a <code>start</code> and an <code>end</code>. <code>start</code> counts from 0,
+and the base at <code>end</code> is not drawn. A span is drawn as a line, numbered as the record is. This
+span holds GFP and the bases on either side of it:</p>
+<div class="highlight"><pre><span></span><code><span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">span</span><span class="o">=</span><span class="p">{</span><span class="s2">"start"</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="mi">1250</span><span class="p">})</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"gfp-span.html"</span><span class="p">)</span>
+</code></pre></div>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"span": {"start": 300, "end": 1250}}
+</script>
+</div>
+
+<p>On a circular record, <code>end</code> may pass the record's length to run across the origin. pUC19-GFP
+has 3,347 bases, so this span holds its last 247 bases and then its first 153:</p>
+<div class="highlight"><pre><span></span><code><span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">span</span><span class="o">=</span><span class="p">{</span><span class="s2">"start"</span><span class="p">:</span> <span class="mi">3100</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="mi">3500</span><span class="p">})</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"origin-span.html"</span><span class="p">)</span>
+</code></pre></div>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"span": {"start": 3100, "end": 3500}}
+</script>
+</div>
+
+<p>A span runs at most once around the record. The circle draws a record whole, so <code>map="circle"</code>
+with a shorter span is an error. <a href="../../reference/record/#coordinates">Coordinates</a> in the record
+format gives the rules for counting bases.</p>
+<h2 id="light-the-names-that-matter">Light the names that matter<a class="headerlink" href="#light-the-names-that-matter" title="Permanent link">&para;</a></h2>
+<p>To light some items and dim the rest, name them in <code>highlight</code>. All else turns one pale grey,
+and nothing moves. This map lights GFP and the two primers that copy it:</p>
+<div class="highlight"><pre><span></span><code><span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="p">[</span><span class="s2">"GFP"</span><span class="p">,</span> <span class="s2">"GFP forward"</span><span class="p">,</span> <span class="s2">"GFP reverse"</span><span class="p">])</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"gfp-lit.html"</span><span class="p">)</span>
+</code></pre></div>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"highlight": ["GFP", "GFP forward", "GFP reverse"]}
+</script>
+</div>
+
+<p>A name can be a feature, a primer, an insertion, a read, a disagreement, a track or an enzyme.
+An enzyme lights every site it cuts. A name matches in any case. If a name matches nothing in
+the record, <code>draw</code> raises <code>ValueError</code> with the message
+<code>options.highlight[0]: names nothing in the record</code>.</p>
+<h2 id="find-the-hidden-labels">Find the hidden labels<a class="headerlink" href="#find-the-hidden-labels" title="Permanent link">&para;</a></h2>
+<p>Where labels would overlap, a drawing hides some of them and counts them in a notice at the
+bottom right of the map. Labels hide when you ask for more than fits. pUC19-GFP hides nothing,
+even with every enzyme, so this step draws AP-1's product,
+<a href="https://raw.githubusercontent.com/liuhlab/liulab-molviz/main/tests/records/ap1-product.json"><code>ap1-product.json</code></a>,
+which holds cuts for 14 enzymes. Drawn on the circle with all of them, some of its cut-site
+labels hide:</p>
+<div class="highlight"><pre><span></span><code><span class="n">ap1</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"ap1-product.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">every_enzyme</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">cut</span><span class="p">[</span><span class="s2">"enzyme"</span><span class="p">]</span> <span class="k">for</span> <span class="n">cut</span> <span class="ow">in</span> <span class="n">ap1</span><span class="p">[</span><span class="s2">"cuts"</span><span class="p">]})</span>
+<span class="n">drawing</span> <span class="o">=</span> <span class="n">molviz</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">ap1</span><span class="p">,</span> <span class="n">enzymes</span><span class="o">=</span><span class="n">every_enzyme</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">drawing</span><span class="o">.</span><span class="n">notice</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">drawing</span><span class="o">.</span><span class="n">hidden</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+</code></pre></div>
+<p>It prints:</p>
+<div class="highlight"><pre><span></span><code>6 cut sites are hidden
+{'kind': 'cuts', 'name': 'BtgZI', 'at': 1864}
+{'kind': 'cuts', 'name': 'BtgZI', 'at': 2233}
+{'kind': 'cuts', 'name': 'BtgZI', 'at': 2396}
+{'kind': 'cuts', 'name': 'BtgZI', 'at': 2577}
+{'kind': 'cuts', 'name': 'BspQI - SapI', 'at': 2295}
+{'kind': 'cuts', 'name': 'BspQI - SapI', 'at': 2505}
+</code></pre></div>
+<p>The drawing's <a href="../../api/#molviz.Drawing"><code>notice</code></a> is the sentence that the drawing shows, and
+<code>hidden</code> lists each hidden label in the shape that
+<a href="../../reference/javascript/#hidden-labels">Hidden labels</a> gives.</p>
+<p>On a page, rest the pointer on the notice to list the hidden labels. The page lays the labels
+out again each time the reader turns the circle or flips a switch, so the count can change:</p>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "AP-1 DESynR round 3",
+ "circular": true,
+ "bases": "CAGTAGTAGGTTGAGGCCGTTGAGCACCGCCGCCGCAAGGAATGGTGCATGCAAGGAGATGGCGCCCAACAGTCCCCCGGCCACGGGGCCTGCCACCATACCCACGCCGAAACAAGCGCTCATGAGCCCGAAGTGGCGAGCCCGATCTTCCCCATCGGTGATGTCGGCGATATAGGCGCCAGCAACCGCACCTGTGGCGCCGGTGATGCCGGCCACGATGCGTCCGGCGTAGAGGATCGAGATCGATCTCGATCCCGCGAAATTAATACGACTCACTATAGGGGAATTGTGAGCGGATAACAATTCCCCTCTAGAAATAATTTTGTTTAACTTTAAGAAGGAGATATACAGTTTAAACTATGGGGTCTCAAGGAATGACCGCCAAGATGGAAACCACCTTCTACGACGACGCCCTGAACGCCAGCTTCCTGCCCAGCGAGAGCGGCCCCTACGGCTACAGCAACCCCAAGATCCTGAAGCAGAGCATGACCCTGAACCTGGCCGACCCCGTGGGCAGCCTGAAGCCCCACCTGAGAGCCAAGAACAGCGACCTGCTGACCAGCCCCGACGTGGGCCTGCTGAAGCTGGCCAGCCCCGAGCTGGAGAGACTGATCATCCAGAGCAGCAACGGCCACATCACCACCACCCCCACCCCCACCCAGTTCCTGTGCCCCAAGAACGTGACCGACGAGCAGGAGGGCTTCGCCGAGGGCTTCGTGAGAGCCCTGGCCGAGCTGCACAGCCAGAACACCCTGCCCAGCGTGACCAGCGCCGCCCAGCCCGTGAACGGCGCCGGCATGGTGGCCCCCGCCGTGGCCAGCGTGGCCGGCGGCAGCGGCAGCGGCGGCTTCAGCGCCAGCCTGCACAGCGAGCCCCCCGTGTACGCCAACCTGAGCAACTTCAACCCCGGCGCCCTGAGCAGCGGCGGCGGCGCCCCCAGCTACGGCGCCGCCGGCCTGGCCTTCCCCGCCCAGCCCCAGCAGCAGCAGCAGCCCCCCCACCATCTGCCCCAGCAGATGCCCGTGCAGCACCCCAGACTGCAGGCCCTGAAGGAGGAGCCCCAGACCGTGCCCGAGATGCCCGGCGAAACCCCCCCCCTGAGCCCCATCGACATGGAGAGCCAAGATAGAATCAAGGCCGAGAGAAAGAGAATGAGAAACAGAATCGCCGCCAGCAAGTGCAGAAAGAGAAAGCTGGAGAGAATCGCCAGACTGGAGGAGAAGGTGAAAACCCTGAAGGCCCAGAACAGCGAGCTGGCCAGCACCGCCAACATGCTGAGAGAACAGGTGGCCCAGCTGAAGCAGAAGGTGATGAAGCATGTGAACAGCGGCTGCCAGCTGATGCTGACCCAGCAGCTGCAGACCTTCAGGAAAGTCTTCAGCCCGGGCAGAAGACAATTCCACTATTCACATTTCCCACATAGTCGATTCCTACCATTGTCTTTCCTTCCGGAGACCACCACCACCACCACCACTGGTAGTTTAAACATGAGATCCGGCTGCTAACAAAGCCCGAAAGGAAGCTGAGTTGGCTGCTGCCACCGCTGAGCAATAACTAGCATAACCCCTTGGGGCCTCTAAACGGGTCTTGAGGGGTTTTTTGCTGAAAGGAGGAACTATATCCGGATTGGCGAATGGGACGCGCCCTGTAGCGGCGCATTAAGCGCGGCGGGTGTGGTGGTTACGCGCAGCGTGACCGCTACACTTGCCAGCGCCCTAGCGCCCGCTCCTTTCGCTTTCTTCCCTTCCTTTCTCGCCACGTTCGCCGGCTTTCCCCGTCAAGCTCTAAATCGGGGGCTCCCTTTAGGGTTCCGATTTAGTGCTTTACGGCACCTCGACCCCAAAAAACTTGATTAGGGTGATGGTTCACGTAGTGGGCCATCGCCCTGATAGACGGTTTTTCGCCCTTTGACGTTGGAGTCCACGTTCTTTAATAGTGGACTCTTGTTCCAAACTGGAACAACACTCAACCCTATCTCGGTCTATTCTTTTGATTTATAAGGGATTTTGCCGATTTCGGCCTATTGGTTAAAAAATGAGCTGATTTAACAAAAATTTAACGCGAATTTTAACAAAATATTAACGTTTACAATTTCAGGTGGCACTTTTCGGGGAAATGTGCGCGGAACCCCTATTTGTTTATTTTTCTAAATACATTCAAATATGTATCCGCTCATGAATTAATTCTCAGAAGAACTCGTCAAGAAGGCGATAGAAGGCGATGCGCTGCGAATCGGGAGCGGCGATACCGTAAAGCACGAGGAAGCGGTCAGCCCATTCGCCGCCAAGCTCTTCAGCAATATCACGGGTAGCCAACGCTATGTCCTGATAGCGGTCCGCCACACCCAGCCGGCCACAGTCGATGAATCCAGAAAAGCGGCCATTTTCCACCATGATATTCGGCAAGCAGGCATCGCCATGGGTCACGACGAGATCCTCGCCGTCGGGCATGCTCGCCTTGAGCCTGGCGAACAGTTCGGCTGGCGCGAGCCCCTGATGCTCTTCGTCCAGATCATCCTGATCGACAAGACCGGCTTCCATCCGAGTACGTGCTCGCTCGATGCGATGTTTCGCTTGGTGGTCGAATGGGCAGGTAGCCGGATCAAGCGTATGCAGCCGCCGCATTGCATCAGCCATGATGGATACTTTCTCGGCAGGAGCAAGGTGAGATGACAGGAGATCCTGCCCCGGCACTTCGCCCAATAGCAGCCAGTCCCTTCCCGCTTCAGTGACAACGTCGAGCACAGCTGCGCAAGGAACGCCCGTCGTGGCCAGCCACGATAGCCGCGCTGCCTCGTCTTGCAGTTCATTCAGGGCACCGGACAGGTCGGTCTTGACAAAAAGAACCGGGCGCCCCTGCGCTGACAGCCGGAACACGGCGGCATCAGAGCAGCCGATTGTCTGTTGTGCCCAGTCATAGCCGAATAGCCTCTCCACCCAAGCGGCCGGAGAACCTGCGTGCAATCCATCTTGTTCAATCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGAACACCCCTTGTATTACTGTTTATGTAAGCAGACAGTTTTATTGTTCATGACCAAAATCCCTTAACGTGAGTTTTCGTTCCACTGAGCGTCAGACCCCGTAGAAAAGATCAAAGGATCTTCTTGAGATCCTTTTTTTCTGCGCGTAATCTGCTGCTTGCAAACAAAAAAACCACCGCTACCAGCGGTGGTTTGTTTGCCGGATCAAGAGCTACCAACTCTTTTTCCGAAGGTAACTGGCTTCAGCAGAGCGCAGATACCAAATACTGTCCTTCTAGTGTAGCCGTAGTTAGGCCACCACTTCAAGAACTCTGTAGCACCGCCTACATACCTCGCTCTGCTAATCCTGTTACCAGTGGCTGCTGCCAGTGGCGATAAGTCGTGTCTTACCGGGTTGGACTCAAGACGATAGTTACCGGATAAGGCGCAGCGGTCGGGCTGAACGGGGGGTTCGTGCACACAGCCCAGCTTGGAGCGAACGACCTACACCGAACTGAGATACCTACAGCGTGAGCTATGAGAAAGCGCCACGCTTCCCGAAGGGAGAAAGGCGGACAGGTATCCGGTAAGCGGCAGGGTCGGAACAGGAGAGCGCACGAGGGAGCTTCCAGGGGGAAACGCCTGGTATCTTTATAGTCCTGTCGGGTTTCGCCACCTCTGACTTGAGCGTCGATTTTTGTGATGCTCGTCAGGGGGGCGGAGCCTATGGAAAAACGCCAGCAACGCGGCCTTTTTACGGTTCCTGGCCTTTTGCTGGCCTTTTGCTCACATGTTCTTTCCTGCGTTATCCCCTGATTCTGTGGATAACCGTATTACCGCCTTTGAGTGAGCTGATACCGCTCGCCGCAGCCGAACGACCGAGCGCAGCGAGTCAGTGAGCGAGGAAGCGGAAGAGCGCCTGATGCGGTATTTTCTCCTTACGCATCTGTGCGGTATTTCACACCGCATATATGGTGCACTCTCAGTACAATCTGCTCTGATGCCGCATAGTTAAGCCAGTATACACTCCGCTATCGCTACGTGACTGGGTCATGGCTGCGCCCCGACACCCGCCAACACCCGCTGACGCGCCCTGACGGGCTTGTCTGCTCCCGGCATCCGCTTACAGACAAGCTGTGACCGTCACCGGGAGCTGCATGTGTCAGAGGTTTTCACCGTCATCACCGAAACGCGCGAGGCAGCTGCGGTAAAGCTCATCAGCGTGGTCGTGAAGCGATTCACAGATGTCTGCCTGTTCATCCGCGTCCAGCTCGTTGAGTTTCTCCAGAAGCGTTAATGTCTGGCTTCTGATAAAGCGGGCCATGTTAAGGGCGGTTTTTTCCTGTTTGGTCACTGATGCCTCCGTGTAAGGGGGATTTCTGTTCATGGGGGTAATGATACCGATGAAACGAGAGAGGATGCTCACGATACGGGTTACTGATGATGAACATGCCCGGTTACTGGAACGTTGTGAGGGTAAACAACTGGCGGTATGGATGCGGCGGGACCAGAGAAAAATCACTCAGGGTCAATGCCAGCGCTTCGTTAATACAGATGTAGGTGTTCCACAGGGTAGCCAGCAGCATCCTGCGATGCAGATCCGGAACATAATGGTGCAGGGCGCTGACTTCCGCGTTTCCAGACTTTACGAAACACGGAAACCAAAGACCATTCATGTTGTTGCTCAGGTCGCAGACGTTTTGCAGCAGCAGTCGCTTCACGTTCGCTCGCGTATCGGTGATTCATTCTGCTAACCAGTAAGGCAACCCCGCCAGCCTAGCCGGGTCCTCAACGACAGGAGCACGATCATGCGCACCCGTGGGGCCGCCATGCCGGCGATAATGGCCTGCTTCTCGCCGAAACGTTTGGTGGCGGGACCAGTGACGAAGGCTTGAGCGAGGGCGTGCAAGATTCCGAATACCGCAAGCGACAGGCCGATCATCGTCGCGCTCCAGCGAAAGCGGTCCTCGCCGAAAATGACCCAGAGCGCTGCCGGCACCTGTCCTACGAGTTGCATGATAAAAAAGACAGTCATAAGTGCGGCGACGATAGTCATGCCCCGCGCCCACCGGAAGGAGCTGACTGGGTTGAAGGCTCTCAAGGGCATCGGTCGAGATCCCGGTGCCTAATGAGTGAGCTAACTTACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCCAGGGTGGTTTTTCTTTTCACCAGTGAAACGGGCAACAGCTGATTGCCCTTCACCGCCTGGCCCTGAGAGAGTTGCAGCAAGCGGTCCACGCTGGTTTGCCCCAGCAGGCGAAAATCCTGTTTGATGGTGGTTAACGGCGGGATATAACATGAGCTATCTTCGGTATCGTCGTATCCCACTACCGAGATGTCCGCACCAACGCGCAGCCCGGACTCGGTAATGGCGCGCATTGCGCCCAGCGCCATCTGATCGTTGGCAACCAGCATCGCAGTGGGAACGATGCCCTCATTCAGCATTTGCATGGTTTGTTGAAAACCGGACATGGCACTCCAGTCGCCTTCCCGTTCCGCTATCGGCTGAATTTGATTGCGAGTGAGATATTTATGCCAGCCAGCCAGACGCAGACGCGCCGAGACAGAACTTAATGGGCCCGCTAACAGCGCGATTTGCTGGTGACCCAATGCGACCAGATGCTCCACGCCCAGTCGCGTACCATCTTCATGGGAGAAAATAATACTGTTGATGGGTGTCTGGTCAGAGACATCAAGAAATAACGCCGGAACATTAGTGCAGGCAGCTTCCACAGCAATGGCATCCTGGTCATCCAGCGGATAGTTAATGATCAGCCCACTGACGCGTTGCGCGAGAAGATTGTGCACCGCCGCTTTACAGGCTTCGACGCCGCTTCGTTCTACCATCGACACCACCACGCTGGCACCCAGTTGATCGGCGCGAGATTTAATCGCCGCGACAATTTGCGACGGCGCGTGCAGGGCCAGACTGGAGGTGGCAACGCCAATCAGCAACGACTGTTTGCCCGCCAGTTGTTGTGCCACGCGGTTGGGAATGTAATTCAGCTCCGCCATCGCCGCTTCCACTTTTTCCCGCGTTTTCGCAGAAACGTGGCTGGCCTGGTTCACCACGCGGGAAACGGTCTGATAAGAGACACCGGCATACTCTGCGACATCGTATAACGTTACTGGTTTCACATTCACCACCCTGAATTGACTCTCTTCCGGGCGCTATCATGCCATACCGCGAAAGGTTTTGCGCCATTCGATGGTGTCCGGGATCTCGACGCTCTCCCTTATGCGACTCCTGCATTAGGAAGCAGCC",
+ "features": [
+  {
+   "name": "T7 promoter",
+   "type": "promoter",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 263,
+     "end": 282
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 282,
+     "end": 307
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "RBS",
+   "type": "RBS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 321,
+     "end": 344
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "PmeI",
+   "type": "protein_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 350,
+     "end": 358
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "N entry junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 370,
+     "end": 374
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "N_JUN",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 374,
+     "end": 1123
+    }
+   ],
+   "color": "#a6acb3",
+   "translation": "MTAKMETTFYDDALNASFLPSESGPYGYSNPKILKQSMTLNLADPVGSLKPHLRAKNSDLLTSPDVGLLKLASPELERLIIQSSNGHITTTPTPTQFLCPKNVTDEQEGFAEGFVRALAELHSQNTLPSVTSAAQPVNGAGMVAPAVASVAGGSGSGGFSASLHSEPPVYANLSNFNPGALSSGGGAPSYGAAGLAFPAQPQQQQQPPHHLPQQMPVQHPRLQALKEEPQTVPEMPGETPPLSPIDMES"
+  },
+  {
+   "name": "DBD entry junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1123,
+     "end": 1127
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "DBD_JUN",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 1127,
+     "end": 1315
+    }
+   ],
+   "color": "#a6acb3",
+   "translation": "RIKAERKRMRNRIAASKCRKRKLERIARLEEKVKTLKAQNSELASTANMLREQVAQLKQKVM"
+  },
+  {
+   "name": "C entry junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1315,
+     "end": 1319
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "C_JUN",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 1319,
+     "end": 1367
+    }
+   ],
+   "color": "#a6acb3",
+   "translation": "VNSGCQLMLTQQLQTF"
+  },
+  {
+   "name": "C internal stuffer",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1367,
+     "end": 1397
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "C_JUN barcode",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1401,
+     "end": 1412
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "cloning scar",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1412,
+     "end": 1416
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "DBD_JUN barcode",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1416,
+     "end": 1427
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "cloning scar",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1427,
+     "end": 1431
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "N_JUN barcode",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1431,
+     "end": 1442
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "cloning scar",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1442,
+     "end": 1446
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "6xHis",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 1456,
+     "end": 1474
+    }
+   ],
+   "color": "#cc99b2",
+   "translation": "HHHHHH"
+  },
+  {
+   "name": "PmeI",
+   "type": "protein_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 1479,
+     "end": 1487
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "T7 terminator",
+   "type": "terminator",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 1554,
+     "end": 1602
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "f1 ori",
+   "type": "rep_origin",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 1638,
+     "end": 2094
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "KanR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2186,
+     "end": 2981
+    }
+   ],
+   "color": "#a6acb3",
+   "translation": "MIEQDGLHAGSPAAWVERLFGYDWAQQTIGCSDAAVFRLSAQGRPVLFVKTDLSGALNELQDEAARLSWLATTGVPCAAVLDVVTEAGRDWLLLGEVPGQDLLSSHLAPAEKVSIMADAMRRLHTLDPATCPFDHQAKHRIERARTRMEAGLVDQDDLDEEHQGLAPAELFARLKASMPDGEDLVVTHGDACLPNIMVENGRFSGFIDCGRLGVADRYQDIALATRDIAEELGGEWADRFLVLYGIAAPDSQRIAFYRLLDEFF*"
+  },
+  {
+   "name": "KanR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2981,
+     "end": 3086
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 3207,
+     "end": 3796
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "bom",
+   "type": "misc_feature",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 3981,
+     "end": 4124
+    }
+   ],
+   "color": "#a6acb3"
+  },
+  {
+   "name": "rop",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 4225,
+     "end": 4417
+    }
+   ],
+   "color": "#993366",
+   "translation": "VTKQEKTALNMARFIRSQTLTLLEKLNELDADEQADICESLHDHADELYRSCLARFGDDGENL*"
+  },
+  {
+   "name": "lacI",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 5225,
+     "end": 6308
+    }
+   ],
+   "color": "#993366",
+   "translation": "VKPVTLYDVAEYAGVSYQTVSRVVNQASHVSAKTREKVEAAMAELNYIPNRVAQQLAGKQSLLIGVATSSLALHAPSQIVAAIKSRADQLGASVVVSMVERSGVEACKAAVHNLLAQRVSGLIINYPLDDQDAIAVEAACTNVPALFLDVSDQTPINSIIFSHEDGTRLGVEHLVALGHQQIALLAGPLSSVSARLRLAGWHKYLTRNQIQPIAEREGDWSAMSGFQQTMQMLNEGIVPTAMLVANDQMALGAMRAITESGLRVGADISVVGYDDTEDSSCYIPPLTTIKQDFRLLGQTSVDRLLQLSQGQAVKGNQLLPVSLVKRKTTLAPNTQTASPRALADSLMQLARQVSRLESGQ*"
+  },
+  {
+   "name": "lacI promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 6308,
+     "end": 6386
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "SphI",
+   "start": 46,
+   "end": 52,
+   "at": 51,
+   "stagger": -4
+  },
+  {
+   "enzyme": "XbaI",
+   "start": 309,
+   "end": 315,
+   "at": 310,
+   "stagger": 4
+  },
+  {
+   "enzyme": "PmeI",
+   "start": 350,
+   "end": 358,
+   "at": 354,
+   "stagger": 0
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 363,
+   "end": 369,
+   "at": 370,
+   "stagger": 4
+  },
+  {
+   "enzyme": "PstI",
+   "start": 1037,
+   "end": 1043,
+   "at": 1042,
+   "stagger": -4
+  },
+  {
+   "enzyme": "PstI",
+   "start": 1355,
+   "end": 1361,
+   "at": 1360,
+   "stagger": -4
+  },
+  {
+   "enzyme": "BbsI",
+   "start": 1373,
+   "end": 1379,
+   "at": 1367,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BpiI",
+   "start": 1373,
+   "end": 1379,
+   "at": 1367,
+   "stagger": 4
+  },
+  {
+   "enzyme": "SrfI",
+   "start": 1380,
+   "end": 1388,
+   "at": 1384,
+   "stagger": 0
+  },
+  {
+   "enzyme": "SmaI",
+   "start": 1381,
+   "end": 1387,
+   "at": 1384,
+   "stagger": 0
+  },
+  {
+   "enzyme": "XmaI",
+   "start": 1381,
+   "end": 1387,
+   "at": 1382,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BbsI",
+   "start": 1389,
+   "end": 1395,
+   "at": 1397,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BpiI",
+   "start": 1389,
+   "end": 1395,
+   "at": 1397,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1451,
+   "end": 1457,
+   "at": 1446,
+   "stagger": 4
+  },
+  {
+   "enzyme": "PmeI",
+   "start": 1479,
+   "end": 1487,
+   "at": 1483,
+   "stagger": 0
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 1878,
+   "end": 1884,
+   "at": 1864,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 2217,
+   "end": 2223,
+   "at": 2233,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 2287,
+   "end": 2294,
+   "at": 2295,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 2287,
+   "end": 2294,
+   "at": 2295,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 2410,
+   "end": 2416,
+   "at": 2396,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 2415,
+   "end": 2421,
+   "at": 2416,
+   "stagger": 4
+  },
+  {
+   "enzyme": "SphI",
+   "start": 2446,
+   "end": 2452,
+   "at": 2451,
+   "stagger": -4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 2497,
+   "end": 2504,
+   "at": 2505,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 2497,
+   "end": 2504,
+   "at": 2505,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 2561,
+   "end": 2567,
+   "at": 2577,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 3973,
+   "end": 3980,
+   "at": 3969,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 3973,
+   "end": 3980,
+   "at": 3969,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 4652,
+   "end": 4658,
+   "at": 4668,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 5582,
+   "end": 5588,
+   "at": 5568,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 6182,
+   "end": 6188,
+   "at": 6168,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"enzymes": ["BbsI", "BpiI", "BsaI", "BspQI", "BtgZI", "NcoI", "PmeI", "PstI", "SapI", "SmaI", "SphI", "SrfI", "XbaI", "XmaI"]}
+</script>
+</div>
+
+<p>To bring a hidden label back, draw less: leave out a kind, name fewer enzymes, or draw a span. A
+lit label is the last to hide, so <code>highlight</code> keeps the labels that matter in view.
+<a href="../../explanation/readable/">How a drawing stays readable</a> gives the order in which labels hide.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

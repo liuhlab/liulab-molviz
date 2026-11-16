@@ -1,0 +1,1759 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/reference/javascript/">
+      
+      
+        <link rel="prev" href="../../api/">
+      
+      
+        <link rel="next" href="../../explanation/what-molviz-draws/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>JavaScript API - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#javascript-api" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              JavaScript API
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#each-inputs-four-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Each input's four calls
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Each input&#x27;s four calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Check
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#draw-into-an-element" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Draw into an element
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-svg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        File SVG
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#still-svg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Still SVG
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hidden-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Hidden labels
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fontrules" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        fontRules
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#declarefaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        declareFaces
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        calls
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sequence_view_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SEQUENCE_VIEW_LIMIT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#formaterror" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        FormatError
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#each-inputs-four-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Each input's four calls
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Each input&#x27;s four calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Check
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#draw-into-an-element" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Draw into an element
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-svg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        File SVG
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#still-svg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Still SVG
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hidden-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Hidden labels
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fontrules" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        fontRules
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#declarefaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        declareFaces
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        calls
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sequence_view_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SEQUENCE_VIEW_LIMIT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#formaterror" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        FormatError
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="javascript-api">JavaScript API<a class="headerlink" href="#javascript-api" title="Permanent link">&para;</a></h1>
+<p>The viewer is one script. Running it defines one global, <code>molviz</code>, and this page lists every
+name on it. Python's <a href="../../api/#molviz.viewer.viewer_script"><code>viewer_script()</code></a> returns the
+script's text, for a page to put in a <code>&lt;script&gt;</code> element.
+<a href="../../how-to/your-own-page/">Put drawings in your own page</a> uses these calls.</p>
+<h2 id="each-inputs-four-calls">Each input's four calls<a class="headerlink" href="#each-inputs-four-calls" title="Permanent link">&para;</a></h2>
+<p>Each input has four calls. One checks it, one draws it into an element of a page, one returns
+it as SVG for a file, and one returns it as a still SVG.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Check</th>
+<th>Draw into an element</th>
+<th>File SVG</th>
+<th>Still SVG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../record/">A record</a></td>
+<td><code>check</code></td>
+<td><code>draw</code></td>
+<td><code>svg</code></td>
+<td><code>stillSvg</code></td>
+</tr>
+<tr>
+<td><a href="../figure/">A figure</a></td>
+<td><code>checkFigure</code></td>
+<td><code>drawFigure</code></td>
+<td><code>figureSvg</code></td>
+<td><code>figureStillSvg</code></td>
+</tr>
+<tr>
+<td><a href="../gel/">A gel</a></td>
+<td><code>checkGel</code></td>
+<td><code>drawGel</code></td>
+<td><code>gelSvg</code></td>
+<td><code>gelStillSvg</code></td>
+</tr>
+<tr>
+<td><a href="../plate/">A plate</a></td>
+<td><code>checkPlate</code></td>
+<td><code>drawPlate</code></td>
+<td><code>plateSvg</code></td>
+<td><code>plateStillSvg</code></td>
+</tr>
+</tbody>
+</table>
+<p>Each call takes the input as a plain object, in the format Python's calls take, which each
+input's format page gives. A figure's input is a list of one or more records.</p>
+<p>A record's calls and a figure's calls take <code>options</code> as one object, such as <code>{"map": "line"}</code>.
+They are the <a href="../../api/#options">options</a> that Python's <a href="../../api/#molviz.draw"><code>draw</code></a> takes
+by name. A figure's options apply to every record in it. A gel's calls and a plate's calls
+accept <code>options</code> and ignore them. Left out, <code>options</code> is <code>{}</code>, so each option takes its default.</p>
+<h3 id="check">Check<a class="headerlink" href="#check" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nx">molviz</span><span class="p">.</span><span class="nx">check</span><span class="p">(</span><span class="nx">record</span><span class="p">)</span>
+</code></pre></div>
+<p><code>check</code>, <code>checkFigure</code>, <code>checkGel</code> and <code>checkPlate</code> return a checked copy of the input and leave
+the input as it was. A record comes back with each list it left out set to <code>[]</code>, and so does
+each record of a figure.</p>
+<p>Each throws a <a href="#formaterror"><code>FormatError</code></a> when the input breaks its format.</p>
+<p><code>check</code> and <code>checkFigure</code> also check <code>options</code> when they are given, as the file SVG calls do,
+without drawing. When the input is right, the error names every problem in the options instead.</p>
+<h3 id="draw-into-an-element">Draw into an element<a class="headerlink" href="#draw-into-an-element" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nx">molviz</span><span class="p">.</span><span class="nx">draw</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span><span class="w"> </span><span class="nx">record</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span>
+</code></pre></div>
+<p><code>draw</code>, <code>drawFigure</code>, <code>drawGel</code> and <code>drawPlate</code> add the drawing at the end of <code>element</code>, a DOM
+element, after what it already holds. Letters are real text. Each call first adds the font
+rules to the page with <a href="#declarefaces"><code>declareFaces</code></a>.</p>
+<ul>
+<li><code>draw</code> opens the record in a frame: a bar of switches, the map, and the sequence view when
+  <code>sequence_view</code> is <code>true</code>.</li>
+<li><code>drawFigure</code>, <code>drawGel</code> and <code>drawPlate</code> each add one SVG element, with no switches.</li>
+</ul>
+<p>Where a span holds more than <a href="#sequence_view_limit"><code>SEQUENCE_VIEW_LIMIT</code></a> bases, <code>draw</code> and
+<code>drawFigure</code> leave the sequence view out instead of throwing.</p>
+<p>Each returns an object with one method, <code>destroy()</code>. It removes the drawing and leaves the font
+rules for any other drawing on the page. A second call does nothing.</p>
+<p>Each throws a <code>FormatError</code> that names every problem in the input. When the input is right, the
+error names every problem in the options instead.</p>
+<h3 id="file-svg">File SVG<a class="headerlink" href="#file-svg" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nx">molviz</span><span class="p">.</span><span class="nx">svg</span><span class="p">(</span><span class="nx">record</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span>
+</code></pre></div>
+<p><code>svg</code>, <code>figureSvg</code>, <code>gelSvg</code> and <code>plateSvg</code> are for code that writes files. Each letter is an
+outline, so the SVG looks the same on a machine without molviz's fonts.</p>
+<p>These four calls need the outline script, which ships beside the viewer, to have run first.
+Without it, they throw an <code>Error</code> whose message is
+<code>molviz: a file's outlines need the outline script</code>. A page uses the draw calls and the still
+calls, which need only the viewer.</p>
+<p>Each returns an object with four keys:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>svg</code></td>
+<td>string</td>
+<td>The whole drawing as SVG text. Its width and height have no unit. One unit is one point.</td>
+</tr>
+<tr>
+<td><code>pages</code></td>
+<td>array of strings</td>
+<td>One SVG for each PDF page. With the sequence view, the map is the first page and the rows follow. Otherwise it holds one SVG, the same as <code>svg</code>.</td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td>array of objects</td>
+<td>The labels left out because they would overlap, as <a href="#hidden-labels">Hidden labels</a> describes.</td>
+</tr>
+<tr>
+<td><code>notice</code></td>
+<td>string</td>
+<td>The hidden-label notice as a sentence, such as <code>3 cut sites and 1 primer are hidden</code>. It is empty when nothing hides.</td>
+</tr>
+</tbody>
+</table>
+<p>A gel's <code>hidden</code> and a plate's <code>hidden</code> are <code>[]</code>, and their <code>notice</code> is <code>""</code>, even when a gel
+leaves out the label of a crowded ladder size.</p>
+<p>Each throws a <code>FormatError</code> as the draw calls do. It also throws one when <code>sequence_view</code> is
+<code>true</code> for a span of more than <code>SEQUENCE_VIEW_LIMIT</code> bases.</p>
+<h3 id="still-svg">Still SVG<a class="headerlink" href="#still-svg" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nx">molviz</span><span class="p">.</span><span class="nx">stillSvg</span><span class="p">(</span><span class="nx">record</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span>
+</code></pre></div>
+<p><code>stillSvg</code>, <code>figureStillSvg</code>, <code>gelStillSvg</code> and <code>plateStillSvg</code> return an object with the keys
+<code>svg</code>, <code>hidden</code> and <code>notice</code>, as the file SVG calls do. It has no <code>pages</code>.</p>
+<p>The SVG has the same layout as the file SVG. Each text is a <code>&lt;text&gt;</code> element, and each hover is
+a <code>&lt;title&gt;</code>. These calls need only the viewer. Their SVG draws in the viewer's fonts only on a page
+that holds the font rules, from <a href="#fontrules"><code>fontRules</code></a> or <a href="#declarefaces"><code>declareFaces</code></a>.</p>
+<p>Each throws as the file SVG calls do.</p>
+<h3 id="hidden-labels">Hidden labels<a class="headerlink" href="#hidden-labels" title="Permanent link">&para;</a></h3>
+<p>Each item of <code>hidden</code> is one label left out because it would overlap. It names the thing the
+label belongs to and gives its spans or its point, in the record's own numbers.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kind</code></td>
+<td>string</td>
+<td><code>"features"</code>, <code>"primers"</code>, <code>"cuts"</code>, <code>"insertions"</code>, <code>"reads"</code> or <code>"disagreements"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>The thing's name. A cut site's name is its enzymes' names, as in <code>BanII - SacI</code>.</td>
+</tr>
+<tr>
+<td><code>spans</code></td>
+<td>array of <code>{start, end}</code></td>
+<td>The spans of a feature, a primer site, a read or a disagreement over a span.</td>
+</tr>
+<tr>
+<td><code>at</code></td>
+<td>number</td>
+<td>The point of a cut site, an insertion or a disagreement at a point.</td>
+</tr>
+</tbody>
+</table>
+<p>Each item has either <code>spans</code> or <code>at</code>, never both.</p>
+<h2 id="fontrules">fontRules<a class="headerlink" href="#fontrules" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nx">molviz</span><span class="p">.</span><span class="nx">fontRules</span><span class="p">()</span>
+</code></pre></div>
+<p>Returns the font rules as CSS text: one <code>@font-face</code> rule for each of the viewer's fonts. Each
+rule loads its font from a data URL, so the page needs no network. A page writes the rules once,
+in a <code>&lt;style&gt;</code> element, for every still SVG it holds. Python's
+<a href="../../api/#molviz.font_rules"><code>font_rules()</code></a> returns the same text.</p>
+<h2 id="declarefaces">declareFaces<a class="headerlink" href="#declarefaces" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nx">molviz</span><span class="p">.</span><span class="nx">declareFaces</span><span class="p">(</span><span class="nb">document</span><span class="p">)</span>
+</code></pre></div>
+<p>Adds the font rules to <code>document</code> once, as a <code>&lt;style id="molviz-fonts"&gt;</code> element at the end of
+its <code>&lt;head&gt;</code>. A second call finds that element and does nothing. Returns <code>undefined</code>.</p>
+<p>Every draw call calls it.</p>
+<h2 id="calls">calls<a class="headerlink" href="#calls" title="Permanent link">&para;</a></h2>
+<p>An object that names each input's four calls, so code can pick a call by the input's name. Its
+keys are <code>record</code>, <code>figure</code>, <code>gel</code> and <code>plate</code>. Each value is an object with the keys <code>check</code>,
+<code>draw</code>, <code>svg</code> and <code>still</code>, whose values are names on <code>molviz</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">call</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">molviz</span><span class="p">.</span><span class="nx">calls</span><span class="p">.</span><span class="nx">gel</span><span class="p">.</span><span class="nx">draw</span><span class="p">;</span><span class="w"> </span><span class="c1">// "drawGel"</span>
+<span class="nx">molviz</span><span class="p">[</span><span class="nx">call</span><span class="p">](</span><span class="nx">element</span><span class="p">,</span><span class="w"> </span><span class="nx">gel</span><span class="p">);</span>
+</code></pre></div>
+<h2 id="sequence_view_limit">SEQUENCE_VIEW_LIMIT<a class="headerlink" href="#sequence_view_limit" title="Permanent link">&para;</a></h2>
+<p>The number <code>100000</code>: the most bases of a span that the sequence view draws. Python's
+<a href="../../api/#molviz.SEQUENCE_VIEW_LIMIT"><code>SEQUENCE_VIEW_LIMIT</code></a> is the same number.</p>
+<h2 id="formaterror">FormatError<a class="headerlink" href="#formaterror" title="Permanent link">&para;</a></h2>
+<p>The error a call throws when an input or its options break the format. It is an <code>Error</code> whose
+<code>name</code> is <code>"FormatError"</code>. The class itself is not on <code>molviz</code>, so code tells the error apart by
+its <code>name</code>.</p>
+<p>Its message names every problem by its path, one problem to a line. A problem in the options
+has a path that starts with <code>options</code>, and a problem in a figure's list has one that starts with
+<code>records</code>. For example:</p>
+<ul>
+<li>A record whose bases hold an <code>X</code>:
+  <code>bases: has "X" at index 3, which is not an IUPAC nucleotide letter</code>.</li>
+<li>A highlight that names nothing in the record:
+  <code>options.highlight[0]: names nothing in the record</code>.</li>
+<li>A figure with no records: <code>records: must hold at least one record</code>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

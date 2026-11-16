@@ -1,0 +1,1692 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/research/molviz-protein-needs/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>What liulab-protein will need a viewer to draw - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#what-liulab-protein-will-need-a-viewer-to-draw" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              What liulab-protein will need a viewer to draw
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-answer-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. The answer first
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-each-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Each view
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Each view">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-a-structure-in-3d" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.1 A structure in 3D
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-a-prediction-coloured-by-its-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.2 A prediction coloured by its confidence
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-the-pairwise-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.3 The pairwise matrix
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-per-residue-confidence-as-a-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.4 Per-residue confidence as a line
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-an-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.5 An alignment
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-sequence-search-hits" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.6 Sequence search hits
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-structure-search-hits" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.7 Structure search hits
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-which-stretches-of-a-protein-have-a-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.8 Which stretches of a protein have a structure
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-sparse-features-along-a-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.9 Sparse features along a sequence
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-where-liulab-proteins-own-stance-on-drawing-came-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Where liulab-protein's own stance on drawing came from
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Open gaps
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="what-liulab-protein-will-need-a-viewer-to-draw">What liulab-protein will need a viewer to draw<a class="headerlink" href="#what-liulab-protein-will-need-a-viewer-to-draw" title="Permanent link">&para;</a></h1>
+<p>Research note written for <a href="https://github.com/liuhlab/liulab-mbio/issues/576">liulab-mbio#576</a> on 2026-10-17, on map
+<a href="https://github.com/liuhlab/liulab-mbio/issues/572">liulab-mbio#572</a>. It lists the views <code>liulab-protein</code>, the viewer's
+second user, would ask <code>liulab-molviz</code> for. Needs only: no design, no package choice.</p>
+<p><strong>What was read, on 2026-10-17:</strong> <code>liulab-protein</code>'s default branch at commit <code>eab571e</code>
+(committed 2026-09-04): its code, <code>README.md</code>, <code>CONTEXT.md</code>, its eight ADRs, its guides and
+its research notes; and its whole tracker, 79 issues (all closed) and 16 pull requests (one
+open, a dependabot bump), with their 180 comments. Read-only: nothing was run against it and
+nothing was written to it.</p>
+<p>Every claim below is <strong>read</strong> from a named file or thread, or marked <strong>inferred</strong>. "Today"
+means 2026-10-17.</p>
+<h2 id="1-the-answer-first">1. The answer first<a class="headerlink" href="#1-the-answer-first" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>View</th>
+<th>Starts from</th>
+<th>What a reader does with it</th>
+<th>Drawn in liulab-protein today?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>A structure in 3D, whole entry or one chain</td>
+<td><code>Structure.atoms</code> or <code>Chain.atoms</code>, a biotite <code>AtomArray</code></td>
+<td>turns and zooms the fold; looks at one chain alone</td>
+<td><strong>Yes</strong>: <code>Structure.view()</code>, <code>Chain.view()</code> over py3Dmol</td>
+</tr>
+<tr>
+<td>2</td>
+<td>A prediction coloured by its own confidence</td>
+<td>a <code>Structure</code> from <code>ESMFold2.fold</code> or <code>Structure.from_file</code>; per-residue confidence in the B-factor column</td>
+<td>sees which parts of the fold the model trusts</td>
+<td><strong>Yes</strong>, by a 3Dmol.js style passed to <code>view()</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>The pairwise confidence matrix as a heatmap, chain boundaries marked</td>
+<td><code>Structure.confidence.pairwise()</code>, an <code>(L, L)</code> float32 array</td>
+<td>judges whether an interface in a complex is real</td>
+<td><strong>No</strong>. Named as the one uncovered gap</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Per-residue confidence as a line along the chain</td>
+<td>the B-factor column</td>
+<td>the same as view 2, flat</td>
+<td><strong>No</strong>, and declined: view 2 covers it</td>
+</tr>
+<tr>
+<td>5</td>
+<td>An alignment: its rows against the query's columns, and its depth by position</td>
+<td>an <code>MSA</code></td>
+<td>sees whether the alignment is deep where it must be</td>
+<td><strong>No</strong>. Deferred, not declined</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Sequence search hits</td>
+<td>the <code>DataFrame</code> from <code>Protein.search</code></td>
+<td>ranks hits; sees where on the query each one lands</td>
+<td><strong>No</strong>. A table only</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Structure search hits</td>
+<td>the <code>DataFrame</code> from <code>Structure.search</code> or <code>Chain.search</code></td>
+<td>the same, plus how well the shapes agree</td>
+<td><strong>No</strong>. A table only</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Which stretches of a protein have a solved structure</td>
+<td>the <code>DataFrame</code> from <code>Protein.structures</code></td>
+<td>picks the entry and chain to open</td>
+<td><strong>No</strong>. A table only</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Sparse features along a sequence</td>
+<td>a <code>SaeActivation</code>, joined to the feature descriptions</td>
+<td>sees which named features fire where</td>
+<td><strong>No</strong>. A lookup only</td>
+</tr>
+</tbody>
+</table>
+<p>Views 1 and 2 exist, so for them the need is replacement, if <code>liulab-protein</code> ever moves off
+py3Dmol. View 3 is the only one its own tracker names as missing. Views 4 to 9 are what its
+types hold and no thread asks to see, except view 5, deferred, and view 4, declined.</p>
+<p><strong>No protein sequence with domains.</strong> A <code>Protein</code> carries no feature or domain annotation at
+all: its sequence, an accession, an entry name, a description and the FASTA header fields
+<code>organism</code>, <code>taxon_id</code>, <code>gene</code>, <code>protein_existence</code> and <code>sequence_version</code> (read,
+<code>src/protein/core.py</code> and <code>src/protein/db/swissprot.py</code>, 2026-10-17). Nothing in the package
+or its tracker fetches UniProt features or InterPro domains. A sequence view drawn for
+<code>liulab-protein</code> today would carry the per-residue spans its own types hold instead: the SIFTS
+ranges (view 8), search-hit ranges (views 6 and 7), per-residue confidence (view 2) and SAE
+features (view 9).</p>
+<h2 id="2-each-view">2. Each view<a class="headerlink" href="#2-each-view" title="Permanent link">&para;</a></h2>
+<h3 id="21-a-structure-in-3d">2.1 A structure in 3D<a class="headerlink" href="#21-a-structure-in-3d" title="Permanent link">&para;</a></h3>
+<p><strong>Starts from.</strong> <code>Structure</code> is one set of coordinates, a PDB entry's asymmetric unit or any
+coordinate file; <code>Chain</code> is one polymer in it, reached as <code>structure["A"]</code>. <code>.atoms</code> is every
+atom of the first model, ligands, water and nucleic acids included; <code>.models</code> holds every
+model of an NMR entry (38 for <code>1L2Y</code>, per its docstring); <code>.chain_ids</code> lists the labels in file
+order; <code>Chain.kind</code> is <code>"protein"</code>, <code>"nucleic"</code> or <code>"other"</code> (read, <code>CONTEXT.md</code>,
+<code>src/protein/structure/structure.py</code>, <code>src/protein/structure/chain.py</code>, 2026-10-17).</p>
+<p><strong>What is drawn today.</strong> <code>protein.structure.view.view(atoms, name=, width=, height=, style=)</code>
+serialises the atoms as mmCIF text and returns py3Dmol's own <code>view</code>. The default style is one
+cartoon per chain coloured N to C (<code>{"cartoon": {"color": "spectrum"}}</code>); <code>style={}</code> hands the
+drawing to the caller. A chain's view writes that chain's atoms, so it shows that chain and
+not the entry around it (read, <code>src/protein/structure/view.py</code>; merged in PR <a href="https://github.com/liuhlab/liulab-protein/pull/96">liulab-protein#96</a> on
+2026-09-04).</p>
+<p><strong>What the guides ask the viewer for</strong> (read, <code>docs/guides/structures.md</code>, 2026-10-17):</p>
+<ul>
+<li>turn by dragging, zoom by scrolling;</li>
+<li>a cartoon coloured N to C, by chain;</li>
+<li>one chain alone, protein or nucleic (<code>1BNA</code> chain A, one DNA strand);</li>
+<li>sticks with a carbon colour scheme, and a van der Waals surface at 0.6 opacity;</li>
+<li>colour by a per-residue number read from the file (view 2).</li>
+</ul>
+<p><strong>Where it is shown.</strong> Three places (read, ADR-0008, <code>docs/guides/structures.md</code>,
+<code>docs/start.md</code>, 2026-10-17):</p>
+<ul>
+<li>a notebook, by <code>.show()</code>;</li>
+<li>a static docs page, by <code>.write_html()</code> returning HTML that <code>markdown-exec</code> writes into the
+  page while the site builds, with no network and no <code>LIULAB_DATA</code>;</li>
+<li>a page of its own, by <code>.write_html(open_file)</code>.</li>
+</ul>
+<p><strong>Constraints a replacement inherits</strong> (read, ADR-0008 and the module docstrings,
+2026-10-17):</p>
+<ul>
+<li><strong>A view is asked for.</strong> Neither class has <code>_repr_html_</code>, because displaying a
+  <code>Structure</code> must not parse its file or reach RCSB.</li>
+<li><strong>Labels are case-sensitive and may be longer than one character.</strong> <code>10EG</code> holds both
+  <code>A</code> and <code>a</code>; mmCIF is the format because it carries such labels.</li>
+<li><strong>The file carries no secondary structure.</strong> Only <code>atom_site</code> is written, and 3Dmol.js
+  computes the helices and sheets itself.</li>
+<li><strong>The page holds the coordinates inline</strong>, so a large entry makes a large page.</li>
+<li><strong>Today's page needs a network.</strong> py3Dmol loads 3Dmol.js from a CDN. That falls short of
+  the "one file opens offline" promise map <a href="https://github.com/liuhlab/liulab-mbio/issues/572">liulab-mbio#572</a> lists for mbio (decided 2026-10-17).
+  <strong>Inferred</strong>: <code>liulab-protein</code> would gain offline pages from molviz, though it has not
+  asked for them.</li>
+</ul>
+<h3 id="22-a-prediction-coloured-by-its-confidence">2.2 A prediction coloured by its confidence<a class="headerlink" href="#22-a-prediction-coloured-by-its-confidence" title="Permanent link">&para;</a></h3>
+<p><strong>Starts from.</strong> A <code>Structure</code> returned by <code>ESMFold2.fold</code>, or one reopened with
+<code>Structure.from_file</code>. Per-residue confidence is the mmCIF's B-factor column, "where every
+viewer looks" (read, <code>CONTEXT.md</code>, entry Prediction, 2026-10-17). The scalars are on
+<code>Structure.confidence</code>, a <code>Confidence(plddt, ptm, iptm, pairwise_file)</code>, each scalar 0 to 1
+(read, <code>src/protein/fold/predictions.py</code>, 2026-10-17).</p>
+<p><strong>Two scales.</strong> The B-factor column runs 0 to 100, while <code>Confidence.plddt</code> runs 0 to 1. The
+docs once coloured with <code>min: 0, max: 1</code> and painted every residue one colour; PR <a href="https://github.com/liuhlab/liulab-protein/pull/97">liulab-protein#97</a> fixed
+it (read, PR <a href="https://github.com/liuhlab/liulab-protein/pull/97">liulab-protein#97</a>, merged 2026-09-04). Both guides now pass
+<code>{"prop": "b", "gradient": "roygb", "min": 50, "max": 100}</code>, blue confident and red not
+(read, <code>docs/start.md</code>, <code>docs/guides/structures.md</code>, 2026-10-17).</p>
+<p><strong>A reopened prediction carries no <code>Confidence</code>.</strong> On a cache hit, or after <code>from_file</code>,
+<code>confidence</code> is <code>None</code> while the B-factor column still holds pLDDT. On a crystal structure
+the same column is a temperature factor, and no value range tells the two apart (read,
+issue <a href="https://github.com/liuhlab/liulab-protein/issues/93">liulab-protein#93</a> comment of 2026-09-04; <code>docs/guides/folding.md</code>, 2026-10-17). <strong>Inferred</strong>: a
+viewer colouring by confidence cannot work out on its own whether the column means
+confidence; the caller has to say so.</p>
+<p><strong>What a prediction holds.</strong> Protein, DNA and RNA chains fold together. The getting-started
+page shows AP-1: FOS and JUN bZIP domains with a DNA duplex, 4 chains and 164 residues (read,
+PR <a href="https://github.com/liuhlab/liulab-protein/pull/97">liulab-protein#97</a>, 2026-09-04). Chain labels come from position in the request, so a caller reads them
+off <code>chain_ids</code> (read, <code>docs/start.md</code>, 2026-10-17).</p>
+<h3 id="23-the-pairwise-matrix">2.3 The pairwise matrix<a class="headerlink" href="#23-the-pairwise-matrix" title="Permanent link">&para;</a></h3>
+<p><strong>Starts from.</strong> <code>Structure.confidence.pairwise()</code> reads <code>&lt;name&gt;.pairwise.npy</code> beside the
+mmCIF and returns <code>(L, L)</code>, one entry per pair of residues; lower is surer. It raises
+<code>FileNotFoundError</code> where the model reported no matrix. The file is written only for a
+prediction that reported one, and the folding guide calls it the thing that "says whether two
+chains sit correctly against each other" (read, <code>src/protein/fold/predictions.py</code>,
+<code>docs/guides/folding.md</code>, 2026-10-17).</p>
+<p><strong>Asked for.</strong> Issue <a href="https://github.com/liuhlab/liulab-protein/issues/93">liulab-protein#93</a> proposed <code>Structure.plot_pairwise(ax=None)</code>, "the <code>(L, L)</code> matrix
+as a heatmap", with chain boundaries marked (opened 2026-09-04). Its closing comment
+(2026-09-04) dropped the confidence curve and kept this one: "The pairwise matrix has no
+substitute … there is no way to look at it … if plotting comes back, it comes back for the
+heatmap." It closed without filing a follow-up, pending somebody hitting the gap in practice.</p>
+<p><strong>What a reader needs on it</strong> (read, issue <a href="https://github.com/liuhlab/liulab-protein/issues/93">liulab-protein#93</a> body, 2026-09-04): the matrix, and where one
+chain ends and the next begins. <strong>Inferred</strong>: the boundaries come from the prediction's
+chains in <code>chain_ids</code> order and each chain's residue count; nothing in the code states that
+the matrix's row order is that order.</p>
+<h3 id="24-per-residue-confidence-as-a-line">2.4 Per-residue confidence as a line<a class="headerlink" href="#24-per-residue-confidence-as-a-line" title="Permanent link">&para;</a></h3>
+<p>Proposed as <code>Structure.plot_confidence(ax=None)</code> in issue <a href="https://github.com/liuhlab/liulab-protein/issues/93">liulab-protein#93</a> (2026-09-04), then dropped in
+its closing comment the same day: the 3D view coloured by the B-factor column "reads better
+than a curve". Listed here so the roadmap does not count it as an open need.</p>
+<h3 id="25-an-alignment">2.5 An alignment<a class="headerlink" href="#25-an-alignment" title="Permanent link">&para;</a></h3>
+<p><strong>Starts from.</strong> An <code>MSA</code>: <code>(header, row)</code> pairs of A3M text, row 0 the query.
+<code>.query</code>, <code>.query_header</code>, <code>.depth</code> (rows), <code>.match_states</code> (columns), <code>.to_a3m()</code> and
+<code>.compress()</code>. Case is the match state: an uppercase residue or <code>-</code> holds a column, and a
+lowercase residue is an insertion that holds none. Headers are carried byte for byte,
+because a <code>key=&lt;taxon&gt;</code> field pairs the chains of a complex, and so is a leading <code>#</code> line
+(read, <code>CONTEXT.md</code> entry MSA, <code>src/protein/msa/msa.py</code>, <code>docs/guides/alignments.md</code>,
+2026-10-17). Made by <code>Protein.msa(db)</code> or <code>align(sequences, query=...)</code>.</p>
+<p><strong>Asked for.</strong> Issue <a href="https://github.com/liuhlab/liulab-protein/issues/93">liulab-protein#93</a>, under "Not in this issue" (2026-09-04): "An MSA coverage plot, rows
+against position, is the standard way to see whether an alignment is deep where it needs to
+be." It was deferred until the alignments guide existed. The guide shipped and points at no
+picture (read, <code>docs/guides/alignments.md</code>, 2026-10-17).</p>
+<p><strong>What a reader needs on it.</strong> Depth at each query column, and <strong>inferred</strong> the rows
+themselves laid against the query's columns, insertions hidden or marked. The guide's own
+depth rule, a few thousand rows as a floor, says what a reader checks (read,
+<code>docs/guides/alignments.md</code>, 2026-10-17).</p>
+<h3 id="26-sequence-search-hits">2.6 Sequence search hits<a class="headerlink" href="#26-sequence-search-hits" title="Permanent link">&para;</a></h3>
+<p><strong>Starts from.</strong> <code>Protein.search(db)</code> runs MMseqs2 and returns a <code>pandas.DataFrame</code>, one row
+per hit: <code>query</code>, <code>target</code>, <code>pident</code> (a percentage), <code>alnlen</code>, <code>mismatch</code>, <code>gapopen</code>,
+<code>qstart</code>, <code>qend</code>, <code>tstart</code>, <code>tend</code>, <code>evalue</code>, <code>bits</code>. No aligned strings: the package asks
+the tool for these columns and no others (read, <code>src/protein/external.py</code>,
+<code>docs/guides/search.md</code>, 2026-10-17).</p>
+<p><strong>Inferred</strong> need: hits as spans along the query, from <code>qstart</code> and <code>qend</code>, ranked by <code>evalue</code>
+or <code>bits</code>. Nothing in the code, docs or tracker asks for a picture of a hit table.</p>
+<h3 id="27-structure-search-hits">2.7 Structure search hits<a class="headerlink" href="#27-structure-search-hits" title="Permanent link">&para;</a></h3>
+<p><strong>Starts from.</strong> <code>Structure.search(db)</code> or <code>Chain.search(db)</code> runs Foldseek. The table has the
+same columns, with <code>fident</code> (a fraction, not a percentage) for identity, plus <code>alntmscore</code>
+and <code>lddt</code>, which score how well the shapes agree. <code>query</code> is <code>&lt;entry&gt;_&lt;chain&gt;</code> (read,
+<code>src/protein/external.py</code>, <code>docs/guides/search.md</code>, 2026-10-17).</p>
+<p><strong>A target is not a <code>Structure</code> key.</strong> In Foldseek's <code>pdb100</code> a target is a biological
+assembly chain such as <code>1ubq-assembly1_A</code>, and a label may be longer than one character
+(<code>6dwu-assembly44_DU</code>), while <code>Structure("1UBQ")</code> holds the deposited asymmetric unit (read,
+<code>docs/research/foldseek-pdb100-contents.md</code> and <code>CONTEXT.md</code> entry Structure, 2026-10-17).
+<code>pdb100</code> holds C-alpha traces only and renumbers residues, so coordinates for a hit come from
+RCSB (read, <code>CONTEXT.md</code>, 2026-10-17). <strong>Inferred</strong>: a "query and hit side by side in 3D"
+view needs the target named as an entry and a chain the asymmetric unit carries, which the
+hit table does not give directly.</p>
+<p>No thread asks for a picture of these hits.</p>
+<h3 id="28-which-stretches-of-a-protein-have-a-structure">2.8 Which stretches of a protein have a structure<a class="headerlink" href="#28-which-stretches-of-a-protein-have-a-structure" title="Permanent link">&para;</a></h3>
+<p><strong>Starts from.</strong> <code>Protein.structures</code>, a <code>DataFrame</code> with one row per SIFTS segment: <code>pdb</code>,
+<code>chain</code>, <code>accession</code>, <code>res_beg</code>, <code>res_end</code> (the range in the chain) and <code>sp_beg</code>, <code>sp_end</code>
+(the range in the UniProt sequence). One chain and accession may carry several rows, and the
+two ranges are not always the same length, so both come back verbatim and no offset is
+computed (read, <code>CONTEXT.md</code> entry SIFTS, <code>src/protein/sifts.py</code>, <code>docs/concepts.md</code>,
+2026-10-17). <code>Chain.uniprot</code> is the other direction, a tuple of none, one or several
+accessions.</p>
+<p><strong>What a reader does.</strong> The concepts page walks from an accession to a row to
+<code>Structure(row["pdb"])[row["chain"]]</code> (read, <code>docs/concepts.md</code>, 2026-10-17). <strong>Inferred</strong>
+need: the segments drawn along the UniProt sequence, so a reader picks the entry that covers
+the residues they care about. Nothing asks for it.</p>
+<p><strong>A trap for any view joining sequence to structure.</strong> <code>Chain.sequence</code> is the observed
+sequence: a residue with no coordinates is absent, so a disordered loop is missing rather
+than filled from <code>SEQRES</code> (read, <code>src/protein/structure/chain.py</code>, 2026-10-17). A chain's
+residue index, its author numbering and the UniProt position are three different numbers.</p>
+<h3 id="29-sparse-features-along-a-sequence">2.9 Sparse features along a sequence<a class="headerlink" href="#29-sparse-features-along-a-sequence" title="Permanent link">&para;</a></h3>
+<p><strong>Starts from.</strong> A <code>SaeActivation</code>: <code>indices</code> and <code>values</code>, both <code>(L, k)</code>, naming which
+codebook features fired at each residue and how hard; <code>reconstruction_loss</code>, <code>(L,)</code>; <code>.max()</code>
+for the per-sequence vector; and the facts naming the SAE, its parent, layer and codebook.
+<code>features.descriptions("6b-layer60-k64-cb16384")</code> returns a <code>label</code> and a <code>description</code> per
+feature index, for that one SAE only (read, <code>src/protein/embed/esm/sae.py</code>,
+<code>src/protein/embed/esm/features.py</code>, <code>docs/guides/embedding.md</code>, 2026-10-17).</p>
+<p><strong>What a reader does today.</strong> Joins by index: <code>frame.loc[activation.indices[0]]</code>, "what fired
+at the first residue" (read, <code>docs/guides/embedding.md</code>, 2026-10-17). <strong>Inferred</strong> need: a
+track along the sequence showing where a chosen feature fires, labelled from the
+descriptions. This is the nearest thing <code>liulab-protein</code> holds to a domain track. Nothing
+asks for it.</p>
+<p><strong>Embeddings themselves</strong> (<code>Embedding</code>, <code>(L, d_model)</code>) have no view asked for anywhere, and
+none is implied beyond what the SAE gives.</p>
+<h2 id="3-where-liulab-proteins-own-stance-on-drawing-came-from">3. Where liulab-protein's own stance on drawing came from<a class="headerlink" href="#3-where-liulab-proteins-own-stance-on-drawing-came-from" title="Permanent link">&para;</a></h2>
+<p>Read from the tracker, 2026-10-17, in order:</p>
+<ol>
+<li><strong>2026-09-04, issue <a href="https://github.com/liuhlab/liulab-protein/issues/92">liulab-protein#92</a>.</strong> The docs-site plan noted "Nothing here plots anything" and
+   proposed matplotlib in the docs environment only, pointing readers at ChimeraX or PyMOL
+   for the structure: "A 3D cartoon is not something this package should grow."</li>
+<li><strong>2026-09-04, PR <a href="https://github.com/liuhlab/liulab-protein/pull/96">liulab-protein#96</a>.</strong> That was overtaken the same day: <code>view()</code> over py3Dmol landed,
+   with ADR-0008. py3Dmol is held rather than wrapped, so a caller gets every 3Dmol.js call.
+   It is the one runtime dependency taken from PyPI rather than conda-forge, because the
+   conda-forge recipe makes IPython a hard dependency.</li>
+<li><strong>2026-09-04, PR <a href="https://github.com/liuhlab/liulab-protein/pull/97">liulab-protein#97</a>.</strong> The getting-started page ends the fold with the AP-1 prediction in
+   3D, coloured by confidence.</li>
+<li><strong>2026-09-04, issue <a href="https://github.com/liuhlab/liulab-protein/issues/93">liulab-protein#93</a>.</strong> The flat plots were closed as not worth their cost, except the
+   pairwise heatmap, left uncovered.</li>
+</ol>
+<p>Nothing after that touches drawing. The PRs merged after <a href="https://github.com/liuhlab/liulab-protein/pull/97">liulab-protein#97</a> are a menu change (<a href="https://github.com/liuhlab/liulab-protein/pull/98">liulab-protein#98</a>), a
+fold-request change (<a href="https://github.com/liuhlab/liulab-protein/pull/99">liulab-protein#99</a>) and its docs (<a href="https://github.com/liuhlab/liulab-protein/pull/100">liulab-protein#100</a>), all on 2026-09-04, the date of the newest
+commit on the default branch. The one open PR is a dependency bump (read, 2026-10-17).</p>
+<h2 id="open-gaps">Open gaps<a class="headerlink" href="#open-gaps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Whether liulab-protein moves to molviz at all.</strong> ADR-0008 chose py3Dmol on purpose, for
+  the whole 3Dmol.js API at the cost of one small module. Replacing it is that repo's
+  decision. Nothing here asks it.</li>
+<li><strong>Aligned strings for a hit.</strong> The hit tables ask for no aligned-sequence columns. Whether
+  MMseqs2's and Foldseek's <code>--format-output</code> can add them, and whether <code>search</code>'s <code>extra</code>
+  pass-through can change the format, was not checked. A hit drawn as an alignment depends on
+  both.</li>
+<li><strong>Superposing two structures.</strong> No code superposes a prediction on its crystal, or a query
+  on a Foldseek hit. The getting-started page's "Where next" says to "open the prediction and
+  the crystal, and look at them in 3D", but the structures guide shows them one at a time.
+  Whether a superposed view is a need is open, and whether Foldseek reports the transform was
+  not checked.</li>
+<li><strong>Assembly against asymmetric unit.</strong> A Foldseek target names an assembly chain, and a
+  <code>Structure</code> holds the asymmetric unit (section 2.7). How a hit is opened in 3D is
+  unresolved in <code>liulab-protein</code>.</li>
+<li><strong>The pairwise matrix's order.</strong> That its rows follow <code>chain_ids</code> and each chain's residues
+  is inferred, not read (section 2.3).</li>
+<li><strong>Domain annotations.</strong> No source exists in <code>liulab-protein</code>. A domain track would need
+  data that package does not fetch today.</li>
+<li><strong>The published site was not opened.</strong> The two viewers on it were read from the page
+  sources and the PRs, not looked at.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

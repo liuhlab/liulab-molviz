@@ -1,0 +1,1872 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/research/molviz-mbio-drawings/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>What mbio draws today, and what each drawing needs - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#what-mbio-draws-today-and-what-each-drawing-needs" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              What mbio draws today, and what each drawing needs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-drawings" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. The drawings
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-each-view-of-a-map-shows" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. What each view of a map shows
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-annotation-kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. The annotation kinds
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-what-a-reader-can-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. What a reader can do
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-promises-a-reader-relies-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. The promises a reader relies on
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-every-call-mbio-makes-into-drawing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. Every call mbio makes into drawing
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-who-writes-each-drawing-and-how-large" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7. Who writes each drawing, and how large
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-the-pointers-re-measured" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8. The pointers re-measured
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Open gaps
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="what-mbio-draws-today-and-what-each-drawing-needs">What mbio draws today, and what each drawing needs<a class="headerlink" href="#what-mbio-draws-today-and-what-each-drawing-needs" title="Permanent link">&para;</a></h1>
+<p>Research note written for <a href="https://github.com/liuhlab/liulab-mbio/issues/574">liulab-mbio#574</a> on 2026-10-17, on the map that founds
+<code>liulab-molviz</code>. It is the inventory that
+viewer's first roadmap starts from: every drawing mbio writes, what each shows, what it is drawn
+from, what a reader can do with it, what it promises, and every call mbio makes to get it.</p>
+<p>It describes features and calls only. How <code>mbio.plot</code> lays a drawing out today is left out on
+purpose, because the viewer starts from first principles. Where a fact below names a file, that
+is where the drawing is written, not a design to port.</p>
+<p><strong>Every claim was read or measured on 2026-10-17, at commit <code>10e8785</code>.</strong> Each carries its
+evidence: <em>read</em> (the code or a page, at the path given), <em>measured</em> (a script over
+<code>docs/examples/</code>, byte counts exact), or <em>inferred</em>.</p>
+<h2 id="1-the-drawings">1. The drawings<a class="headerlink" href="#1-the-drawings" title="Permanent link">&para;</a></h2>
+<p>Six drawings, one row each. "Example size" is the HTML a reader opens, measured.</p>
+<table>
+<thead>
+<tr>
+<th>Drawing</th>
+<th>What it shows</th>
+<th>Drawn from</th>
+<th>What mbio computes before drawing</th>
+<th>What a reader can do</th>
+<th>Written by</th>
+<th>Example size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Map page</strong> (<code>.html</code>)</td>
+<td>One record. A circular record drawn whole: as a circle, and as a line. A region, or any linear record: a line only, numbered as the record is. Its features, primers, cut sites and insertions, each labelled; a count of the labels left out. The sequence view of the same stretch, both strands, up to 100,000 bases</td>
+<td>A <code>SequenceRecord</code> (name, topology, bases, features with segments, strand, type, colour and qualifiers; primers with sequence and binding sites), plus switches, enzymes, region, highlight, insertions and tracks</td>
+<td>Cut sites, translations, primer tails and mismatches, default colours, label text, hover text, which labels hide</td>
+<td>Hover, switch layers and feature types, flip circle and line, zoom, pan, click to select in both views, select bases and copy them (section 4)</td>
+<td><code>mbio plot map -o x.html</code>; every pipeline whose protocol has a figure (<code>*-map.html</code>, one per record)</td>
+<td>12 pages, 186,987 to 1,053,579 B; 7,402,877 B in all</td>
+</tr>
+<tr>
+<td><strong>Map as PNG or PDF</strong></td>
+<td>The same map, with only what is switched on. The sequence view under it when asked. A PDF puts the map on page 1 and the sequence view's rows on the pages after</td>
+<td>As the map page</td>
+<td>As the map page</td>
+<td>Nothing: a file to print or paste</td>
+<td><code>mbio plot map -o x.png</code> or <code>-o x.pdf</code>, and <code>Drawing.write</code> from Python. No pipeline writes one</td>
+<td>7 PDFs in <code>docs/examples/</code>, 15,356 to 33,871 B</td>
+</tr>
+<tr>
+<td><strong>Protocol figure</strong></td>
+<td>One record, or several stacked as rows (one molecule becoming the next), drawn to one span, beside the step that makes it. Every unlit item, or row, dimmed. A caption, and a citation where the figure stands for a published one</td>
+<td>A <code>Figure</code> spec in <code>protocol.json</code>: record paths, <code>span</code>, <code>linear</code>, <code>sequence_view</code>, <code>enzymes</code>, <code>highlight</code>, <code>caption</code>, <code>citation</code> (<code>protocol/model.py:787-834</code>)</td>
+<td>As the map page, for each row; which row answers to each highlighted name</td>
+<td>Nothing on the drawing. "Explore the map" opens that record's map page in place, and "Open it in a new tab"</td>
+<td>The figure library (<code>protocol/figures.py</code>) and each method's steps; rendered by <code>protocol/render.py</code> <code>_figure</code></td>
+<td>16 figures across 9 protocol pages; 205,850 B of SVG in all</td>
+</tr>
+<tr>
+<td><strong>Verification page</strong></td>
+<td>One clone's verdict and its table, then the expected record drawn whole with each sequencing result as an arrow over the bases it trusts, and each disagreement coloured by its region's verdict. Then one close-up per disagreement: 30 bases either side, at base level, each result's own disagreements marked on it, and a Sanger trace's four channels under the bases</td>
+<td>The expected record, the results, the <code>Verification</code> (checks, placements, disagreements) and each trace's channels and peaks</td>
+<td>A stand-in record: disagreements as <code>misc_difference</code> features, insertions as insertion marks, each result as a primer whose bases carry its disagreements (a deleted base as <code>N</code>) (<code>verification/page.py:245-266</code>). Traces placed base by base</td>
+<td>Nothing: no script on the page</td>
+<td><code>mbio sequence-verify ... --out DIR</code> (<code>verification.html</code>)</td>
+<td>1 page, 94,927 B</td>
+</tr>
+<tr>
+<td><strong>Plate wells</strong></td>
+<td>A plate's wells by row label and column number, each well filled by what sits in it, a legend of what each fill means. Past 10 kinds, no legend: every used well one colour, and the caption counts the kinds. A transfer drawn as two plates, "From" and "Into", every well it touches filled, with its moves listed under a closed toggle</td>
+<td>A <code>Plate</code> (format, seating, labels, catalogue, holds, note, rules) or a <code>Transfer</code> and its <code>Stamp</code> (<code>protocol/model.py</code>: <code>Plate</code> at 984, <code>Stamp</code> at 1103, <code>Transfer</code> at 1152)</td>
+<td>Row labels and well names from the format; which wells a stamp touches</td>
+<td>Nothing on the drawing; open the list of moves</td>
+<td><code>protocol/render.py</code> <code>_plate</code>, <code>_transfer</code> (through <code>draw_plate</code>); iGGA and DMX protocols</td>
+<td>19 plate figures across 6 pages; 1,133,447 B of SVG in all</td>
+</tr>
+<tr>
+<td><strong>Simulated gel</strong></td>
+<td>A ladder lane and sample lanes, each band at its size; ladder sizes labelled; a lane legend giving each lane's band sizes, or "no band"</td>
+<td>A <code>Gel</code>: ladder name and band sizes, lanes with label and band sizes, title (<code>protocol/model.py:741-784</code>)</td>
+<td>Where each band runs, linear in the log of its size (<code>Gel.migration</code>)</td>
+<td>Hover a band to see its size (an SVG <code>&lt;title&gt;</code>)</td>
+<td><code>protocol/render.py</code> <code>_gel</code>, outside <code>mbio.plot</code>; every cloning method and iGGA</td>
+<td>11 gels across 5 pages; 32,275 B of SVG in all</td>
+</tr>
+</tbody>
+</table>
+<p>Evidence: rows read from <code>plot/drawing.py</code>, <code>plot/page.py</code>, <code>protocol/render.py:2058-2253</code> and
+<code>:2754-2798</code>, <code>verification/page.py</code>; counts and sizes measured.</p>
+<h2 id="2-what-each-view-of-a-map-shows">2. What each view of a map shows<a class="headerlink" href="#2-what-each-view-of-a-map-shows" title="Permanent link">&para;</a></h2>
+<p>A map page holds up to three views of one record; a figure and the verification page use the
+same three. Read from the module docstrings of <code>plot/circular.py</code>, <code>plot/linear.py</code> and
+<code>plot/sequence_view.py</code>, and <code>plot/layers.py</code>.</p>
+<table>
+<thead>
+<tr>
+<th>View</th>
+<th>Shows</th>
+<th>Shown when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Circle</td>
+<td>The record's name and length, a bp scale, each feature as an arrow along its strand (a box where it has none), each primer at each binding site, each cut site labelled with its enzymes and position, each insertion as a mark labelled with how many bases it adds, and the hidden-label notice</td>
+<td>A circular record drawn whole</td>
+</tr>
+<tr>
+<td>Line</td>
+<td>The same items along a stretch, numbered as the record numbers it, with <code>• • •</code> at an end the molecule carries on past. A feature the stretch cuts is drawn cut, with no arrowhead at the cut</td>
+<td>Always on a page; the only shape for a region or a linear record</td>
+</tr>
+<tr>
+<td>Sequence view</td>
+<td>A position ruler, the top strand, a tick rail, the bottom strand, each row's last position. Each primer along its binding site, its 5' tail off the template and each base it does not pair with marked red. Each cut site through each strand where its enzyme cuts that strand, so the overhang shows. Each feature as a bar, with a thin line across the gap a joined feature leaves; a CDS's amino acids in three letters over their codons, a stop in red. Each insertion through both strands. Each track's curves under the rows</td>
+<td>Up to 100,000 bases; a page leaves it and its switch out past that</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-the-annotation-kinds">3. The annotation kinds<a class="headerlink" href="#3-the-annotation-kinds" title="Permanent link">&para;</a></h2>
+<p>What each item carries, and which drawings need it. "Faked" marks something mbio passes as
+another kind to get it drawn. Read from <code>plot/layers.py</code>, <code>verification/page.py</code> and
+<code>protocol/render.py</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>What it carries</th>
+<th>Needed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Feature</td>
+<td>Name, type, strand or none, one or more segments (a join), the file's colour and a segment's own where it differs; a default colour by type group (Paul Tol's light scheme), <code>primer_bind</code> purple, <code>regulatory</code> by its <code>/regulatory_class</code>; hover name, type, span and length, 1-based</td>
+<td>Every map view</td>
+</tr>
+<tr>
+<td>Joined span</td>
+<td>Segments in top-strand order; the hover lists each run; a translation reads across the joins from <code>/codon_start</code></td>
+<td>Every map view</td>
+</tr>
+<tr>
+<td>Span across the origin</td>
+<td>A segment, a region or a figure span ending past the record's length, drawn as one piece and numbered as the record numbers it</td>
+<td>Map page, figures (ligation figures can run across it), verification close-ups</td>
+</tr>
+<tr>
+<td>CDS translation</td>
+<td>One codon per amino acid, standard code, stops included, <code>X</code> where a base is not ACGT</td>
+<td>Sequence view only</td>
+</tr>
+<tr>
+<td>Primer</td>
+<td>One item per binding site; its 5' tail length; the positions where it does not pair; label with its span, as <code>M13 fwd (378 .. 394)</code></td>
+<td>Every map view</td>
+</tr>
+<tr>
+<td>Cut site</td>
+<td>Every enzyme cutting at one position, merged and named alphabetically, as <code>BanII - SacI (406)</code>; each enzyme's cut count over the whole record (a unique cutter is bold) and its stagger, so the overhang shows. Positioned by the base after which the top strand is cut, as SnapGene numbers it. The shipped unique cutters by default, or every site of the enzymes named</td>
+<td>Every map view</td>
+</tr>
+<tr>
+<td>Insertion</td>
+<td>Name, the point between two bases, how many bases it adds, colour; hover gives the point as <code>before^after</code></td>
+<td>Every map view; verification (a read's insertion)</td>
+</tr>
+<tr>
+<td>Highlight</td>
+<td>Names lit (a feature, a primer, or an enzyme, which lights every site it cuts); every other item dims to one grey in every view and format, and nothing moves; a lit label is the last to hide. Across a stacked figure a name lights the row that has it and dims the other rows whole</td>
+<td>Map page, figures, verification</td>
+</tr>
+<tr>
+<td>Track</td>
+<td>Named curves sampled alike, and which sample lies over which base</td>
+<td>Verification close-ups: a Sanger trace's four channels</td>
+</tr>
+<tr>
+<td>Sequencing result</td>
+<td>Faked as a primer over its trusted span, on its strand, its bases those it read</td>
+<td>Verification page</td>
+</tr>
+<tr>
+<td>Disagreement</td>
+<td>Faked as a <code>misc_difference</code> feature coloured by its region's verdict (pass, warn, fail, none), or as an insertion</td>
+<td>Verification page</td>
+</tr>
+<tr>
+<td>Hidden-label notice</td>
+<td>A count by kind, as "3 enzyme sites and 1 primer are hidden"; each hidden item's kind, name and spans</td>
+<td>Circle and line, on every page and file</td>
+</tr>
+<tr>
+<td>Source feature</td>
+<td>Off unless asked for</td>
+<td>Every map view</td>
+</tr>
+<tr>
+<td>Well</td>
+<td>Its name, what it holds; a fill per kind up to 10 kinds</td>
+<td>Plate drawings</td>
+</tr>
+<tr>
+<td>Band</td>
+<td>A size in bp, per lane</td>
+<td>Gels</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-what-a-reader-can-do">4. What a reader can do<a class="headerlink" href="#4-what-a-reader-can-do" title="Permanent link">&para;</a></h2>
+<p><strong>On a map page</strong> (read from <code>plot/plot.js</code>, 668 lines, and <code>plot/page.py</code>):</p>
+<ol>
+<li>Hover any item to see its name, type, span and length, 1-based. Hover the notice to list the
+   hidden labels that show.</li>
+<li>Switch each kind on or off in place (Features, Primers, Cut sites, Insertions), and each
+   feature type. The notice recounts what hid among what shows.</li>
+<li>Flip between circle and line, where both exist, and show or hide the sequence view. Each
+   shape keeps its own zoom and scroll position.</li>
+<li>Zoom the map from 1× to 8× by a slider and a reset button, or by Ctrl or ⌘ with the wheel or
+   a trackpad pinch, about the pointer. The circle zooms freely and the line in four steps; a
+   label hidden at 1× can show on a longer line (<code>tests/plot/test_linear.py:342</code>).</li>
+<li>Drag to pan the map. A touch scrolls.</li>
+<li>Click an item to select it in both views; the other view scrolls to it. Click again to clear.</li>
+<li>See the sequence view beside the map when the window has room, and under it otherwise, in
+   rows half as long where full ones would not fit.</li>
+<li>Toggle the bottom strand.</li>
+<li>Hover a base to see its position. Drag across bases to select them, the view scrolling while
+   the pointer is past its edge; the caption says <code>first .. last (N bp)</code>. Copy puts the top
+   strand's selected bases on the clipboard, by the button or the copy keys.</li>
+<li>Print: the switches and zoom caption drop, the full rows and the line at 1× print.</li>
+</ol>
+<p>There is no find box, no reverse-complement copy, no keyboard control and no export from the
+page (read: <code>plot.js</code> has no <code>keydown</code> handler). The browser's own find reaches labels and the
+bases within one row, since both are text (inferred from the page's markup).</p>
+<p><strong>On a protocol page</strong> (read from <code>protocol/render.py:2105-2186</code>, <code>protocol/protocol.js:189-198</code>
+and <code>protocol/protocol.css:247-288</code>): a figure is a still drawing. "Explore the map" loads the
+record's map page into the protocol page the first time it opens, and "Close the map" puts the
+figure back; "Open it in a new tab" opens the same file. A figure prints small whether its map
+was open or not. Plates and gels have no control but a gel band's tooltip and a transfer's
+closed list of moves.</p>
+<p><strong>On the verification page</strong>: nothing beyond reading and the browser's own find. It has no
+script (read: <code>verification/page.py:136-182</code>).</p>
+<h2 id="5-the-promises-a-reader-relies-on">5. The promises a reader relies on<a class="headerlink" href="#5-the-promises-a-reader-relies-on" title="Permanent link">&para;</a></h2>
+<p>The map's decisions (issue <a href="https://github.com/liuhlab/liulab-mbio/issues/572">liulab-mbio#572</a>) keep the first four as needs. Each is pinned by a test where
+one is named.</p>
+<ol>
+<li><strong>No label overlaps another label or the drawing</strong> — circle, line and sequence view
+   (<code>tests/plot/test_circular.py:316,321</code>, <code>test_linear.py:222</code>, <code>test_sequence_view.py:363</code>).</li>
+<li><strong>A hidden label is counted, by kind</strong>, on the drawing, recounted as switches change, listed
+   on hover, and printed by the command after the files it wrote (<code>test_cli.py:69</code>). The
+   sequence view hides nothing. A name on a feature never hides; labels hide cut sites first,
+   the most frequent cutter first, then primers, features and insertions, and unlit before lit
+   (<code>test_drawing.py:1300,1455</code>).</li>
+<li><strong>Bases and labels are real text</strong> on a page, so they can be found, selected and copied. A
+   PNG and a PDF draw every letter as an outline instead, so they look the same anywhere and
+   need no font (<code>test_drawing.py:274</code>).</li>
+<li><strong>One file opens offline</strong>: a page loads nothing over the network and embeds the fonts its
+   text was measured in (<code>test_drawing.py:387,397</code>). A protocol page is one file too, but its
+   "Explore the map" opens a sibling <code>*-map.html</code>, so a protocol is a folder.</li>
+<li><strong>Positions read as the record numbers them</strong>: 1-based and inclusive in every label and
+   tooltip, a region keeps the record's numbering, across the origin too
+   (<code>test_drawing.py:884,1156</code>).</li>
+<li><strong>A highlight moves nothing</strong> and dims the same way in every view and format
+   (<code>test_drawing.py:1393,1446</code>).</li>
+<li><strong>A page carries everything; a file draws only what is on.</strong> A page keeps every item behind
+   its switches; a PNG or PDF leaves out what is switched off (<code>test_drawing.py:256,649</code>).</li>
+<li><strong>The same input writes the same bytes.</strong> <code>scripts/check_examples.py</code> regenerates every
+   example and compares bytes, in the docs CI job. The viewer's output, or that check, has to
+   allow for this.</li>
+<li><strong>A drawing keeps a white ground whatever the colour scheme.</strong> A map page and the
+   verification page declare a light scheme; a protocol page has a dark one and paints each
+   drawing's ground white (<code>protocol/protocol.css:247-250</code>).</li>
+</ol>
+<h2 id="6-every-call-mbio-makes-into-drawing">6. Every call mbio makes into drawing<a class="headerlink" href="#6-every-call-mbio-makes-into-drawing" title="Permanent link">&para;</a></h2>
+<p>Read from the call sites; <code>mbio.plot</code> is imported only by <code>mbio/cli.py</code>, <code>protocol/render.py</code>,
+<code>protocol/figures.py</code> and <code>verification/page.py</code>. <code>synbio</code> imports none of it: it hands over
+<code>Figure</code> specs only.</p>
+<table>
+<thead>
+<tr>
+<th>Caller</th>
+<th>Call</th>
+<th>Hands over</th>
+<th>Takes back</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mbio plot map</code> (<code>plot/cli.py:97-113</code>)</td>
+<td><code>draw_map(...)</code>, <code>Drawing.write(path, dpi=)</code> per <code>-o</code>, <code>layers.notice(drawing.hidden)</code></td>
+<td>A record file and 13 options: <code>--output/-o</code> (repeatable, <code>.html</code>, <code>.png</code>, <code>.pdf</code>), <code>--region</code> (a feature name, or <code>START..END</code> 1-based, END before START across the origin), <code>--linear</code>, <code>--sequence-view</code>, <code>--no-features</code>, <code>--no-primers</code>, <code>--no-cut-sites</code>, <code>--enzyme</code> (repeatable), <code>--hide-type</code> (repeatable), <code>--source</code>, <code>--bases-per-row</code> (60), <code>--one-strand</code>, <code>--dpi</code> (300)</td>
+<td>Files written; the hidden-label line printed</td>
+</tr>
+<tr>
+<td>Python users, the <code>plot-map</code> skill</td>
+<td><code>draw_map(record or path, region=, highlight=, linear=, sequence_view=, features=, primers=, cut_sites=, enzymes=, hide_types=, source=, bases_per_row=, both_strands=, insertions=, tracks=)</code></td>
+<td>As above, plus highlight, insertions and tracks</td>
+<td>A <code>Drawing</code>: <code>.write</code>, <code>.element(outlines=)</code>, <code>.hidden</code>, <code>.answering</code></td>
+</tr>
+<tr>
+<td>Protocol render, one map page per record (<code>protocol/render.py:479-515</code>)</td>
+<td><code>draw_map(path, enzymes=).write(dir / "NAME-map.html")</code></td>
+<td>Each record any figure draws; the union of the enzymes its figures name, the unique cutters where none names any</td>
+<td>A page; its name goes into each opener</td>
+</tr>
+<tr>
+<td>Protocol render, a figure (<code>render.py:2105-2186</code>)</td>
+<td><code>draw_map(path, region=span, linear=, sequence_view=, enzymes=)</code>, then the highlight set by <code>dataclasses.replace</code>, <code>.answering</code>, <code>.element()</code></td>
+<td>A <code>Figure</code> spec, one row per record</td>
+<td>An inline SVG per row; names each row answers to</td>
+</tr>
+<tr>
+<td>Protocol render, plates (<code>render.py:2075-2103</code>, <code>2245-2251</code>)</td>
+<td><code>draw_plate(name, rows, columns, row_labels, seating=).element()</code>, <code>.layout.legend</code>, <code>.layout.kinds</code></td>
+<td>A plate's shape and seating (its labels and seating merged), or a stamp's touched wells</td>
+<td>An inline SVG; the legend and the kind count, written as HTML</td>
+</tr>
+<tr>
+<td>Protocol render, fonts (<code>render.py:1480-1488</code>)</td>
+<td><code>page.font_face(SANS, BOLD, MONO)</code></td>
+<td>Whenever the body holds a figure marked <code>drawing</code></td>
+<td>Three <code>@font-face</code> rules</td>
+</tr>
+<tr>
+<td>Protocol render, gels (<code>render.py:2754-2798</code>)</td>
+<td>None into <code>mbio.plot</code>: the SVG is written here</td>
+<td>A <code>Gel</code></td>
+<td>An inline SVG and legend</td>
+</tr>
+<tr>
+<td>Figure library (<code>protocol/figures.py</code>)</td>
+<td><code>sequence_view.LIMIT</code></td>
+<td>—</td>
+<td>The 100,000-base cap a ligation figure checks</td>
+</tr>
+<tr>
+<td>Verification page (<code>verification/page.py:245-281</code>)</td>
+<td><code>draw_map(copy, cut_sites=False, insertions=, highlight=)</code> for the map; <code>draw_map(copy, region=, sequence_view=True, bases_per_row=window, cut_sites=False, insertions=, tracks=, highlight=)</code> per close-up; <code>layers.Insertion</code>, <code>sequence_view.Track</code>, <code>sequence_view.Curve</code>; reads <code>drawing.sequence_view.rows[].strips</code>; <code>page.font_face</code></td>
+<td>The stand-in record, insertion marks and trace tracks</td>
+<td>Inline SVGs, and whether any trace was drawn (for its colour legend)</td>
+</tr>
+<tr>
+<td>PNG and PDF (<code>plot/convert.py</code>)</td>
+<td><code>vl_convert.svg_to_png</code>, <code>svg_to_pdf</code>, joined by <code>pypdf</code></td>
+<td>An SVG with letters as outlines</td>
+<td>Bytes</td>
+</tr>
+</tbody>
+</table>
+<p><code>PlateDrawing.write</code> (<code>.html</code>, <code>.png</code>, <code>.pdf</code>) has no caller in <code>src/</code> (read).</p>
+<h2 id="7-who-writes-each-drawing-and-how-large">7. Who writes each drawing, and how large<a class="headerlink" href="#7-who-writes-each-drawing-and-how-large" title="Permanent link">&para;</a></h2>
+<p>Measured over <code>docs/examples/</code>: 30 HTML pages, 11,048,492 B.</p>
+<table>
+<thead>
+<tr>
+<th>Example (writer)</th>
+<th>Map pages</th>
+<th>Protocol figures</th>
+<th>Plates</th>
+<th>Gels</th>
+<th>Other</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pUC19-GFP Golden Gate (<code>mbio cloning goldengate plan</code>)</td>
+<td>product, GFP amplicon, backbone amplicon</td>
+<td>3: two amplicon ends at base level, the product with its junctions lit</td>
+<td>—</td>
+<td>2</td>
+<td><code>product-map.html</code> is also written by <code>mbio plot map ... --enzyme BbsI</code>, byte for byte</td>
+</tr>
+<tr>
+<td>pUC19-GFP Gibson</td>
+<td>product</td>
+<td>1: the product, both overlaps lit</td>
+<td>—</td>
+<td>2</td>
+<td>—</td>
+</tr>
+<tr>
+<td>pUC19-GFP restriction and ligation</td>
+<td>product</td>
+<td>1: the product, both junctions lit</td>
+<td>—</td>
+<td>4</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Gateway BP and LR</td>
+<td>entry clone, product</td>
+<td>2: each product, its att sites lit</td>
+<td>—</td>
+<td>1</td>
+<td>—</td>
+</tr>
+<tr>
+<td>AP-1 library (<code>synbio igga plan</code>)</td>
+<td>oligo, block vector 1, round 1, round 2, product</td>
+<td>9 on 5 pages, 3 of them stacked rows of two records</td>
+<td>14 on 5 pages, up to 1,536 wells</td>
+<td>2</td>
+<td>—</td>
+</tr>
+<tr>
+<td>AP-1 read-back (<code>synbio dmx plan</code>)</td>
+<td>—</td>
+<td>—</td>
+<td>5 drawings</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Maps (<code>mbio plot map</code>)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>7 PDFs: pUC19, the GFP region, AP-1 vector, rounds, product, barcode block</td>
+</tr>
+<tr>
+<td>Verification (<code>scripts/build_example_verification.py</code>)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><code>verification.html</code>: a map and 2 close-ups</td>
+</tr>
+</tbody>
+</table>
+<p>Where the bytes go (measured):</p>
+<ul>
+<li><strong><code>pUC19-GFP/product-map.html</code>, 656,401 B</strong>, for a 3,347 bp record with 12 features, 9 primers
+  and no cut site: 565,907 B of SVG in 7 drawings (the circle 17,893; the line four times,
+  86,902; the sequence view at 60 and at 30 bases a row, 461,112), 53,717 B of fonts, 5,605 B
+  of styles and 28,903 B of script. The record as compact JSON (name, topology, bases, features
+  with segments, strand and colour, primers with their sites) is 5,507 B: the page is 119 times
+  that.</li>
+<li><strong>AP-1 <code>round-1-map.html</code>, 977,314 B</strong>, for 6,161 bp, 20 features and 4 cut sites (BbsI and BsaI): 886,735 B
+  of SVG, 780,877 of it the sequence view twice. The record as compact JSON is 8,140 B. The
+  largest page is AP-1 <code>product-map.html</code>, 1,053,579 B.</li>
+<li><strong>Fonts</strong>: the same three faces, 53,717 B as <code>@font-face</code> rules (40,020 B of WOFF2), are
+  embedded again by each of the 25 pages that show a drawing: 1,342,925 B across the examples.</li>
+<li><strong>The script</strong>: 28,903 B, in each of the 12 map pages.</li>
+<li><strong>Plates outweigh maps on protocol pages</strong>: 1,133,447 B of plate SVG against 205,850 B of
+  figure SVG. AP-1 <code>05-cargo-validation-index-pcr.html</code>, 574,024 B, holds 414,012 B of plates.</li>
+</ul>
+<h2 id="8-the-pointers-re-measured">8. The pointers re-measured<a class="headerlink" href="#8-the-pointers-re-measured" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pointer (from the session that drafted the map)</th>
+<th>Re-measured on 2026-10-17</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>plot/drawing.py</code> <code>_html</code>, about 562-595</td>
+<td>562-595</td>
+</tr>
+<tr>
+<td><code>plot/page.py</code> <code>render</code></td>
+<td>line 54</td>
+</tr>
+<tr>
+<td><code>Figure</code> spec, about 817-825</td>
+<td>the class at 787-834, its fields at 817-825</td>
+</tr>
+<tr>
+<td><code>render.py</code> <code>_figure</code> about 2105, <code>_opener</code> about 2150, <code>_write_maps</code> about 479-514</td>
+<td>2105, 2151, 479-515</td>
+</tr>
+<tr>
+<td><code>verification/page.py</code> stand-in record, about 255-266</td>
+<td>245-266 (features from 245, the <code>draw_map</code> call at 266)</td>
+</tr>
+<tr>
+<td>Plate wells, <code>drawing.py</code> about 686-795</td>
+<td>685-795</td>
+</tr>
+<tr>
+<td>The hidden-label notice worded in 5 places: <code>layers.py:485</code>, <code>circular.py:430</code>, <code>linear.py:669</code>, <code>drawing.py:521</code>, <code>plot.js:66-97</code></td>
+<td>Worded in 2: <code>layers.py:485</code> (<code>notice</code>) and <code>plot.js:66-83</code> (<code>said</code>). The other three place what <code>notice</code> returns, and <code>plot/cli.py:113</code> prints it: 6 sites touch it</td>
+</tr>
+<tr>
+<td>Fonts about 53 KB a page</td>
+<td>53,717 B, on 25 of the 30 example pages</td>
+</tr>
+<tr>
+<td><code>pUC19-GFP/product-map.html</code> 656,401 B, about 566 KB SVG, 7 layouts</td>
+<td>656,401 B; 565,907 B; 7</td>
+</tr>
+<tr>
+<td>AP-1 <code>round-1-map.html</code> 977 KB</td>
+<td>977,314 B</td>
+</tr>
+<tr>
+<td>The record as compact JSON about 7 KB</td>
+<td>5,507 B for the fields listed in section 7; qualifiers and cut sites would add to it</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-gaps">Open gaps<a class="headerlink" href="#open-gaps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>The page behaviours in section 4 were read from <code>plot.js</code>, not run in a browser.</strong> The gate
+   parses each page's HTML but runs no script (read: no browser or JavaScript runner in <code>tests/</code>
+   or <code>pyproject.toml</code>), so nothing pins them. The viewer's roadmap needs its own tests of each.</li>
+<li><strong>An explore page's cut sites follow its figures' enzymes.</strong> A figure naming an empty list
+   writes a map page with no cut sites and no switch for them: the Gibson and Gateway product
+   pages have none (measured: 0 cut-site items). Whether the viewer keeps that rule, or lets the
+   reader add enzymes, is the roadmap's call.</li>
+<li><strong>A plate past 10 kinds tells the reader nothing about its wells.</strong> The legend drops, every
+   used well takes one colour, and a well's contents ride only as data attributes nothing shows
+   (read: <code>plot/plate.py</code>, and no hover on protocol pages). AP-1's picked plate carries 288 well
+   labels.</li>
+<li><strong>Drawings the figure-sources note wants and nothing draws</strong>: lines joining one stacked row's
+   cut to the next row's end (iGGA Figure S1A); a plate coloured by a per-well verdict (DMX panel
+   a, step 10); a Sankey of a counted run and a cost chart (DMX panels c and d); a workflow track
+   (<code>docs/research/figure-sources.md</code>). That note says nothing lays out more than one record;
+   stacked figure rows have since shipped, so only the joining lines are missing.</li>
+<li><strong>The verification page fakes two kinds.</strong> Results ride as primers and disagreements as
+   <code>misc_difference</code> features. The viewer needs a read and a difference as kinds of their own;
+   until then the page inherits primer labels and feature colours for them.</li>
+<li><strong>A reader cannot find a sequence across rows</strong>, copy the bottom strand, or move by keyboard
+   on any page.</li>
+<li><strong>Not measured</strong>: PNG output (no example writes one), the time a page takes to open, and
+   how a page behaves on a phone.</li>
+<li><strong>The index.</strong> <code>docs/research/index.md</code> does not list this note: the branch carries the note
+   alone and is never merged.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

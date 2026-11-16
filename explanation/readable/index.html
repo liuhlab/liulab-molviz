@@ -1,0 +1,2275 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/explanation/readable/">
+      
+      
+        <link rel="prev" href="../what-molviz-draws/">
+      
+      
+        <link rel="next" href="../outputs/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>How a drawing stays readable - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-a-drawing-stays-readable" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              How a drawing stays readable
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#no-label-overlaps-another" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        No label overlaps another
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#every-hidden-label-is-counted" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Every hidden label is counted
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-gel-leaves-out-a-crowded-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A gel leaves out a crowded size
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-highlight-moves-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A highlight moves nothing
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#colours-follow-the-feature-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Colours follow the feature type
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-drawing-keeps-a-white-ground" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A drawing keeps a white ground
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#positions-read-as-the-record-numbers-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Positions read as the record numbers them
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#text-you-can-find-files-that-look-the-same-anywhere" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Text you can find, files that look the same anywhere
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#no-label-overlaps-another" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        No label overlaps another
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#every-hidden-label-is-counted" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Every hidden label is counted
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-gel-leaves-out-a-crowded-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A gel leaves out a crowded size
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-highlight-moves-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A highlight moves nothing
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#colours-follow-the-feature-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Colours follow the feature type
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-drawing-keeps-a-white-ground" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A drawing keeps a white ground
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#positions-read-as-the-record-numbers-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Positions read as the record numbers them
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#text-you-can-find-files-that-look-the-same-anywhere" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Text you can find, files that look the same anywhere
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="how-a-drawing-stays-readable">How a drawing stays readable<a class="headerlink" href="#how-a-drawing-stays-readable" title="Permanent link">&para;</a></h1>
+<p>A map can hold more than fits on it: a dozen features, as many primers, and a cut site for
+every enzyme that cuts. molviz never lets two labels overlap. A map never leaves a label out
+without saying so, and the sequence view leaves none out. A gel is the one exception, because
+it may leave out a ladder size's label without counting it. This page gives the rules a drawing
+keeps, so that you know what to trust in it and how to tell what it left out.</p>
+<h2 id="no-label-overlaps-another">No label overlaps another<a class="headerlink" href="#no-label-overlaps-another" title="Permanent link">&para;</a></h2>
+<p>No label covers another label or the drawing, in the circle, the line or the sequence view.
+Where two labels would overlap, molviz hides one. It does not shrink the text, and it does not
+let labels pile up. Shrunk text is hard to read, and in a pile a label can sit closest to the
+wrong item. Either way, the reader can't tell that anything is wrong. A hidden label is
+counted instead, so the reader knows.</p>
+<h2 id="every-hidden-label-is-counted">Every hidden label is counted<a class="headerlink" href="#every-hidden-label-is-counted" title="Permanent link">&para;</a></h2>
+<p>A drawing that hides labels says so at the bottom right of the map, counted by kind, such as "3 cut sites and
+1 primer are hidden". On a page, rest the pointer on that notice to list the hidden labels. In
+Python, the drawing that <code>molviz.draw</code> returns holds the same sentence in <code>notice</code> and the
+hidden labels in <code>hidden</code>, so your code can report what a file left out. No notice means every
+label shows.</p>
+<p>Labels hide in a fixed order, the least useful first:</p>
+<ol>
+<li>The label of a dimmed item hides before the label of a lit one.</li>
+<li>Cut sites hide first, then primers, reads, features and insertions. Disagreements hide last.</li>
+<li>Among cut sites, the enzyme that cuts most often hides first.</li>
+<li>Where all else is equal, the longest label hides first.</li>
+</ol>
+<p>The order follows what a reader looks for. A record can carry dozens of cut sites, and an enzyme
+that cuts many times says the least about any one place. A unique cutter, the one a cloning plan
+looks for, hides last among cut sites. A disagreement between a read and the record is the point of
+checking a clone, so it hides last of all.</p>
+<p>A name written on its feature's own arrow never hides, since it takes no room beside the map.
+The sequence view hides no label at all.</p>
+<p>On a page, a hidden label can come back. Zoom in, and the map is laid out larger. Switch off a
+kind you don't need, and its room goes to the rest. The notice counts again each time. A file
+is laid out once, at its own size, so what it hides stays hidden, and <code>hidden</code> lists it.</p>
+<h2 id="a-gel-leaves-out-a-crowded-size">A gel leaves out a crowded size<a class="headerlink" href="#a-gel-leaves-out-a-crowded-size" title="Permanent link">&para;</a></h2>
+<p>A gel writes each ladder size beside the gel, at the height where its band runs. Two sizes can
+run closer than a line of text. Then the gel leaves out the smaller size's label, and it does
+not count it, so the drawing's <code>hidden</code> stays empty. The gel still draws the band, and on a
+page, resting the pointer on the band shows its size. A sample lane's bands and the legend's
+lines never hide.</p>
+<h2 id="a-highlight-moves-nothing">A highlight moves nothing<a class="headerlink" href="#a-highlight-moves-nothing" title="Permanent link">&para;</a></h2>
+<p>The <a href="../../api/#options"><code>highlight</code></a> option names what a reader should look at. Everything else
+dims to one pale grey, and nothing moves. Each item stays where it would be with no highlight,
+so a lit drawing and a plain one line up item for item. A lit label is the last to hide.</p>
+<p>Below, pUC19-GFP is drawn twice as a line: first plain, then with GFP and its two primers
+lit. Every arrow and label stays in place.</p>
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"map": "line"}
+</script>
+</div>
+
+<div data-molviz>
+<script type="application/json" data-record>
+{
+ "name": "pUC19-GFP",
+ "circular": true,
+ "bases": "TCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCCATTCGCCATTCAGGCTGCGCAACTGTTGGGAAGGGCGATCGGTGCGGGCCTCTTCGCTATTACGCCAGCTGGCGAAAGGGGGATGTGCTGCAAGGCGATTAAGTTGGGTAACGCCAGGGTTTTCCCAGTCACGACGTTGTAAAACGACGGCCAGTATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCAAGATACCCAGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAGTGGCGTAATCATGGTCATAGCTGTTTCCTGTGTGAAATTGTTATCCGCTCACAATTCCACACAACATACGAGCCGGAAGCATAAAGTGTAAAGCCTGGGGTGCCTAATGAGTGAGCTAACTCACATTAATTGCGTTGCGCTCACTGCCCGCTTTCCAGTCGGGAAACCTGTCGTGCCAGCTGCATTAATGAATCGGCCAACGCGCGGGGAGAGGCGGTTTGCGTATTGGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGAACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTACAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAATACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTC",
+ "features": [
+  {
+   "name": "lacZα",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 145,
+     "end": 395
+    },
+    {
+     "start": 1112,
+     "end": 1130
+    }
+   ],
+   "color": "#993366",
+   "translation": "MTMITPTGRRFTTS*LGKPWRYPT*SPCSTSPFRQLA**RRGPHRSPFPTVAQPEWRMAPDAVFSPYASVRYFTPHMVHSQYNLL*CRI"
+  },
+  {
+   "name": "M13 fwd",
+   "type": "primer_bind",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 378,
+     "end": 395
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "ATGA junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 395,
+     "end": 399
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "GFP",
+   "type": "CDS",
+   "strand": 1,
+   "segments": [
+    {
+     "start": 395,
+     "end": 1112
+    }
+   ],
+   "color": "#05fd14",
+   "translation": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKRHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK*"
+  },
+  {
+   "name": "MCS",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1113
+    }
+   ],
+   "color": "#99ccff"
+  },
+  {
+   "name": "TGGC junction",
+   "type": "misc_feature",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1112,
+     "end": 1116
+    }
+   ],
+   "color": "#ff9900"
+  },
+  {
+   "name": "M13 rev",
+   "type": "primer_bind",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1125,
+     "end": 1142
+    }
+   ],
+   "color": "#a020f0"
+  },
+  {
+   "name": "lac operator",
+   "type": "protein_bind",
+   "strand": 0,
+   "segments": [
+    {
+     "start": 1149,
+     "end": 1166
+    }
+   ],
+   "color": "#31849b"
+  },
+  {
+   "name": "lac promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1173,
+     "end": 1180
+    },
+    {
+     "start": 1180,
+     "end": 1198
+    },
+    {
+     "start": 1198,
+     "end": 1204
+    }
+   ],
+   "color": "#ffffff"
+  },
+  {
+   "name": "ori",
+   "type": "rep_origin",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 1527,
+     "end": 2116
+    }
+   ],
+   "color": "#ffff00"
+  },
+  {
+   "name": "AmpR",
+   "type": "CDS",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 2286,
+     "end": 3078
+    },
+    {
+     "start": 3078,
+     "end": 3147
+    }
+   ],
+   "color": "#ccffcc",
+   "translation": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPVAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW*"
+  },
+  {
+   "name": "AmpR promoter",
+   "type": "promoter",
+   "strand": -1,
+   "segments": [
+    {
+     "start": 3147,
+     "end": 3252
+    }
+   ],
+   "color": "#ffffff"
+  }
+ ],
+ "primers": [
+  {
+   "name": "pUC19 backbone forward",
+   "bases": "AAACACGAAGACAATGGCGTAATCATGGTCATAGCTGTTTCC",
+   "sites": [
+    {
+     "start": 1116,
+     "end": 1140,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "pUC19 backbone reverse",
+   "bases": "AAACACGAAGACAATCATACTGGCCGTCGTTTTACA",
+   "sites": [
+    {
+     "start": 377,
+     "end": 395,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "GFP forward",
+   "bases": "AAACACGAAGACAAATGAGTAAAGGAGAAGAACTTTTCACTGG",
+   "sites": [
+    {
+     "start": 399,
+     "end": 424,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "GFP reverse",
+   "bases": "AAACACGAAGACAAGCCACTATTTGTATAGTTCATCCATGCCAT",
+   "sites": [
+    {
+     "start": 1086,
+     "end": 1112,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR forward",
+   "bases": "TGGGTAACGCCAGGGTTTTCC",
+   "sites": [
+    {
+     "start": 344,
+     "end": 365,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Colony PCR reverse",
+   "bases": "CGTATGTTGTGTGGAATTGTGAGCGGAT",
+   "sites": [
+    {
+     "start": 1154,
+     "end": 1182,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Junction reverse",
+   "bases": "CATCACCTTCACCCTCTCCACTGA",
+   "sites": [
+    {
+     "start": 480,
+     "end": 504,
+     "strand": -1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing forward",
+   "bases": "GCGCAACTGTTGGGAA",
+   "sites": [
+    {
+     "start": 256,
+     "end": 272,
+     "strand": 1
+    }
+   ]
+  },
+  {
+   "name": "Sequencing reverse",
+   "bases": "CGCAACGCAATTAATGTGAG",
+   "sites": [
+    {
+     "start": 1231,
+     "end": 1251,
+     "strand": -1
+    }
+   ]
+  }
+ ],
+ "cuts": [
+  {
+   "enzyme": "BsmBI",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 50,
+   "end": 56,
+   "at": 45,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 182,
+   "end": 188,
+   "at": 184,
+   "stagger": 2
+  },
+  {
+   "enzyme": "NcoI",
+   "start": 560,
+   "end": 566,
+   "at": 561,
+   "stagger": 4
+  },
+  {
+   "enzyme": "NdeI",
+   "start": 623,
+   "end": 629,
+   "at": 625,
+   "stagger": 2
+  },
+  {
+   "enzyme": "BtgZI",
+   "start": 960,
+   "end": 966,
+   "at": 976,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 1038,
+   "end": 1044,
+   "at": 1033,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BspQI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "SapI",
+   "start": 1343,
+   "end": 1350,
+   "at": 1351,
+   "stagger": 3
+  },
+  {
+   "enzyme": "BsaI",
+   "start": 2426,
+   "end": 2432,
+   "at": 2421,
+   "stagger": 4
+  },
+  {
+   "enzyme": "BsmBI",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  },
+  {
+   "enzyme": "Esp3I",
+   "start": 3343,
+   "end": 3349,
+   "at": 3,
+   "stagger": 4
+  }
+ ]
+}
+
+</script>
+<script type="application/json" data-options>
+{"map": "line", "highlight": ["GFP", "GFP forward", "GFP reverse"]}
+</script>
+</div>
+
+<h2 id="colours-follow-the-feature-type">Colours follow the feature type<a class="headerlink" href="#colours-follow-the-feature-type" title="Permanent link">&para;</a></h2>
+<p>A feature takes its colour from its type. Coding sequences are blue, promoters and other
+regulatory parts orange, terminators pink and origins yellow. Other groups of types have colours
+of their own, and a type in no group is light grey. The
+<a href="../../reference/record/#colours-by-type">record format</a> lists the types in each group. The
+colours come from Paul Tol's light scheme. Tol made it so that readers with colour blindness can
+tell its colours apart, and so that black text reads on each of them.</p>
+<p>Primers are purple and insertions are red. A colour you give a feature, or one of its segments,
+is used instead of the colour of its type. A Sanger trace draws its four curves in the colours
+that trace viewers use: A green, C blue, G black and T red.</p>
+<h2 id="a-drawing-keeps-a-white-ground">A drawing keeps a white ground<a class="headerlink" href="#a-drawing-keeps-a-white-ground" title="Permanent link">&para;</a></h2>
+<p>A drawing is always drawn on white, even on a page with a dark theme. Every colour above was
+chosen against white, so the drawing reads the same on any page and prints the same.</p>
+<h2 id="positions-read-as-the-record-numbers-them">Positions read as the record numbers them<a class="headerlink" href="#positions-read-as-the-record-numbers-them" title="Permanent link">&para;</a></h2>
+<p>Every label and every hover counts from 1 and includes both ends, as SnapGene and GenBank do. A
+line drawn from part of a record keeps the record's numbers, and a stretch across the origin of
+a circular record runs from the last base on to 1. <a href="../coordinates/">Coordinates</a> explains how a
+record writes these positions.</p>
+<h2 id="text-you-can-find-files-that-look-the-same-anywhere">Text you can find, files that look the same anywhere<a class="headerlink" href="#text-you-can-find-files-that-look-the-same-anywhere" title="Permanent link">&para;</a></h2>
+<p>On a page, every base and every label is real text, so the browser's find, select and copy work
+on it. In an SVG, PNG or PDF file, each letter is drawn as an outline instead. The file then
+looks the same in every program and needs no font. <a href="../outputs/">Pages, files and still drawings</a>
+says which to choose.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>

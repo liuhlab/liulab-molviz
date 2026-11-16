@@ -1,0 +1,2554 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Draws DNA sequences and plasmids in the browser, from data a caller hands over; later molecules and protein structures in 3D.">
+      
+      
+      
+        <link rel="canonical" href="https://liuhlab.github.io/liulab-molviz/reference/record/">
+      
+      
+        <link rel="prev" href="../../how-to/your-own-page/">
+      
+      
+        <link rel="next" href="../gel/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Record format - liulab-molviz</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#record-format" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="liulab-molviz" class="md-header__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            liulab-molviz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Record format
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="liulab-molviz" class="md-nav__button md-logo" aria-label="liulab-molviz" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    liulab-molviz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/liuhlab/liulab-molviz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    liuhlab/liulab-molviz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/first-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw your first plasmid map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get-started/choose-a-drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose a drawing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How-to guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  How-to guides
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Maps and sequences
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Maps and sequences
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/what-a-map-shows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Choose what a map shows
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/show-the-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Show the bases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/check-a-clone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Check a clone against its reads
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/stack-records/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stack records into a figure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gels and plates
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Gels and plates
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a gel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/draw-a-plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Draw a plate and a stamp
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Output
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Export SVG, PNG and PDF
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/your-own-page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Put drawings in your own page
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Record format
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Example
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#types" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Types
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The record
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Features
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segments" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Segments
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#colours-by-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Colours by type
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Primers
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Primers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sites" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sites
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Cuts
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#insertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Insertions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Reads
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disagreements" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Disagreements
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tracks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tracks
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tracks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#curves" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Curves
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Coordinates
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Coordinates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A base
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-span" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A span
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-point-between-bases" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A point between bases
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#across-the-origin" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Across the origin
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-features-segments" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A feature's segments
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positions-a-reader-sees" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Positions a reader sees
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Gel format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Plate format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../figure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Figure format
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Python API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../javascript/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JavaScript API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Explanation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Explanation
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/what-molviz-draws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What molviz draws and what you hand it
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/readable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How a drawing stays readable
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Pages, files and still drawings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/coordinates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Coordinates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Example
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#types" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Types
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The record
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Features
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segments" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Segments
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#colours-by-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Colours by type
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Primers
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Primers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sites" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sites
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Cuts
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#insertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Insertions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Reads
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disagreements" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Disagreements
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tracks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tracks
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tracks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#curves" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Curves
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Coordinates
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Coordinates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A base
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-span" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A span
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-point-between-bases" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A point between bases
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#across-the-origin" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Across the origin
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-features-segments" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A feature's segments
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positions-a-reader-sees" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Positions a reader sees
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="record-format">Record format<a class="headerlink" href="#record-format" title="Permanent link">&para;</a></h1>
+<p>A record is one DNA molecule as you hand it to molviz: its name, whether it is circular, its
+bases, and what is drawn on it. In Python a record is a <code>dict</code>, which
+<a href="../../api/#molviz.check"><code>molviz.check</code></a> checks and <a href="../../api/#molviz.draw"><code>molviz.draw</code></a>
+draws. In a page it is a JSON object, which the global <a href="../javascript/#check"><code>molviz.check</code></a>
+checks and <a href="../javascript/#draw-into-an-element"><code>molviz.draw</code></a> draws. Both run the same check.</p>
+<p>The check reports every problem it finds, each named by its path, such as
+<code>features[0].segments[0].end: must be greater than start</code>. Python raises <code>ValueError</code>, and the
+page's check throws a <a href="../javascript/#formaterror"><code>FormatError</code></a>. A key that is not on this page
+is an error.</p>
+<p>The guides <a href="../../how-to/what-a-map-shows/">Choose what a map shows</a>,
+<a href="../../how-to/show-the-bases/">Show the bases</a>,
+<a href="../../how-to/check-a-clone/">Check a clone against its reads</a> and
+<a href="../../how-to/stack-records/">Stack records into a figure</a> draw records in this format.</p>
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<p>This circular record has one feature, one primer and two cuts.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pDemo"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"circular"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"bases"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GAATTCATGAGCAAAGGCGAAGAACTGTTTACCGGCTAAGGATCCAAA"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ORF"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CDS"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"strand"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"segments"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"start"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nt">"end"</span><span class="p">:</span><span class="w"> </span><span class="mi">39</span><span class="p">}],</span>
+<span class="w">      </span><span class="nt">"translation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MSKGEELFTG*"</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"primers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ORF forward"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"bases"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GCGCATGAGCAAAGGCGAAGAACTG"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"sites"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"start"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nt">"end"</span><span class="p">:</span><span class="w"> </span><span class="mi">27</span><span class="p">,</span><span class="w"> </span><span class="nt">"strand"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"cuts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"enzyme"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EcoRI"</span><span class="p">,</span><span class="w"> </span><span class="nt">"start"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"end"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nt">"at"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"stagger"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"enzyme"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BamHI"</span><span class="p">,</span><span class="w"> </span><span class="nt">"start"</span><span class="p">:</span><span class="w"> </span><span class="mi">39</span><span class="p">,</span><span class="w"> </span><span class="nt">"end"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span><span class="w"> </span><span class="nt">"at"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="nt">"stagger"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="types">Types<a class="headerlink" href="#types" title="Permanent link">&para;</a></h2>
+<p>The tables on this page and the gel, plate and figure pages use these types.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>In JSON</th>
+<th>In Python</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>text</td>
+<td>a string</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td>integer</td>
+<td>a number with no fraction</td>
+<td><code>int</code></td>
+</tr>
+<tr>
+<td>number</td>
+<td>a finite number</td>
+<td><code>int</code> or <code>float</code></td>
+</tr>
+<tr>
+<td>true or false</td>
+<td><code>true</code> or <code>false</code></td>
+<td><code>True</code> or <code>False</code></td>
+</tr>
+<tr>
+<td>list</td>
+<td>an array</td>
+<td><code>list</code></td>
+</tr>
+<tr>
+<td>object</td>
+<td>an object</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td>bases</td>
+<td>a string of IUPAC nucleotide letters, <code>ACGTURYSWKMBDHVN</code>, in either case</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td>colour</td>
+<td>a string written <code>#rrggbb</code>, its digits in either case</td>
+<td><code>str</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-record">The record<a class="headerlink" href="#the-record" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>The record's name. The map writes it with the record's length, in the circle's centre or under the line.</td>
+</tr>
+<tr>
+<td><code>circular</code></td>
+<td>true or false</td>
+<td>yes</td>
+<td></td>
+<td>Whether the record is circular. Only a circular record can be drawn as a circle, and only its spans can run across the origin.</td>
+</tr>
+<tr>
+<td><code>bases</code></td>
+<td>bases, at least one</td>
+<td>yes</td>
+<td></td>
+<td>The top strand, 5' to 3'. Its length is the record's length.</td>
+</tr>
+<tr>
+<td><code>features</code></td>
+<td>list of <a href="#features">features</a></td>
+<td>no</td>
+<td><code>[]</code></td>
+<td>The named stretches of the record, such as a CDS or a promoter.</td>
+</tr>
+<tr>
+<td><code>primers</code></td>
+<td>list of <a href="#primers">primers</a></td>
+<td>no</td>
+<td><code>[]</code></td>
+<td>The primers, each drawn at every site it binds.</td>
+</tr>
+<tr>
+<td><code>cuts</code></td>
+<td>list of <a href="#cuts">cuts</a></td>
+<td>no</td>
+<td><code>[]</code></td>
+<td>One item for each enzyme cutting at one place. molviz draws only the cuts listed here.</td>
+</tr>
+<tr>
+<td><code>insertions</code></td>
+<td>list of <a href="#insertions">insertions</a></td>
+<td>no</td>
+<td><code>[]</code></td>
+<td>Points where bases are added.</td>
+</tr>
+<tr>
+<td><code>reads</code></td>
+<td>list of <a href="#reads">reads</a></td>
+<td>no</td>
+<td><code>[]</code></td>
+<td>The reads, each drawn over the bases it trusts. No two reads share a name.</td>
+</tr>
+<tr>
+<td><code>disagreements</code></td>
+<td>list of <a href="#disagreements">disagreements</a></td>
+<td>no</td>
+<td><code>[]</code></td>
+<td>Places where the reads differ from the record.</td>
+</tr>
+<tr>
+<td><code>tracks</code></td>
+<td>list of <a href="#tracks">tracks</a></td>
+<td>no</td>
+<td><code>[]</code></td>
+<td>Curves sampled along the bases, such as a Sanger trace.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
+<p>Each item of <code>features</code> is an object with these keys.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>The feature's label.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>Its type, such as <code>CDS</code> or <code>promoter</code>. Any text is allowed. The type sets the default colour, and the <a href="../../api/#options"><code>types_off</code></a> option names types.</td>
+</tr>
+<tr>
+<td><code>strand</code></td>
+<td><code>1</code>, <code>-1</code>, <code>0</code> or <code>2</code></td>
+<td>yes</td>
+<td></td>
+<td><code>1</code> is the top strand and <code>-1</code> the bottom strand. <code>0</code> is no strand, drawn with no arrowhead. <code>2</code> is both strands, drawn with an arrowhead at each end.</td>
+</tr>
+<tr>
+<td><code>segments</code></td>
+<td>list of <a href="#segments">segments</a>, at least one</td>
+<td>yes</td>
+<td></td>
+<td>The stretches the feature covers, joined in order.</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>colour</td>
+<td>no</td>
+<td>its <a href="#colours-by-type">type's colour</a></td>
+<td>The fill of each segment that has no colour of its own.</td>
+</tr>
+<tr>
+<td><code>translation</code></td>
+<td>text of capital letters and <code>*</code>, at least one</td>
+<td>no</td>
+<td>none</td>
+<td>The amino acids of a coding feature, one letter for each codon and <code>*</code> for a stop. The sequence view draws them over their codons. molviz does not translate.</td>
+</tr>
+<tr>
+<td><code>codon_start</code></td>
+<td><code>1</code>, <code>2</code> or <code>3</code></td>
+<td>no</td>
+<td><code>1</code></td>
+<td>The base of the segments, counted from 1, that starts the first codon. Allowed only with <code>translation</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>A translation fits its segments. Three bases for each letter must fit in the bases the segments
+hold, counted from <code>codon_start</code>.</p>
+<h3 id="segments">Segments<a class="headerlink" href="#segments" title="Permanent link">&para;</a></h3>
+<p>Each item of <code>segments</code> is an object with these keys.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The segment's first base.</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The base after its last base. It is greater than <code>start</code>.</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>colour</td>
+<td>no</td>
+<td>the feature's colour</td>
+<td>This segment's fill.</td>
+</tr>
+</tbody>
+</table>
+<p>The segments of a feature run in ascending order of <code>start</code>. The
+<a href="#a-features-segments">segment rules</a> under Coordinates give the exceptions at the origin and at
+a linear record's end.</p>
+<h3 id="colours-by-type">Colours by type<a class="headerlink" href="#colours-by-type" title="Permanent link">&para;</a></h3>
+<p>A feature with no <code>color</code> takes its type's colour. A type matches only as written, in its case.</p>
+<table>
+<thead>
+<tr>
+<th>Colour</th>
+<th>Types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#77aadd</code></td>
+<td><code>CDS</code>, <code>gene</code>, <code>mat_peptide</code>, <code>sig_peptide</code>, <code>transit_peptide</code>, <code>propeptide</code>, <code>proprotein</code>, <code>exon</code>, <code>C_region</code>, <code>D_segment</code>, <code>J_segment</code>, <code>N_region</code>, <code>S_region</code>, <code>V_region</code>, <code>V_segment</code></td>
+</tr>
+<tr>
+<td><code>#ee8866</code></td>
+<td><code>promoter</code>, <code>enhancer</code>, <code>RBS</code>, <code>-10_signal</code>, <code>-35_signal</code>, <code>CAAT_signal</code>, <code>TATA_signal</code>, <code>GC_signal</code>, <code>attenuator</code>, <code>misc_signal</code>, <code>5'UTR</code>, <code>regulatory</code></td>
+</tr>
+<tr>
+<td><code>#ffaabb</code></td>
+<td><code>terminator</code>, <code>polyA_signal</code>, <code>polyA_site</code>, <code>3'UTR</code></td>
+</tr>
+<tr>
+<td><code>#eedd88</code></td>
+<td><code>rep_origin</code>, <code>oriT</code></td>
+</tr>
+<tr>
+<td><code>#99ddff</code></td>
+<td><code>protein_bind</code>, <code>misc_binding</code></td>
+</tr>
+<tr>
+<td><code>#44bb99</code></td>
+<td><code>ncRNA</code>, <code>misc_RNA</code>, <code>mRNA</code>, <code>tRNA</code>, <code>rRNA</code>, <code>tmRNA</code>, <code>precursor_RNA</code>, <code>prim_transcript</code></td>
+</tr>
+<tr>
+<td><code>#bbcc33</code></td>
+<td><code>LTR</code>, <code>repeat_region</code>, <code>mobile_element</code>, <code>misc_recomb</code>, <code>stem_loop</code>, <code>D-loop</code></td>
+</tr>
+<tr>
+<td><code>#aa3377</code></td>
+<td><code>primer_bind</code></td>
+</tr>
+<tr>
+<td><code>#dddddd</code></td>
+<td>any other type</td>
+</tr>
+</tbody>
+</table>
+<h2 id="primers">Primers<a class="headerlink" href="#primers" title="Permanent link">&para;</a></h2>
+<p>Each item of <code>primers</code> is an object with these keys.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>The primer's label.</td>
+</tr>
+<tr>
+<td><code>bases</code></td>
+<td>bases, at least one</td>
+<td>yes</td>
+<td></td>
+<td>The whole primer, 5' to 3'. Its last bases pair with the record at each site. The bases before them are its 5' tail.</td>
+</tr>
+<tr>
+<td><code>sites</code></td>
+<td>list of <a href="#sites">sites</a></td>
+<td>yes</td>
+<td></td>
+<td>Each place the primer binds. The list may be empty.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sites">Sites<a class="headerlink" href="#sites" title="Permanent link">&para;</a></h3>
+<p>Each item of <code>sites</code> is an object with these keys. A site covers only the bases that pair, so
+it holds at most as many bases as the primer.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The site's first base.</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The base after its last base. It is greater than <code>start</code>, and <code>end - start</code> is at most the primer's length.</td>
+</tr>
+<tr>
+<td><code>strand</code></td>
+<td><code>1</code> or <code>-1</code></td>
+<td>yes</td>
+<td></td>
+<td>The strand whose bases the primer's bases match, read 5' to 3'. <code>1</code> is the top strand and <code>-1</code> the bottom strand.</td>
+</tr>
+<tr>
+<td><code>mismatches</code></td>
+<td>list of integers</td>
+<td>no</td>
+<td>none</td>
+<td>The bases inside the site that the primer does not pair with, each a base of the record.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cuts">Cuts<a class="headerlink" href="#cuts" title="Permanent link">&para;</a></h2>
+<p>Each item of <code>cuts</code> is one enzyme cutting the record once, at one place. Two enzymes that cut
+at one place are two items.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enzyme</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>The enzyme's name. The <code>enzymes</code> and <code>highlight</code> <a href="../../api/#options">options</a> match it in any case.</td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The first base the enzyme recognises.</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The base after the last base it recognises. It is greater than <code>start</code>.</td>
+</tr>
+<tr>
+<td><code>at</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The point where the top strand is cut. It may lie outside the recognised bases, as it does for an enzyme that cuts away from its site.</td>
+</tr>
+<tr>
+<td><code>stagger</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>How far the bottom-strand cut lies from <code>at</code>. The bottom strand is cut at <code>at + stagger</code>. <code>0</code> is a blunt cut. A positive stagger leaves a 5' overhang, and a negative one a 3' overhang.</td>
+</tr>
+</tbody>
+</table>
+<p>On a linear record, <code>at + stagger</code> is from <code>0</code> to the record's length.</p>
+<h2 id="insertions">Insertions<a class="headerlink" href="#insertions" title="Permanent link">&para;</a></h2>
+<p>Each item of <code>insertions</code> is an object with these keys.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>The insertion's label.</td>
+</tr>
+<tr>
+<td><code>at</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The point where the bases go in.</td>
+</tr>
+<tr>
+<td><code>length</code></td>
+<td>integer, 1 or more</td>
+<td>yes</td>
+<td></td>
+<td>How many bases go in.</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>colour</td>
+<td>no</td>
+<td><code>#cc3311</code></td>
+<td>The colour of its mark and its label.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reads">Reads<a class="headerlink" href="#reads" title="Permanent link">&para;</a></h2>
+<p>Each item of <code>reads</code> is an object with these keys.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>The read's label. No other read has this name. A disagreement names its reads by it.</td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The first base the read trusts.</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td>integer</td>
+<td>yes</td>
+<td></td>
+<td>The base after the last base it trusts. It is greater than <code>start</code>.</td>
+</tr>
+<tr>
+<td><code>strand</code></td>
+<td><code>1</code> or <code>-1</code></td>
+<td>yes</td>
+<td></td>
+<td>The strand the read runs along. <code>1</code> is the top strand and <code>-1</code> the bottom strand.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="disagreements">Disagreements<a class="headerlink" href="#disagreements" title="Permanent link">&para;</a></h2>
+<p>Each item of <code>disagreements</code> is an object with these keys. A disagreement lies either over a
+span, given by <code>start</code> and <code>end</code>, or at a point, given by <code>at</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>Its label, as your code writes it, such as <code>696 A&gt;G</code>.</td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td>integer</td>
+<td>with <code>end</code>, or else <code>at</code></td>
+<td></td>
+<td>The first base the reads differ at.</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td>integer</td>
+<td>with <code>start</code>, or else <code>at</code></td>
+<td></td>
+<td>The base after the last base they differ at. It is greater than <code>start</code>.</td>
+</tr>
+<tr>
+<td><code>at</code></td>
+<td>integer</td>
+<td>without <code>start</code> and <code>end</code></td>
+<td></td>
+<td>The point where the reads hold bases the record lacks.</td>
+</tr>
+<tr>
+<td><code>bases</code></td>
+<td>bases</td>
+<td>yes</td>
+<td></td>
+<td>What the reads hold there. Over a span, <code>""</code> is a deletion. At a point, it holds at least one base.</td>
+</tr>
+<tr>
+<td><code>reads</code></td>
+<td>list of text</td>
+<td>yes</td>
+<td></td>
+<td>The names of the reads that differ, each the <code>name</code> of a read in <code>reads</code>.</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>colour</td>
+<td>no</td>
+<td><code>#bbbbbb</code></td>
+<td>The colour of its bar, its mark and its label.</td>
+</tr>
+</tbody>
+</table>
+<p>pUC19-GFP's verification record holds one read and two disagreements, each a single base:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"reads"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"consensus.fasta"</span><span class="p">,</span><span class="w"> </span><span class="nt">"start"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"end"</span><span class="p">:</span><span class="w"> </span><span class="mi">3347</span><span class="p">,</span><span class="w"> </span><span class="nt">"strand"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"disagreements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"696 A&gt;G"</span><span class="p">,</span><span class="w"> </span><span class="nt">"start"</span><span class="p">:</span><span class="w"> </span><span class="mi">695</span><span class="p">,</span><span class="w"> </span><span class="nt">"end"</span><span class="p">:</span><span class="w"> </span><span class="mi">696</span><span class="p">,</span><span class="w"> </span><span class="nt">"bases"</span><span class="p">:</span><span class="w"> </span><span class="s2">"G"</span><span class="p">,</span><span class="w"> </span><span class="nt">"reads"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"consensus.fasta"</span><span class="p">],</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#cc3311"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2687 C&gt;T"</span><span class="p">,</span><span class="w"> </span><span class="nt">"start"</span><span class="p">:</span><span class="w"> </span><span class="mi">2686</span><span class="p">,</span><span class="w"> </span><span class="nt">"end"</span><span class="p">:</span><span class="w"> </span><span class="mi">2687</span><span class="p">,</span><span class="w"> </span><span class="nt">"bases"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T"</span><span class="p">,</span><span class="w"> </span><span class="nt">"reads"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"consensus.fasta"</span><span class="p">],</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#bbbbbb"</span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="tracks">Tracks<a class="headerlink" href="#tracks" title="Permanent link">&para;</a></h2>
+<p>Each item of <code>tracks</code> is a set of named curves sampled alike along the bases, such as the four
+channels of a Sanger trace. A sample is one point along the curves, and each curve holds one
+number for each sample. The sequence view draws each track under the rows its peaks reach.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>text</td>
+<td>yes</td>
+<td></td>
+<td>The track's label.</td>
+</tr>
+<tr>
+<td><code>curves</code></td>
+<td>object of <a href="#curves">curves</a></td>
+<td>yes</td>
+<td></td>
+<td>One curve for each base letter.</td>
+</tr>
+<tr>
+<td><code>peaks</code></td>
+<td>list of pairs of integers</td>
+<td>yes</td>
+<td></td>
+<td>Each pair is <code>[sample, base]</code>: a sample's index, from <code>0</code>, and the base of the record it lies over. The samples ascend, and each is less than the curves' length. The bases may descend, as they do for a read on the bottom strand.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="curves">Curves<a class="headerlink" href="#curves" title="Permanent link">&para;</a></h3>
+<p><code>curves</code> is an object with these keys.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>A</code></td>
+<td>list of numbers</td>
+<td>yes</td>
+<td></td>
+<td>The A channel's height at each sample.</td>
+</tr>
+<tr>
+<td><code>C</code></td>
+<td>list of numbers</td>
+<td>yes</td>
+<td></td>
+<td>The C channel's, as long as <code>A</code>.</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>list of numbers</td>
+<td>yes</td>
+<td></td>
+<td>The G channel's, as long as <code>A</code>.</td>
+</tr>
+<tr>
+<td><code>T</code></td>
+<td>list of numbers</td>
+<td>yes</td>
+<td></td>
+<td>The T channel's, as long as <code>A</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="coordinates">Coordinates<a class="headerlink" href="#coordinates" title="Permanent link">&para;</a></h2>
+<p>Every position in a record counts the top strand's bases from <code>0</code>. A position is one of three
+things: a base, a span or a point between bases.</p>
+<h3 id="a-base">A base<a class="headerlink" href="#a-base" title="Permanent link">&para;</a></h3>
+<p>A base is its index. The first base is <code>0</code>, and the last is the record's length minus 1. A
+primer's mismatches and a track's peaks name bases.</p>
+<h3 id="a-span">A span<a class="headerlink" href="#a-span" title="Permanent link">&para;</a></h3>
+<p>A span is a <code>start</code> and an <code>end</code>. It holds the bases from <code>start</code> to <code>end - 1</code>. The base at
+<code>end</code> is not part of it and is not drawn. <code>start</code> is less than <code>end</code>, so a span holds at least
+one base. On a linear record, <code>end</code> is at most the record's length.</p>
+<p>A feature's segments, a primer's sites, a cut's recognised bases, a read, a disagreement over
+a span and the <a href="../../api/#options"><code>span</code> option</a> are spans.</p>
+<h3 id="a-point-between-bases">A point between bases<a class="headerlink" href="#a-point-between-bases" title="Permanent link">&para;</a></h3>
+<p>A point is the number of bases before it. A cut after the 406th base is at <code>406</code>. On a linear
+record a point is from <code>0</code> to the record's length. On a circular record the origin is <code>0</code>,
+never the length, so a point is from <code>0</code> to the length minus 1.</p>
+<p>A cut's <code>at</code>, an insertion's <code>at</code> and a disagreement's <code>at</code> are points.</p>
+<h3 id="across-the-origin">Across the origin<a class="headerlink" href="#across-the-origin" title="Permanent link">&para;</a></h3>
+<p>On a circular record a span may run across the origin. Its <code>end</code> then passes the record's
+length, and the bases past the length count on from <code>0</code>. A span runs at most one turn, so
+<code>end - start</code> is at most the length.</p>
+<p>pUC19-GFP has 3,347 bases. Its BsmBI site has <code>start</code> 3343 and <code>end</code> 3349, so it holds bases
+3343 to 3346 and then 0 to 1. Its top-strand cut, after the record's third base, is at <code>3</code>
+and never <code>3350</code>.</p>
+<h3 id="a-features-segments">A feature's segments<a class="headerlink" href="#a-features-segments" title="Permanent link">&para;</a></h3>
+<p>A feature's segments run in ascending order of <code>start</code>, with two exceptions.</p>
+<ul>
+<li>On a circular record, a later segment may start past the length, counted on across the
+  origin. Every segment ends at most one turn past the first segment's <code>start</code>.</li>
+<li>On a linear record, a feature may run off the record's end and on from its start, once. One
+  segment then starts lower than the one before it, and the segments after it ascend again.
+  Each segment from that one on ends at or before the first segment's <code>start</code>. In the pUC19
+  backbone amplicon, a linear record of 2,662 bases, lacZα has the segments
+  <code>{"start": 2394, "end": 2644}</code> and then <code>{"start": 14, "end": 32}</code>.</li>
+</ul>
+<h3 id="positions-a-reader-sees">Positions a reader sees<a class="headerlink" href="#positions-a-reader-sees" title="Permanent link">&para;</a></h3>
+<p>A drawing writes each position a reader sees counted from 1, with both ends included. The
+BsmBI site above reads <code>3344 .. 2</code>. A name is your own text, even one that holds a position,
+such as the disagreement <code>696 A&gt;G</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+        <script src="../../assets/molviz/viewer.js"></script>
+      
+        <script src="../../assets/molviz/views.js"></script>
+      
+    
+  </body>
+</html>
