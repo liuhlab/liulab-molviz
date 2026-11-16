@@ -94,8 +94,8 @@ docs build is a CI step, outside `check`: it needs its own pixi environment.
 Merge through a pull request. CI runs on pull requests only, and tests the merge commit.
 
 Test time has two limits, in `[tool.pytest.ini_options]`: `timeout` per test, setup and
-teardown included, and `suite_budget` per run. A `slow` test is held to neither and runs only
-in `pixi run test-slow`.
+teardown included, and `suite_budget` per run without `slow` tests. Those run only in
+`pixi run test-slow`, held to neither.
 
 Five traps in the gate:
 
