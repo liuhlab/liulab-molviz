@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 import molviz
 
 SCRIPT = Path(__file__).parents[2] / "scripts" / "digest_drawings.py"
@@ -42,27 +44,45 @@ def digest(drawing: molviz.Drawing, path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def test_each_input_and_ending_gets_its_sha256_sorted_by_file(tmp_path) -> None:
+# Each input the script draws, as its set's name and its file's stem, sorted by file.
+FILES = [
+    ("figures", "a-first"),
+    ("gels", "a-first"),
+    ("plates", "a-first"),
+    ("records", "a-first"),
+    ("records", "b-second"),
+    ("sequence-views", "a-first"),
+    ("sequence-views", "b-second"),
+]
+ENDINGS = (".html", ".pdf", ".png", ".still.svg", ".svg")
+
+
+@pytest.fixture(scope="module")
+def digested(tmp_path_factory) -> list[str]:
+    """The lines the script writes for `INPUTS`, run once for every test of them."""
+    tests = tmp_path_factory.mktemp("tests")
     for folder, inputs in INPUTS.items():
-        (tmp_path / folder).mkdir()
+        (tests / folder).mkdir()
         for stem, value in inputs.items():
-            (tmp_path / folder / f"{stem}.json").write_text(json.dumps(value), encoding="utf-8")
-    output = tmp_path / "drawings.sha256"
+            (tests / folder / f"{stem}.json").write_text(json.dumps(value), encoding="utf-8")
+    output = tests / "drawings.sha256"
+    subprocess.run([sys.executable, SCRIPT, "--tests", tests, output], check=True)
+    return output.read_text(encoding="utf-8").splitlines()
 
-    subprocess.run([sys.executable, SCRIPT, "--tests", tmp_path, output], check=True)
 
-    expected = [
-        f"{digest(draw(INPUTS[folder][stem]), tmp_path / f'w{ending}')}  {name}/{stem}{ending}"
-        for name, stem in [
-            ("figures", "a-first"),
-            ("gels", "a-first"),
-            ("plates", "a-first"),
-            ("records", "a-first"),
-            ("records", "b-second"),
-            ("sequence-views", "a-first"),
-            ("sequence-views", "b-second"),
-        ]
-        for folder, draw in [DRAW[name]]
-        for ending in (".html", ".pdf", ".png", ".still.svg", ".svg")
+def test_one_line_per_input_and_ending_sorted_by_file(digested) -> None:
+    assert [line.split("  ", 1)[1] for line in digested] == [
+        f"{name}/{stem}{ending}" for name, stem in FILES for ending in ENDINGS
     ]
-    assert output.read_text(encoding="utf-8").splitlines() == expected
+
+
+@pytest.mark.parametrize(("name", "stem"), FILES)
+def test_each_input_and_ending_gets_its_sha256(digested, tmp_path, name, stem) -> None:
+    folder, draw = DRAW[name]
+    drawing = draw(INPUTS[folder][stem])
+    files = [f"{name}/{stem}{ending}" for ending in ENDINGS]
+    expected = [
+        f"{digest(drawing, tmp_path / f'w{ending}')}  {file}"
+        for ending, file in zip(ENDINGS, files, strict=True)
+    ]
+    assert [line for line in digested if line.split("  ", 1)[1] in files] == expected

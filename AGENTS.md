@@ -88,12 +88,14 @@ GLOSSARY.md       the glossary — the words this repo uses
 | `typecheck-js` | tsc |
 | `test`, `test-js` | pytest, Vitest |
 
-`check.sh` runs every step and reports **all** failures, not just the first — so read to the
-bottom before fixing anything. The docs build is not part of `check`; it needs its own pixi
-environment and runs as its own CI job.
+`check` reports **all** failures, not just the first: read them all before fixing any. The
+docs build is a CI step, outside `check`: it needs its own pixi environment.
 
-Work on a branch and merge through a pull request: `pull_request` tests the merge commit,
-while a push to `main` tests it only once it has landed.
+Merge through a pull request. CI runs on pull requests only, and tests the merge commit.
+
+Test time has two limits, in `[tool.pytest.ini_options]`: `timeout` per test, setup and
+teardown included, and `suite_budget` per run without `slow` tests. Those run only in
+`pixi run test-slow`, held to neither.
 
 Five traps in the gate:
 
